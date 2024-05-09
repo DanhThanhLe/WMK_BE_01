@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
+using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
+using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller
 {
@@ -24,6 +26,11 @@ namespace WMK_BE_RecipesAndPlans_Controller
                 ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect"),
                     b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
             });
+
+
+            //scope
+            builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
+            builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 
 
             var app = builder.Build();
