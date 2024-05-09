@@ -8,7 +8,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 {
     public enum LevelOfDifficult
     {
-
+        Nomal = 0,
+        Medinum = 1,
+        Hard = 2
     }
 
     public static class LevelOfDifficultHelper

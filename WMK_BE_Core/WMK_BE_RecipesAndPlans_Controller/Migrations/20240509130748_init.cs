@@ -36,9 +36,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     Unit = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -53,16 +53,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     Style = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ServingSize = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Difficulty = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Difficulty = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NutritionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ImageLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ApprovedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ApprovedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Popularity = table.Column<int>(type: "int", nullable: false),
                     ProcessStatus = table.Column<int>(type: "int", nullable: false)
                 },
@@ -78,13 +77,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BeginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ApprovedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ApprovedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Popularity = table.Column<int>(type: "int", nullable: false),
                     ProcessStatus = table.Column<int>(type: "int", nullable: false)
                 },
@@ -245,11 +244,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                 column: "RecipeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RecipeSteps_RecipeId",
-                table: "RecipeSteps",
-                column: "RecipeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RecipesPlans_PlanId",
                 table: "RecipesPlans",
                 column: "PlanId");
@@ -257,6 +251,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RecipesPlans_RecipeId",
                 table: "RecipesPlans",
+                column: "RecipeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecipeSteps_RecipeId",
+                table: "RecipeSteps",
                 column: "RecipeId");
         }
 
@@ -273,10 +272,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                 name: "RecipeCategories");
 
             migrationBuilder.DropTable(
-                name: "RecipeSteps");
+                name: "RecipesPlans");
 
             migrationBuilder.DropTable(
-                name: "RecipesPlans");
+                name: "RecipeSteps");
 
             migrationBuilder.DropTable(
                 name: "Ingredients");
@@ -285,10 +284,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Recipes");
+                name: "WeeklyPlans");
 
             migrationBuilder.DropTable(
-                name: "WeeklyPlans");
+                name: "Recipes");
         }
     }
 }

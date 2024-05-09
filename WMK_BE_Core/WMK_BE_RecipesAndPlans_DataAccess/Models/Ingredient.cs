@@ -15,16 +15,16 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public string Category { get; set; }
-        public string Name { get; set; }
-        public string Img { get; set; }
+        public string Category { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Img { get; set; } = string.Empty;
         public double? PricebyUnit { get; set; }
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
         public BaseStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
-        public Guid CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
-        public Guid? UpdatedBy { get; set; }
+        public string? UpdatedBy { get; set; } = string.Empty;
 
 
         //reference

@@ -12,7 +12,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 {
     [DbContext(typeof(RecipesAndPlansContext))]
-    [Migration("20240508114523_init")]
+    [Migration("20240509130748_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -57,8 +57,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Img")
                         .IsRequired()
@@ -81,8 +82,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -139,20 +140,21 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Difficulty")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageLink")
                         .HasColumnType("nvarchar(max)");
@@ -160,9 +162,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("NutritionId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Popularity")
                         .HasColumnType("int");
@@ -181,8 +180,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -295,8 +294,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("BeginDate")
                         .HasColumnType("datetime2");
@@ -304,11 +303,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
@@ -323,8 +322,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -402,7 +401,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.RecipeStep", b =>
                 {
                     b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", "Recipe")
-                        .WithMany()
+                        .WithMany("RecipeSteps")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -428,6 +427,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Navigation("RecipeCategories");
 
                     b.Navigation("RecipePlans");
+
+                    b.Navigation("RecipeSteps");
                 });
 
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.WeeklyPlan", b =>
