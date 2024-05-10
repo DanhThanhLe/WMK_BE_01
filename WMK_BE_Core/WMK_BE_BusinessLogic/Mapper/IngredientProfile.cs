@@ -12,7 +12,6 @@ namespace WMK_BE_BusinessLogic.Mapper
     public class IngredientProfile : Profile
     {
         public IngredientProfile() { 
-                CreateMap<Ingredient,CreateIngredientRequest>().ReverseMap();
 
         }
     }

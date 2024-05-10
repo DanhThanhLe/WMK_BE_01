@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using WMK_BE_BusinessLogic.Mapper;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
@@ -27,6 +28,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
                     b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
             });
 
+            //Mapper
+            builder.Services.AddAutoMapper(typeof(CategoryProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
