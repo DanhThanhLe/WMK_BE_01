@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel
+namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 {
-    public class UpdateIngredientResponse
-    {
-    }
+	public enum CategoryStatus
+	{
+		Show = 0,
+		UnShow = 1,
+	}
 }
