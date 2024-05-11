@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : class
-    {
-        private readonly DbContext _context;
-        internal DbSet<T> _dbSet { get; set; }
-        public BaseRepository(DbContext context)
-        {
-            this._context = context;
-            this._dbSet = this._context.Set<T>();
-        }
+	public class BaseRepository<T> : IBaseRepository<T> where T : class
+	{
+		private readonly DbContext _context;
+		internal DbSet<T> _dbSet { get; set; }
+		public BaseRepository(DbContext context)
+		{
+			this._context = context;
+			this._dbSet = this._context.Set<T>();
+		}
 
         public IQueryable<T> GetAll()
         {
@@ -107,37 +107,37 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		}
 
 		public T GetById<TKey>(TKey id)
-        {
-            return _dbSet.Find(new object[1] { id });
-        }
+		{
+			return _dbSet.Find(new object[1] { id });
+		}
 
-        public IQueryable<T> Get(Expression<Func<T, bool>> expression)
-        {
-            return _dbSet.Where(expression);
-        }
+		public IQueryable<T> Get(Expression<Func<T , bool>> expression)
+		{
+			return _dbSet.Where(expression);
+		}
 
-        public void DetachEntity(T entity)
-        {
-            _context.Entry(entity).State = EntityState.Detached;
-        }
-        public T GetEntity(T entity)
-        {
-            try
-            {
-                if (_dbSet.Find(entity) is var found && found != null)
-                {
-                    return found;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return null;
-            }
-        }
-    }
+		public void DetachEntity(T entity)
+		{
+			_context.Entry(entity).State = EntityState.Detached;
+		}
+		public T GetEntity(T entity)
+		{
+			try
+			{
+				if ( _dbSet.Find(entity) is var found && found != null )
+				{
+					return found;
+				}
+				else
+				{
+					return null;
+				}
+			}
+			catch ( Exception ex )
+			{
+				Console.WriteLine(ex.ToString());
+				return null;
+			}
+		}
+	}
 }
