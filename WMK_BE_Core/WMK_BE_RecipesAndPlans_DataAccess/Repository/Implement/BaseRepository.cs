@@ -19,18 +19,23 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			this._dbSet = this._context.Set<T>();
 		}
 
-		public void Create(T entity)
-		{
-			throw new NotImplementedException();
-		}
-		public void Update(T entity)
-		{
-			throw new NotImplementedException();
-		}
-		public void Delete(string id)
-		{
-			throw new NotImplementedException();
-		}
+        public IQueryable<T> GetAll()
+        {
+            return _dbSet;
+        }
+
+  //      public void Create(T entity)
+		//{
+		//	throw new NotImplementedException();
+		//}
+		//public void Update(T entity)
+		//{
+		//	throw new NotImplementedException();
+		//}
+		//public void Delete(string id)
+		//{
+		//	throw new NotImplementedException();
+		//}
 		public virtual Task<List<T>> GetAllAsync()
 		{
 			return this._dbSet.ToListAsync();
