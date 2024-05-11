@@ -126,7 +126,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<CategoryResponseModel>();
 			var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(model.Id.ToString());
-			if(categoryExist == null )
+			if (categoryExist == null )
 			{
 				result.StatusCode = 500;
 				result.Message = "Category not found!";
@@ -135,7 +135,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(model.Id);
 			if( recipeExistCategory )
 			{
-				categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.CategoryStatus.UnShow;
+				categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.Unavailable;
 				var updateResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
 				if( updateResult )
 				{

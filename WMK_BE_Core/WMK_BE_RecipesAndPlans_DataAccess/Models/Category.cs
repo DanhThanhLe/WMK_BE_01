@@ -14,9 +14,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
+        public string Type { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty; 
-        public CategoryStatus Status { get; set; }
+        public BaseStatus Status { get; set; }
 
         //reference
         public List<RecipeCategory> RecipeCategories { get; set; }

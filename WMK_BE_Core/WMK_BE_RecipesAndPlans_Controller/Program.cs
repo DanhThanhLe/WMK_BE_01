@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using WMK_BE_BusinessLogic.Mapper;
+using WMK_BE_BusinessLogic.Service.Implement;
+using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
@@ -34,6 +36,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             //scope
             builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
             builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
+            builder.Services.AddScoped<ICategoryService , CategoryService>();
 
 
             var app = builder.Build();

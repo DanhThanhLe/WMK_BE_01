@@ -12,7 +12,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 {
     [DbContext(typeof(RecipesAndPlansContext))]
-    [Migration("20240509130748_init")]
+    [Migration("20240511055844_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -38,6 +38,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
