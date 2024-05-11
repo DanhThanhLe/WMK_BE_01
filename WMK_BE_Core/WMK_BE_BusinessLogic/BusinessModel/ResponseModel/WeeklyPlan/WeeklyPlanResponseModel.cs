@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
+namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlan
 {
-	public enum CategoryStatus
+	public class WeeklyPlanResponseModel
 	{
-		Show = 0,
-		UnShow = 1,
 	}
 }
