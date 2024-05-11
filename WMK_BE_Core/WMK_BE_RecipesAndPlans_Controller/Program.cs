@@ -32,11 +32,13 @@ namespace WMK_BE_RecipesAndPlans_Controller
 
             //Mapper
             builder.Services.AddAutoMapper(typeof(CategoryProfile));
+            builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
             builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
             builder.Services.AddScoped<ICategoryService , CategoryService>();
+            builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
 
 
             var app = builder.Build();
