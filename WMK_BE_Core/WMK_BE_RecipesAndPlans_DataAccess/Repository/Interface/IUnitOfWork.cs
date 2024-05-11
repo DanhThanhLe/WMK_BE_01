@@ -8,5 +8,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
 	public interface IUnitOfWork
 	{
+		IIngredientRepository IngredientRepository { get; }
+
+		Task CompleteAsync();
 	}
 }
