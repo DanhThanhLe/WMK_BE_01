@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
-namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Category
+namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel
 {
 	public class UpdateCategoryRequestModel
 	{

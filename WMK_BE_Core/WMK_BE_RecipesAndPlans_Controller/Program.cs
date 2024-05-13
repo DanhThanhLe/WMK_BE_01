@@ -39,6 +39,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
             builder.Services.AddScoped<ICategoryService , CategoryService>();
             builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
+            builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 
 
             var app = builder.Build();

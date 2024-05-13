@@ -12,8 +12,8 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 {
     [DbContext(typeof(RecipesAndPlansContext))]
-    [Migration("20240511055844_init")]
-    partial class init
+    [Migration("20240513073248_updatev1")]
+    partial class updatev1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -176,10 +180,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Style")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -300,7 +300,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<string>("ApprovedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("BeginDate")
+                    b.Property<DateTime?>("BeginDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreateAt")
@@ -313,11 +313,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Popularity")
-                        .HasColumnType("int");
 
                     b.Property<int>("ProcessStatus")
                         .HasColumnType("int");
