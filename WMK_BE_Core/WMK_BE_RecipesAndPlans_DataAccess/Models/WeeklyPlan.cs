@@ -15,8 +15,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public DateTime BeginDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? BeginDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string? Description { set; get; } = string.Empty;
         public DateTime CreateAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
