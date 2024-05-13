@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Category;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel;
 using WMK_BE_BusinessLogic.Service.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers

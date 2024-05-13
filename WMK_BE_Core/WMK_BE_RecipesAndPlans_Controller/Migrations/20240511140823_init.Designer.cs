@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
@@ -11,9 +12,11 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 {
     [DbContext(typeof(RecipesAndPlansContext))]
-    partial class RecipesAndPlansContextModelSnapshot : ModelSnapshot
+    [Migration("20240511140823_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,6 +180,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Style")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -297,7 +304,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<string>("ApprovedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("BeginDate")
+                    b.Property<DateTime>("BeginDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreateAt")
@@ -310,8 +317,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("EndDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Popularity")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProcessStatus")
                         .HasColumnType("int");

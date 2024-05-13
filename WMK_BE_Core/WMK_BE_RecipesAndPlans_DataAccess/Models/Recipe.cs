@@ -14,7 +14,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public string Style { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
 		public string ServingSize { get; set; } = string.Empty;
 		public LevelOfDifficult Difficulty { get; set; }

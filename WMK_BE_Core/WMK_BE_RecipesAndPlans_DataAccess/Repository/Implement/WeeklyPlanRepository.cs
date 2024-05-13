@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         {
             
         }
-    }
+
+		public async Task<bool> RecipeExistInWeeklyPlanAsync(Guid weeklyPlanId)
+		{
+			var weeklyplan = await _dbSet.Include(w => w.RecipePLans).FirstOrDefaultAsync(w => w.Id == weeklyPlanId);
+            if (weeklyplan != null)
+            {
+                return true;
+            }
+            return false;
+        }
+	}
 }

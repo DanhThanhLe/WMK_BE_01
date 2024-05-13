@@ -11,6 +11,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		IIngredientRepository IngredientRepository { get; }
 		ICategoryRepository CategoryRepository { get; }
 		IWeeklyPlanRepository WeeklyPlanRepository { get; }
+		IRecipePlanRepository RecipePlanRepository { get; }
+		IRecipeRepository RecipeRepository { get; }
 
 		Task CompleteAsync();
 	}

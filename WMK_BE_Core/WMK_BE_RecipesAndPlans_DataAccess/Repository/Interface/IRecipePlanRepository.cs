@@ -7,8 +7,8 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
-	public interface IWeeklyPlanRepository: IBaseRepository<WeeklyPlan>
+	public interface IRecipePlanRepository : IBaseRepository<RecipePLan>
 	{
-		Task<bool> RecipeExistInWeeklyPlanAsync(Guid weeklyPlanId);
+		Task AddRangeAsync(IEnumerable<RecipePLan> recipePlans);
 	}
 }

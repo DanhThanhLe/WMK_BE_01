@@ -11,7 +11,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
         Processing = 0,
         Approved = 1,
         Denied = 2,
-        Cancel = 3,
+        Customer = 3,
+        Cancel = 4,
     }
 
     public static class ProcessStatusHelper
