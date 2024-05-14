@@ -15,7 +15,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public DateTime? BeginDate { get; set; }
+        public DateTime? BeginDate { get; set; }//update after manager approve
         public DateTime? EndDate { get; set; }
         public string? Description { set; get; } = string.Empty;
         public DateTime CreateAt { get; set; }
@@ -24,7 +24,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string? ApprovedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
-        public int Popularity { get; set; }//chi so dung de do luong do ua chuong cua plan dua vao luot dat hang
         public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
                                                         //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
 
