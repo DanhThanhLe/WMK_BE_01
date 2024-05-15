@@ -13,5 +13,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 		public DateTime? EndDate { get; set; }
 		public string? Description { set; get; } = string.Empty;
 		public string? UpdatedBy { get; set; } = string.Empty;
+		public List<Guid> recipeIds { get; set; }
 	}
 }

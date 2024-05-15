@@ -9,6 +9,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
 	public interface IRecipePlanRepository : IBaseRepository<RecipePLan>
 	{
+		Task<List<RecipePLan>> GetListByPlanIdAsync(Guid planId);
 		Task AddRangeAsync(IEnumerable<RecipePLan> recipePlans);
+		void RemoveRange(IEnumerable<RecipePLan> recipePlans);
 	}
 }

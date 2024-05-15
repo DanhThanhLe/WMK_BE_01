@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,18 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public async Task AddRangeAsync(IEnumerable<RecipePLan> recipePlans)
 		{
 			await _dbSet.AddRangeAsync(recipePlans);
+		}
+
+		public async Task<List<RecipePLan>> GetListByPlanIdAsync(Guid planId)
+		{
+			return await _dbSet
+				.Where(rp => rp.PlanId == planId)
+				.ToListAsync();
+		}
+
+		public void RemoveRange(IEnumerable<RecipePLan> recipePlans)
+		{
+			_dbSet.RemoveRange(recipePlans);
 		}
 	}
 }
