@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMK_BE_RecipesAndPlans_Controller", "WMK_BE_RecipesAndPlans_Controller\WMK_BE_RecipesAndPlans_Controller.csproj", "{6CAA744D-C5C8-4BDF-B476-84DDC3B4DE11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WMK_BE_RecipesAndPlans_Controller", "WMK_BE_RecipesAndPlans_Controller\WMK_BE_RecipesAndPlans_Controller.csproj", "{6CAA744D-C5C8-4BDF-B476-84DDC3B4DE11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMK_BE_RecipesAndPlans_DataAccess", "WMK_BE_RecipesAndPlans_DataAccess\WMK_BE_RecipesAndPlans_DataAccess.csproj", "{6EE2A898-4FD0-47C3-BC57-3C8F20FE2A3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WMK_BE_RecipesAndPlans_DataAccess", "WMK_BE_RecipesAndPlans_DataAccess\WMK_BE_RecipesAndPlans_DataAccess.csproj", "{6EE2A898-4FD0-47C3-BC57-3C8F20FE2A3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMK_BE_BusinessLogic", "WMK_BE_BusinessLogic\WMK_BE_BusinessLogic.csproj", "{5756D96C-F647-4EA4-AA8C-056ADD7D1E81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WMK_BE_BusinessLogic", "WMK_BE_BusinessLogic\WMK_BE_BusinessLogic.csproj", "{5756D96C-F647-4EA4-AA8C-056ADD7D1E81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMK_BE_Test", "WMK_BE_Test\WMK_BE_Test.csproj", "{C2F64F7E-77C0-4B12-8880-3658C1E9F57C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WMK_BE_Test", "WMK_BE_Test\WMK_BE_Test.csproj", "{C2F64F7E-77C0-4B12-8880-3658C1E9F57C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

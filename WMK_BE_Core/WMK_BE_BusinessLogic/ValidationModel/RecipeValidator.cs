@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 
 namespace WMK_BE_BusinessLogic.ValidationModel
@@ -30,6 +31,14 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             RuleFor(x => x.Id).NotEmpty().WithMessage("Not null id");
             RuleFor(x => x.ProcessStatus).NotEmpty().WithMessage("Not empty")
                 .IsInEnum().WithMessage("Must be in enum ProcessStatus 0--4");
+        }
+    }
+
+    public class IdRecipeValidator : AbstractValidator<IdRecipeRequest>
+    {
+        public IdRecipeValidator()
+        {
+            RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
         }
     }
 }

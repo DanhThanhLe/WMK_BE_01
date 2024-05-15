@@ -23,7 +23,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IngredientValidator _validator;
         private readonly UpdateIngredientValidator _updateValidator;
         private readonly UpdateStatusIngredientValidator _updateStatusValidator;
-        private readonly IdValidator _idValidator;
+        private readonly IdIngredientValidator _idValidator;
         public IngredientService(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
@@ -31,7 +31,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _validator = new IngredientValidator();
             _updateValidator = new UpdateIngredientValidator();
             _updateStatusValidator = new UpdateStatusIngredientValidator();
-            _idValidator = new IdValidator();
+            _idValidator = new IdIngredientValidator();
         }
         #region Change status
         public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient)
@@ -149,7 +149,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 else
                 {
                     result.StatusCode = 500;
-                    result.Message = "Error at delete";
+                    result.Message = "Error at delete INGREDIENT";
                     return result;
                 }
             }

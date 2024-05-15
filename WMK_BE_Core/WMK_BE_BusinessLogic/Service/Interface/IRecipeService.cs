@@ -23,7 +23,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         //public Task<ResponseObject<RecipeResponse>> UpdateRecipe(RecipeRequest recipe);
 
-        public Task<ResponseObject<RecipeResponse>> DeleteRecipe(Guid id);//xoa khoi db
+        public Task<ResponseObject<RecipeResponse>> DeleteRecipeById(IdRecipeRequest recipe);//xoa khoi db
         //public Task<ResponseObject<RecipeResponse>> RemoveRecipe(Guid id);//an khoi app
         public Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe);
 

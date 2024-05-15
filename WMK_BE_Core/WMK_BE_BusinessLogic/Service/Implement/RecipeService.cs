@@ -22,12 +22,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly RecipeValidator _validator;
         private readonly IMapper _mapper;
         private readonly RecipeChangeStatusValidator _recipeChangeStatusValidator;
+        private readonly IdRecipeValidator _idValidator;
         public RecipeService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _validator = new RecipeValidator();
             _recipeChangeStatusValidator = new RecipeChangeStatusValidator();
+            _idValidator = new IdRecipeValidator();
         }
 
 
@@ -135,20 +137,59 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = "Not found recipe id " + recipe.Id;
                 return result;
             }
-            var changeResult = await _unitOfWork.RecipeRepository.ChangeStatusAsync(recipe.Id,recipe.ProcessStatus);
+            var changeResult = await _unitOfWork.RecipeRepository.ChangeStatusAsync(recipe.Id, recipe.ProcessStatus);
+            if (changeResult){
+                await _unitOfWork.CompleteAsync();
+                result.StatusCode = 200;
+                result.Message = "Change status success";
+                return result;
+            }
+            else
+            {
+                result.StatusCode = 400;
+                result.Message = "Change Ingredient " + recipe.Id + " status Unsuccessfully";
+                return result;
+            }
         }
         #endregion
 
         #region Delete
-        public Task<ResponseObject<RecipeResponse>> DeleteRecipe(Guid id)
+        public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(IdRecipeRequest recipe)
         {
-            throw new NotImplementedException();
+            var result = new ResponseObject<RecipeResponse>();
+            var validateResult = _idValidator.Validate(recipe);
+            if (validateResult != null)
+            {
+                var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+                result.StatusCode = 400;
+                result.Message = string.Join(" - ", error);
+                return result;
+            }
+            var found = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.Id.ToString());
+            if (found == null)
+            {
+                result.StatusCode = 500;
+                result.Message = "not found";
+                return result;
+            }
+            else
+            {
+                var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipe.Id.ToString());
+                if (deleteResult)
+                {
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Message = "Success";
+                    return result;
+                }
+                else
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Error at delete RECIPE";
+                    return result;
+                }
+            }
         }
         #endregion
-
-
-
-
-
     }
 }

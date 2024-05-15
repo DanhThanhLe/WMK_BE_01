@@ -58,9 +58,9 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         }
     }
 
-    public class IdValidator : AbstractValidator<IdIngredientRequest>
+    public class IdIngredientValidator : AbstractValidator<IdIngredientRequest>
     {
-        public IdValidator()
+        public IdIngredientValidator()
         {
             RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
         }
