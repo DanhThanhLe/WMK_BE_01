@@ -14,10 +14,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 	{
 		private readonly IUnitOfWork _unitOfWork;
 
-        public RecipePlanService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+		public RecipePlanService(IUnitOfWork unitOfWork)
+		{
+			_unitOfWork = unitOfWork;
+		}
 
 		public async Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId , List<Guid> recipesId)
 		{
@@ -27,25 +27,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				//check weeklyPlan have exist
 				var weeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
-				if(weeklyPlan == null)
+				if ( weeklyPlan == null )
 				{
 					result.StatusCode = 404;
 					result.Message = "weekly plan not exist!";
 					return result;
 				}
-				foreach(var recipeId in recipesId)
+				foreach ( var recipeId in recipesId )
 				{
 					var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-					if(recipe != null)
+					if ( recipe != null )
 					{
 						//if customer create then increase popularity 
-						if(weeklyPlan.ProcessStatus == WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Customer)
-						recipe.Popularity++;
+						if ( weeklyPlan.ProcessStatus == WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Customer )
+							recipe.Popularity++;
 						var recipePlan = new RecipePLan
 						{
-							PlanId = weeklyPlanId,
-							RecipeId = recipeId,
-							Recipe = recipe,
+							PlanId = weeklyPlanId ,
+							RecipeId = recipeId ,
+							Recipe = recipe ,
 							WeeklyPlan = weeklyPlan
 						};
 						recipePlans.Add(recipePlan);
@@ -57,7 +57,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						return result;
 					}
 					//add recipe plan into DB
-					await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);//add list recipe plan into DB
+					if ( recipePlans.Any() )
+					{
+						await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);//add list recipe plan into DB
+					}
 					await _unitOfWork.CompleteAsync();
 				}
 				result.StatusCode = 200;
@@ -65,7 +68,86 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Data = recipePlans;
 				return result;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+				return result;
+			}
+		}
+		public async Task<ResponseObject<List<RecipePLan>?>> UpdateRecipePlanAsync(Guid weeklyPlanId , List<Guid> newRecipesId)
+		{
+			var result = new ResponseObject<List<RecipePLan>?>();
+			try
+			{
+				// Check if weeklyPlan exists
+				var weeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
+				if ( weeklyPlan == null )
+				{
+					result.StatusCode = 404;
+					result.Message = "Weekly plan does not exist!";
+					return result;
+				}
+
+				// Get existing recipe plans
+				var existingRecipePlans = await _unitOfWork.RecipePlanRepository.GetListByPlanIdAsync(weeklyPlanId);
+
+				// Find recipes to remove by newRecipeId
+				var recipesToRemove = existingRecipePlans
+					.Where(rp => !newRecipesId.Contains(rp.RecipeId))
+					.ToList();
+
+				// Remove old recipes
+				if ( recipesToRemove.Any() )
+				{
+					_unitOfWork.RecipePlanRepository.RemoveRange(recipesToRemove);
+				}
+
+				// Find recipes to add
+				var existingRecipeIds = existingRecipePlans.Select(rp => rp.RecipeId).ToList();
+				var recipesToAddIds = newRecipesId
+					.Where(id => !existingRecipeIds.Contains(id))
+					.ToList();
+
+				// Add new recipes
+				var newRecipePlans = new List<RecipePLan>();
+				foreach ( var recipeId in recipesToAddIds )
+				{
+					var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+					if ( recipe != null )
+					{
+						var recipePlan = new RecipePLan
+						{
+							PlanId = weeklyPlanId ,
+							RecipeId = recipeId ,
+							Recipe = recipe ,
+							WeeklyPlan = weeklyPlan
+						};
+						newRecipePlans.Add(recipePlan);
+					}
+					else
+					{
+						result.StatusCode = 404;
+						result.Message = $"Recipe with ID {recipeId} not found!";
+						return result;
+					}
+				}
+
+				// Save changes to database
+				if ( newRecipePlans.Any() )
+				{
+					await _unitOfWork.RecipePlanRepository.AddRangeAsync(newRecipePlans);
+				}
+
+				await _unitOfWork.CompleteAsync();
+
+				// Return success response
+				result.StatusCode = 200;
+				result.Message = "Recipe plans updated successfully.";
+				result.Data = newRecipePlans;
+				return result;
+			}
+			catch ( Exception ex )
 			{
 				result.StatusCode = 500;
 				result.Message = ex.Message;
