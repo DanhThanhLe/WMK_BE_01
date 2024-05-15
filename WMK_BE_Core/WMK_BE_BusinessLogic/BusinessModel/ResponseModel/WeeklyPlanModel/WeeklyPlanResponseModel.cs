@@ -19,7 +19,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
 		public string? ApprovedBy { get; set; } = string.Empty;
 		public DateTime? UpdatedAt { get; set; }
 		public string? UpdatedBy { get; set; } = string.Empty;
-		public int Popularity { get; set; }
-		public ProcessStatus ProcessStatus { get; set; }
+		public string ProcessStatus { get; set; } = string.Empty;
+		public List<WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe> Recipes { get; set; }
+
 	}
 }

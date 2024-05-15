@@ -25,7 +25,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 
         public static ProcessStatus FromInt(int value)
         {
-            return Enum.IsDefined(typeof(ProcessStatus), value) ? (ProcessStatus)value : ProcessStatus.Processing;
+            return Enum.IsDefined(typeof(ProcessStatus), value) ? (ProcessStatus)value : ProcessStatus.Cancel;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IWeeklyPlanService
 	{
-		Task<ResponseObject<WeeklyPlanResponseModel>> GetAllAsync();
+		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync();
 		Task<ResponseObject<WeeklyPlanResponseModel?>> GetByIdAsync(Guid id);
 		Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequestModel model);
 		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(UpdateWeeklyPlanRequestModel model);
