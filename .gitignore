@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # Ignore Migrations folder
 Migrations/
+/WMK_BE_Core/WMK_BE_Core.sln
