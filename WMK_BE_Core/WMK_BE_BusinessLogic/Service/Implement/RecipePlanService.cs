@@ -56,13 +56,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						result.Message = $"Recipe with ID {recipeId} not found!";
 						return result;
 					}
-					//add recipe plan into DB
-					if ( recipePlans.Any() )
-					{
-						await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);//add list recipe plan into DB
-					}
-					await _unitOfWork.CompleteAsync();
 				}
+				//add recipe plan into DB
+				if ( recipePlans.Any() )
+				{
+					await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);//add list recipe plan into DB
+				}
+				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Create recipe plan successfully.";
 				result.Data = recipePlans;

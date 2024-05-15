@@ -9,6 +9,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 	public interface IUnitOfWork
 	{
 		IIngredientRepository IngredientRepository { get; }
+		IRecipeAmountRepository RecipeAmountRepository { get; }
 		ICategoryRepository CategoryRepository { get; }
 		IWeeklyPlanRepository WeeklyPlanRepository { get; }
 		IRecipePlanRepository RecipePlanRepository { get; }

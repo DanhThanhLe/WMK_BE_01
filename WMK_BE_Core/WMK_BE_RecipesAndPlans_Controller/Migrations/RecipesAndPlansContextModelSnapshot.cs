@@ -346,7 +346,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .IsRequired();
 
                     b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", "Recipe")
-                        .WithMany()
+                        .WithMany("RecipeAmounts")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -419,6 +419,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                 {
                     b.Navigation("Nutrition")
                         .IsRequired();
+
+                    b.Navigation("RecipeAmounts");
 
                     b.Navigation("RecipeCategories");
 
