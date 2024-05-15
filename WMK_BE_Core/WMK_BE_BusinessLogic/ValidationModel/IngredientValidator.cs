@@ -48,18 +48,19 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         }
     }
 
-    public class UpdateStatusIngredientValidator : AbstractValidator<UpdateStatusIngredientrequest>
+    public class UpdateStatusIngredientValidator : AbstractValidator<UpdateStatusIngredientRequest>
     {
         public UpdateStatusIngredientValidator()
         {
             RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
-            RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet");
+            RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
+                .IsInEnum().WithMessage("must be available or unavailable");
         }
     }
 
-    public class IdValidator : AbstractValidator<IdIngredientRequest>
+    public class IdIngredientValidator : AbstractValidator<IdIngredientRequest>
     {
-        public IdValidator()
+        public IdIngredientValidator()
         {
             RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
         }

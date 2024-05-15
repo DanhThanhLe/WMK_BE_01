@@ -22,7 +22,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel
         public string? UpdatedBy { get; set; } = string.Empty;
     }
 
-    public class UpdateStatusIngredientrequest
+    public class UpdateStatusIngredientRequest
     {
         public Guid Id { get; set; }
         public BaseStatus Status { get; set; }
