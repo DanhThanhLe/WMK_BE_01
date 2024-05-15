@@ -33,6 +33,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             //Mapper
             builder.Services.AddAutoMapper(typeof(CategoryProfile));
             builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
+            //builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
@@ -40,6 +41,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<ICategoryService , CategoryService>();
             builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
             builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
+            builder.Services.AddScoped<IRecipeStepService, RecipeStepService>();
 
 
             var app = builder.Build();

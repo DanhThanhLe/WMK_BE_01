@@ -173,9 +173,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<int>("ProcessStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServingSize")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ServingSize")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

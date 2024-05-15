@@ -15,6 +15,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public IWeeklyPlanRepository WeeklyPlanRepository { get; private set;}
 		public IRecipePlanRepository RecipePlanRepository { get; private set;}
 		public IRecipeRepository RecipeRepository { get; private set;}
+        public IRecipeStepRepository RecipeStepRepository { get; private set;}
 
         private readonly RecipesAndPlansContext _context;
         public UnitOfWork(RecipesAndPlansContext context)
@@ -25,6 +26,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             WeeklyPlanRepository = new WeeklyPlanRepository(context);
             RecipePlanRepository = new RecipePlanRepository(context);
             RecipeRepository = new RecipeRepository(context);
+            RecipeStepRepository = new RecipeStepRepository(context);
         }
         public async Task CompleteAsync()
         {
