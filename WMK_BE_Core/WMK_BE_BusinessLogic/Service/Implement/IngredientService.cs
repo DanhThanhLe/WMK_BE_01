@@ -34,7 +34,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _idValidator = new IdValidator();
         }
         #region Change status
-        public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientrequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             var validateResult = _updateStatusValidator.Validate(ingredient);
@@ -46,7 +46,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
             var found = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
-            if (found != null)
+            if (found == null)
             {
                 result.StatusCode = 400;
                 result.Message = "Not found ingredient";
@@ -213,8 +213,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<IngredientResponse>();
             var ingredients = await _unitOfWork.IngredientRepository.GetAllAsync();
-            var responseList = ingredients.ToList().Where(x => x.Status == 0);
-            if (ingredients != null && ingredients.Count > 0)
+            var responseList = ingredients.ToList().Where(x => x.Status.ToInt() == 0);
+            if (ingredients != null && ingredients.Count() > 0)
             {
                 result.StatusCode = 200;
                 result.Message = "OK. Ingredients list";

@@ -16,7 +16,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         public Task<ResponseObject<IngredientResponse>> GetIngredientByName(string name);
         public Task<ResponseObject<IngredientResponse>> CreateIngredient(CreateIngredientRequest ingredient);
         public Task<ResponseObject<IngredientResponse>> UpdateIngredient(IngredientRequest ingredient);
-        public Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientrequest ingredient);
+        public Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient);
         public Task<ResponseObject<IngredientResponse>> DeleteIngredientById(IdIngredientRequest ingredient);//xoa han
         public Task<ResponseObject<IngredientResponse>> RemoveIngredientById(IdIngredientRequest ingredient);//chinh status ve Unavailable
 

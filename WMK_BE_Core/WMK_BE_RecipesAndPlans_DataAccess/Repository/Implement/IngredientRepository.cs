@@ -24,7 +24,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                 return true;
             }
             return false;
-
         }
     }
 }
