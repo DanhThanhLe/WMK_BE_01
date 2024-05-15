@@ -173,9 +173,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<int>("ProcessStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServingSize")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ServingSize")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -347,7 +346,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .IsRequired();
 
                     b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", "Recipe")
-                        .WithMany()
+                        .WithMany("RecipeAmounts")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -420,6 +419,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                 {
                     b.Navigation("Nutrition")
                         .IsRequired();
+
+                    b.Navigation("RecipeAmounts");
 
                     b.Navigation("RecipeCategories");
 

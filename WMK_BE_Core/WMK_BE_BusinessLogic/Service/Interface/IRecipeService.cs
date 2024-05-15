@@ -19,7 +19,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         public Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name);
 
-        //public Task<ResponseObject<RecipeResponse>> CreateRecipe(CreateRecipeRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe);
 
         //public Task<ResponseObject<RecipeResponse>> UpdateRecipe(RecipeRequest recipe);
 
