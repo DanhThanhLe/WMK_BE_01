@@ -36,7 +36,7 @@ jobs:
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: wemealkit.shop
+        server: api.wemealkit.shop
         username: Administrator
         password: 000000Long@
    
