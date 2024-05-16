@@ -68,4 +68,12 @@ jobs:
 
     - name: Restore the application
       run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
+
+    # Deploy to FTP
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: wemealkit.shop
+        username: Administrator
+        password: 000000Long@
    
