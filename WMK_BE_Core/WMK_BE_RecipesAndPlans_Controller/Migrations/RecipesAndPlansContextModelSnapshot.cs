@@ -10,7 +10,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 {
-    [DbContext(typeof(RecipesAndPlansContext))]
+    [DbContext(typeof(WeMealKitContext))]
     partial class RecipesAndPlansContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

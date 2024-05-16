@@ -12,7 +12,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
 	public class RecipeRepository : BaseRepository<Recipe>, IRecipeRepository
     {
-        public RecipeRepository(RecipesAndPlansContext context) : base(context)
+        public RecipeRepository(WeMealKitContext context) : base(context)
         {}
 
         public async Task<bool> ChangeStatusAsync(Guid id, ProcessStatus status)

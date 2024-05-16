@@ -15,6 +15,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		IRecipePlanRepository RecipePlanRepository { get; }
 		IRecipeRepository RecipeRepository { get; }
 		IRecipeStepRepository RecipeStepRepository { get; }
+		IUserRepository UserRepository { get; }
 
 		Task CompleteAsync();
 	}

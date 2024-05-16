@@ -11,7 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
 	public class WeeklyPlanRepository: BaseRepository<WeeklyPlan>, IWeeklyPlanRepository
 	{
-        public WeeklyPlanRepository(RecipesAndPlansContext context) : base(context)
+        public WeeklyPlanRepository(WeMealKitContext context) : base(context)
         {
             
         }

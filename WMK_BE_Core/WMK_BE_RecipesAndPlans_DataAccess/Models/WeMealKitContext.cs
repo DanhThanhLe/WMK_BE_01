@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
-    public class RecipesAndPlansContext:DbContext
+    public class WeMealKitContext:DbContext
     {
-        public RecipesAndPlansContext(DbContextOptions<RecipesAndPlansContext> options) : base(options) { }
+        public WeMealKitContext(DbContextOptions<WeMealKitContext> options) : base(options) { }
         public DbSet<Category> Categories { get; set; }
         public DbSet<WeeklyPlan> WeeklyPlans { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
@@ -19,8 +19,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DbSet<RecipeCategory> RecipeCategories { get; set; }
         public DbSet<RecipePLan> RecipePLans { get; set;}
         public DbSet<RecipeStep> RecipeSteps { get; set; }
-
-       
-
+        public DbSet<User> Users { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<CustomeWeeklyPlan> CustomeWeeklyPlans { get; set; }
+        public DbSet<BankingInfo> BankingInfos { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
     }
 }

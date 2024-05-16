@@ -11,7 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
     public class RecipeStepRepository : BaseRepository<RecipeStep>, IRecipeStepRepository 
     {
-        public RecipeStepRepository(RecipesAndPlansContext context) : base(context) { }
+        public RecipeStepRepository(WeMealKitContext context) : base(context) { }
 
         public override Task<List<RecipeStep>> GetAllAsync()
         {
