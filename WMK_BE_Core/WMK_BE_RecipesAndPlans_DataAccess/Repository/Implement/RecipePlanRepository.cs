@@ -11,7 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
 	public class RecipePlanRepository : BaseRepository<RecipePLan>, IRecipePlanRepository
 	{
-        public RecipePlanRepository(RecipesAndPlansContext context) : base (context)
+        public RecipePlanRepository(WeMealKitContext context) : base (context)
         {
             
         }

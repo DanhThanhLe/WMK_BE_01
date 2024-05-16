@@ -24,7 +24,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddSwaggerGen();
             builder.Configuration.AddJsonFile("appsettings.json");
             //Add DBContext
-            builder.Services.AddDbContext<RecipesAndPlansContext>(ops =>
+            builder.Services.AddDbContext<WeMealKitContext>(ops =>
             {
                 ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect"),
                     b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
@@ -36,7 +36,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             //builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
 
             //scope
-            builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
+            builder.Services.AddScoped<DbContext , WeMealKitContext>();
             builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
             builder.Services.AddScoped<ICategoryService , CategoryService>();
             builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
