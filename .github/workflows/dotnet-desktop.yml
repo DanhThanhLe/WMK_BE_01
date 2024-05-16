@@ -70,12 +70,10 @@ jobs:
       run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
 
     # Deploy to FTP
-    - name: FTP Deploy
-      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: wemealkit.shop
-        username: Administrator # Store your FTP username in GitHub Secrets
-        password: 000000Long@ # Store your FTP password in GitHub Secrets
-        local-dir: publishCode # Path to the published files
-        remote-dir: /path/to/remote/directory
+        username: Administrator
+        password: 000000Long@
    
