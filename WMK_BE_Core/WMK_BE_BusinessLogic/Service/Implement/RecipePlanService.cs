@@ -43,7 +43,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							recipe.Popularity++;
 						var recipePlan = new RecipePLan
 						{
-							PlanId = weeklyPlanId ,
+							StandardWeeklyPlanId = weeklyPlanId ,
 							RecipeId = recipeId ,
 							Recipe = recipe ,
 							WeeklyPlan = weeklyPlan
@@ -118,7 +118,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						var recipePlan = new RecipePLan
 						{
-							PlanId = weeklyPlanId ,
+							StandardWeeklyPlanId = weeklyPlanId ,
 							RecipeId = recipeId ,
 							Recipe = recipe ,
 							WeeklyPlan = weeklyPlan

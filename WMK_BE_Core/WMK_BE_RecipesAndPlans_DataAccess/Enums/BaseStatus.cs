@@ -9,7 +9,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
     public enum BaseStatus
     {
         Available = 0,
-        Unavailable = 1
+        UnAvailable = 1
     }
 
     public static class BaseStatusHelper
@@ -22,7 +22,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 
         public static BaseStatus FromInt(int value)
         {
-            return Enum.IsDefined(typeof(BaseStatus), value) ? (BaseStatus)value : BaseStatus.Unavailable;
+            return Enum.IsDefined(typeof(BaseStatus), value) ? (BaseStatus)value : BaseStatus.UnAvailable;
         }
     }
 }

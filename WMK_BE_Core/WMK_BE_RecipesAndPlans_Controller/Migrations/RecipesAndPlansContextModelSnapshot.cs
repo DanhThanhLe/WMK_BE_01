@@ -22,6 +22,24 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.BankingInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NameBanking")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BankingInfo");
+                });
+
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -48,6 +66,66 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.CustomeWeeklyPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("RecipeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StandardWeeklyPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("CustomeWeeklyPlans");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Feedback", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("Feedbacks");
+                });
+
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Ingredient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -66,15 +144,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Img")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("PricebyUnit")
-                        .HasColumnType("float");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -132,7 +206,45 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.HasIndex("RecipeID")
                         .IsUnique();
 
-                    b.ToTable("NutritionInfos");
+                    b.ToTable("Nutritions");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ShipDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("StanderdWeeklyPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StanderdWeeklyPlanId")
+                        .IsUnique()
+                        .HasFilter("[StanderdWeeklyPlanId] IS NOT NULL");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", b =>
@@ -160,7 +272,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Property<int>("Difficulty")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageLink")
+                    b.Property<string>("Img")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -169,6 +281,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 
                     b.Property<int>("Popularity")
                         .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<int>("ProcessStatus")
                         .HasColumnType("int");
@@ -194,9 +309,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Amount")
-                        .HasColumnType("float");
-
-                    b.Property<double>("CurrentPricePerUnit")
                         .HasColumnType("float");
 
                     b.Property<Guid>("IngredientId")
@@ -241,17 +353,20 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PlanId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<Guid>("RecipeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("StandardWeeklyPlanId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("PlanId");
-
                     b.HasIndex("RecipeId");
+
+                    b.HasIndex("StandardWeeklyPlanId");
 
                     b.ToTable("RecipesPlans");
                 });
@@ -282,6 +397,98 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.HasIndex("RecipeId");
 
                     b.ToTable("RecipeSteps");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Transaction", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("BankingInfoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ExtraData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankingInfoId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EmailConfirm")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.WeeklyPlan", b =>
@@ -326,6 +533,28 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.ToTable("WeeklyPlans");
                 });
 
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.CustomeWeeklyPlan", b =>
+                {
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", "Order")
+                        .WithMany("CustomeWeeklyPlans")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Feedback", b =>
+                {
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", "Order")
+                        .WithMany("FeedBacks")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Nutrition", b =>
                 {
                     b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", "Recipe")
@@ -335,6 +564,23 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                         .IsRequired();
 
                     b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", b =>
+                {
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.WeeklyPlan", "WeeklyPlan")
+                        .WithOne("Order")
+                        .HasForeignKey("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", "StanderdWeeklyPlanId");
+
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("WeeklyPlan");
                 });
 
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.RecipeAmount", b =>
@@ -377,15 +623,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
 
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.RecipePLan", b =>
                 {
-                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.WeeklyPlan", "WeeklyPlan")
-                        .WithMany("RecipePLans")
-                        .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", "Recipe")
                         .WithMany("RecipePlans")
                         .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.WeeklyPlan", "WeeklyPlan")
+                        .WithMany("RecipePLans")
+                        .HasForeignKey("StandardWeeklyPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -405,6 +651,30 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Transaction", b =>
+                {
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.BankingInfo", "BankingInfo")
+                        .WithMany("Transactions")
+                        .HasForeignKey("BankingInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", "Order")
+                        .WithMany("Transactions")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BankingInfo");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.BankingInfo", b =>
+                {
+                    b.Navigation("Transactions");
+                });
+
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Category", b =>
                 {
                     b.Navigation("RecipeCategories");
@@ -413,6 +683,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Ingredient", b =>
                 {
                     b.Navigation("RecipeAmounts");
+                });
+
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Order", b =>
+                {
+                    b.Navigation("CustomeWeeklyPlans");
+
+                    b.Navigation("FeedBacks");
+
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe", b =>
@@ -429,8 +708,16 @@ namespace WMK_BE_RecipesAndPlans_Controller.Migrations
                     b.Navigation("RecipeSteps");
                 });
 
+            modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.User", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("WMK_BE_RecipesAndPlans_DataAccess.Models.WeeklyPlan", b =>
                 {
+                    b.Navigation("Order")
+                        .IsRequired();
+
                     b.Navigation("RecipePLans");
                 });
 #pragma warning restore 612, 618

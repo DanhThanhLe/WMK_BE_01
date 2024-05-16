@@ -24,7 +24,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public async Task<List<RecipePLan>> GetListByPlanIdAsync(Guid planId)
 		{
 			return await _dbSet
-				.Where(rp => rp.PlanId == planId)
+				.Where(rp => rp.StandardWeeklyPlanId == planId)
 				.ToListAsync();
 		}
 

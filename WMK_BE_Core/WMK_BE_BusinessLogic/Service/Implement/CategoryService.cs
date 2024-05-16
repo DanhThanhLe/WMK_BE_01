@@ -135,7 +135,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(model.Id);
 			if( recipeExistCategory )
 			{
-				categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.Unavailable;
+				categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.UnAvailable;
 				var updateResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
 				if( updateResult )
 				{
