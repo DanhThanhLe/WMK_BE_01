@@ -31,6 +31,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             });
 
             //Mapper
+            builder.Services.AddAutoMapper(typeof(UserProfile));
             builder.Services.AddAutoMapper(typeof(CategoryProfile));
             builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
             //builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
@@ -38,6 +39,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             //scope
             builder.Services.AddScoped<DbContext , WeMealKitContext>();
             builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
+            builder.Services.AddScoped<IUserService , UserService>();
             builder.Services.AddScoped<ICategoryService , CategoryService>();
             builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
             builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
