@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Repository\Implement\BaseRepository.cs~RF16b7ecf.TMP" />
     <None Remove="Repository\Implement\WeeklyPlanRepository.cs~RFafd96fd.TMP" />
   </ItemGroup>
 

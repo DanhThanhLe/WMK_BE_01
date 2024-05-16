@@ -88,7 +88,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		{
 			try
 			{
-				var entity = await _dbSet.FindAsync(id);
+				Guid guidId;
+				if ( !Guid.TryParse(id , out guidId) )
+				{
+					return false;
+				}
+				var entity = await _dbSet.FindAsync(guidId);
 				if ( entity != null )
 				{
 					_context.Set<T>().Remove(entity);
