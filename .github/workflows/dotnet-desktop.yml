@@ -40,5 +40,5 @@ jobs:
         username: Administrator
         password: 000000Long@
         local-dir: publishCode/
-        server-dir: publishCodes/
+        server-dir: /
    
