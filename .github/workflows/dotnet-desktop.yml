@@ -1,0 +1,44 @@
+
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ "main" ] 
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    if: "contains(github.event.head_commit.message, 'deploy')"
+    strategy:
+      matrix:
+        configuration: [Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore the application
+      run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
+
+    # Deploy to FTP
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: api.wemealkit.shop
+        username: Administrator
+        password: 000000Long@
+        local-dir: publishCode/
+        server-dir: /
+   

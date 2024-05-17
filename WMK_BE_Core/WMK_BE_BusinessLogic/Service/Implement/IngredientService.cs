@@ -250,7 +250,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             else
             {
-                found.Status = BaseStatus.Unavailable;
+                found.Status = BaseStatus.UnAvailable;
                 var removeResult = await _unitOfWork.IngredientRepository.UpdateAsync(found);
                 if (removeResult)
                 {
@@ -302,7 +302,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     foundUpdate.Category = ingredient.Category;
                     foundUpdate.Name = ingredient.Name;
                     foundUpdate.Img = ingredient.Img;
-                    foundUpdate.PricebyUnit = ingredient.PricebyUnit;
                     foundUpdate.Unit = ingredient.Unit;
                     foundUpdate.Status = ingredient.Status;
                     foundUpdate.CreatedAt = ingredient.CreatedAt;

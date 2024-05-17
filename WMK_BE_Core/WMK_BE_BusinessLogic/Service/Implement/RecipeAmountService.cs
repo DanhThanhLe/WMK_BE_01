@@ -47,7 +47,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							RecipeId = recipeId ,
 							Recipe = recipeExist ,
 							Amount = ingredient.amount,
-							CurrentPricePerUnit = ingredientEixst.PricebyUnit * ingredient.amount,
 						};
 						//await _unitOfWork.RecipeAmountRepository.CreateAsync(recipeAmount);
 						//await _unitOfWork.CompleteAsync();

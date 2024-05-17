@@ -11,7 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
 	public class RecipePlanRepository : BaseRepository<RecipePLan>, IRecipePlanRepository
 	{
-        public RecipePlanRepository(RecipesAndPlansContext context) : base (context)
+        public RecipePlanRepository(WeMealKitContext context) : base (context)
         {
             
         }
@@ -24,7 +24,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public async Task<List<RecipePLan>> GetListByPlanIdAsync(Guid planId)
 		{
 			return await _dbSet
-				.Where(rp => rp.PlanId == planId)
+				.Where(rp => rp.StandardWeeklyPlanId == planId)
 				.ToListAsync();
 		}
 

@@ -24,20 +24,22 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddSwaggerGen();
             builder.Configuration.AddJsonFile("appsettings.json");
             //Add DBContext
-            builder.Services.AddDbContext<RecipesAndPlansContext>(ops =>
+            builder.Services.AddDbContext<WeMealKitContext>(ops =>
             {
                 ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect"),
                     b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
             });
 
             //Mapper
+            builder.Services.AddAutoMapper(typeof(UserProfile));
             builder.Services.AddAutoMapper(typeof(CategoryProfile));
             builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
             //builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
 
             //scope
-            builder.Services.AddScoped<DbContext , RecipesAndPlansContext>();
+            builder.Services.AddScoped<DbContext , WeMealKitContext>();
             builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
+            builder.Services.AddScoped<IUserService , UserService>();
             builder.Services.AddScoped<ICategoryService , CategoryService>();
             builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
             builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
@@ -47,14 +49,14 @@ namespace WMK_BE_RecipesAndPlans_Controller
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
+            //if (app.Environment.IsDevelopment())
+            //{
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
-
+            //}
+          
             app.UseAuthorization();
-
+            app.UseDeveloperExceptionPage();
 
             app.MapControllers();
 

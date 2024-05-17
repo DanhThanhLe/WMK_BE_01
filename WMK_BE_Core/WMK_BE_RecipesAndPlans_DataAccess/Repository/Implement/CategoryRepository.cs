@@ -12,7 +12,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
 	public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
 	{
-        public CategoryRepository(RecipesAndPlansContext context) : base(context)
+        public CategoryRepository(WeMealKitContext context) : base(context)
         {
             
         }

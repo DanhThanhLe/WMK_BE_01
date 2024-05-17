@@ -15,10 +15,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-		public int ServingSize { get; set; } = 1;
+		public int ServingSize { get; set; }
 		public LevelOfDifficult Difficulty { get; set; }
         public string? Description { get; set; }
-        public string? ImageLink { get; set; }
+        public string? Img { get; set; }
+        public double Price { get; set; }
+        public int Popularity { get; set; }
+        public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
+                                                        //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
+
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
@@ -27,9 +32,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
-        public int Popularity { get; set; }
-        public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
-                                                        //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
 
         //reference
         public List<RecipePLan> RecipePlans { get; set; }

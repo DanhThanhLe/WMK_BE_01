@@ -10,7 +10,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
 	public class RecipeAmountRepository : BaseRepository<RecipeAmount>, IRecipeAmountRepository
 	{
-        public RecipeAmountRepository(RecipesAndPlansContext context) : base(context)
+        public RecipeAmountRepository(WeMealKitContext context) : base(context)
         {
             
         }
