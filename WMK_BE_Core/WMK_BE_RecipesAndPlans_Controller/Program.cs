@@ -104,6 +104,12 @@ namespace WMK_BE_RecipesAndPlans_Controller
 					policy.RequireAuthenticatedUser();
 					policy.RequireRole("Staff");
 				});
+				
+				options.AddPolicy("DeliveryPolicy" , policy =>
+				{
+					policy.RequireAuthenticatedUser();
+					policy.RequireRole("Delivery");
+				});
 
 				options.AddPolicy("CustomerPolicy" , policy =>
 				{
@@ -115,6 +121,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 
 			//Mapper
 			builder.Services.AddAutoMapper(typeof(UserProfile));
+			builder.Services.AddAutoMapper(typeof(OrderProfile));
 			builder.Services.AddAutoMapper(typeof(CategoryProfile));
 			builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
 			//builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
@@ -124,11 +131,11 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 			builder.Services.AddScoped<IAuthService , AuthService>();
 			builder.Services.AddScoped<IUserService , UserService>();
+			builder.Services.AddScoped<IOrderService , OrderService>();
 			builder.Services.AddScoped<ICategoryService , CategoryService>();
 			builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
 			builder.Services.AddScoped<IRecipeService , RecipeService>();
 			builder.Services.AddScoped<IRecipeStepService , RecipeStepService>();
-
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 			builder.Services.AddScoped<IRecipeAmountService , RecipeAmountService>();
 

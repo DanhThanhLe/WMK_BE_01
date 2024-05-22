@@ -55,9 +55,12 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 	}
 	public class ResetPasswordModelValidator : AbstractValidator<ResetPasswordRequest>
 	{
+		private readonly IExpendValidator _expendValidator;
 		public ResetPasswordModelValidator()
 		{
-			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!");
+			_expendValidator = new ExpendValidator();
+			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
+				.Must(_expendValidator.BeValidGuid).WithMessage("Id must be a valid GUID!");
 			RuleFor(x => x.OldPassword).NotEmpty().WithMessage("OldPassword is required!");
 			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("ConfirmPassword is required!");
 			RuleFor(x => x.NewPassword).NotEmpty().WithMessage("NewPassword is required!")

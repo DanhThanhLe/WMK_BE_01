@@ -9,7 +9,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel
 {
 	public class UpdateUserRequest
 	{
-		public Guid Id { get; set; }
+		public string Id { get; set; } = string.Empty;
 		public string? UserName { get; set; }
 		public string? Email { get; set; }
 		public string? FirstName { get; set; }

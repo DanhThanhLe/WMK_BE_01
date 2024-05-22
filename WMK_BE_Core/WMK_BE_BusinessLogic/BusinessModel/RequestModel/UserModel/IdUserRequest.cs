@@ -8,7 +8,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel
 {
 	public class IdUserRequest
 	{
-		public Guid Id { get; set; }
+		public string Id { get; set; } = string.Empty;
 
 	}
 }

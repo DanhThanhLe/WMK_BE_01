@@ -40,7 +40,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_changeRoleValidator = new ChangeRoleUserModelValidator();
 		}
 
-		public async Task<ResponseObject.ResponseObject<List<UsersResponse>>> GetAllUsers()
+		public async Task<ResponseObject<List<UsersResponse>>> GetAllUsers()
 		{
 			var result = new ResponseObject<List<UsersResponse>>();
 			var users = await _unitOfWork.UserRepository.GetAllAsync();
@@ -59,10 +59,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string email)
+		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername)
 		{
 			var result = new ResponseObject<UserResponse?>();
-			var userExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(email);
+			var userExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(emailOrUsername);
 			if ( userExist != null )
 			{
 				if ( userExist.Status == WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.UnAvailable )
@@ -179,7 +179,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check user exists
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id.ToString());
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
@@ -261,7 +261,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check user exists
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id.ToString());
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
@@ -318,7 +318,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id.ToString());
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
 			if ( userExist != null )
 			{
 				//check role exist
@@ -363,7 +363,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check User exist
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id.ToString());
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
@@ -406,7 +406,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 			}
-			
+
 		}
 		//admin
 		public async Task<ResponseObject<BaseUserResponse>> ChangeEmailConfirmAsync(IdUserRequest model)

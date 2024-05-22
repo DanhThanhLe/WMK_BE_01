@@ -10,7 +10,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 	public interface IExpendValidator
 	{
 		bool BeValidEmail(string email);
-		bool BeAValidDateOfBirth(DateTime? dateOfBirth);
+		bool BeValidDateOfBirth(DateTime? dateOfBirth);
+		bool BeValidGuid(string id);
 	}
 	public class ExpendValidator : IExpendValidator
 	{
@@ -24,7 +25,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//check domain
 			return Regex.IsMatch(email , emailRegexPattern);
 		}
-		public bool BeAValidDateOfBirth(DateTime? dateOfBirth)
+		public bool BeValidDateOfBirth(DateTime? dateOfBirth)
 		{
 			if ( !dateOfBirth.HasValue )
 			{
@@ -34,6 +35,11 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			var today = DateTime.Today;
 			var minDate = today.AddYears(-6);
 			return dateOfBirth.Value < minDate;
+		}
+
+		public bool BeValidGuid(string id)
+		{
+			return Guid.TryParse(id , out _);
 		}
 	}
 }

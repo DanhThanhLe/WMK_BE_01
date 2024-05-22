@@ -300,7 +300,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check userExist
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id.ToString());
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
