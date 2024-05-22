@@ -20,7 +20,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public Guid? StanderdWeeklyPlanId { get; set; }//can null
 
 		public string? Note { get; set; } = string.Empty;
-		public DateTime ShipDate { get; set; }
+		public string Address { get; set; } = string.Empty;
+        public DateTime ShipDate { get; set; }
 		public DateTime OrderDate { get; set; }
 		public double TotalPrice { get; set; }
 		public OrderStatus Status { get; set; }

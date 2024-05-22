@@ -10,6 +10,5 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel
 	public class ChangeStatusUserRequest
 	{
         public Guid Id { get; set; }
-        public BaseStatus Status { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 
 		public async Task<User?> GetByEmailOrUserNameAsync(string emailOrUserName)
 		{
-			var userExist = await _dbSet.FirstOrDefaultAsync(u => u.Email == emailOrUserName);
+			var userExist = await _dbSet.FirstOrDefaultAsync(u => u.Email == emailOrUserName || u.UserName == emailOrUserName);
             if (userExist != null)
             {
 				return userExist;
