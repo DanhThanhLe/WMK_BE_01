@@ -27,7 +27,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly UpdateModelValidator _updateValidator;
 		private readonly IdUserModelValidator _idUserValidator;
 		private readonly ChangeRoleUserModelValidator _changeRoleValidator;
-		private readonly ChangeStatusUserModelValidator _changeStatusValidator;
 
 		#endregion
 		public UserService(IUnitOfWork unitOfWork , IMapper mapper)
@@ -39,7 +38,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_updateValidator = new UpdateModelValidator();
 			_idUserValidator = new IdUserModelValidator();
 			_changeRoleValidator = new ChangeRoleUserModelValidator();
-			_changeStatusValidator = new ChangeStatusUserModelValidator();
 		}
 
 		public async Task<ResponseObject.ResponseObject<List<UsersResponse>>> GetAllUsers()
@@ -61,7 +59,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string email)
 		{
 			var result = new ResponseObject<UserResponse?>();
@@ -87,7 +84,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<UserResponse?>> GetUserByIdAsync(Guid id)
 		{
 			var result = new ResponseObject<UserResponse?>();
@@ -113,7 +109,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		//By Admin
 		public async Task<ResponseObject<BaseUserResponse>> CreateUserAsync(CreateUserRequest model)
 		{
@@ -151,7 +146,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 
 			var newUser = _mapper.Map<User>(model);
-			newUser.EmailConfirm = WMK_BE_RecipesAndPlans_DataAccess.Enums.EmailConfirm.NotConfirm;//set not confirmEmail
+			newUser.EmailConfirm = EmailConfirm.NotConfirm;//set not confirmEmail
 			newUser.UserName = model.Email;
 			//setup password
 			var defaultPassword = "User123@";
@@ -172,7 +167,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(UpdateUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -255,7 +249,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(IdUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -314,7 +307,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
-
 		public async Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(ChangeRoleUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -358,12 +350,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
-		public async Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(ChangeStatusUserRequest model)
+		public async Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(IdUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
 			//check validate
-			var validationResult = _changeStatusValidator.Validate(model);
+			var validationResult = _idUserValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
 				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();

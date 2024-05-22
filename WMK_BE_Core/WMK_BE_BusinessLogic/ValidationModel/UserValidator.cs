@@ -58,12 +58,4 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			RuleFor(x => x.NewRole).NotEmpty().WithMessage("NewRole is required!");
 		}
 	}
-	public class ChangeStatusUserModelValidator : AbstractValidator<ChangeStatusUserRequest>
-	{
-		public ChangeStatusUserModelValidator()
-		{
-			RuleFor(x => x.Id).NotEmpty().WithMessage("ID is required!");
-			RuleFor(x => x.Status).NotEmpty().WithMessage("Status is required!");
-		}
-	}
 }

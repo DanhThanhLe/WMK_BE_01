@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using TransactionStatus = WMK_BE_RecipesAndPlans_DataAccess.Enums.TransactionStatus;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
