@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  wmk_be_recipesandplans_controller:
+    image: ${DOCKER_REGISTRY-}wmkberecipesandplanscontroller
+    build:
+      context: .
+      dockerfile: WMK_BE_RecipesAndPlans_Controller/Dockerfile
