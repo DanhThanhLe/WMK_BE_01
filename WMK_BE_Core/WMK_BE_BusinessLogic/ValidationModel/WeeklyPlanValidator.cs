@@ -8,7 +8,7 @@ using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 
 namespace WMK_BE_BusinessLogic.ValidationModel
 {
-	public class CreateWeeklyPlanValidator : AbstractValidator<CreateWeeklyPlanRequestModel> 
+	public class CreateWeeklyPlanValidator : AbstractValidator<CreateWeeklyPlanRequest> 
 	{
         public CreateWeeklyPlanValidator()
         {

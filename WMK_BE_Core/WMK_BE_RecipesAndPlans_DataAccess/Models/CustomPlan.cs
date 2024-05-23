@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
-	[Table("CustomePlans")]
+	[Table("CustomPlans")]
 	public class CustomPlan
 	{
 		[Key]

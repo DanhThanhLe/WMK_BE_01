@@ -17,6 +17,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public Guid RecipeId { get; set; }
         [ForeignKey(nameof(WeeklyPlan))]
         public Guid StandardWeeklyPlanId { get; set; }
+
+        public int Amount { get; set; }
         public double Price { get; set; }
 
         //reference

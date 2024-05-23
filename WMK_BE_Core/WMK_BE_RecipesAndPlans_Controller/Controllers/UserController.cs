@@ -73,7 +73,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return Ok(result);
 		}
 		
-		
 		[Authorize(Roles = "Admin")]
 		[HttpDelete("delete")]
 		public async Task<IActionResult> Delete([FromQuery] IdUserRequest model)

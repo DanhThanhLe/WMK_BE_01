@@ -260,7 +260,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				LastName = model.LastName ,
 				Phone = model.Phone ,
 				Gender = model.Gender ,
-				DateOfBirth = model.Dob,
 				EmailConfirm = WMK_BE_RecipesAndPlans_DataAccess.Enums.EmailConfirm.NotConfirm
 			};
 			//check create user

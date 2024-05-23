@@ -23,8 +23,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			RuleFor(x => x.Role).NotEmpty().WithMessage("Role is required!");
 			RuleFor(x => x.FirstName).NotEmpty().WithMessage("FirstName is required!");
 			RuleFor(x => x.LastName).NotEmpty().WithMessage("LastName is required!");
-			RuleFor(x => x.DateOfBirth)
-			.Must(_expendValidator.BeValidDateOfBirth).WithMessage("Date of birth must be before 6 years!");
 		}
 	}
 
@@ -40,8 +38,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			.Empty().When(x => x.Email == null).WithMessage("Email should be null.")
 			.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
 			.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain.");
-			RuleFor(x => x.DateOfBirth)
-			.Must(_expendValidator.BeValidDateOfBirth).WithMessage("Date of birth must be before 6 years!");
 		}
 	}
 	public class IdUserModelValidator : AbstractValidator<IdUserRequest>
