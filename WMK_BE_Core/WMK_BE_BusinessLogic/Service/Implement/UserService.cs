@@ -219,8 +219,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				userExist.FirstName = model.FirstName;
 			if ( !string.IsNullOrEmpty(model.LastName) )
 				userExist.LastName = model.LastName;
-			if ( model.DateOfBirth != null )
-				userExist.DateOfBirth = model.DateOfBirth;
 			if ( !string.IsNullOrEmpty(model.Address) )
 				userExist.Address = model.Address;
 			if ( model.Gender != null )

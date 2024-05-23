@@ -16,6 +16,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public Guid Id { get; set; }
 		[ForeignKey(nameof(User))]
 		public Guid UserId { get; set; }
+		[ForeignKey(nameof(OrderGroup))]
+		public Guid? OrderGroupId { get; set; }
 		[ForeignKey(nameof(WeeklyPlan))]
 		public Guid? StanderdWeeklyPlanId { get; set; }//can null
 
@@ -28,6 +30,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 		//reference
 		public User User { get; set; }
+		public OrderGroup OrderGroup { get; set; }
 		public WeeklyPlan WeeklyPlan { get; set; }
 
 		//list

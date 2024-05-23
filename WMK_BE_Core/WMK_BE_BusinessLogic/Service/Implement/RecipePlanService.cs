@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
@@ -19,41 +20,40 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId , List<Guid> recipesId)
+		public async Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId , List<RecipeWeeklyPlanCreate> recipesId)
 		{
 			var result = new ResponseObject<List<RecipePLan>?>();
 			var recipePlans = new List<RecipePLan>();
 			try
 			{
 				//check weeklyPlan have exist
-				var weeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
-				if ( weeklyPlan == null )
+				var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
+				if ( weeklyPlanExist == null || weeklyPlanExist.ProcessStatus != WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Processing)
 				{
 					result.StatusCode = 404;
 					result.Message = "weekly plan not exist!";
 					return result;
 				}
-				foreach ( var recipeId in recipesId )
+				foreach ( var recipe in recipesId )
 				{
-					var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-					if ( recipe != null )
+					var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.recipeId.ToString());
+					if ( recipeExist != null && recipeExist.ProcessStatus == WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Approved)
 					{
-						//if customer create then increase popularity 
-						if ( weeklyPlan.ProcessStatus == WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Customer )
-							recipe.Popularity++;
 						var recipePlan = new RecipePLan
 						{
 							StandardWeeklyPlanId = weeklyPlanId ,
-							RecipeId = recipeId ,
-							Recipe = recipe ,
-							WeeklyPlan = weeklyPlan
+							RecipeId = recipeExist.Id ,
+							Recipe = recipeExist ,
+							WeeklyPlan = weeklyPlanExist,
+							Amount = recipe.Amount,
+							Price = recipeExist.Price * recipe.Amount
 						};
 						recipePlans.Add(recipePlan);
 					}
 					else
 					{
 						result.StatusCode = 404;
-						result.Message = $"Recipe with ID {recipeId} not found!";
+						result.Message = $"Recipe with ID {recipeExist} not found!";
 						return result;
 					}
 				}
