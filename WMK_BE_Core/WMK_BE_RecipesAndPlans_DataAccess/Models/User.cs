@@ -20,7 +20,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public string LastName { get; set; } = string.Empty;
 		public string? Phone { get; set; } = string.Empty;
         public Gender Gender { get; set; }
-		public DateTime? DateOfBirth { get; set; }
 		public string? Address { get; set; }
 		public string? Code { get; set; }
         public Role Role { get; set; }
@@ -28,7 +27,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public BaseStatus Status { get; set; }
 
 
-		//list
-		public List<Order> Orders { get; set; }
+        public virtual OrderGroup OrderGroup { get; set; }
+
+        //list
+        public List<Order> Orders { get; set; }
 	}
 }

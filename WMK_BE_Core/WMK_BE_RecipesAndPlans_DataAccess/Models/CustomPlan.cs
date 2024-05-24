@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
-	[Table("CustomeWeeklyPlans")]
-	public class CustomeWeeklyPlan
+	[Table("CustomPlans")]
+	public class CustomPlan
 	{
 		[Key]
 		public Guid Id { get; set; }
 		[ForeignKey(nameof(Order))]
 		public Guid OrderId { get; set; }
 		public Guid RecipeId { get; set; }
-		public Guid StandardWeeklyPlanId { get; set; }
+		public Guid? StandardWeeklyPlanId { get; set; }
         public double Price { get; set; }
 
         //reference

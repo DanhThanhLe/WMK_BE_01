@@ -29,7 +29,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateWeeklyPlanRequestModel model) 
+        public async Task<IActionResult> Create([FromBody]CreateWeeklyPlanRequest model) 
         {
             var result = await _weeklyPLanService.CreateWeeklyPlanAsync(model);
             return Ok(result);

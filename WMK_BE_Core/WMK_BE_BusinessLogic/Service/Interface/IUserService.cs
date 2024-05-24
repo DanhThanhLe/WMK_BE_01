@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	{
 		Task<ResponseObject<List<UsersResponse>>> GetAllUsers();
 		Task<ResponseObject<UserResponse?>> GetUserByIdAsync(Guid id);
-		Task<ResponseObject<UserResponse?>> GetUserAsync(string email);
+		Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername);
 		Task<ResponseObject<BaseUserResponse>> CreateUserAsync(CreateUserRequest model);
 		Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(UpdateUserRequest model);
 		Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(IdUserRequest model);

@@ -44,13 +44,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
-			if ( weeklyPlans != null && weeklyPlans.Count > 0)
+			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
 			{
 				var returnLists = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
 				foreach ( var weeklyPlan in returnLists )
 				{
 					var recipeList = new List<Recipe>();
-					foreach(var recipe in weeklyPlan.Recipes )
+					foreach ( var recipe in weeklyPlan.Recipes )
 					{
 						recipeList.Add(recipe);
 					}
@@ -93,7 +93,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequestModel model)
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			try
@@ -106,32 +106,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = string.Join(" - " , error);
 					return result;
 				}
+				//check user exist 
+				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.CreatedBy);
+				if( userExist == null || userExist.Role != Role.Staff)
+				{
+					result.StatusCode = 404;
+					result.Message = "User not exist or not have access!";
+					return result;
+				}
 				//create weekly plan
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
 				newWeeklyPlan.CreateAt = DateTime.Now;
 
-				//switch case custom plan or weekly plan
-				switch ( model.ProcessStatus )
+
+				//check size of recipe create by staff
+				if ( model.recipesId.Count < 5 || model.recipesId.Count > 30 )
 				{
-					case (WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus)3://customer
-						if ( model.recipesId.Count() < 3 )
-						{
-							result.StatusCode = 402;
-							result.Message = "Recipe must large than 3!";
-							return result;
-						}
-						break;
-					default:
-						//check size of recipe create by staff
-						if ( model.recipesId.Count < 5 || model.recipesId.Count > 10 )
-						{
-							result.StatusCode = 402;
-							result.Message = "Recipe must be 5 - 10";
-							return result;
-						}
-						newWeeklyPlan.EndDate = DateTime.Now.AddDays(2);//add endDate after 2 day if staff create
-						break;
+					result.StatusCode = 402;
+					result.Message = "Recipe must be 5 - 30!";
+					return result;
 				}
+				newWeeklyPlan.EndDate = DateTime.Now.AddDays(2);//add endDate after 2 day if staff create
 
 				//add new weekly plan
 				var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
@@ -158,6 +153,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				else
 				{
+					//delete weeklyPlan
+					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
+					await _unitOfWork.CompleteAsync();
 					result.StatusCode = createRecipePlansResult.StatusCode;
 					result.Message = createRecipePlansResult.Message;
 					return result;
