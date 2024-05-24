@@ -10,9 +10,13 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
     public class RecipeCategoryRepository :BaseRepository<RecipeCategory>, IRecipeCategoryRepository
     {
-        public RecipeCategoryRepository(RecipesAndPlansContext context):base(context)
+        public RecipeCategoryRepository(WeMealKitContext context):base(context)
         {
             
+        }
+        public async Task AddRangeAsync(IEnumerable<RecipeCategory> recipeCategories)
+        {
+            await _dbSet.AddRangeAsync(recipeCategories);
         }
     }
 }

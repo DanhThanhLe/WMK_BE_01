@@ -19,6 +19,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public IRecipeStepRepository RecipeStepRepository { get; private set;}
         public IUserRepository UserRepository { get; private set;}
 
+        public IRecipeCategoryRepository RecipeCategoryRepository { get; private set; }
+
         private readonly WeMealKitContext _context;
         public UnitOfWork(WeMealKitContext context)
         {
@@ -31,8 +33,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             RecipeRepository = new RecipeRepository(context);
             RecipeStepRepository = new RecipeStepRepository(context);
 			UserRepository = new UserRepository(context);
+            RecipeCategoryRepository = new RecipeCategoryRepository(context);
 
-		}
+
+        }
         public async Task CompleteAsync()
         {
             await this._context.SaveChangesAsync();
