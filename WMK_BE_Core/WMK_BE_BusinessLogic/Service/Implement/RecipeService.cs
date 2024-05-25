@@ -24,7 +24,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IMapper _mapper;
 		private readonly RecipeChangeStatusValidator _recipeChangeStatusValidator;
 		private readonly IdRecipeValidator _idValidator;
-		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper, IRecipeAmountService recipeAmountService)
+		private readonly IRecipeCategoryService _recipeCategoryService;
+		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper, IRecipeAmountService recipeAmountService, IRecipeCategoryService recipeCategoryService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
@@ -32,6 +33,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_validator = new RecipeValidator();
 			_recipeChangeStatusValidator = new RecipeChangeStatusValidator();
 			_idValidator = new IdRecipeValidator();
+			_recipeCategoryService = recipeCategoryService;
 		}
 
 
@@ -152,9 +154,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 
 				//create category list | limit 4 category
-
+				var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
+				if( createRecipeCategoryList.StatusCode != 200 && createRecipeCategoryList.Data == null)
+				{
+					result.StatusCode= createRecipeCategoryList.StatusCode;
+					result.Message= createRecipeCategoryList.Message;
+					return result;
+				}
 
 				//assign recipeCategories
+				if( createRecipeCategoryList.Data != null )
+				{
+					newRecipe.RecipeCategories = createRecipeCategoryList.Data;
+				}
 				//newRecipe.RecipeCategories = createRecipeCategory.Data;
 
 

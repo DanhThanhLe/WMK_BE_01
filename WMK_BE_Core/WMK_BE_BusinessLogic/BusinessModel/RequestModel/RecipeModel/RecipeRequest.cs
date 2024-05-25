@@ -7,7 +7,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
 {
-    public class RecipeRequest
+    public class RecipeRequest //dung cho update
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
