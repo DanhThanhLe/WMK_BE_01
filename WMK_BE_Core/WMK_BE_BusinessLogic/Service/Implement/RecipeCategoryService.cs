@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿ using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,69 +24,69 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         List<string> categoryTypeList = new List<string> { "Nation", "Classify", "Cooking Method", "Meal in day" };
-        //public async Task<ResponseObject<List<RecipeCategoryResponse>?>> Create(Guid recipeId, List<Guid> categoryIdList)
-        //{
-        //    var result = new ResponseObject<List<RecipeCategoryResponse>?>();
-        //    if (categoryIdList.Count < 4)//ko du 4 category thi ko cho tao
-        //    {
-        //        result.StatusCode = 400;
-        //        result.Message = "Not enough categories for recipe";
-        //        return result;
-        //    }
-        //    else//du roi thi gio kiem tra trung lap
-        //    {
-        //        foreach (var type in categoryTypeList)//cho chay vong lap doi voi lai id category, neu nhu type cua category nao bi trung thi bao loi
-        //        {
-        //            int count = 0;
-        //            foreach (var categoryId in categoryIdList)
-        //            {
-        //                if (_unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString()).Equals(type))//cai nay dem coi co type nao bi trung khong
-        //                {
-        //                    count++;
-        //                }
-        //                if (count > 1)
-        //                {
-        //                    result.StatusCode = 400;
-        //                    result.Message = "Error at create recipeCategory. category type " + type + " " +
-        //                        "is duplicate in this request./n " +
-        //                        "The 4 categories are Nation, Classify, Cooking Method, Meal in day. respectively.";
-        //                    return result;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    //toi luc nay thi coi nhu khong co trung lap trong db cung nhu trong request -> bat dau tao du lieu
-        //    var currentList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
-        //    var foundByRecipe = currentList.Where(x => x.RecipeId == recipeId);
-        //    if (foundByRecipe.Count() >= categoryTypeList.Count())//gio thi kiem tra coi recipe do đa co category chua
-        //    {
-        //        result.StatusCode = 400;
-        //        result.Message = "This recipe already have enough categories";
-        //    }
-        //    RecipeCategory newOne = new RecipeCategory();
-        //    newOne.RecipeId = recipeId;
-        //    int loopCount = 1;
-        //    List<RecipeCategory>? returnList = new List<RecipeCategory>();
-        //    foreach (var categoryId in categoryIdList)//toi day coi nhu data dau vao da nhap ok, co the tien hanh add recipeCategory
-        //    {
-        //        newOne.CategoryId = categoryId;
-        //        var createResult = await _unitOfWork.RecipeCategoryRepository.CreateAsync(newOne);
-        //        if (!createResult)//cho nay tra ve luon thong tin cu the type nao bi tao loi
-        //        {
-        //            result.Message = "Error at Create recipeCategory, at loop count "
-        //                +loopCount+" with type "
-        //                +categoryTypeList[loopCount-1];
-        //            return result;
-        //        }
-        //        loopCount++;
-        //        await _unitOfWork.CompleteAsync();
-        //        returnList.Add(newOne);
-        //    }
-        //    result.StatusCode = 200;
-        //    result.Message = "Ok at Create recipeCategory";
-        //    result.Data = _mapper.Map<RecipeCategoryResponse>(returnList);
-        //    return result;
-        //}
+        public async Task<ResponseObject<List<RecipeCategory>?>> Create(Guid recipeId, List<Guid> categoryIdList)
+        {
+            var result = new ResponseObject<List<RecipeCategory>?>();
+            if (categoryIdList.Count < 4)//ko du 4 category thi ko cho tao
+            {
+                result.StatusCode = 400;
+                result.Message = "Not enough categories for recipe";
+                return result;
+            }
+            else//du roi thi gio kiem tra trung lap
+            {
+                foreach (var type in categoryTypeList)//cho chay vong lap doi voi lai id category, neu nhu type cua category nao bi trung thi bao loi
+                {
+                    int count = 0;
+                    foreach (var categoryId in categoryIdList)
+                    {
+                        if (_unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString()).Equals(type))//cai nay dem coi co type nao bi trung khong
+                        {
+                            count++;
+                        }
+                        if (count > 1)
+                        {
+                            result.StatusCode = 400;
+                            result.Message = "Error at create recipeCategory. category type " + type + " " +
+                                "is duplicate in this request./n " +
+                                "The 4 categories are Nation, Classify, Cooking Method, Meal in day. respectively.";
+                            return result;
+                        }
+                    }
+                }
+            }
+            //toi luc nay thi coi nhu khong co trung lap trong db cung nhu trong request -> bat dau tao du lieu
+            var currentList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
+            var foundByRecipe = currentList.Where(x => x.RecipeId == recipeId);
+            if (foundByRecipe.Count() >= categoryTypeList.Count())//gio thi kiem tra coi recipe do đa co category chua
+            {
+                result.StatusCode = 400;
+                result.Message = "This recipe already have enough categories";
+            }
+            RecipeCategory newOne = new RecipeCategory();
+            newOne.RecipeId = recipeId;
+            int loopCount = 1;
+            List<RecipeCategory>? returnList = new List<RecipeCategory>();
+            foreach (var categoryId in categoryIdList)//toi day coi nhu data dau vao da nhap ok, co the tien hanh add recipeCategory
+            {
+                newOne.CategoryId = categoryId;
+                var createResult = await _unitOfWork.RecipeCategoryRepository.CreateAsync(newOne);
+                if (!createResult)//cho nay tra ve luon thong tin cu the type nao bi tao loi
+                {
+                    result.Message = "Error at Create recipeCategory, at loop count "
+                        + loopCount + " with type "
+                        + categoryTypeList[loopCount - 1];
+                    return result;
+                }
+                loopCount++;
+                await _unitOfWork.CompleteAsync();
+                returnList.Add(newOne);
+            }
+            result.StatusCode = 200;
+            result.Message = "Ok at Create recipeCategory";
+            result.Data = returnList;
+            return result;
+        }
 
         public async Task<ResponseObject<RecipeCategoryResponse>> Update(RecipeCategoryRequest recipeCategory)
         {
