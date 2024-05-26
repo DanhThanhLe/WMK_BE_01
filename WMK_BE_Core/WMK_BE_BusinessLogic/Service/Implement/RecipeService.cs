@@ -186,6 +186,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Update
+		public async Task<ResponseObject<RecipeResponse>> Update(RecipeRequest updateRecipe)
+		{
+			return null;
+		}
 		#endregion
 
 		#region Change status -- jusst manager use

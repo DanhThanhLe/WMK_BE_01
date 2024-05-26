@@ -27,32 +27,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<List<RecipeCategory>?>> Create(Guid recipeId, List<Guid> categoryIdList)
         {
             var result = new ResponseObject<List<RecipeCategory>?>();
-            if (categoryIdList.Count < 4)//ko du 4 category thi ko cho tao
+            if (categoryIdList.Count < 4 || categoryIdList.Count > 4)//ko du 4 category thi ko cho tao
             {
                 result.StatusCode = 400;
-                result.Message = "Not enough categories for recipe";
+                result.Message = "Not enough categories for recipe (standard is 4)";
                 return result;
             }
             else//du roi thi gio kiem tra trung lap
             {
-                foreach (var type in categoryTypeList)//cho chay vong lap doi voi lai id category, neu nhu type cua category nao bi trung thi bao loi
+                var checkCategoriesResult = CheckCategories(categoryIdList);
+                if(checkCategoriesResult.StatusCode == 400)
                 {
-                    int count = 0;
-                    foreach (var categoryId in categoryIdList)
-                    {
-                        if (_unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString()).Equals(type))//cai nay dem coi co type nao bi trung khong
-                        {
-                            count++;
-                        }
-                        if (count > 1)
-                        {
-                            result.StatusCode = 400;
-                            result.Message = "Error at create recipeCategory. category type " + type + " " +
-                                "is duplicate in this request./n " +
-                                "The 4 categories are Nation, Classify, Cooking Method, Meal in day. respectively.";
-                            return result;
-                        }
-                    }
+                    result.StatusCode = checkCategoriesResult.StatusCode;
+                    result.Message = checkCategoriesResult.Message;
+                    return result;
                 }
             }
             //toi luc nay thi coi nhu khong co trung lap trong db cung nhu trong request -> bat dau tao du lieu
@@ -62,6 +50,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 result.StatusCode = 400;
                 result.Message = "This recipe already have enough categories";
+                return result;
             }
             RecipeCategory newOne = new RecipeCategory();
             newOne.RecipeId = recipeId;
@@ -85,6 +74,32 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.StatusCode = 200;
             result.Message = "Ok at Create recipeCategory";
             result.Data = returnList;
+            return result;
+        }
+
+        private ResponseObject<RecipeCategory> CheckCategories(List<Guid> categoryIdList)//cai nay dung de check xem cai list category nhap vao co bi trung type hay khong
+        {
+            var result = new ResponseObject<RecipeCategory>();
+            foreach (var type in categoryTypeList)//cho chay vong lap doi voi lai id category, neu nhu type cua category nao bi trung thi bao loi
+            {
+                int count = 0;
+                foreach (var categoryId in categoryIdList)
+                {
+                    if (_unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString()).Equals(type))//cai nay dem coi co type nao bi trung khong
+                    {
+                        count++;
+                    }
+                    if (count > 1)
+                    {
+                        result.StatusCode = 400;
+                        result.Message = "Error at create recipeCategory. category type " + type + " " +
+                            "is duplicate in this request./n " +
+                            "The 4 categories are Nation, Classify, Cooking Method, Meal in day. respectively.";
+                        return result;
+                    }
+                }
+            }
+            result.StatusCode = 200;
             return result;
         }
 
