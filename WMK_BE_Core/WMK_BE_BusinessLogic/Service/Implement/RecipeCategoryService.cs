@@ -118,7 +118,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//tim id cua recipe
 			var result = new ResponseObject<RecipeCategoryResponse>();
 			var recipeCategoryList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
-			var recipe = _unitOfWork.RecipeRepository.GetById(recipeCategory.RecipeId);
+			var recipe = _unitOfWork.RecipeRepository.GetById(recipeCategory.RecipeId.ToString());
 			if ( recipe == null )
 			{
 				result.StatusCode = 400;
