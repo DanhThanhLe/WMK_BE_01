@@ -124,10 +124,12 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(OrderProfile));
 			builder.Services.AddAutoMapper(typeof(CategoryProfile));
 			builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
-			//builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
+            //builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
+            builder.Services.AddAutoMapper(typeof(RecipeCategoryProfile));
+            builder.Services.AddAutoMapper(typeof(RecipeProfile));
 
-			//scope
-			builder.Services.AddScoped<DbContext , WeMealKitContext>();
+            //scope
+            builder.Services.AddScoped<DbContext , WeMealKitContext>();
 			builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 			builder.Services.AddScoped<IAuthService , AuthService>();
 			builder.Services.AddScoped<IUserService , UserService>();
@@ -138,8 +140,10 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeStepService , RecipeStepService>();
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 			builder.Services.AddScoped<IRecipeAmountService , RecipeAmountService>();
+            builder.Services.AddScoped<IRecipeCategoryService, RecipeCategoryService>();
+            builder.Services.AddScoped<IIngredientService, IngredientService>();
 
-			var app = builder.Build();
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if ( app.Environment.IsDevelopment() )
