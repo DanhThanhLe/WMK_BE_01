@@ -11,7 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 		Admin = 0,
 		Manager = 1,
 		Staff = 2,
-		Delivery = 3,
+		Shiper = 3,
 		Customer = 4,
 		None = 5,
 	}

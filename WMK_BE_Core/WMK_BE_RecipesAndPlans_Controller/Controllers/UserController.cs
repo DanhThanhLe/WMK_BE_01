@@ -16,7 +16,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			_userService = userService;
 		}
 
-
 		//[Authorize(Roles = "Admin,Manager,Staff")]
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll()
@@ -25,6 +24,19 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return Ok(result);
 		}
 		
+		[HttpGet("get-all-staff")]
+		public async Task<IActionResult> GetAllStaff()
+		{
+			var result = await _userService.GetAllStaffs();
+			return Ok(result);
+		}
+
+		[HttpGet("get-all-shipper")]
+		public async Task<IActionResult> GetAllShipper()
+		{
+			var result = await _userService.GetAllShippers();
+			return Ok(result);
+		}
 
 		//[Authorize]
 		[HttpGet("get-id")]
@@ -54,6 +66,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _userService.GetUserAsync(emailOrUsername);
 			return Ok(result);
 		}
+		
+		//[Authorize]
+		[HttpGet("get-user-token")]
+		public async Task<IActionResult> GetUserByToken([FromQuery] string token)
+		{
+			var result = await _userService.GetUserByTokenAsync(token);
+			return Ok(result);
+		}
 
 
 		[Authorize(Roles = "Admin")]
@@ -63,7 +83,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _userService.CreateUserAsync(model);
 			return Ok(result);
 		}
-		
 		
 		[Authorize]
 		[HttpPut("update")]
