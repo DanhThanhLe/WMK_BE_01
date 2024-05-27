@@ -24,7 +24,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<RecipeAmount>?>();
 			var recipeAmounts = new List<RecipeAmount>();
 			try
-			{
+			  {
 				//check recipe exist
 				var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
 

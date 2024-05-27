@@ -16,9 +16,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		Task<bool> CreateAsync(T entity);
 		//public void Update(T entity);
 		Task<bool> UpdateAsync(T entity);
-		//public void Delete(string id);
+		public void Delete(string id);
 		Task<bool> DeleteAsync(string id);
-		public T GetById<TKey>(TKey id);
+		public T? GetById(string id);
         public void DetachEntity(T entity);
         public IQueryable<T> Get(Expression<Func<T, bool>> expression);
         public T GetEntity(T entity);
