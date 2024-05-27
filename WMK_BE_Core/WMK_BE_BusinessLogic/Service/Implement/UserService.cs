@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel;
@@ -109,7 +111,102 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		//By Admin
+		//get user by role (staff, shipper)
+		public async Task<ResponseObject<List<UsersResponse>>> GetAllStaffs()
+		{
+			var result = new ResponseObject<List<UsersResponse>>();
+			var users = await _unitOfWork.UserRepository.GetAllAsync();
+			if ( users != null && users.Count() > 0 )
+			{
+				var staffList = users.Where(u => u.Role == Role.Staff).ToList();
+				var usersModel = _mapper.Map<List<UsersResponse>>(staffList);
+				result.StatusCode = 200;
+				result.Message = "Success";
+				result.Data = usersModel;
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Don't have user!";
+				return result;
+			}
+		}
+
+		public async Task<ResponseObject<List<UsersResponse>>> GetAllShippers()
+		{
+			var result = new ResponseObject<List<UsersResponse>>();
+			var users = await _unitOfWork.UserRepository.GetAllAsync();
+			if ( users != null && users.Count() > 0 )
+			{
+				var shipperList = users.Where(u => u.Role == Role.Shiper).ToList();
+				var usersModel = _mapper.Map<List<UsersResponse>>(shipperList);
+				result.StatusCode = 200;
+				result.Message = "Success";
+				result.Data = usersModel;
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Don't have user!";
+				return result;
+			}
+		}
+		//get user by token
+		public async Task<ResponseObject<UserResponse>> GetUserByTokenAsync(string token)
+		{
+			var result = new ResponseObject<UserResponse>();
+			try
+			{
+				//read token
+				var handler = new JwtSecurityTokenHandler();
+				var tokenString = handler.ReadToken(token) as JwtSecurityToken;
+				if ( tokenString != null )
+				{
+					//get user id from token
+					var userIdClaim = tokenString.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
+					if ( userIdClaim != null )
+					{
+						var userId = userIdClaim.Value;
+						var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+						if ( user == null )
+						{
+							result.StatusCode = 404;
+							result.Message = "User not found!";
+							return result;
+						}
+						else
+						{
+							var rolesClaim = tokenString.Claims.Where(claim => claim.Type == ClaimTypes.Role).Select(claim => claim.Value);
+							var userModel = _mapper.Map<UserResponse>(user);
+							result.StatusCode = 200;
+							result.Message = "User Profile";
+							result.Data = userModel;
+							return result;
+						}
+					}
+					else
+					{
+						result.StatusCode = 401;
+						result.Message = "Token not have userId!";
+						return result;
+					}
+				}
+				else
+				{
+					result.StatusCode = 402;
+					result.Message = "Token invalid!";
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = "Error when processing: " + ex.Message;
+				return result;
+			}
+		}
 		public async Task<ResponseObject<BaseUserResponse>> CreateUserAsync(CreateUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -464,5 +561,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
+
+		
 	}
 }

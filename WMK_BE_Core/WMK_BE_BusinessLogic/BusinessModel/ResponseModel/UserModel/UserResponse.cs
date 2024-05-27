@@ -16,8 +16,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.UserModel
 		public string FirstName { get; set; } = string.Empty;
 		public string LastName { get; set; } = string.Empty;
 		public string Gender { get; set; } = string.Empty;
-		public DateTime? DateOfBirth { get; set; }
-		public string? Address { get; set; }
+		public string? Phone { get; set; } = string.Empty;
+		public string? Address { get; set; } = string.Empty;
 		public string Role { get; set; } = string.Empty;
 		public int AccessFailedCount { get; set; }
 		public string Status { get; set; } = string.Empty;
@@ -31,8 +31,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.UserModel
 		public string FirstName { get; set; } = string.Empty;
 		public string LastName { get; set; } = string.Empty;
 		public string Gender { get; set; } = string.Empty;
-		public DateTime? DateOfBirth { get; set; }
-		public string? Address { get; set; }
+		public string? Phone { get; set; } = string.Empty;
+		public string? Address { get; set; } = string.Empty;
 		public string Role { get; set; } = string.Empty;
 	}
 }

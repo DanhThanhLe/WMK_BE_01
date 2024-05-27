@@ -160,8 +160,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var authClaims = new List<Claim>
 				{
 					new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-					new Claim(ClaimTypes.Name, user.UserName.ToString()),
-					new Claim(ClaimTypes.Email, user.Email.ToString()),
+					//new Claim(ClaimTypes.Name, user.UserName.ToString()),
+					//new Claim(ClaimTypes.Email, user.Email.ToString()),
 					new Claim(ClaimTypes.Role, user.Role.ToString()),
 					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 				};
@@ -269,7 +269,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 				//add password, set Role
 				newUser.Role = WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer;
-				newUser.PasswordHash = HashHelper.GetSignature256("User123@");
+				newUser.PasswordHash = HashHelper.GetSignature256(model.Password);
 				await _unitOfWork.UserRepository.UpdateAsync(newUser);
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
