@@ -19,12 +19,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			this._dbSet = this._context.Set<T>();
 		}
 
-        public IQueryable<T> GetAll()
-        {
-            return _dbSet;
-        }
+		public IQueryable<T> GetAll()
+		{
+			return _dbSet;
+		}
 
-  //      public void Create(T entity)
+		//      public void Create(T entity)
 		//{
 		//	throw new NotImplementedException();
 		//}
@@ -32,10 +32,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		//{
 		//	throw new NotImplementedException();
 		//}
-		//public void Delete(string id)
-		//{
-		//	throw new NotImplementedException();
-		//}
+		public void Delete(string id)
+		{
+			var entity = _dbSet.Find(id);
+			if ( entity != null )
+			{
+				this._dbSet.Remove(entity);
+				_context.SaveChanges();
+			}
+		}
 		public virtual Task<List<T>> GetAllAsync()
 		{
 			return this._dbSet.ToListAsync();
@@ -111,9 +116,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			}
 		}
 
-		public T GetById<TKey>(TKey id)
+		public T? GetById(string id)
 		{
-			return _dbSet.Find(new object[1] { id });
+			return _dbSet.Find(id);
 		}
 
 		public IQueryable<T> Get(Expression<Func<T , bool>> expression)

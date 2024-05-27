@@ -138,11 +138,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 
 				await _unitOfWork.CompleteAsync();
-
 				//create ingredient list 
 				var createRecipeAmount = await _recipeAmountService.CreateRecipeAmountAsync(newRecipe.Id , recipe.Ingredients);
 				if ( createRecipeAmount.StatusCode != 200 && createRecipeAmount.Data == null )
 				{
+					resetRecipe(newRecipe.Id);
 					result.StatusCode = createRecipeAmount.StatusCode;
 					result.Message = createRecipeAmount.Message;
 					return result;
@@ -157,6 +157,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
 				if( createRecipeCategoryList.StatusCode != 200 && createRecipeCategoryList.Data == null)
 				{
+					resetRecipe(newRecipe.Id);
 					result.StatusCode= createRecipeCategoryList.StatusCode;
 					result.Message= createRecipeCategoryList.Message;
 					return result;
@@ -167,8 +168,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					newRecipe.RecipeCategories = createRecipeCategoryList.Data;
 				}
-				//newRecipe.RecipeCategories = createRecipeCategory.Data;
-
+				await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;
 				result.Message = "Create Recipe successfully.";
@@ -183,6 +183,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			
 		}
+
+		//reset Recipe
+		private void resetRecipe(Guid recipeId)
+		{
+			_unitOfWork.RecipeRepository.Delete(recipeId.ToString());
+		}
+
 		#endregion
 
 		#region Update (26/05/2024)
