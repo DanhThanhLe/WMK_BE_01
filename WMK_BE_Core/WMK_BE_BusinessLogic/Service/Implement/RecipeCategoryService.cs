@@ -136,5 +136,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         //        return result;
         //    }
         //}
+
+        public async Task<ResponseObject<List<RecipeCategoryResponse>?>> SearchByType(string type)
+        {
+            var result = new ResponseObject<List<RecipeCategory>?>();
+            List<RecipeCategory> currentlist = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
+            List<Category> listCategories = await _unitOfWork.CategoryRepository.GetAllAsync();
+            List<Category> listFound = new List<Category>();
+            foreach (var category in listCategories) 
+            {
+                
+            }
+            
+            return null;
+        }
     }
 }
