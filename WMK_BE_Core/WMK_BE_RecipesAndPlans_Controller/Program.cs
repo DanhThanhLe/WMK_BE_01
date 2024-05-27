@@ -146,6 +146,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
+			//long.nguyen mo swagger for production
 			if ( app.Environment.IsDevelopment() )
 			{
 				app.UseSwagger();
