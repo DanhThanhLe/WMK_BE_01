@@ -52,7 +52,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			else
 			{
-				result.StatusCode = 404;
+				result.StatusCode = 500;
 				result.Message = "Not found. Empty list or Data not found";
 				return result;
 			}
@@ -192,14 +192,92 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		#endregion
 
-		#region Update
+		#region Update (26/05/2024)
 		public async Task<ResponseObject<RecipeResponse>> Update(RecipeRequest updateRecipe)
 		{
-			return null;
-		}
+			/*
+			tim recipe
+			lay du lieu goc
+			thay doi cho cac thong so
+			giu nguyen cho cac thong so bo trong
+			 */
+			var result = new ResponseObject<RecipeResponse>();
+			var foundRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(updateRecipe.Id.ToString());
+			if( foundRecipe != null )
+			{
+				result.StatusCode = 400;
+				result.Message = "Not found recipe";
+				return result;
+			}
+			var currentList = await (_unitOfWork.RecipeRepository.GetAllAsync());
+			var duplicateName = currentList.FirstOrDefault(x => x.Name == updateRecipe.Name);
+			if( duplicateName != null 
+				&& duplicateName.Id != updateRecipe.Id
+				&& duplicateName.ProcessStatus == ProcessStatus.Processing)
+			{
+                result.StatusCode = 400;
+                result.Message = "Recipe with name: "+updateRecipe.Name+" is already existed";
+                return result;
+            }
+			if(updateRecipe.Name != null)
+			{
+				foundRecipe.Name = updateRecipe.Name;
+			}
+			if(updateRecipe.ServingSize != null)
+			{
+				foundRecipe.ServingSize = updateRecipe.ServingSize;
+			}
+			if(updateRecipe.Difficulty != null)
+			{
+				foundRecipe.Difficulty = updateRecipe.Difficulty;
+			}
+            if(updateRecipe.Description != null)
+			{
+				foundRecipe.Description = updateRecipe.Description;
+			}
+			if(updateRecipe.ImageLink != null)
+			{
+				foundRecipe.Img = updateRecipe.ImageLink;
+			}
+			if(updateRecipe.Price != null)
+			{
+				foundRecipe.Price = updateRecipe.Price;
+			}
+            if (updateRecipe.ApprovedBy != null)
+            {
+                foundRecipe.ApprovedBy = updateRecipe.ApprovedBy;
+            }
+            if (updateRecipe.ApprovedAt != null)
+            {
+                foundRecipe.ApprovedAt = updateRecipe.ApprovedAt;
+            }
+            if (updateRecipe.UpdatedBy  != null)
+			{
+				foundRecipe.UpdatedBy = updateRecipe.UpdatedBy;
+			}
+			foundRecipe.UpdatedAt = DateTime.Now;
+			if(updateRecipe.Popularity != null)
+			{
+				foundRecipe.Popularity = updateRecipe.Popularity;
+			}
+			if(updateRecipe.ProcessStatus != null)
+			{
+				foundRecipe.ProcessStatus = updateRecipe.ProcessStatus;
+			}
+            var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(foundRecipe);
+			if (!updateResult)
+			{
+				result.StatusCode = 500;
+				result.Message = "Error when updating recipe in recipe service using updateAsync";
+				return result;
+			}
+            result.StatusCode = 500;
+            result.Message = "Update recipe id "+updateRecipe.Id+" done";
+            return result;
+        }
 		#endregion
 
-		#region Change status -- jusst manager use
+		#region Change status -- just manager use
 		public async Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
@@ -229,7 +307,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Change Ingredient " + recipe.Id + " status Unsuccessfully!";
+				result.Message = "Change Recipe " + recipe.Id + " status Unsuccessfully!";
 				return result;
 			}
 		}

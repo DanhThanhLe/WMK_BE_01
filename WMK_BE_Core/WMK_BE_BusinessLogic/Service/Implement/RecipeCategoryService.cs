@@ -50,7 +50,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Have same type!";
 				return result;
 			}
-
 			//toi luc nay thi coi nhu khong co trung lap trong db cung nhu trong request -> bat dau tao du lieu
 			var currentList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
 			var foundByRecipe = currentList.Where(x => x.RecipeId == recipeId);
@@ -148,4 +147,5 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		//    }
 		//}
 	}
+        
 }
