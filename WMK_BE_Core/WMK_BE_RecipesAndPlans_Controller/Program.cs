@@ -132,6 +132,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<DbContext , WeMealKitContext>();
 			builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 			builder.Services.AddScoped<IAuthService , AuthService>();
+			builder.Services.AddScoped<ISendMailService , SendMailService>();
 			builder.Services.AddScoped<IUserService , UserService>();
 			builder.Services.AddScoped<IOrderService , OrderService>();
 			builder.Services.AddScoped<ICategoryService , CategoryService>();
