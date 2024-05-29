@@ -10,10 +10,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 	public class AuthController : ControllerBase
 	{
 		private readonly IAuthService _authService;
+                private readonly ISendMailService _sendMailService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ISendMailService sendMailService)
         {
             _authService = authService;
+	    _sendMailService = sendMailService;
         }
 
 		[HttpPost("login")]
@@ -22,7 +24,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _authService.LoginAsync(model);
 			if(result.StatusCode == 405 )
 			{
-				return BadRequest();
+                                _sendMailService.SendMail(model.Email, "Confirm Mail", result.Message);
+				return StatusCode(405, new { statusCode = 405, message = result.Message });
 			}
 			return Ok(result);
 		}
@@ -33,7 +36,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return Ok(result);
 		}
 		[HttpGet("confirm-mail")]
-		public async Task<IActionResult> ComfirmMail([FromBody]CheckEmailConfirmRequest model)
+		public async Task<IActionResult> ComfirmMail([FromQuery]CheckEmailConfirmRequest model)
 		{
 			var result = await _authService.CheckEmailConfirmAsync(model);
 			return Ok(result);
