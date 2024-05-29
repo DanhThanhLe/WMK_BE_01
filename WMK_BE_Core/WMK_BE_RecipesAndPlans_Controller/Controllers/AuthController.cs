@@ -24,7 +24,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _authService.LoginAsync(model);
 			if(result.StatusCode == 405 )
 			{
-                                _sendMailService.SendMail(model.Email, "Confirm Mail", result.Message);
+                                _sendMailService.SendMail(model.EmailOrUserName, "Confirm Mail", result.Message);
 				return StatusCode(405, new { statusCode = 405, message = result.Message });
 			}
 			return Ok(result);
