@@ -9,9 +9,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel
 {
 	public class CreateCategoryRequestModel
 	{
-		public string Name { get; set; } = string.Empty;
-		public string Type { get; set; } = string.Empty;
+        // { "Nation", "Classify", "Cooking Method", "Meal in day" };
+        public string Type { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 		public string Description { get; set; } = string.Empty;
-		public BaseStatus Status { get; set; }
 	}
 }

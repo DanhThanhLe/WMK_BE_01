@@ -46,7 +46,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             var checkCategoriesResult = CheckTypeCategories(categoryIdList);
             if (!checkCategoriesResult)
             {
-                result.StatusCode = 402;
+                result.StatusCode = 400;
                 result.Message = "Have same type!";
                 return result;
             }
