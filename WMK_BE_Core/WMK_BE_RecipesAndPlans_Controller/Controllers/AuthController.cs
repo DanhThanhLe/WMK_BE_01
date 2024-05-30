@@ -29,6 +29,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 					_sendMailService.SendMail(result.Data.Email , "Confirm Mail" , "This code is for authentication in WEMEALKIT: " + result.Message);
 				}
 				return StatusCode(405 , new { statusCode = 405 , message = "Please check mail to take confirm code" });
+
 			}
 			return Ok(result);
 		}

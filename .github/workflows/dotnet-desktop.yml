@@ -15,7 +15,7 @@ jobs:
       matrix:
         configuration: [Release]
 
-    runs-on: windows-latest  # For a list of available runner types, refer to
+    runs-on: ubuntu-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
     steps:
     - name: Checkout
@@ -31,7 +31,15 @@ jobs:
 
     - name: Restore the application
       run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
-
+    
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: wemealkit.shop
+        username: Administrator
+        password: 000000Long@
+        port: 22
+        script:   NET STOP WAS /Y 
     # Deploy to FTP
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -41,4 +49,13 @@ jobs:
         password: 000000Long@
         local-dir: publishCode/
         server-dir: /
+        
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: wemealkit.shop
+        username: Administrator
+        password: 000000Long@
+        port: 22
+        script: NET START W3SVC
    
