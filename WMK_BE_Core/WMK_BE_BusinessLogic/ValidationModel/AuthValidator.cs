@@ -17,8 +17,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//_expendValidator = new ExpendValidator();
 			RuleFor(x => x.EmailOrUserName)
 				.NotEmpty().WithMessage("Email or Username is required!");//check email or username
-															  //.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
-															  //.Must(_emailValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
+																		  //.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
+																		  //.Must(_emailValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
 			RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required!")
 				.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
 				.WithMessage("Password must contain at least 1 uppercase letter, 1 digit, 1 special character, and be at least 6 characters long!");
@@ -42,15 +42,15 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 				.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
 				.WithMessage("Password must contain at least 1 uppercase letter, 1 digit, 1 special character, and be at least 6 characters long!");
 			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("ConfirmPassword is required!");
-			RuleFor(x => x.Dob)
-			.Must(dob =>
-			{
-				if ( dob == null )
-					return true;
-				var today = DateTime.Today;
-				var minDate = today.AddYears(-6);
-				return dob < minDate;
-			}).WithMessage("Date of birth must be before 6 years!");
+			//RuleFor(x => x.Dob)
+			//.Must(dob =>
+			//{
+			//	if ( dob == null )
+			//		return true;
+			//	var today = DateTime.Today;
+			//	var minDate = today.AddYears(-6);
+			//	return dob < minDate;
+			//}).WithMessage("Date of birth must be before 6 years!");
 		}
 	}
 	public class ResetPasswordModelValidator : AbstractValidator<ResetPasswordRequest>

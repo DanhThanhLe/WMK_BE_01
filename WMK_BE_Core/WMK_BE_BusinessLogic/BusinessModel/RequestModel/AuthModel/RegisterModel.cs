@@ -14,7 +14,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.AuthModel
 		public string ConfirmPassword { get; set; } = string.Empty;
 		public string FirstName { get; set; } = string.Empty;
 		public string LastName { get; set; } = string.Empty;
-		public DateTime? Dob { get; set; }
 		public Gender Gender { get; set; }
 		public string? Phone { get; set; } = string.Empty;
 
