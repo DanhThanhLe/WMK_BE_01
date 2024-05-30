@@ -20,7 +20,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public async Task<bool> RecipeExistCategoryAsync(Guid id)
 		{
 			var recipeCategory = await _dbSet.Include(c => c.RecipeCategories).FirstOrDefaultAsync(c => c.Id == id);
-			if(recipeCategory.RecipeCategories.Count() > 0 && recipeCategory != null)
+			if(recipeCategory != null && recipeCategory.RecipeCategories.Count() > 0 )
 			{
 				return true;
 			}
