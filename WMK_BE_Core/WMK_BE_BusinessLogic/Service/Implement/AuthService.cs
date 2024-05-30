@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -23,6 +24,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IConfiguration _configuration;
+		private readonly IMapper _mapper;
 		#region Validator
 		private readonly LoginModelValidator _loginValidator;
 		private readonly RegisterModelValidator _registerValidator;
@@ -30,10 +32,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly ResetPasswordByEmailModelValidator _resetPassByEmailValidator;
 		private readonly SendCodeByEmailModelValidator _sendCodeValidator;
 		#endregion
-		public AuthService(IUnitOfWork unitOfWork , IConfiguration configuration)
+		public AuthService(IUnitOfWork unitOfWork , IConfiguration configuration, IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
 			_configuration = configuration;
+			_mapper = mapper;
 
 			_loginValidator = new LoginModelValidator();
 			_registerValidator = new RegisterModelValidator();
@@ -86,6 +89,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 									await _unitOfWork.CompleteAsync();
 									result.StatusCode = 405;
 									result.Message = code;
+									result.Data = _mapper.Map<UserResponse>(userExist);
 									return result;
 								}
 								result.StatusCode = 500;
@@ -270,10 +274,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//add password, set Role
 				newUser.Role = WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer;
 				newUser.PasswordHash = HashHelper.GetSignature256(model.Password);
+				var code = GenerateRandomCode(6);
+				newUser.Code = code;
 				await _unitOfWork.UserRepository.UpdateAsync(newUser);
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Register successfully.";
+				result.Message = code;
 				return result;
 			}
 			else
@@ -440,7 +446,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 			string randomChars = new string(Enumerable.Repeat(chars , length)
 				.Select(s => s[random.Next(s.Length)]).ToArray());
-			return "WMK-" + randomChars;
+			//return "WMK-" + randomChars;
+			return randomChars;
 		}
 
 	}

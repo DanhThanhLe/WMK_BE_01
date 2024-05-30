@@ -139,6 +139,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IWeeklyPlanService , WeeklyPlanService>();
 			builder.Services.AddScoped<IRecipeService , RecipeService>();
 			builder.Services.AddScoped<IRecipeStepService , RecipeStepService>();
+			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 			builder.Services.AddScoped<IRecipeAmountService , RecipeAmountService>();
             builder.Services.AddScoped<IRecipeCategoryService, RecipeCategoryService>();
