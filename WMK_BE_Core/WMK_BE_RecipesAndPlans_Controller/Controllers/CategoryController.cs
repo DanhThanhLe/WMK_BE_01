@@ -49,7 +49,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _categoryService.UpdateCategoryAsync(model);
 			return Ok(result);
 		}
-		[HttpDelete("create")]
+		[HttpDelete("delete")]
 		public async Task<IActionResult> Delete([FromBody] DeleteCategoryRequestModel model)
 		{
 			var result = await _categoryService.DeleteCategoryAsync(model);
