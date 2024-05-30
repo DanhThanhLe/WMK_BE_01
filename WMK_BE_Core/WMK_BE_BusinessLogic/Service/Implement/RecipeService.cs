@@ -351,8 +351,49 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+        #endregion
 
-
-		#endregion
-	}
+        #region Search recipe list with recipe category id
+		public async Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId)
+		{
+			/*
+			 1-lay list recipe category lien quan
+				1.1 - xac dinh category co ton tai (category repo - get by id)
+				1.2 - tim list recipe category lien quan
+					+ - tao list trong
+					+ - cho chay vong for gap dung thi add recipe id
+			 2-tim list recipe lien quan
+				2.1 - tao list trong
+				2.2 - cho chay vong for gap dung thi add
+			 3- tra ve 200 va list recipe
+			 */
+			var result = new ResponseObject<RecipeResponse>();
+			var checkCategory = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString());
+			if( checkCategory == null )
+			{
+				result.StatusCode= 400;
+				result.Message = "Wrong category. Not found Category";
+				return result;
+			}
+			var recipeIdListfound = _recipeCategoryService.GetRecipeIdByCategoryId(categoryId);
+			if ( recipeIdListfound == null )//cai nay la coi nhu tim ko co mon an thich hop, chu ko phai loi
+			{
+                result.StatusCode = 200;
+                result.Message = "Not found suitable recipe";
+				result.List = new List<RecipeResponse>();
+				return result;
+            }
+			List<Recipe> listRecipe = new List<Recipe>();
+            foreach (var item in recipeIdListfound)
+            {
+				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.ToString());
+				listRecipe.Add(recipe);
+            }
+            result.StatusCode = 200;
+            result.Message = "Recipe list base on categoryID: ";
+            result.List = _mapper.Map<List<RecipeResponse>>(listRecipe);
+			return result;
+        }
+        #endregion
+    }
 }

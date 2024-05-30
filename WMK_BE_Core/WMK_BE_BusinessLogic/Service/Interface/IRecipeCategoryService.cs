@@ -15,5 +15,6 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<List<RecipeCategory>?>> Create(Guid recipeId, List<Guid> categoryList);
         Task<ResponseObject<RecipeCategoryResponse>> Update(RecipeCategoryRequest recipeCategory);
         //Task<ResponseObject<RecipeCategoryResponse>> GetByRecipeId(Guid recipeId);
+        public List<Guid> GetRecipeIdByCategoryId(Guid categoryId)
     }
 }
