@@ -154,7 +154,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 return null;
             }
-            return null;
+            List<Guid> result = new List<Guid>();
+            foreach (var item in recipeCategoryFoundList)
+            {
+                result.Add(item.RecipeId);
+            }
+            return result;
         }
     }
 
