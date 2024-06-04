@@ -12,10 +12,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             RuleFor(x => x.Category).NotEmpty().WithMessage("Category khong de trong");
 
             RuleFor(x => x.Name).NotEmpty().WithMessage("Ten khong de trong");
-
-            RuleFor(x => x.PricebyUnit)
-                .NotEmpty().WithMessage("Price per Unit khong nen de trong")
-                .GreaterThan(1000).WithMessage("Gia don vi phai it nhat 1000 VND");
             //RuleFor(x => x.ImageLink).NotEmpty().WithMessage("Image link must not empty");
 
             RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham");
@@ -34,9 +30,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 
             RuleFor(x => x.Name).NotEmpty().WithMessage("Ten khong de trong");
 
-            RuleFor(x => x.PricebyUnit)
-                .NotEmpty().WithMessage("Price per Unit khong nen de trong")
-                .GreaterThan(1000).WithMessage("Gia don vi phai it nhat 1000 VND");
             //RuleFor(x => x.ImageLink).NotEmpty().WithMessage("Image link must not empty");
 
             RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham");
@@ -58,11 +51,11 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         }
     }
 
-    public class IdIngredientValidator : AbstractValidator<IdIngredientRequest>
-    {
-        public IdIngredientValidator()
-        {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
-        }
-    }
+    //public class IdIngredientValidator : AbstractValidator<IdIngredientRequest>
+    //{
+    //    public IdIngredientValidator()
+    //    {
+    //        RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
+    //    }
+    //}
 }

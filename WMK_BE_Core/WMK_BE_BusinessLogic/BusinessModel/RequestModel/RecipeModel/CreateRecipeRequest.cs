@@ -17,12 +17,12 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public string? ImageLink { get; set; } = string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
         public ProcessStatus ProcessStatus { get; set; }
-		public List<RecipeAmountModel> Ingredients { get; set; }
+		public List<RecipeAmountCreateModel> Ingredients { get; set; }
 		public List<Guid> CategoryIds { get; set; }
 	}
-    public class RecipeAmountModel
+    public class RecipeAmountCreateModel
     {
         public Guid IngredientId { get; set; }
-        public int amount { get; set; }
+        public double amount { get; set; }
     }
 }

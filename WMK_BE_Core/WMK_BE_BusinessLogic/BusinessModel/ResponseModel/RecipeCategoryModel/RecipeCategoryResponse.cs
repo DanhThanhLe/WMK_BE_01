@@ -13,3 +13,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeCategoryModel
         public Guid RecipeId { get; set; }
     }
 }
+/*
+ public Guid Id { get; set; }
+        [ForeignKey(nameof(Category))]
+        public Guid CategoryId {  get; set; }
+        [ForeignKey(nameof(Recipe))]
+        public Guid RecipeId { get; set; }
+ */

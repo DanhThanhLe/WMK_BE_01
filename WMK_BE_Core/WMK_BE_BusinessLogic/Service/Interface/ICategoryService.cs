@@ -16,5 +16,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequestModel model);
 		Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(UpdateCategoryRequestModel model);
 		Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(DeleteCategoryRequestModel model);
-	}
+		Task<ResponseObject<CategoryResponseModel>> GetCategoryByType(string type);
+		Task<ResponseObject<CategoryResponseModel>> GetcategoryByName(string name);
+
+    }
 }
