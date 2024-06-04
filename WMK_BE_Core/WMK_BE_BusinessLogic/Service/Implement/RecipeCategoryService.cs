@@ -24,6 +24,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         List<string> categoryTypeList = new List<string> { "Nation", "Classify", "Cooking Method", "Meal in day" };
+
+        #region Create-for-recipe-create
         public async Task<ResponseObject<List<RecipeCategory>?>> Create(Guid recipeId, List<Guid> categoryIdList)
         {
             var result = new ResponseObject<List<RecipeCategory>?>();
@@ -90,7 +92,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Data = returnList;
             return result;
         }
+        #endregion Create-for-recipe-create
 
+        #region Check-type-categories <private>
         private bool CheckTypeCategories(List<Guid> categoryIdList)//cai nay dung de check xem cai list category nhap vao co bi trung type hay khong
         {
             //check type co trung nhau khong
@@ -112,7 +116,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             return true;
         }
+        #endregion Check-type-categories
 
+        #region Update
         public async Task<ResponseObject<RecipeCategoryResponse>> Update(RecipeCategoryRequest recipeCategory)
         {
             //tim id cua recipe
@@ -133,6 +139,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "test";
             return result;
         }
+        #endregion Update
         //public async Task<ResponseObject<RecipeCategoryResponse>> GetByRecipeId(Guid recipeId)
         //{
         //    var result = new ResponseObject<RecipeCategoryResponse>();
@@ -146,7 +153,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         //        return result;
         //    }
         //}
-
+        #region Get-recipe-list-by-category-id
         public List<Guid> GetRecipeIdByCategoryId(Guid categoryId)
         {
             var recipeCategoryFoundList = _unitOfWork.RecipeCategoryRepository.Get(x => x.CategoryId == categoryId);
@@ -161,6 +168,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             return result;
         }
+        #endregion Get-recipe-list-by-category-id
+
+        #region Get-all
+        public async Task<ResponseObject<RecipeCategoryResponse>> GetAll()
+        {
+            var result = new ResponseObject<RecipeCategoryResponse>();
+            var list = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
+            if(list == null || list.Count == 0)
+            {
+                result.StatusCode=400;
+                result.Message= "Not found. Empty list";
+                return result;
+            }
+            result.StatusCode = 200;
+            result.Message = "OK. list recipe cateory";
+            result.List = _mapper.Map<List<RecipeCategoryResponse>>(list);
+            return result;
+        }
+        #endregion Get-all
     }
 
 }
