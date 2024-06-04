@@ -10,7 +10,7 @@ on:
 jobs:
 
   build:
-    if: "contains(github.event.head_commit.message, 'deploy')"
+    if: contains(github.event.head_commit.message, 'deploy')
     strategy:
       matrix:
         configuration: [Release]
@@ -28,8 +28,11 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    #test
+    - name: .net Test
+      run: dotnet test WMK_BE_Core/WMK_BE_Test/WMK_BE_Test.csproj
 
-    - name: Restore the application
+    - name: publish the application
       run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
     
     - name: executing remote ssh commands using password
