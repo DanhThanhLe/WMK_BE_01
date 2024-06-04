@@ -49,47 +49,6 @@ namespace WMK_BE_BusinessLogic.Tests.Service.Implement
         }
 
         [Fact]
-        public async Task LoginAsync_WithValidCredentials_ReturnsToken()
-        {
-            // Arrange
-            var loginModel = new LoginModel
-            {
-                EmailOrUserName = "test@example.com",
-                Password = "Strong_password@123"
-            };
-
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Email = "test@example.com",
-                PasswordHash = HashHelper.GetSignature256("Strong_password@123"),
-                Role = Role.Customer,
-                EmailConfirm = EmailConfirm.Confirm,
-                Status = BaseStatus.Available
-            };
-            var signingKey = new byte[16];
-            new RNGCryptoServiceProvider().GetBytes(signingKey);
-            var base64Key = Convert.ToBase64String(signingKey);
-
-            _userRepositoryMock.Setup(x => x.GetByEmailOrUserNameAsync(loginModel.EmailOrUserName))
-                .ReturnsAsync(user);
-
-            _configurationMock.Setup(x => x["JWT:IssuerSigningKey"])
-    .Returns(base64Key);
-
-            _configurationMock.Setup(x => x["JWT:ValidIssuer"])
-                .Returns("test_issuer");
-
-            _configurationMock.Setup(x => x["JWT:ValidAudience"])
-                .Returns("test_audience");
-
-            // Act
-            var result = await _authService.LoginAsync(loginModel);
-
-            // Assert
-            Assert.Equal(200, result.StatusCode);
-            Assert.NotNull(result.Message);
-        }
 
         public async Task Password_ContainsAtLeastOneUppercaseLetter()
         {
@@ -167,7 +126,6 @@ namespace WMK_BE_BusinessLogic.Tests.Service.Implement
 
         }
 
-
         [Fact]
         public async Task LoginAsync_WithInvalidCredentials_ReturnsErrorMessage()
         {
@@ -218,6 +176,48 @@ namespace WMK_BE_BusinessLogic.Tests.Service.Implement
             // Assert
             Assert.Equal(404, result.StatusCode);
             Assert.Equal("User not exist!", result.Message);
+        }
+        [Fact]
+        public async Task LoginAsync_WithValidCredentials_ReturnsToken()
+        {
+            // Arrange
+            var loginModel = new LoginModel
+            {
+                EmailOrUserName = "test@example.com",
+                Password = "Strong_password@123"
+            };
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "test@example.com",
+                PasswordHash = HashHelper.GetSignature256("Strong_password@123"),
+                Role = Role.Customer,
+                EmailConfirm = EmailConfirm.Confirm,
+                Status = BaseStatus.Available
+            };
+            var signingKey = new byte[16];
+            RandomNumberGenerator.Fill(signingKey);
+            var base64Key = Convert.ToBase64String(signingKey);
+
+            _userRepositoryMock.Setup(x => x.GetByEmailOrUserNameAsync(loginModel.EmailOrUserName))
+                .ReturnsAsync(user);
+
+            _configurationMock.Setup(x => x["JWT:IssuerSigningKey"])
+    .Returns(base64Key);
+
+            _configurationMock.Setup(x => x["JWT:ValidIssuer"])
+                .Returns("test_issuer");
+
+            _configurationMock.Setup(x => x["JWT:ValidAudience"])
+                .Returns("test_audience");
+
+            // Act
+            var result = await _authService.LoginAsync(loginModel);
+
+            // Assert
+            Assert.Equal(200, result.StatusCode);
+            Assert.NotNull(result.Message);
         }
     }
 }
