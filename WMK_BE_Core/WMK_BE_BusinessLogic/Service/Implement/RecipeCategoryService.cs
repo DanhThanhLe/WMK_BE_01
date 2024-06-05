@@ -187,6 +187,39 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             return result;
         }
         #endregion Get-all
+
+        #region Get-by-recipe-id
+        public async Task<ResponseObject<RecipeCategoryResponse>> GetListByRecipeId(Guid recipeId)
+        {
+            var result = new ResponseObject<RecipeCategoryResponse>();
+            var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+            if(checkRecipe == null)
+            {
+                result.StatusCode = 400;
+                result.Message = "Recipe not existed";
+                return result;
+            }
+            var currentList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
+            var foundList = new List<RecipeCategory>();
+            foreach (var item in currentList)
+            {
+                if (item.RecipeId.Equals(recipeId))
+                {
+                    foundList.Add(item);
+                }
+            }
+            if(foundList.Count == 0)
+            {
+                result.StatusCode = 500;
+                result.Message = "Not found List for Id: "+recipeId;
+                return result;
+            }
+            result.StatusCode = 200;
+            result.Message = "Ok. Recipe category list:";
+            result.List = _mapper.Map<List<RecipeCategoryResponse>>(foundList);
+            return result;
+        }
+        #endregion
     }
 
 }
