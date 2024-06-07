@@ -56,7 +56,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Not found. Empty list or Data not found";
 				return result;
 			}
-
 		}
 		#endregion
 
@@ -65,7 +64,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(id);
-			if ( recipe != null )
+			if ( recipe != null && recipe.Id != null )
 			{
 				result.StatusCode = 200;
 				result.Message = "Recipe with Id " + id + ":";
@@ -84,14 +83,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Get by name
-		public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name)
+		public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name)//ham nay hien tai cho coi tat ca recipe bat ke status
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
 			if ( currentList != null && currentList.Count() > 0 )
 			{
 				//var foundList = ingredientList.Where(x => x.Name.Contains(name)).ToList();
-				var foundList = currentList.Where(x => x.Name.StartsWith(name)).ToList();
+				var foundList = currentList.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
 				if ( foundList == null )
 				{
 					result.StatusCode = 404;
@@ -123,13 +122,23 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
+			var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
 			try
 			{
 				//mapper
 				var newRecipe = _mapper.Map<Recipe>(recipe);
 				newRecipe.Popularity = 0;
 				newRecipe.CreatedAt = DateTime.Now;
+				newRecipe.UpdatedAt = DateTime.Now;
+                var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Equals(recipe.Name.ToLower()));
+                if( checkDuplicateName != null )
+				{
+					result.StatusCode = 400;
+					result.Message = "Duplicate name with ID " + checkDuplicateName.Id;
+					return result;
+				}
 				var createResult = await _unitOfWork.RecipeRepository.CreateAsync(newRecipe);
+				
 				if ( !createResult )
 				{
 					result.StatusCode = 500;
@@ -155,7 +164,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 				//create category list | limit 4 category
 				var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
-				if( createRecipeCategoryList.StatusCode != 200 && createRecipeCategoryList.Data == null)
+				if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data.Count == 0)
 				{
 					resetRecipe(newRecipe.Id);
 					result.StatusCode= createRecipeCategoryList.StatusCode;
@@ -318,7 +327,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var validateResult = _idValidator.Validate(recipe);
-			if ( validateResult != null )
+			if ( !validateResult.IsValid )
 			{
 				var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
 				result.StatusCode = 400;
@@ -333,7 +342,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 
-			//check recipe exist in weekly plan - if have just change status -> cancel
+			//check recipe exist in weekly plan - if have, just change status -> cancel
 
 
 			var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipe.Id.ToString());

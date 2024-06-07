@@ -11,6 +11,7 @@ using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using System.Net;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -78,10 +79,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             //check trung ten
             var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
             var checkDuplicateNameResult = currentList.FirstOrDefault(x => x.Name == newCategory.Name);
-            if(checkDuplicateNameResult != null)
+            if (checkDuplicateNameResult != null)
             {
                 result.StatusCode = 400;
-                result.Message = "Duplicate name with category id: "+checkDuplicateNameResult.Id+" !";
+                result.Message = "Duplicate name with category id: " + checkDuplicateNameResult.Id + " !";
                 return result;
             }
             newCategory.Status = BaseStatus.Available;
@@ -118,7 +119,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             if (!string.IsNullOrEmpty(model.Description))
             {
-                categoryExist.Name = model.Description;
+                categoryExist.Description = model.Description;
             }
             if (model.Status != null)
             {
@@ -186,7 +187,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         List<string> categoryTypeList = new List<string> { "Nation", "Classify", "Cooking Method", "Meal in day" };
 
-        private bool CheckMatchType(string type)//nhan noi dung cua type tu request, do voi list type cua category, neu khong nam trong list thi bao loi
+        private bool CheckMatchType(string type)//nhan noi dung cua type tu request, do theo list type cua category, neu khong nam trong list thi bao loi
         {
             foreach (var item in categoryTypeList)
             {
@@ -196,6 +197,56 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
             }
             return false;
+        }
+
+        public async Task<ResponseObject<CategoryResponseModel>> GetCategoryByType(string type)
+        {
+            var result = new ResponseObject<CategoryResponseModel>();
+            var checkMatchTypeResult = CheckMatchType(type);
+            if (!checkMatchTypeResult)
+            {
+                result.StatusCode = 400;
+                result.Message = "Not match pre-set category types!";
+                return result;
+            }
+            var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
+            List<Category> foundList = new List<Category>();
+            foreach (var item in currentList)
+            {
+                if (item.Type.ToLower().Equals(type.ToLower()) && item.Status == BaseStatus.Available)
+                {
+                    foundList.Add(item);
+                }
+            }
+            result.StatusCode = 200;
+            result.Message = "List category with " + type + " type";
+            result.List = _mapper.Map<List<CategoryResponseModel>>(foundList);
+            return result;
+
+        }
+
+        public async Task<ResponseObject<CategoryResponseModel>> GetcategoryByName(string name)
+        {
+            var result = new ResponseObject<CategoryResponseModel>();
+            var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
+            List<Category> foundList = new List<Category>();
+            foreach (var item in currentList)
+            {
+                if(item.Name.ToLower().Contains(name.ToLower()) && item.Status == BaseStatus.Available)
+                {
+                    foundList.Add(item);
+                }
+            }
+            if(foundList.Count == 0)
+            {
+                result.StatusCode = 400;
+                result.Message = "Not found with name contains " + name;
+                return result;
+            }
+            result.StatusCode = 200;
+            result.Message = "List category with name contains " + name;
+            result.List = _mapper.Map<List<CategoryResponseModel>>(foundList);
+            return result;
         }
     }
 }

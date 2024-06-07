@@ -27,6 +27,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         //public Task<ResponseObject<RecipeResponse>> RemoveRecipe(Guid id);//an khoi app
         public Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe);
 
+        public Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId);
+
         //public Task<ResponseObject<RecipeResponse>> FilterToMenu(MenuFilterRequest request);
 
         //public Task<ResponseObject<RecipeResponse>> GetRecipesByEquipmentId(int equipmentId);
