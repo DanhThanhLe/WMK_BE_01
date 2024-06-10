@@ -40,7 +40,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 
             builder.Services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1" ,Description= version });
+				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1"  });
 				c.AddSecurityDefinition("Bearer" , new OpenApiSecurityScheme
 				{
 					In = ParameterLocation.Header ,
