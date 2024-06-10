@@ -33,10 +33,14 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect") ,
 					b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
 			});
-			//add swagger 
-			builder.Services.AddSwaggerGen(c =>
+            //add swagger
+            //I want get date time of this file to show version of API 
+            var fileInfo = new FileInfo("Program.cs");
+            var version = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+            builder.Services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1" });
+				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1" ,Description= version });
 				c.AddSecurityDefinition("Bearer" , new OpenApiSecurityScheme
 				{
 					In = ParameterLocation.Header ,
