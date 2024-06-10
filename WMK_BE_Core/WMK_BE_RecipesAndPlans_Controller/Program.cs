@@ -35,7 +35,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			});
             //add swagger
             //I want get date time of this file to show version of API 
-            var fileInfo = new FileInfo("Program.cs");
+            var fileInfo = new FileInfo("WMK_BE_RecipesAndPlans_Controller.dll");
             var version = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
 
             builder.Services.AddSwaggerGen(c =>
