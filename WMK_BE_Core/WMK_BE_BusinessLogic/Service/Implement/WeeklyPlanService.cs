@@ -120,7 +120,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 				//check size of recipe create by staff
-				if ( model.recipesId.Count < 5 || model.recipesId.Count > 30 )
+				if ( model.recipesId.Count < 5 || model.recipesId.Count > 21 )
 				{
 					result.StatusCode = 402;
 					result.Message = "Recipe must be 5 - 30!";

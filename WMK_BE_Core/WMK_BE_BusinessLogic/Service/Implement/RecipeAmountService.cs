@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeAmountModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeCategoryModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
@@ -94,5 +95,38 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.List = _mapper.Map<List<RecipeAmountResponse>>(list);
             return result;
         }
+
+        #region Get-by-recipe-id dang sua
+        public async Task<ResponseObject<RecipeAmountResponse>> GetListByRecipeId(Guid recipeId)
+        {
+            var result = new ResponseObject<RecipeAmountResponse>();
+            var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+            if (checkRecipe == null)
+            {
+                result.StatusCode = 400;
+                result.Message = "Recipe not existed";
+                return result;
+            }
+            var currentList = await _unitOfWork.RecipeAmountRepository.GetAllAsync();
+            var foundList = new List<RecipeAmount>();
+            foreach (var item in currentList)
+            {
+                if (item.RecipeId.Equals(recipeId))
+                {
+                    foundList.Add(item);
+                }
+            }
+            if (foundList.Count == 0)
+            {
+                result.StatusCode = 500;
+                result.Message = "Not found List for Id: " + recipeId;
+                return result;
+            }
+            result.StatusCode = 200;
+            result.Message = "Ok. Recipe category list:";
+            result.List = _mapper.Map<List<RecipeAmountResponse>>(foundList);
+            return result;
+        }
+        #endregion
     }
 }

@@ -27,7 +27,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe
         public int Popularity { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
 
-        public List<RecipeAmountCreateModel> recipeAmounts { get; set; }
-        public List<CategoryResponseModel> categories { get; set; }
+        //public List<RecipeAmountCreateModel> recipeAmounts { get; set; }
+        //public List<CategoryResponseModel> categories { get; set; }
     }
 }
