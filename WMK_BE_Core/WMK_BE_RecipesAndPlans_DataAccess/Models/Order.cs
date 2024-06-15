@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using System.Text.Json;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
@@ -23,9 +24,16 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 		public string? Note { get; set; } = string.Empty;
 		public string Address { get; set; } = string.Empty;
-        public DateTime ShipDate { get; set; }
+		public DateTime ShipDate { get; set; }
 		public DateTime OrderDate { get; set; }
 		public double TotalPrice { get; set; }
+		public string CoordinatesJson { get; set; } = string.Empty;
+		//[NotMapped]
+		public double[] Coordinates
+		{
+			get => string.IsNullOrEmpty(CoordinatesJson) ? Array.Empty<double>() : JsonSerializer.Deserialize<double[]>(CoordinatesJson) ?? Array.Empty<double>();
+			set => CoordinatesJson = JsonSerializer.Serialize(value);
+		}
 		public OrderStatus Status { get; set; }
 
 		//reference

@@ -92,19 +92,19 @@ namespace WMK_BE_RecipesAndPlans_Controller
 					policy.RequireAuthenticatedUser();
 					policy.RequireRole("Admin");
 				});
-				
+
 				options.AddPolicy("ManagerPolicy" , policy =>
 				{
 					policy.RequireAuthenticatedUser();
 					policy.RequireRole("Manager");
 				});
-				
+
 				options.AddPolicy("StaffPolicy" , policy =>
 				{
 					policy.RequireAuthenticatedUser();
 					policy.RequireRole("Staff");
 				});
-				
+
 				options.AddPolicy("DeliveryPolicy" , policy =>
 				{
 					policy.RequireAuthenticatedUser();
@@ -124,15 +124,15 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(OrderProfile));
 			builder.Services.AddAutoMapper(typeof(CategoryProfile));
 			builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
-            //builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
-       builder.Services.AddAutoMapper(typeof(RecipeCategoryProfile));
-       builder.Services.AddAutoMapper(typeof(RecipeProfile));
-       builder.Services.AddAutoMapper(typeof(OrderGroupProfile));
-       builder.Services.AddAutoMapper(typeof(RecipeAmountProfile));
+			//builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeCategoryProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeProfile));
+			builder.Services.AddAutoMapper(typeof(OrderGroupProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeAmountProfile));
 
 
-            //scope
-            builder.Services.AddScoped<DbContext , WeMealKitContext>();
+			//scope
+			builder.Services.AddScoped<DbContext , WeMealKitContext>();
 			builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 			builder.Services.AddScoped<IAuthService , AuthService>();
 			builder.Services.AddScoped<ISendMailService , SendMailService>();
@@ -145,18 +145,18 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 			builder.Services.AddScoped<IRecipeAmountService , RecipeAmountService>();
-            builder.Services.AddScoped<IRecipeCategoryService, RecipeCategoryService>();
-            builder.Services.AddScoped<IIngredientService, IngredientService>();
-            builder.Services.AddScoped<IOrderGroupService, OrderGroupService>();
+			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
+			builder.Services.AddScoped<IIngredientService , IngredientService>();
+			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			//long.nguyen mo swagger for production
 			//if ( app.Environment.IsDevelopment() )
 			//{
-				app.UseSwagger();
-				app.UseSwaggerUI();
+			app.UseSwagger();
+			app.UseSwaggerUI();
 			//}
 
 			app.UseAuthentication();

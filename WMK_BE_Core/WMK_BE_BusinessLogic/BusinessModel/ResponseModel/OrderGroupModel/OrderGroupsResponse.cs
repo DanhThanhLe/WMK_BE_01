@@ -12,7 +12,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderGroupModel
 		public Guid Id { get; set; }
 		public Guid ShipperId { get; set; }
 		public string Location { get; set; } = string.Empty;
-		public DateTime AsignAt { get; set; }
+        public double[]? Coordinates { get; set; }
+        public DateTime AsignAt { get; set; }
 		public Guid AsignBy { get; set; }
 	}
 }

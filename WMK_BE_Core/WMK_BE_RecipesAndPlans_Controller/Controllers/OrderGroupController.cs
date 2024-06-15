@@ -35,5 +35,34 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderGroupService.CreateOrderGroupAsync(model);
 			return Ok(result);
 		}
-    }
+
+		[HttpPut("update")]
+		public async Task<IActionResult> Update([FromBody] UpdateOrderGroupRequest model)
+		{
+			var result = await _orderGroupService.UpdateOrderGroupAsync(model);
+			return Ok(result);
+		}
+		
+		[HttpDelete("delete")]
+		public async Task<IActionResult> Delete([FromQuery] IdOrderGroupRequest model)
+		{
+			var result = await _orderGroupService.DeleteOrderGroupAsync(model);
+			return Ok(result);
+		}
+
+		[HttpPut("change-status")]
+		public async Task<IActionResult> ChangeStatus([FromQuery] IdOrderGroupRequest model)
+		{
+			var result = await _orderGroupService.ChangeStatusOrderGroupAsync(model);
+			return Ok(result);
+		}
+
+
+		[HttpPut("cluster")]
+		public async Task<IActionResult> Cluster([FromBody] ClusterOrderGroupRequest model)
+		{
+			var result = await _orderGroupService.OrderGroupClusterAsync(model);
+			return Ok(result);
+		}
+	}
 }
