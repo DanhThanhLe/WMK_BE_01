@@ -38,16 +38,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Get all
-		public async Task<ResponseObject<RecipeResponse>> GetRecipes()
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes()
 		{
-			var result = new ResponseObject<RecipeResponse>();
+			var result = new ResponseObject<List<RecipeResponse>>();
 			var recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
 			var responseList = recipes.ToList().Where(x => x.ProcessStatus == ProcessStatus.Approved);//??? sao qua day can cai nay?
 			if ( responseList != null && responseList.Count() > 0 )
 			{
 				result.StatusCode = 200;
 				result.Message = "OK. Ingredients list";
-				result.List = _mapper.Map<List<RecipeResponse>>(responseList);
+				result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
 				return result;
 			}
 			else

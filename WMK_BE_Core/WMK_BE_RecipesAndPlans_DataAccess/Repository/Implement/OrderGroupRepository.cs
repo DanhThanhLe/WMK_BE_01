@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         {
             
         }
-    }
+
+		public bool OrderGroupExistOrder(OrderGroup orderGroup)
+		{
+			var result = _dbSet.Include(og => og.Orders).FirstOrDefault();
+			if(result != null && result.Orders.Count >0)
+			{
+				return true;
+			}
+			return false;
+		}
+	}
 }

@@ -139,7 +139,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var users = await _unitOfWork.UserRepository.GetAllAsync();
 			if ( users != null && users.Count() > 0 )
 			{
-				var shipperList = users.Where(u => u.Role == Role.Shiper).ToList();
+				var shipperList = users.Where(u => u.Role == Role.Shipper).ToList();
 				var usersModel = _mapper.Map<List<UsersResponse>>(shipperList);
 				result.StatusCode = 200;
 				result.Message = "Success";

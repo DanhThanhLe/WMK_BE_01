@@ -32,7 +32,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly ResetPasswordByEmailModelValidator _resetPassByEmailValidator;
 		private readonly SendCodeByEmailModelValidator _sendCodeValidator;
 		#endregion
-		public AuthService(IUnitOfWork unitOfWork , IConfiguration configuration, IMapper mapper)
+		public AuthService(IUnitOfWork unitOfWork , IConfiguration configuration , IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
 			_configuration = configuration;
@@ -116,6 +116,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						result.StatusCode = 200;
 						result.Message = tokenString;
+						result.Data = _mapper.Map<UserResponse>(userExist);
 						return result;
 					}
 					else
