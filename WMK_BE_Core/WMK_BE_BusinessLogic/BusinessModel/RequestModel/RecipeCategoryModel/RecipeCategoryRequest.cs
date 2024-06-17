@@ -8,7 +8,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeCategoryModel
 {
     public class RecipeCategoryRequest
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public Guid CategoryId { get; set; }
         public Guid RecipeId { get; set; }
     }
