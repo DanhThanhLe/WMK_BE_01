@@ -82,6 +82,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     result.StatusCode = 500;
                     result.Message = "Create new recipe category unsuccessfully!";
+                    result.Data = null;
                     return result;
                 }
                 await _unitOfWork.CompleteAsync();
@@ -133,7 +134,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             else
             {
-
+                
             }
             result.StatusCode = 200;
             result.Message = "test";

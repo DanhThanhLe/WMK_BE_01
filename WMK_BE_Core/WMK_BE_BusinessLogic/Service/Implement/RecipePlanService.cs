@@ -154,5 +154,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
+		public async Task<ResponseObject<RecipePLan>> DeleteRecipePlan(Guid weeklyPlanId)
+		{
+
+		}//dung de xoa
 	}
 }

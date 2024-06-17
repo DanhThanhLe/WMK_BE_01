@@ -25,6 +25,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly RecipeChangeStatusValidator _recipeChangeStatusValidator;
 		private readonly IdRecipeValidator _idValidator;
 		private readonly IRecipeCategoryService _recipeCategoryService;
+		private readonly IRecipeStepService _recipeStepService;
 		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper, IRecipeAmountService recipeAmountService, IRecipeCategoryService recipeCategoryService)
 		{
 			_unitOfWork = unitOfWork;
@@ -164,7 +165,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 				//create category list | limit 4 category
 				var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
-				if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data.Count == 0)
+				if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data == null)
 				{
 					resetRecipe(newRecipe.Id);
 					result.StatusCode= createRecipeCategoryList.StatusCode;
@@ -177,7 +178,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					newRecipe.RecipeCategories = createRecipeCategoryList.Data;
 				}
-				await _unitOfWork.CompleteAsync();
+
+				var createRecipeStepList = await _recipeStepService.CreateRecipeSteps(newRecipe.Id, recipe.Steps);
+                if (createRecipeStepList.StatusCode != 200 || createRecipeStepList.Data == null)
+                {
+                    resetRecipe(newRecipe.Id);
+                    result.StatusCode = createRecipeStepList.StatusCode;
+                    result.Message = createRecipeStepList.Message;
+                    return result;
+                }
+				if(createRecipeStepList.Data != null )
+				{
+					newRecipe.RecipeSteps = createRecipeStepList.Data;
+				}
+                await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;
 				result.Message = "Create Recipe successfully.";

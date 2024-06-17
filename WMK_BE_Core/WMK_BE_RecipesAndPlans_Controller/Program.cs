@@ -62,6 +62,9 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
+			//CORS
+			
+			
 			//JWT
 			builder.Services.AddAuthentication(op =>
 			{
