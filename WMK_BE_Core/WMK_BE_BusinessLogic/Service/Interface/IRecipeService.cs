@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
     public interface IRecipeService
     {
-        public Task<ResponseObject<RecipeResponse>> GetRecipes();
+        public Task<ResponseObject<List<RecipeResponse>>> GetRecipes();
 
         public Task<ResponseObject<RecipeResponse>> GetRecipeById(string id);
 
