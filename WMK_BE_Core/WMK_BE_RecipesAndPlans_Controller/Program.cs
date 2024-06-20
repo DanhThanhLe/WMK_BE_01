@@ -136,6 +136,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(RecipeProfile));
 			builder.Services.AddAutoMapper(typeof(OrderGroupProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeAmountProfile));
+			builder.Services.AddAutoMapper(typeof(NutritionProfile));
 
 
 			//scope
@@ -155,6 +156,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
 			builder.Services.AddScoped<IIngredientService , IngredientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
+			builder.Services.AddScoped<INutritionService, NutritionService>();
 
 			var app = builder.Build();
 
