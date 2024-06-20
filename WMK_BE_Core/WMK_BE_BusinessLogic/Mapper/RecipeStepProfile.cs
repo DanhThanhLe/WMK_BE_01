@@ -15,7 +15,7 @@ namespace WMK_BE_BusinessLogic.Mapper
         public RecipeStepProfile() 
         {
             CreateMap<RecipeStep, RecipeStepRespone>().ReverseMap();
-            CreateMap<RecipeStep,RecipeCreateRequest>().ReverseMap();
+            CreateMap<RecipeStep, CreateRecipeStepRequest>().ReverseMap();
         }
     }
 }

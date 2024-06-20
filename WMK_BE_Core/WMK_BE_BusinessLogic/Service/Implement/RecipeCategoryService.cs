@@ -40,7 +40,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (recipeExist == null)
             {
                 result.StatusCode = 404;
-                result.Message = "Recipe not exist!";
+                result.Message = "Recipe not exist! Say from Create in recipeCategory service";
                 return result;
             }
 
