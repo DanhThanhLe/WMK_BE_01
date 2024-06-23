@@ -38,7 +38,7 @@ jobs:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: wemealkit.shop
+        host: 54.169.37.171
         username: Administrator
         password: 000000Long@
         port: 22
@@ -47,7 +47,7 @@ jobs:
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: api.wemealkit.shop
+        server: 54.169.37.171
         username: Administrator
         password: 000000Long@
         local-dir: publishCode/
@@ -56,7 +56,7 @@ jobs:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: wemealkit.shop
+        host: 54.169.37.171
         username: Administrator
         password: 000000Long@
         port: 22
