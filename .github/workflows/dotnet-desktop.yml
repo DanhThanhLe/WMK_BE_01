@@ -21,7 +21,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ssh-key: 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
         fetch-depth: 0
 
     - name: Setup .NET Core SDK
