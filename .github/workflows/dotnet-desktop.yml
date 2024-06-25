@@ -48,7 +48,8 @@ jobs:
         git remote set-url origin git@github.com:DanhThanhLe/WMK_BE_01.git
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
-        sed -i "s/image: daikmasa\/wemealkit:[0-9a-f]*$/image: daikmasa\/wemealkit:${GITHUB_SHA:0:7}/" k8s/config.yaml
+        sed -i "s|image: daikmasa/wemealkit:[0-9a-f]*$|image: daikmasa/wemealkit:${GITHUB_SHA:0:7}|" k8s/config.yaml
+
     - name: check for changes
       run: git status
     - name: stage changed files
