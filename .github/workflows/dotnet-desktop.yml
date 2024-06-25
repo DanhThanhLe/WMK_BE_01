@@ -35,10 +35,10 @@ jobs:
         password: 7LL@iArX?wpb6!; #${{ secrets.DOCKER_HUB_PASSWORD }}
 
     - name: Build Docker image
-      run: docker-compose -f WMK_BE_Core/docker-compose.yml build
+      run: docker-compose up -f WMK_BE_Core/docker-compose.yml build
       
     - name: Tag Docker image with version
-      run: docker tag wemealkit:latest daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
+      run: docker tag wmkberecipesandplanscontroller:latest daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
 
     - name: Push Docker image to Docker Hub
       run: |
