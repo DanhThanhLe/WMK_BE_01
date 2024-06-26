@@ -58,9 +58,9 @@ jobs:
     - name: commit changed files
       run: git commit -m "Auto updating yaml.txt"
     - name: fetch from master
-      run: git fetch origin master
+      run: git fetch origin main
     - name: push code to master
-      run: git push origin HEAD:master
+      run: git push origin HEAD:main
 
     # # Install the .NET Core workload
     # - name: Install .NET Core
