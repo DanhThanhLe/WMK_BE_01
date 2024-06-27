@@ -129,7 +129,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			try
 			{
 				//mapper
-				var newRecipe = _mapper.Map<Recipe>(recipe);
+				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
 				newRecipe.Popularity = 0;
 				newRecipe.CreatedAt = DateTime.Now;
 				newRecipe.UpdatedAt = DateTime.Now;
@@ -137,19 +137,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 if( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
-					result.Message = "Duplicate name with ID " + checkDuplicateName.Id;
+					result.Message = "Duplicate name with ID " + checkDuplicateName.Id.ToString();
 					return result;
 				}
 				var createResult = await _unitOfWork.RecipeRepository.CreateAsync(newRecipe);
-				
 				if ( !createResult )
 				{
 					result.StatusCode = 500;
 					result.Message = "Create Recipe unsuccessfully!";
 					return result;
 				}
-
 				await _unitOfWork.CompleteAsync();
+
 				//create ingredient list 
 				var createRecipeAmount = await _recipeAmountService.CreateRecipeAmountAsync(newRecipe.Id , recipe.Ingredients);
 				if ( createRecipeAmount.StatusCode != 200 && createRecipeAmount.Data == null )
@@ -195,19 +194,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					newRecipe.RecipeSteps = createRecipeStepList.Data;
 				}
 
-				//create nutrition info
-				var createNutritionInfo = await _nutritionService.CreateNutritionInfo(newRecipe.Id, recipe.Nutrition);
-				if(createNutritionInfo.StatusCode != 200 || createNutritionInfo.Data == null)
-				{
-                    resetRecipe(newRecipe.Id);
-                    result.StatusCode = createNutritionInfo.StatusCode;
-                    result.Message = createNutritionInfo.Message;
-                    return result;
-                }
-				if (createRecipeStepList.Data != null)
-				{
-					newRecipe.Nutrition = createNutritionInfo.Data;
-				}
+				////create nutrition info
+				//recipe.Nutrition.RecipeID = newRecipe.Id;
+				//var createNutritionInfo = await _nutritionService.CreateNutritionInfo(newRecipe.Id, recipe.Nutrition);
+				//if(createNutritionInfo.StatusCode != 200 || createNutritionInfo.Data == null)
+				//{
+    //                resetRecipe(newRecipe.Id);
+    //                result.StatusCode = createNutritionInfo.StatusCode;
+    //                result.Message = createNutritionInfo.Message;
+    //                return result;
+    //            }
+				//if (createRecipeStepList.Data != null)
+				//{
+				//	newRecipe.Nutrition = createNutritionInfo.Data;
+				//}
 
                 await _unitOfWork.CompleteAsync();
 
@@ -228,7 +228,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		//reset Recipe
 		private void resetRecipe(Guid recipeId)
 		{
-			_unitOfWork.RecipeRepository.Delete(recipeId.ToString());
+			_unitOfWork.RecipeRepository.DeleteAsync(recipeId.ToString());
 		}
 
 		#endregion

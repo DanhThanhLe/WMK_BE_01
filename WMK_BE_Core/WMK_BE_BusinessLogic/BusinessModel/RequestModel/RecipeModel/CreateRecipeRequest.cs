@@ -22,7 +22,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
 		public List<RecipeAmountCreateModel> Ingredients { get; set; }
 		public List<Guid> CategoryIds { get; set; }
         public List<CreateRecipeStepRequest> Steps { get; set; }
-        public CreateNutritionRequest Nutrition { get; set; }
+        //public CreateNutritionRequest Nutrition { get; set; }
 	}
     public class RecipeAmountCreateModel
     {

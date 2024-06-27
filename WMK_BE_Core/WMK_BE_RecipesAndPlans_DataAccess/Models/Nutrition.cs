@@ -13,6 +13,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
+
         [ForeignKey(nameof(Recipe))]
         public Guid RecipeID { get; set; }
         public double Calories { get; set; }
