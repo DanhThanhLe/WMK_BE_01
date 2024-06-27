@@ -25,7 +25,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeAmountAsync(Guid recipeId, List<RecipeAmountCreateModel> ingredientModels)
+        public async Task<ResponseObject<List<RecipeAmount>?>> CreateRecipeAmountAsync(Guid recipeId, List<RecipeAmountCreateModel> ingredientModels) //chua kiem tra trung id ingredient
         {
             var result = new ResponseObject<List<RecipeIngredient>?>();
             var recipeAmounts = new List<RecipeIngredient>();

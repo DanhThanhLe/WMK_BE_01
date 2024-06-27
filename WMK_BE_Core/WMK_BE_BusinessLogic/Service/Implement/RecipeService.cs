@@ -25,7 +25,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly RecipeChangeStatusValidator _recipeChangeStatusValidator;
 		private readonly IdRecipeValidator _idValidator;
 		private readonly IRecipeCategoryService _recipeCategoryService;
-		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper, IRecipeAmountService recipeAmountService, IRecipeCategoryService recipeCategoryService)
+		private readonly IRecipeStepService _recipeStepService;
+		private readonly INutritionService _nutritionService;
+		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper, IRecipeAmountService recipeAmountService, IRecipeCategoryService recipeCategoryService, INutritionService nutritionService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
@@ -34,6 +36,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_recipeChangeStatusValidator = new RecipeChangeStatusValidator();
 			_idValidator = new IdRecipeValidator();
 			_recipeCategoryService = recipeCategoryService;
+			_nutritionService = nutritionService;
 		}
 
 
@@ -162,22 +165,51 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					newRecipe.RecipeIngredients = createRecipeAmount.Data;
 				}
 
-				////create category list | limit 4 category
-				//var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
-				//if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data.Count == 0)
-				//{
-				//	resetRecipe(newRecipe.Id);
-				//	result.StatusCode= createRecipeCategoryList.StatusCode;
-				//	result.Message= createRecipeCategoryList.Message;
-				//	return result;
-				//}
+				//create category list | limit 4 category
+				var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
+				if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data == null)
+				{
+					resetRecipe(newRecipe.Id);
+					result.StatusCode= createRecipeCategoryList.StatusCode;
+					result.Message= createRecipeCategoryList.Message;
+					return result;
+				}
 
-				////assign recipeCategories
-				//if( createRecipeCategoryList.Data != null )
-				//{
-				//	newRecipe.RecipeCategories = createRecipeCategoryList.Data;
-				//}
-				await _unitOfWork.CompleteAsync();
+				//assign recipeCategories
+				if( createRecipeCategoryList.Data != null )
+				{
+					newRecipe.RecipeCategories = createRecipeCategoryList.Data;
+				}
+
+				//create steps
+				var createRecipeStepList = await _recipeStepService.CreateRecipeSteps(newRecipe.Id, recipe.Steps);
+                if (createRecipeStepList.StatusCode != 200 || createRecipeStepList.Data == null)
+                {
+                    resetRecipe(newRecipe.Id);
+                    result.StatusCode = createRecipeStepList.StatusCode;
+                    result.Message = createRecipeStepList.Message;
+                    return result;
+                }
+				if(createRecipeStepList.Data != null )
+				{
+					newRecipe.RecipeSteps = createRecipeStepList.Data;
+				}
+
+				//create nutrition info
+				var createNutritionInfo = await _nutritionService.CreateNutritionInfo(newRecipe.Id, recipe.Nutrition);
+				if(createNutritionInfo.StatusCode != 200 || createNutritionInfo.Data == null)
+				{
+                    resetRecipe(newRecipe.Id);
+                    result.StatusCode = createNutritionInfo.StatusCode;
+                    result.Message = createNutritionInfo.Message;
+                    return result;
+                }
+				if (createRecipeStepList.Data != null)
+				{
+					newRecipe.Nutrition = createNutritionInfo.Data;
+				}
+
+                await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;
 				result.Message = "Create Recipe successfully.";

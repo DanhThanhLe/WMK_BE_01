@@ -33,10 +33,14 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect") ,
 					b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
 			});
-			//add swagger 
-			builder.Services.AddSwaggerGen(c =>
+            //add swagger
+            //I want get date time of this file to show version of API 
+            var fileInfo = new FileInfo("WMK_BE_RecipesAndPlans_Controller.dll");
+            var version = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+            builder.Services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1" });
+				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1" , Description = version });
 				c.AddSecurityDefinition("Bearer" , new OpenApiSecurityScheme
 				{
 					In = ParameterLocation.Header ,
@@ -62,6 +66,9 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
+			//CORS
+			
+			
 			//JWT
 			builder.Services.AddAuthentication(op =>
 			{
@@ -129,6 +136,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(RecipeProfile));
 			builder.Services.AddAutoMapper(typeof(OrderGroupProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeAmountProfile));
+			builder.Services.AddAutoMapper(typeof(NutritionProfile));
 
 
 			//scope
@@ -148,6 +156,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
 			builder.Services.AddScoped<IIngredientService , IngredientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
+			builder.Services.AddScoped<INutritionService, NutritionService>();
 
 			var app = builder.Build();
 

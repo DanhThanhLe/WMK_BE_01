@@ -175,6 +175,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
         #endregion
+
         #region Get by name
         public async Task<ResponseObject<IngredientResponse>> GetIngredientByName(string name)
         {
@@ -207,6 +208,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             return result;
         }
         #endregion
+
         #region Get all
         public async Task<ResponseObject<IngredientResponse>> GetIngredients()
         {
@@ -228,6 +230,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
         #endregion
+
         #region Remove from app
         public async Task<ResponseObject<IngredientResponse>> RemoveIngredientById(Guid id)
         {
@@ -265,6 +268,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
         #endregion
+
         #region Update 
         public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(IngredientRequest ingredient)
         {
