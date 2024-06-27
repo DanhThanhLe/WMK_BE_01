@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.Mapper
     {
         public RecipeAmountProfile()
         {
-            CreateMap<RecipeAmount,RecipeAmountResponse>().ReverseMap();
+            CreateMap<RecipeIngredient,RecipeAmountResponse>().ReverseMap();
         }
     }
 }

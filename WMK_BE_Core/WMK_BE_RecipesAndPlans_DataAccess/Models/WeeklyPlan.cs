@@ -29,7 +29,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
                                                         //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
 
         //reference
-        public virtual Order Order { get; set; }
+        public List<Order> Orders { get; set; }
 
         public List<RecipePLan> RecipePLans { get; set; }
 

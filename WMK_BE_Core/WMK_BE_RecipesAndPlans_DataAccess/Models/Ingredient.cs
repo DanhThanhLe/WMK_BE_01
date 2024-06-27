@@ -15,8 +15,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public string Category { get; set; } = string.Empty;
+        //public string Category { get; set; } = string.Empty;
+        [ForeignKey(nameof(IngredientCategory))]
+        public Guid IngredientCategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public double Price { get; set; }
         public string? Img { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
         public BaseStatus Status { get; set; }
@@ -28,8 +31,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 
         //reference
-        public List<RecipeAmount> RecipeAmounts { get; set;}
+        public IngredientCategory IngredientCategory { get; set; }
+        public virtual IngredientNutrient IngredientNutrient { get; set; }
 
+        public List<RecipeIngredient> RecipeAmounts { get; set;}
 
     }
 }

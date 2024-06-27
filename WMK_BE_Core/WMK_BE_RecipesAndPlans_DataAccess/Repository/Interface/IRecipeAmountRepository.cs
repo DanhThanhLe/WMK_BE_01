@@ -7,9 +7,9 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
-	public interface IRecipeAmountRepository : IBaseRepository<RecipeAmount>
+	public interface IRecipeAmountRepository : IBaseRepository<RecipeIngredient>
 	{
-		Task AddRangeAsync(IEnumerable<RecipeAmount> recipeAmounts);
+		Task AddRangeAsync(IEnumerable<RecipeIngredient> recipeAmounts);
 
 	}
 }

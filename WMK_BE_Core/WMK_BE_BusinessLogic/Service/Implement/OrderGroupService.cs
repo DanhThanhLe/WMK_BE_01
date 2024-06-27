@@ -291,6 +291,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							nearestOrderGroup.Orders = new List<Order>();
 						}
 						nearestOrderGroup.Orders.Add(order);
+						order.OrderGroup = nearestOrderGroup;
+						order.OrderGroupId = nearestOrderGroup.Id;
 					}
 				}
 				await _unitOfWork.CompleteAsync();

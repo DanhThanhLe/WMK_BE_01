@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface IRecipeAmountService
 	{
 
-		Task<ResponseObject<List<RecipeAmount>?>> CreateRecipeAmountAsync(Guid recipeId , List<RecipeAmountCreateModel> ingredientModels);
+		Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeAmountAsync(Guid recipeId , List<RecipeAmountCreateModel> ingredientModels);
 		Task<ResponseObject<RecipeAmountResponse>> GetAll();
 		Task<ResponseObject<RecipeAmountResponse>> GetListByRecipeId(Guid recipeId);
 
