@@ -162,7 +162,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//assign recipeAmounts
 				if ( createRecipeAmount.Data != null )
 				{
-					newRecipe.RecipeAmounts = createRecipeAmount.Data;
+					newRecipe.RecipeIngredients = createRecipeAmount.Data;
 				}
 
 				//create category list | limit 4 category

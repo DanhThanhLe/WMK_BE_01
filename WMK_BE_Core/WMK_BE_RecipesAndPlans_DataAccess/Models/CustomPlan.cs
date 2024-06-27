@@ -18,6 +18,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public Guid RecipeId { get; set; }
 		public Guid? StandardWeeklyPlanId { get; set; }
         public double Price { get; set; }
+        public int Quantity { get; set; }
 
         //reference
         public virtual Order Order { get; set; }

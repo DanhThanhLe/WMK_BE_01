@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
 
-    [Table("RecipeAmounts")]
-    public class RecipeAmount
+    [Table("RecipeIngredients")]
+    public class RecipeIngredient
     {
         [Key]
         public Guid Id { get; set; }

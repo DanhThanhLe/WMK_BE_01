@@ -8,14 +8,14 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-	public class RecipeAmountRepository : BaseRepository<RecipeAmount>, IRecipeAmountRepository
+	public class RecipeAmountRepository : BaseRepository<RecipeIngredient>, IRecipeAmountRepository
 	{
         public RecipeAmountRepository(WeMealKitContext context) : base(context)
         {
             
         }
 
-		public async Task AddRangeAsync(IEnumerable<RecipeAmount> recipeAmounts)
+		public async Task AddRangeAsync(IEnumerable<RecipeIngredient> recipeAmounts)
 		{
 			await _dbSet.AddRangeAsync(recipeAmounts);
 		}

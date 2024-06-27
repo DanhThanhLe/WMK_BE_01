@@ -74,9 +74,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					//if addmin login
 					switch ( userExist.Role )
 					{
-						case WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin:
-							break;
-						default:
+						case WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer:
 							//check email confirm
 							if ( userExist.EmailConfirm == WMK_BE_RecipesAndPlans_DataAccess.Enums.EmailConfirm.NotConfirm )
 							{
@@ -103,6 +101,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								result.Message = "Account locked! Please contact administrator!";
 								return result;
 							}
+							break;
+						default:
 							break;
 					}
 
@@ -190,7 +190,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			return "";
 		}
+		#endregion
 
+		#region Confirm mail
 		public async Task<ResponseObject<BaseUserResponse>> CheckEmailConfirmAsync(CheckEmailConfirmRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -227,8 +229,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Message = "User not exist!";
 			return result;
 		}
-
 		#endregion
+
 		#region Register
 		public async Task<ResponseObject<UserResponse>> RegisterEmailAsync(RegisterModel model)
 		{

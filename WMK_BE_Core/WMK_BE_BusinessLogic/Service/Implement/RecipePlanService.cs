@@ -45,7 +45,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							RecipeId = recipeExist.Id ,
 							Recipe = recipeExist ,
 							WeeklyPlan = weeklyPlanExist,
-							Amount = recipe.Amount,
+							Quantity = recipe.Amount,
 							Price = recipeExist.Price * recipe.Amount
 						};
 						recipePlans.Add(recipePlan);
