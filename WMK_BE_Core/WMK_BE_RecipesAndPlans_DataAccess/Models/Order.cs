@@ -20,10 +20,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		[ForeignKey(nameof(OrderGroup))]
 		public Guid? OrderGroupId { get; set; }
 		[ForeignKey(nameof(WeeklyPlan))]
-		public Guid? StanderdWeeklyPlanId { get; set; }//can null
+		public Guid? StanderdWeeklyPlanId { get; set; }
 
-		public string? Note { get; set; } = string.Empty;
+		public string? Note { get; set; }
 		public string Address { get; set; } = string.Empty;
+		public string? Img { get; set; }
 		public DateTime ShipDate { get; set; }
 		public DateTime OrderDate { get; set; }
 		public double TotalPrice { get; set; }
@@ -37,9 +38,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public OrderStatus Status { get; set; }
 
 		//reference
-		public User User { get; set; }
-		public OrderGroup OrderGroup { get; set; }
-		public WeeklyPlan WeeklyPlan { get; set; }
+		public virtual User User { get; set; }
+		public virtual OrderGroup OrderGroup { get; set; }
+		public virtual WeeklyPlan WeeklyPlan { get; set; }
 
 		//list
 		public List<Feedback> FeedBacks { get; set; }

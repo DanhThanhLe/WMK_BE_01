@@ -25,10 +25,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<ResponseObject<List<RecipeAmount>?>> CreateRecipeAmountAsync(Guid recipeId, List<RecipeAmountCreateModel> ingredientModels)
+        public async Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeAmountAsync(Guid recipeId, List<RecipeAmountCreateModel> ingredientModels)
         {
-            var result = new ResponseObject<List<RecipeAmount>?>();
-            var recipeAmounts = new List<RecipeAmount>();
+            var result = new ResponseObject<List<RecipeIngredient>?>();
+            var recipeAmounts = new List<RecipeIngredient>();
             try
             {
                 //check recipe exist
@@ -46,7 +46,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     var ingredientEixst = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.IngredientId.ToString());
                     if (ingredientEixst != null)
                     {
-                        var recipeAmount = new RecipeAmount
+                        var recipeAmount = new RecipeIngredient
                         {
                             Ingredient = ingredientEixst,
                             IngredientId = ingredient.IngredientId,
@@ -108,7 +108,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
             var currentList = await _unitOfWork.RecipeAmountRepository.GetAllAsync();
-            var foundList = new List<RecipeAmount>();
+            var foundList = new List<RecipeIngredient>();
             foreach (var item in currentList)
             {
                 if (item.RecipeId.Equals(recipeId))

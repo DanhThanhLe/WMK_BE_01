@@ -296,7 +296,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 else
                 {
-                    foundUpdate.Category = ingredient.Category;
+                    //foundUpdate.Category = ingredient.Category;
                     foundUpdate.Name = ingredient.Name;
                     foundUpdate.Img = ingredient.Img;
                     foundUpdate.Unit = ingredient.Unit;

@@ -159,24 +159,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//assign recipeAmounts
 				if ( createRecipeAmount.Data != null )
 				{
-					newRecipe.RecipeAmounts = createRecipeAmount.Data;
+					newRecipe.RecipeIngredients = createRecipeAmount.Data;
 				}
 
-				//create category list | limit 4 category
-				var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
-				if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data.Count == 0)
-				{
-					resetRecipe(newRecipe.Id);
-					result.StatusCode= createRecipeCategoryList.StatusCode;
-					result.Message= createRecipeCategoryList.Message;
-					return result;
-				}
+				////create category list | limit 4 category
+				//var createRecipeCategoryList = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
+				//if( createRecipeCategoryList.StatusCode != 200 || createRecipeCategoryList.Data.Count == 0)
+				//{
+				//	resetRecipe(newRecipe.Id);
+				//	result.StatusCode= createRecipeCategoryList.StatusCode;
+				//	result.Message= createRecipeCategoryList.Message;
+				//	return result;
+				//}
 
-				//assign recipeCategories
-				if( createRecipeCategoryList.Data != null )
-				{
-					newRecipe.RecipeCategories = createRecipeCategoryList.Data;
-				}
+				////assign recipeCategories
+				//if( createRecipeCategoryList.Data != null )
+				//{
+				//	newRecipe.RecipeCategories = createRecipeCategoryList.Data;
+				//}
 				await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;

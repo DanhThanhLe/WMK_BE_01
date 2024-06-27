@@ -8,5 +8,18 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 {
 	public enum TransactionStatus
 	{
+		PAID = 0,
+		UNPAID = 1
+	}
+	public static class TransactionStatusHelper
+	{
+		public static int ToInt(this TransactionStatus status)
+		{
+			return (int)status;
+		}
+		public static TransactionStatus FromInt(int value)
+		{
+			return Enum.IsDefined(typeof(TransactionStatus) , value) ? (TransactionStatus)value : TransactionStatus.UNPAID;
+		}
 	}
 }

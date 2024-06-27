@@ -15,9 +15,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<WeeklyPlan> WeeklyPlans { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
-        public DbSet<Nutrition> Nutritions { get; set;}
+        public DbSet<IngredientCategory> IngredientCategorys { get; set; }
+        public DbSet<IngredientNutrient> IngredientNutrients { get; set; }
+        public DbSet<RecipeNutrient> RecipeNutrients { get; set;}
         public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<RecipeAmount> RecipeAmounts { get; set;}
+        public DbSet<RecipeIngredient> RecipeAmounts { get; set;}
         public DbSet<RecipeCategory> RecipeCategories { get; set; }
         public DbSet<RecipePLan> RecipePLans { get; set;}
         public DbSet<RecipeStep> RecipeSteps { get; set; }
