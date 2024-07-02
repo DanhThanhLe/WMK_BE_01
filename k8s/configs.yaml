@@ -55,7 +55,20 @@ spec:
             name: wemealkit-service
             port:
               number: 8080
+  - host: api.jinnie.ddns.net  # Replace with your actual domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wemealkit-service
+            port:
+              number: 8080
   tls:
   - hosts:
     - api.wemealkit.shop  # Replace with your actual domain
     secretName: wemealkit-tls
+  - hosts:
+    - api.jinnie.ddns.net  # Replace with your actual domain
+    secretName: wemealkitddns-tls
