@@ -4,20 +4,20 @@ using WMK_BE_BusinessLogic.Service.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
-    [Route("api/recipeamounts")]
+    [Route("api/recipeingredients")]
     [ApiController]
-    public class RecipeAmountController : ControllerBase
+    public class RecipeIngredientController : ControllerBase
     {
-        private readonly IRecipeAmountService _recipeAmountService;
-        public RecipeAmountController(IRecipeAmountService recipeAmountService)
+        private readonly IRecipeIngredientService _recipeIngredientService;
+        public RecipeIngredientController(IRecipeIngredientService recipeAmountService)
         {
-            _recipeAmountService = recipeAmountService;
+            _recipeIngredientService = recipeAmountService;
         }
 
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _recipeAmountService.GetAll();
+            var result = await _recipeIngredientService.GetAll();
             return Ok(result);
         }
 
@@ -27,7 +27,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             Guid id;
             if(Guid.TryParse(recipeId, out id))
             {
-                var result = await _recipeAmountService.GetListByRecipeId(id);
+                var result = await _recipeIngredientService.GetListByRecipeId(id);
                 return Ok(result);
             }
             else

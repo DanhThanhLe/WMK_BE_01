@@ -3,6 +3,7 @@ using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
@@ -15,20 +16,22 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
-    public class RecipeAmountService : IRecipeAmountService
+    public class RecipeIngredientService : IRecipeIngredientService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public RecipeAmountService(IUnitOfWork unitOfWork, IMapper mapper)
+        public RecipeIngredientService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<ResponseObject<List<RecipeAmount>?>> CreateRecipeAmountAsync(Guid recipeId, List<RecipeAmountCreateModel> ingredientModels) //chua kiem tra trung id ingredient
+
+        #region create recipe ingredient with recipe create
+        public async Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeIngredientAsync(Guid recipeId, List<CreateRecipeIngredientRequest> recipeIngredientRequests) //chua kiem tra trung id ingredient
         {
             var result = new ResponseObject<List<RecipeIngredient>?>();
-            var recipeAmounts = new List<RecipeIngredient>();
+            var recipeIngredients = new List<RecipeIngredient>();
             try
             {
                 //check recipe exist
@@ -41,36 +44,42 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     return result;
                 }
                 //scan list ingredient
-                foreach (var ingredient in ingredientModels)
+                foreach (var ingredient in recipeIngredientRequests)
                 {
                     var ingredientEixst = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.IngredientId.ToString());
-                    if (ingredientEixst != null)
+                    if (ingredientEixst == null)
                     {
-                        var recipeAmount = new RecipeIngredient
-                        {
-                            Ingredient = ingredientEixst,
-                            IngredientId = ingredient.IngredientId,
-                            RecipeId = recipeId,
-                            Recipe = recipeExist,
-                            Amount = ingredient.amount,
-                        };
-                        recipeAmounts.Add(recipeAmount);
-                    }
-                    else
-                    {
+
                         result.StatusCode = 404;
-                        result.Message = $"Ingredient with ID {ingredient.IngredientId} not found!";
+                        result.Message = "Ingredient with ID {ingredient.IngredientId} not found! Say from CreateRecipeIngredientAsync - RecipeIngredientService";
                         return result;
                     }
+                    RecipeIngredient newRecipeIngredient = new RecipeIngredient();
+                    newRecipeIngredient.RecipeId = recipeId;
+                    newRecipeIngredient.IngredientId = ingredient.IngredientId;
+                    newRecipeIngredient.Amount = ingredient.amount;
+                    newRecipeIngredient.Recipe = recipeExist;
+                    newRecipeIngredient.Ingredient = ingredientEixst;
+                    recipeIngredients.Add(newRecipeIngredient);
+                    //var createResult = await _unitOfWork.RecipeIngredientRepository.CreateAsync(newRecipeIngredient);
+                    //if (!createResult)
+                    //{
+                    //    result.StatusCode = 500;
+                    //    result.Message = "Create new recipeIngredient unsuccessfully! Say from CreateRecipeIngredientAsync - RecipeIngredientService";
+                    //    result.Data = null;
+                    //    return result;
+                    //}
                 }
-                if (recipeAmounts.Any())
+
+
+                if (recipeIngredients.Any())
                 {
-                    await _unitOfWork.RecipeAmountRepository.AddRangeAsync(recipeAmounts);
+                    await _unitOfWork.RecipeIngredientRepository.AddRangeAsync(recipeIngredients);
                 }
                 await _unitOfWork.CompleteAsync();
                 result.StatusCode = 200;
                 result.Message = "Create recipe amount successfully.";
-                result.Data = recipeAmounts;
+                result.Data = recipeIngredients;
                 return result;
             }
             catch (Exception ex)
@@ -80,10 +89,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-        public async Task<ResponseObject<RecipeAmountResponse>> GetAll()
+        #endregion
+
+        public async Task<ResponseObject<RecipeIngredientResponse>> GetAll()
         {
-            var result = new ResponseObject<RecipeAmountResponse>();
-            var list = await _unitOfWork.RecipeAmountRepository.GetAllAsync();
+            var result = new ResponseObject<RecipeIngredientResponse>();
+            var list = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
             if (list == null && list.Count == 0)
             {
                 result.StatusCode = 400;
@@ -92,14 +103,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 200;
             result.Message = "OK. list recipe amount";
-            result.List = _mapper.Map<List<RecipeAmountResponse>>(list);
+            result.List = _mapper.Map<List<RecipeIngredientResponse>>(list);
             return result;
         }
 
         #region Get-by-recipe-id dang sua
-        public async Task<ResponseObject<RecipeAmountResponse>> GetListByRecipeId(Guid recipeId)
+        public async Task<ResponseObject<RecipeIngredientResponse>> GetListByRecipeId(Guid recipeId)
         {
-            var result = new ResponseObject<RecipeAmountResponse>();
+            var result = new ResponseObject<RecipeIngredientResponse>();
             var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
             if (checkRecipe == null)
             {
@@ -107,7 +118,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = "Recipe not existed";
                 return result;
             }
-            var currentList = await _unitOfWork.RecipeAmountRepository.GetAllAsync();
+            var currentList = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
             var foundList = new List<RecipeIngredient>();
             foreach (var item in currentList)
             {
@@ -124,7 +135,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 200;
             result.Message = "Ok. Recipe category list:";
-            result.List = _mapper.Map<List<RecipeAmountResponse>>(foundList);
+            result.List = _mapper.Map<List<RecipeIngredientResponse>>(foundList);
             return result;
         }
         #endregion

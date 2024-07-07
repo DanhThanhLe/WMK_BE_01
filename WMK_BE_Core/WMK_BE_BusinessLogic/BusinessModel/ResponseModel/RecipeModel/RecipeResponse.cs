@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.CategoryModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeAmountModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeCategoryModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
@@ -27,7 +29,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe
         public int Popularity { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
 
-        //public List<RecipeAmountCreateModel> recipeAmounts { get; set; }
-        //public List<CategoryResponseModel> categories { get; set; }
+        public List<RecipeIngredientResponse> RecipeIngredients { get; set; }
+        public List<RecipeCategoryResponse> RecipeCategories { get; set; }
     }
 }

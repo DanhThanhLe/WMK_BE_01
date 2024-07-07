@@ -8,7 +8,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeAmountModel
 {
-    public class RecipeAmountResponse
+    public class RecipeIngredientResponse
     {
         public Guid Id { get; set; }
         public Guid RecipeId { get; set; }

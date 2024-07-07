@@ -15,7 +15,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        //public string Category { get; set; } = string.Empty;
         [ForeignKey(nameof(IngredientCategory))]
         public Guid IngredientCategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -23,7 +22,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string? Img { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
         public BaseStatus Status { get; set; }
-
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
@@ -31,10 +29,14 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 
         //reference
-        public IngredientCategory IngredientCategory { get; set; }
+        public virtual IngredientCategory IngredientCategory { get; set; }
         public virtual IngredientNutrient IngredientNutrient { get; set; }
+        public virtual List<RecipeIngredient> RecipeIngredients { get; set;}
 
-        public List<RecipeIngredient> RecipeAmounts { get; set;}
+        public Ingredient()
+        {
+            RecipeIngredients = new List<RecipeIngredient>();
+        }
 
     }
 }

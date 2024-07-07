@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.NutritionModel
 {
-    public class CreateNutritionRequest
+    public class CreateRecipeNutrientRequest
     {
-        //public Guid RecipeID { get; set; }
+        public Guid RecipeID { get; set; }
         public double Calories { get; set; }
         public double Fat { get; set; }
         public double SaturatedFat { get; set; }

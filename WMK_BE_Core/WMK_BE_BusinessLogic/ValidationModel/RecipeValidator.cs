@@ -19,7 +19,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 
             //RuleFor(x => x.CookingTime).Must(t => t > 5).WithMessage("Cooking time should be more than 5 minutes");
             RuleFor(x => x.Difficulty).IsInEnum().WithMessage("Wrong at validator recipe difficulty in recipeValidator");
-            RuleFor(x => x.ProcessStatus).IsInEnum().WithMessage("0 is show, 1 is not");
+            //RuleFor(x => x.ProcessStatus).IsInEnum().WithMessage("0 is show, 1 is not");
         }
     }
 

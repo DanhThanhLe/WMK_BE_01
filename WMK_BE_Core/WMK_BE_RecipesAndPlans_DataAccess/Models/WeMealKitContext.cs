@@ -54,6 +54,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 			modelBuilder.Entity<User>().HasData(adminUser);
 		}
+
 		private string GetSignature256(String text)
 		{
 			using ( SHA256 sha256 = SHA256.Create() )
@@ -70,6 +71,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 				return builder.ToString();
 			}
 		}
-	}
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseLazyLoadingProxies();
+        //}
+
+    }
 
 }

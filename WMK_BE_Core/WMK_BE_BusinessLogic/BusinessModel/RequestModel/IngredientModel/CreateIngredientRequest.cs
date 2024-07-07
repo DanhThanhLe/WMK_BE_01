@@ -9,14 +9,13 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel
 {
     public class CreateIngredientRequest
     {
-        public string Category { get; set; } = string.Empty;
+        public Guid IngredientCategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Img { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
+        public double Price { get; set; }
         public BaseStatus Status { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string CreatedBy { get; set; } = string.Empty;
-        public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; } = string.Empty;
+        public string CreatedBy { get; set; } = string.Empty;//Ten nguoi tao
+
     }
 }

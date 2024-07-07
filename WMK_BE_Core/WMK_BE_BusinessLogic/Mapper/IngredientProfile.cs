@@ -12,12 +12,17 @@ namespace WMK_BE_BusinessLogic.Mapper
 {
     public class IngredientProfile : Profile
     {
-        public IngredientProfile() { 
+        public IngredientProfile() {
+
+            //model <-> request
             CreateMap<Ingredient,CreateIngredientRequest>().ReverseMap();
             CreateMap<Ingredient, IngredientRequest>().ReverseMap();
 
-            CreateMap <Ingredient,IngredientResponse>().ReverseMap();
-                
+            //model <-> response
+            CreateMap <Ingredient,IngredientResponse>()
+                .ForMember(dest => dest.CategoryName, otp => otp.MapFrom(x => x.IngredientCategory.Name))
+                .ForMember(dest => dest.CategoryDescription, otp => otp.MapFrom(x => x.IngredientCategory.Description))
+                .ReverseMap();    
         }
     }
 }

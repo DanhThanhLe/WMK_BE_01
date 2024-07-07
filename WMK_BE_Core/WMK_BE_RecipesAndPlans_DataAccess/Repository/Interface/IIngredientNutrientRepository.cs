@@ -7,7 +7,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
-    public interface INutritionRepository : IBaseRepository<Nutrition>
+    public interface IIngredientNutrientRepository : IBaseRepository<IngredientNutrient>
     {
     }
 }
