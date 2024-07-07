@@ -23,7 +23,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IngredientValidator _validator;
         private readonly UpdateIngredientValidator _updateValidator;
         private readonly UpdateStatusIngredientValidator _updateStatusValidator;
-        //private readonly IdIngredientValidator _idValidator;
         public IngredientService(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
@@ -31,7 +30,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _validator = new IngredientValidator();
             _updateValidator = new UpdateIngredientValidator();
             _updateStatusValidator = new UpdateStatusIngredientValidator();
-            //_idValidator = new IdIngredientValidator();
         }
         #region Change status
         public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient)
@@ -68,6 +66,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
         #endregion
+
         #region Create
         public async Task<ResponseObject<IngredientResponse>> CreateIngredient(CreateIngredientRequest ingredient)
         {
@@ -81,39 +80,38 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = string.Join(" - ", error);
                 return result;
             }
-            var found = currentList.FirstOrDefault(i => i.Name == ingredient.Name);
-            if (found != null && found.Status.ToString().Equals("Available"))
+            var checkIngredientCategory = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(ingredient.IngredientCategoryId.ToString());
+            if (checkIngredientCategory == null)
             {
-                result.StatusCode = 500;
+                result.StatusCode = 400;
+                result.Message = "Ingredient category with id: "+ ingredient.IngredientCategoryId + " not exist";
+                return result;
+            }
+            var found = currentList.FirstOrDefault(i => i.Name == ingredient.Name);
+            if (found != null)
+            {
+                result.StatusCode = 400;
                 result.Message = "Existed with ID: " + found.Id;
                 return result;
             }
-            string emptyData = "Empty";
-            if (ingredient.Img == null)
-            {
-                ingredient.Img = emptyData;
-            }
-            if (ingredient.UpdatedAt == null)
-            {
-                ingredient.UpdatedAt = DateTime.UtcNow;
-            }
-            if (ingredient.UpdatedBy == null)
-            {
-                ingredient.UpdatedBy = ingredient.CreatedBy;
-            }
             Ingredient newIngredient = _mapper.Map<Ingredient>(ingredient);
+            newIngredient.CreatedAt = DateTime.UtcNow;
+            newIngredient.UpdatedAt = DateTime.UtcNow;
+            newIngredient.UpdatedBy = ingredient.CreatedBy;
+            newIngredient.IngredientCategory = checkIngredientCategory;
+            
             var createResult = await _unitOfWork.IngredientRepository.CreateAsync(newIngredient);
             if (createResult)
             {
                 await _unitOfWork.CompleteAsync();
                 result.StatusCode = 200;
-                result.Message = "Create successfully"; //kiem tra voi cach khac, dung ham Create1, sau do cho tim ingredient voi name vua tao, nau tim thay thi lay Id tra ve, ko tim thay nghia la loi --> bao loi
+                result.Message = "Create successfully";
                 return result;
             }
             else
             {
                 result.StatusCode = 500;
-                result.Message = "Error at create";
+                result.Message = "Error at create. Say from CreateIngredient - IngredientService";
                 return result;
             }
         }
@@ -122,17 +120,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<IngredientResponse>> DeleteIngredientById(Guid id)//ko khuyen khich dung
         {
             var result = new ResponseObject<IngredientResponse>();
-            if (id == null)
-            {
-                result.StatusCode = 400;
-                result.Message = "Empty request. ingredientId is empty";
-                return result;
-            }
             var found = await _unitOfWork.IngredientRepository.GetByIdAsync(id.ToString());
             if (found == null)
             {
                 result.StatusCode = 500;
-                result.Message = "not found";
+                result.Message = "Not found. Say from DeleteIngredientById - IngredientService";
                 return result;
             }
             else
@@ -148,7 +140,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 else
                 {
                     result.StatusCode = 500;
-                    result.Message = "Error at delete INGREDIENT";
+                    result.Message = "Error at delete ingredient with id "+id+". Say from DeleteIngredientById - IngredientService";
                     return result;
                 }
             }
@@ -184,7 +176,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (ingredientList != null && ingredientList.Count() > 0)
             {
                 //var foundList = ingredientList.Where(x => x.Name.Contains(name)).ToList();
-                var foundList = ingredientList.Where(x => x.Name.ToLower().Contains(name.ToLower()) && x.Status == BaseStatus.Available).ToList();
+                var foundList = ingredientList.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
                 if (foundList == null)
                 {
                     result.StatusCode = 404;
@@ -235,7 +227,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<IngredientResponse>> RemoveIngredientById(Guid id)
         {
             var result = new ResponseObject<IngredientResponse>();
-            if (id == null)
+            if (id.ToString() == null)
             {
                 result.StatusCode = 400;
                 result.Message = "Empty request. ingredientId is empty";
@@ -305,8 +297,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     foundUpdate.Img = ingredient.Img;
                     foundUpdate.Unit = ingredient.Unit;
                     foundUpdate.Status = ingredient.Status;
-                    foundUpdate.CreatedAt = ingredient.CreatedAt;
-                    foundUpdate.CreatedBy = ingredient.CreatedBy;
                     foundUpdate.UpdatedAt = ingredient.UpdatedAt;
                     foundUpdate.UpdatedBy = ingredient.UpdatedBy;
                     var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);

@@ -23,6 +23,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public double DietaryFiber { get; set; }
 		public double Protein { get; set; }
 		public double Sodium { get; set; }
+
 		public virtual Ingredient Ingredient { get; set; }
     }
 }

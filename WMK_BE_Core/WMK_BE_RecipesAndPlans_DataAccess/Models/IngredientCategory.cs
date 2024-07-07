@@ -20,6 +20,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 
         //reference
-        public List<Ingredient> Ingredients { get; set; }
+        public virtual List<Ingredient> Ingredients { get; set; }
+
+        public IngredientCategory()
+        {
+            Ingredients = new List<Ingredient>();
+        }
     }
 }

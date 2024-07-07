@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.NutritionModel;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Mapper
 {
-    public class NutritionProfile:Profile
+    public class RecipeNutrientProfile:Profile
     {
-        public NutritionProfile()
+        public RecipeNutrientProfile()
         {
-            CreateMap<NutritionProfile,CreateNutritionRequest>().ReverseMap();
+            CreateMap<RecipeNutrient,CreateRecipeNutrientRequest>().ReverseMap();
         }
     }
 }

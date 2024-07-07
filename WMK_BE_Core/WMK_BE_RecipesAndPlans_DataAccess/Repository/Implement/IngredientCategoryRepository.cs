@@ -8,9 +8,9 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-    public class NutritionRepository : BaseRepository<Nutrition>, INutritionRepository
+    public class IngredientCategoryRepository : BaseRepository<IngredientCategory>, IIngredientCategoryRepository
     {
-        public NutritionRepository(WeMealKitContext context) : base(context)
+        public IngredientCategoryRepository(WeMealKitContext context) : base(context)
         {
             
         }

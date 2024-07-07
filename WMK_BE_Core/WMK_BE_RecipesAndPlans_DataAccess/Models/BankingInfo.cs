@@ -16,6 +16,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 
 		//list
-		public List<Transaction> Transactions { get; set; }
+		public virtual List<Transaction> Transactions { get; set; }
     }
 }

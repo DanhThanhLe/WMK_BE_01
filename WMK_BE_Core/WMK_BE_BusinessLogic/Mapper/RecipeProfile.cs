@@ -15,7 +15,8 @@ namespace WMK_BE_BusinessLogic.Mapper
         public RecipeProfile()
         {
             CreateMap<Recipe, RecipeResponse>().ReverseMap();
-            CreateMap<Recipe, CreateRecipeRequest>().ReverseMap();
+            CreateMap<Recipe, CreateRecipeRequest>()
+                .ReverseMap();
                 //.ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.RecipeCategories.Select(rc => rc.Id)))
                 //.ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.RecipeAmounts))
                 //.ForMember(dest => dest.Nutrition, opt => opt.MapFrom(src => src.Nutrition))

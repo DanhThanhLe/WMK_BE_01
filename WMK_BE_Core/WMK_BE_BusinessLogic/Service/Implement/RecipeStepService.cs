@@ -89,10 +89,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             -check index
              */
             var foundRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-            if(foundRecipe == null || foundRecipe.Id == null)
+            if(foundRecipe == null)
             {
                 result.StatusCode=400;
-                result.Message = "Not found recipe. Say from CreateRecipeSteps";
+                result.Message = "Not found recipe. Say from CreateRecipeSteps - RecipeStepService";
                 return result;
             }
             RecipeStep newStep = new RecipeStep();
@@ -100,12 +100,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             newStep.RecipeId = recipeId;
             foreach (var step in stepList)
             {
-                _mapper.Map<RecipeStep>(step);
+                newStep = _mapper.Map<RecipeStep>(step);
+                newStep.RecipeId = recipeId;
                 var createResult = await _unitOfWork.RecipeStepRepository.CreateAsync(newStep);
                 if (!createResult)//cho nay tra ve luon thong tin cu the type nao bi tao loi
                 {
                     result.StatusCode = 500;
-                    result.Message = "Create new recipe step unsuccessfully!. Say from CreateRecipeStep-for loop";
+                    result.Message = "Create new recipe step unsuccessfully!. Say from CreateRecipeStep - RecipeStepService.";
                     result.Data = null;
                     return result;
                 }
