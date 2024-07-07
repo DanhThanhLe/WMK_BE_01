@@ -33,7 +33,7 @@ jobs:
       uses: docker/login-action@v1
       with:
         username: daikmasa
-        password: 7LL@iArX?wpb6!; #${{ secrets.DOCKER_HUB_PASSWORD }}
+        password: 7LL@iArX?wpb6!; #${{ secrets.DOCKER_HUB_PASSWORD }} 
 
     - name: Build Docker image
       run: docker-compose -f WMK_BE_Core/docker-compose.yml build 
