@@ -18,6 +18,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public int ServingSize { get; set; }
 		public LevelOfDifficult Difficulty { get; set; }
         public string? Description { get; set; }
+        public string? Notice { get; set; }
         public string? Img { get; set; }
         public double Price { get; set; }
         public int Popularity { get; set; }

@@ -17,14 +17,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public Guid Id { get; set; }
         public DateTime? BeginDate { get; set; }//update after manager approve
         public DateTime? EndDate { get; set; }
-        public string? Description { set; get; } = string.Empty;
+        public string? Description { set; get; }
+		public string? Notice { get; set; }
 
-        public DateTime CreateAt { get; set; }
+		public DateTime CreateAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
-        public string? ApprovedBy { get; set; } = string.Empty;
+        public string? ApprovedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; } = string.Empty;
+        public string? UpdatedBy { get; set; }
         public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
                                                         //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
 
