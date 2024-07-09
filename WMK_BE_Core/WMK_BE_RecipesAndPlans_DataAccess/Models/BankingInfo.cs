@@ -11,11 +11,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 	{
 		[Key]
 		public Guid Id { get; set; }
-        public string NameBanking { get; set; } = string.Empty;
-        public int Status { get; set; }
+		public string NameBanking { get; set; } = string.Empty;
+		public int Status { get; set; }
 
 
 		//list
 		public virtual List<Transaction> Transactions { get; set; }
-    }
+	}
 }

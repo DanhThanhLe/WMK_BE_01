@@ -23,6 +23,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		IRecipeNutrientRepository RecipeNutrientRepository { get; }
 		IIngredientCategoryRepository IngredientCategoryRepository { get; }
 		IIngredientNutrientRepository IngredientNutrientRepository { get; }
+		ITransactionRepository TransactionRepository { get; }
+
 
 		Task CompleteAsync();
 	}

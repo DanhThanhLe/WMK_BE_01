@@ -8,6 +8,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 {
 	public enum TransactionType
 	{
-
+		COD = 0,
+		Momo = 1
 	}
 }

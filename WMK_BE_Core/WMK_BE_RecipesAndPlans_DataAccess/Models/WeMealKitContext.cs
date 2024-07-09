@@ -28,7 +28,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderGroup> OrderGroups { get; set; }
         public DbSet<CustomPlan> CustomPlans { get; set; }
-        public DbSet<BankingInfo> BankingInfos { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
