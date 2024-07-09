@@ -25,5 +25,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             }
             return false;
         }
-    }
+		public override async Task<List<Ingredient>> GetAllAsync()
+		{
+            var ingredient = await _dbSet.Include(i => i.IngredientNutrient).Include(i => i.IngredientCategory).ToListAsync();
+			return ingredient;
+		}
+	}
 }
