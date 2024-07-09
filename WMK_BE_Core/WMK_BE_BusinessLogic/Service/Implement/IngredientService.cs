@@ -6,7 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
@@ -212,7 +214,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.StatusCode = 200;
                 result.Message = "OK. Ingredients list";
                 result.List = _mapper.Map<List<IngredientResponse>>(responseList);
-                return result;
+				foreach ( var ingredientResponse in result.List )
+				{
+					var ingredient = responseList.FirstOrDefault(i => i.Id == ingredientResponse.Id);
+					if ( ingredient != null )
+					{
+						ingredientResponse.IngredientNutrient = _mapper.Map<IngredientNutrientResponse>(ingredient.IngredientNutrient);
+                        ingredientResponse.IngredientCategory = _mapper.Map<IngredientCategoryResponse>(ingredient.IngredientCategory);
+                    }
+				}
+				return result;
             }
             else
             {

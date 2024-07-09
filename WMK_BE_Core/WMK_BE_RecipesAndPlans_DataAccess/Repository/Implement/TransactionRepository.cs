@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +8,11 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-    public class IngredientCategoryRepository : BaseRepository<IngredientCategory>, IIngredientCategoryRepository
-    {
-        public IngredientCategoryRepository(WeMealKitContext context) : base(context)
+	public class TransactionRepository : BaseRepository<Transaction>, ITransactionRepository
+	{
+        public TransactionRepository(WeMealKitContext context): base(context)
         {
             
         }
-	}
+    }
 }
