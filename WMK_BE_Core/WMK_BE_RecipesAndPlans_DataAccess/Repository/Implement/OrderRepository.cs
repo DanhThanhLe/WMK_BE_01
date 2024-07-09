@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         {
             
         }
-    }
+
+		public async Task<bool> GetUserExistInOrderAsync(Guid idOrder , Guid userId)
+		{
+			var userExist = await _dbSet.Include(u => u.User).FirstOrDefaultAsync(o => o.Id == idOrder && o.UserId == userId);
+			if ( userExist != null && userExist.User != null )
+			{
+				return true;
+			}
+			return false;
+		}
+	}
 }

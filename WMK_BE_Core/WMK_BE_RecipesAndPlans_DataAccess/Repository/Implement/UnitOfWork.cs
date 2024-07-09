@@ -21,6 +21,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public IOrderRepository OrderRepository { get; private set;}
         public ICustomPlanRepository CustomPlanRepository { get; private set;}
         public IOrderGroupRepository OrderGroupRepository { get; private set;}
+        public ITransactionRepository TransactionRepository { get; private set;}
 
         public IRecipeCategoryRepository RecipeCategoryRepository { get; private set; }
 
@@ -40,6 +41,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             OrderRepository = new OrderRepository(context);
             CustomPlanRepository = new CustomPlanRepository(context);
             OrderGroupRepository = new OrderGroupRepository(context);
+            TransactionRepository = new TransactionRespository(context);
 		}
         public async Task CompleteAsync()
         {

@@ -7,9 +7,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
-	public interface IOrderRepository : IBaseRepository<Order>
+	public interface ITransactionRepository : IBaseRepository<Transaction>
 	{
-		Task<bool> GetUserExistInOrderAsync(Guid idOrder , Guid userId);
-
 	}
 }

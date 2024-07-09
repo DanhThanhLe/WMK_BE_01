@@ -20,6 +20,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		IOrderRepository OrderRepository { get; }
 		ICustomPlanRepository CustomPlanRepository { get; }
 		IOrderGroupRepository OrderGroupRepository { get; }
+		ITransactionRepository TransactionRepository { get; }
 
 
 		Task CompleteAsync();

@@ -12,9 +12,11 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface IOrderService
 	{
 		Task<ResponseObject<List<OrderResponse>>> GetAllOrders();
-		Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id);
-		Task<ResponseObject<BaseOrderResponse>> CreateOrderAsync(CreateOrderRequest model);
-		Task<ResponseObject<BaseOrderResponse>> UpdateOrderAsync(UpdateOrderRequest model);
+		Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model);
+		Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model);
+		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(UpdateOrderRequest model);
+		Task<ResponseObject<OrderResponse>> DeleteOrderAsync(IdOrderRequest model);
+		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(ChangeStatusOrderRequest model);
 
 	}
 }
