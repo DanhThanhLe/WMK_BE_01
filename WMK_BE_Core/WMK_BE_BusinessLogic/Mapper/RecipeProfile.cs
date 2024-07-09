@@ -16,10 +16,11 @@ namespace WMK_BE_BusinessLogic.Mapper
         {
             CreateMap<Recipe, RecipeResponse>().ReverseMap();
             CreateMap<Recipe, CreateRecipeRequest>()
-                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.RecipeCategories.Select(rc => rc.Id)))
-                .ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.RecipeAmounts))
-                .ForMember(dest => dest.Nutrition, opt => opt.MapFrom(src => src.Nutrition))
                 .ReverseMap();
+                //.ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.RecipeCategories.Select(rc => rc.Id)))
+                //.ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.RecipeAmounts))
+                //.ForMember(dest => dest.Nutrition, opt => opt.MapFrom(src => src.Nutrition))
+                
             //CreateMap//chua co map cho request voi model nen ko tao đc fuck
         }
     }

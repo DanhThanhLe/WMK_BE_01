@@ -34,9 +34,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         //reference
         public List<RecipePLan> RecipePlans { get; set; }
-        public List<RecipeIngredient> RecipeIngredients { get; set; }
-        public List<RecipeCategory> RecipeCategories { get; set; }
-        public List<RecipeStep> RecipeSteps { get; set; }
-        public virtual RecipeNutrient Nutrition { get; set; }
+        public virtual List<RecipeIngredient> RecipeIngredients { get; set; }
+        public virtual List<RecipeCategory> RecipeCategories { get; set; }
+        public virtual List<RecipeStep> RecipeSteps { get; set; }
+        public virtual RecipeNutrient RecipeNutrient { get; set; }
     }
 }

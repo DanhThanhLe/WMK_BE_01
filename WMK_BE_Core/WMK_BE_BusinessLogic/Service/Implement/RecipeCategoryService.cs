@@ -10,6 +10,7 @@ using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -40,7 +41,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (recipeExist == null)
             {
                 result.StatusCode = 404;
-                result.Message = "Recipe not exist! Say from Create in recipeCategory service";
+                result.Message = "Recipe not exist! Say from Create - RecipeCategoryService";
                 return result;
             }
 
@@ -52,15 +53,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = "Have same type!";
                 return result;
             }
+
+            // phan nay co ve khong can
+
             //toi luc nay thi coi nhu khong co trung lap trong db cung nhu trong request -> bat dau tao du lieu
             var currentList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
             var foundByRecipe = currentList.Where(x => x.RecipeId == recipeId);
             if (foundByRecipe.Count() >= categoryTypeList.Count())//gio thi kiem tra coi recipe do đa co category chua
             {
                 result.StatusCode = 400;
-                result.Message = "This recipe already have enough categories";
+                result.Message = "This recipe already have enough categories. Say from Create - RecipeCategoryService";
                 return result;
             }
+
+            //phan nay co ve khong can
 
             List<RecipeCategory>? returnList = new List<RecipeCategory>();
             foreach (var categoryId in categoryIdList)//toi day coi nhu data dau vao da nhap ok, co the tien hanh add recipeCategory
@@ -69,7 +75,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 if (categoryExist == null)
                 {
                     result.StatusCode = 404;
-                    result.Message = "Category (" + categoryId + ") not exist!";
+                    result.Message = "Category (" + categoryId + ") not exist! Say from Create - RecipeCategoryService";
                     return result;
                 }
                 RecipeCategory newRecipeCategory = new RecipeCategory();
@@ -81,7 +87,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 if (!createResult)//cho nay tra ve luon thong tin cu the type nao bi tao loi
                 {
                     result.StatusCode = 500;
-                    result.Message = "Create new recipe category unsuccessfully!";
+                    result.Message = "Create new recipe category unsuccessfully! Say from Create - RecipeCategoryService";
                     result.Data = null;
                     return result;
                 }

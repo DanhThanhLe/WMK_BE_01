@@ -18,13 +18,12 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public string? Description { get; set; } = string.Empty;
         public string? ImageLink { get; set; } = string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
-        public ProcessStatus ProcessStatus { get; set; }
-		public List<RecipeAmountCreateModel> Ingredients { get; set; }
-		public List<Guid> CategoryIds { get; set; }
+        //public ProcessStatus ProcessStatus { get; set; }
+        public List<Guid> CategoryIds { get; set; }
+		public List<CreateRecipeIngredientRequest> RecipeIngredientsList { get; set; }
         public List<CreateRecipeStepRequest> Steps { get; set; }
-        public CreateNutritionRequest Nutrition { get; set; }
 	}
-    public class RecipeAmountCreateModel
+    public class CreateRecipeIngredientRequest
     {
         public Guid IngredientId { get; set; }
         public double amount { get; set; }

@@ -9,7 +9,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 	public interface IUnitOfWork
 	{
 		IIngredientRepository IngredientRepository { get; }
-		IRecipeAmountRepository RecipeAmountRepository { get; }
+		IRecipeIngredientRepository RecipeIngredientRepository { get; }
 		ICategoryRepository CategoryRepository { get; }
 		IWeeklyPlanRepository WeeklyPlanRepository { get; }
 		IRecipePlanRepository RecipePlanRepository { get; }
@@ -20,6 +20,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		IOrderRepository OrderRepository { get; }
 		ICustomPlanRepository CustomPlanRepository { get; }
 		IOrderGroupRepository OrderGroupRepository { get; }
+		IRecipeNutrientRepository RecipeNutrientRepository { get; }
+		IIngredientCategoryRepository IngredientCategoryRepository { get; }
+		IIngredientNutrientRepository IngredientNutrientRepository { get; }
 		ITransactionRepository TransactionRepository { get; }
 
 

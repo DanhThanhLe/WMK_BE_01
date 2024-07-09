@@ -9,11 +9,13 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Mapper
 {
-    public class RecipeAmountProfile : Profile
+    public class RecipeIngredientProfile : Profile
     {
-        public RecipeAmountProfile()
+        public RecipeIngredientProfile()
         {
-            CreateMap<RecipeIngredient,RecipeAmountResponse>().ReverseMap();
+
+            CreateMap<RecipeIngredient,RecipeIngredientResponse>().ReverseMap();
+
         }
     }
 }

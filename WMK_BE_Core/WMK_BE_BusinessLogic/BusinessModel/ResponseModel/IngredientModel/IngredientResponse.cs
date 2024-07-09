@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientCategoryModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientNutrientModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel
@@ -10,14 +12,22 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel
     public class IngredientResponse
     {
         public Guid Id { get; set; }
-        public string Category { get; set; } = string.Empty;
+        public Guid IngredientCategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Img { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
+        public double Price { get; set; }
         public BaseStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
+
+        
+
+        public string CategoryName { get; set; } = string.Empty;
+        public string CategoryDescription { get; set; } = string.Empty;
+        
+
     }
 }

@@ -28,6 +28,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Configuration.AddJsonFile("appsettings.json");
+			
 			//Add DBContext
 			builder.Services.AddDbContext<WeMealKitContext>(ops =>
 			{
@@ -136,12 +137,14 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(RecipeCategoryProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeProfile));
 			builder.Services.AddAutoMapper(typeof(OrderGroupProfile));
-			builder.Services.AddAutoMapper(typeof(RecipeAmountProfile));
-			builder.Services.AddAutoMapper(typeof(NutritionProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeIngredientProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeNutrientProfile));
+            builder.Services.AddAutoMapper(typeof(IngredientCategoryProfile));
+			builder.Services.AddAutoMapper(typeof(IngredientNutrientProfile));
+			builder.Services.AddAutoMapper(typeof(IngredientProfile));
 
-
-			//scope
-			builder.Services.AddScoped<DbContext , WeMealKitContext>();
+            //scope
+            builder.Services.AddScoped<DbContext , WeMealKitContext>();
 			builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 			builder.Services.AddScoped<IAuthService , AuthService>();
 			builder.Services.AddScoped<ISendMailService , SendMailService>();
@@ -153,14 +156,17 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeStepService , RecipeStepService>();
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
-			builder.Services.AddScoped<IRecipeAmountService , RecipeAmountService>();
+			builder.Services.AddScoped<IRecipeIngredientService , RecipeIngredientService>();
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
 			builder.Services.AddScoped<IIngredientService , IngredientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
+			builder.Services.AddScoped<IRecipeNutrientService, RecipeNutrientService>();
+            builder.Services.AddScoped<IIngredientCategoryService, IngredientCategoryService>();
+            builder.Services.AddScoped<IIngredientNutrientService, IngredientNutrientService>();
 			builder.Services.AddScoped<ITransactionService , TransactionService>();
 			builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 
-			var app = builder.Build();
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			//long.nguyen mo swagger for production

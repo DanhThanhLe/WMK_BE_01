@@ -128,8 +128,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 
 		public void DetachEntity(T entity)
 		{
-			_context.Entry(entity).State = EntityState.Detached;
-		}
+            var entry = _context.Entry(entity);
+            if (entry != null)
+            {
+                entry.State = EntityState.Detached;
+            }
+        }
 		public T GetEntity(T entity)
 		{
 			try

@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WMK_BE_RecipesAndPlans_DataAccess.Models
+namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientNutrientModel
 {
-    [Table("RecipeNutrients")]
-    public class RecipeNutrient
+    public class IngredientNutrientResponse
     {
-        [Key]
         public Guid Id { get; set; }
-
-        [ForeignKey(nameof(Recipe))]
-        public Guid RecipeID { get; set; }
+        public Guid IngredientID { get; set; }
         public double Calories { get; set; }
         public double Fat { get; set; }
         public double SaturatedFat { get; set; }
@@ -24,9 +18,5 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public double DietaryFiber { get; set; }
         public double Protein { get; set; }
         public double Sodium { get; set; }
-
-
-        //reference
-        public virtual Recipe Recipe { get; set; }
     }
 }
