@@ -40,7 +40,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (recipeExist == null)
             {
                 result.StatusCode = 404;
-                result.Message = "Recipe not exist!";
+                result.Message = "Recipe not exist! Say from Create in recipeCategory service";
                 return result;
             }
 
@@ -82,6 +82,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     result.StatusCode = 500;
                     result.Message = "Create new recipe category unsuccessfully!";
+                    result.Data = null;
                     return result;
                 }
                 await _unitOfWork.CompleteAsync();
@@ -133,7 +134,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             else
             {
-
+                
             }
             result.StatusCode = 200;
             result.Message = "test";

@@ -1,0 +1,549 @@
+[33mcommit 77a60956e725b95b5633870a544b8b0c8434d914[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 8e9c195 f76d4df
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Tue Jun 4 18:33:21 2024 +0700
+
+    Merge pull request #27 from DanhThanhLe/danh
+    
+    Danh merge to main
+
+[33mcommit f76d4dfb80aab542ce3b241cb9c7709d7ef100cb[m[33m ([m[1;31morigin/danh[m[33m)[m
+Merge: 228c53b 8e9c195
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Tue Jun 4 18:31:39 2024 +0700
+
+    Merge branch 'main' into danh
+
+[33mcommit 228c53bc21256d5828aa4c055925edbe08874b10[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Tue Jun 4 18:29:33 2024 +0700
+
+    Create recipe - done
+
+[33mcommit 8e9c19503cf4ebfc6ebd664d61622c6d269e5e50[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Tue Jun 4 14:20:25 2024 +0700
+
+    update test case
+
+[33mcommit 2ec17d66a09885d01a5f02e3b863c3267d016fe2[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Tue Jun 4 11:55:00 2024 +0700
+
+    deploy
+
+[33mcommit 3b98f45fcdd3079c3d2d8833ef9b59c512f95d0b[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Tue Jun 4 11:50:58 2024 +0700
+
+    write test case authen; deploy
+
+[33mcommit f8714b01702e76fab240e08444de7f9d18e4356e[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Tue Jun 4 11:50:32 2024 +0700
+
+    write authen test case ; deploy
+
+[33mcommit 030c88d8368052f53b8b5854ea4885a8746e1206[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Fri May 31 10:14:03 2024 +0700
+
+    deploy
+
+[33mcommit 36ef2574c7b4b1013a271befdd67c5f320ea0cf2[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Fri May 31 10:03:25 2024 +0700
+
+    deploy
+
+[33mcommit 986300f6895289bb9b447fdd8fd4694d25e2dd00[m
+Merge: f90ec3c 30b298f
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 30 21:19:33 2024 +0700
+
+    Merge branch 'main' of https://github.com/DanhThanhLe/WMK_BE_01
+
+[33mcommit 30b298ff1f449e0e365c42c44b10df6a3bb55e81[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 30 21:17:09 2024 +0700
+
+    deploy
+
+[33mcommit f90ec3c99c1d4dd44131d339c5115b43f90bf429[m[33m ([m[1;31morigin/kiet[m[33m)[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 30 21:16:35 2024 +0700
+
+    update category
+
+[33mcommit e3b6ec22b0dc26aa4efe61301eacfba97df3d53f[m
+Merge: e1991ad be9f429
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Thu May 30 21:10:32 2024 +0700
+
+    Merge pull request #25 from DanhThanhLe/danh
+    
+    fix categoryService
+
+[33mcommit be9f4299c440c028890693b343c1ab75f302c95d[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 30 21:09:53 2024 +0700
+
+    push to danh to merge
+    (fix categoryService)
+
+[33mcommit e1991ad5fb27b1cfcd4545f5f1a7d7cb92e3cf69[m
+Merge: 43c39ae ccffea7
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Thu May 30 20:00:36 2024 +0700
+
+    Merge pull request #24 from DanhThanhLe/danh
+    
+    Add code to search recipe with category id
+
+[33mcommit ccffea745c267583e4e3144874f5624c2bc5941c[m
+Merge: 43c39ae 5149ca5
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 30 19:47:21 2024 +0700
+
+    Merge branch 'danh'
+
+[33mcommit 5149ca52ad953081fad06071f9dcf2b5713b5c1e[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 30 19:46:45 2024 +0700
+
+    commit before pull
+
+[33mcommit 7565295c69f8310bbd0157e5e3d2f3af10127c3c[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 30 19:42:22 2024 +0700
+
+    Commit before push danh
+
+[33mcommit 43c39aebc08e0c46fb90bea32f4eea959a19756f[m
+Merge: 1e1ccc7 41e5cf5
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Thu May 30 19:35:39 2024 +0700
+
+    Merge pull request #22 from DanhThanhLe/kiet
+    
+    update login and register
+
+[33mcommit 41e5cf5a2433888fa57a9f3fd60e7951946ddf8a[m
+Merge: de0eb18 1e1ccc7
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Thu May 30 19:35:31 2024 +0700
+
+    Merge branch 'main' into kiet
+
+[33mcommit de0eb18813afee984d5499ee1b381478f7b74b92[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 30 19:33:47 2024 +0700
+
+    update login and register
+
+[33mcommit 1e1ccc7d73752130451df0b362880484c19daceb[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 30 09:17:01 2024 +0700
+
+    deploy
+
+[33mcommit 5c68d3d123668cc907d097ec425a2f04ec07b1e6[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 30 08:44:36 2024 +0700
+
+    deploy
+
+[33mcommit 7711c2068181be5837d7f3d42f0c2e1a106e6b02[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Wed May 29 20:27:21 2024 +0700
+
+    fix bug, deploy
+
+[33mcommit 8f342d10380523e41e927d989c3d8de26da13c5e[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Wed May 29 20:21:51 2024 +0700
+
+    deploy
+
+[33mcommit 02eb5a5cc9f4adde8a115ed34bcfc657e4a8d401[m
+Merge: 512f0cb 9ce140e
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Wed May 29 20:12:53 2024 +0700
+
+    Merge pull request #21 from DanhThanhLe/kiet
+    
+    Merge Kiet -> main
+
+[33mcommit 9ce140e980659ccadbc2fee150f9f7b1f1dd1a9c[m
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Wed May 29 20:11:49 2024 +0700
+
+    Update Program.cs
+
+[33mcommit ad210b6e9b1d34deeed4a9b25e7ae15188c8b36a[m
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Wed May 29 20:10:14 2024 +0700
+
+    Update AuthController.cs
+
+[33mcommit 512f0cb2596e23dc377996923e1d86b40a64c26a[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Mon May 27 22:56:17 2024 +0700
+
+    deploy
+
+[33mcommit 4070106cafc4d0cd64f745c905ea496bbe9652e2[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Mon May 27 22:56:00 2024 +0700
+
+    deploy
+
+[33mcommit b2cf2b7513aa7037e53643d00e2571c85ef8bfe2[m
+Merge: 3ef4df2 84a4df9
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Mon May 27 21:52:35 2024 +0700
+
+    Merge pull request #20 from DanhThanhLe/danh
+    
+    deploy before push (Db)
+
+[33mcommit 84a4df9fc3556e66260b38ce8889036859508327[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Mon May 27 21:51:57 2024 +0700
+
+    deploy before push
+
+[33mcommit 3ef4df2c9e0e9ecdd8411ada02bee60a8f2f7bf3[m
+Merge: 078e5cc 5a312b1
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Mon May 27 21:22:36 2024 +0700
+
+    Merge pull request #19 from DanhThanhLe/kiet
+    
+    update Create RecipeService
+
+[33mcommit 5a312b12e8893f48446189792a1cb0afd9687b0a[m
+Merge: 4757a39 078e5cc
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Mon May 27 21:22:27 2024 +0700
+
+    Merge branch 'main' into kiet
+
+[33mcommit 4757a39f000a2eaad54505c4b8c52ee597b3260e[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Mon May 27 21:20:47 2024 +0700
+
+    update Create RecipeService
+
+[33mcommit 078e5cc92cfe1a5858a3bb4c75f2ee23847d2254[m
+Merge: 05bb181 ce831a3
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Mon May 27 21:17:35 2024 +0700
+
+    Merge pull request #18 from DanhThanhLe/danh
+    
+    update for function doing check category
+
+[33mcommit ce831a3054d6fc0fe6b7ccfc4573a795c9e0dd76[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Mon May 27 21:17:05 2024 +0700
+
+    update for function doing check category
+
+[33mcommit 05bb1812f7ef677bbe7b21d91ac8e125eb24f9ec[m
+Merge: 504c993 b7cf6eb
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Mon May 27 15:11:37 2024 +0700
+
+    Merge pull request #17 from DanhThanhLe/kiet
+    
+    add getStaff, getByToken, getShipper
+
+[33mcommit b7cf6eb0d914f052a85aa078345dfda652c82181[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Mon May 27 15:11:07 2024 +0700
+
+    add getStaff, getByToken, getShipper
+
+[33mcommit 504c993c991c97fce3fd3f655c33f0058e25bbeb[m
+Merge: d59db1c 1817eb5
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Sun May 26 14:27:53 2024 +0700
+
+    Merge pull request #16 from DanhThanhLe/danh
+    
+    update argorithm for recipeCategory - function for checking category
+
+[33mcommit 1817eb5be463e9e041ccf22e5ac4e4f0a29545e5[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Sun May 26 14:27:13 2024 +0700
+
+    update argorithm for recipeCategory - function for checking category
+
+[33mcommit d59db1c838458189f82dcdaba79a1f8a1c6814e2[m
+Merge: 83ac0da 3c11a37
+Author: Danh Thanh Lê <91621033+DanhThanhLe@users.noreply.github.com>
+Date:   Sun May 26 01:07:32 2024 +0700
+
+    Merge pull request #15 from DanhThanhLe/danh
+    
+    Danh merge for create recipeCategory for recipe create
+
+[33mcommit 3c11a37d3152c0ad2cea3245d0a75cc0c3472d17[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Sun May 26 01:06:14 2024 +0700
+
+    commit before push to origin danh
+
+[33mcommit 06be7884ee6e7d6ab5cd4f9af3bdab392a701bd3[m
+Merge: 0612ad9 83ac0da
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Fri May 24 15:58:20 2024 +0700
+
+    end pull
+
+[33mcommit 0612ad9cb5c1532577644f0b31d9b2d86ca92377[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Fri May 24 15:56:44 2024 +0700
+
+    commit before pull
+
+[33mcommit 83ac0da83fee001e67e4c357af4fbce1279f4224[m
+Merge: 3ac0203 25dfc7d
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Thu May 23 16:44:11 2024 +0700
+
+    Merge pull request #14 from DanhThanhLe/kiet
+    
+    add OrderGroup
+
+[33mcommit 25dfc7d8d62ad0d6d630d21a2b88243b5d1841cc[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 23 16:43:35 2024 +0700
+
+    add OrderGroup
+
+[33mcommit 3ac020320bee89bd3c4f2df3afedc9f958593108[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Wed May 22 17:59:06 2024 +0700
+
+    add orderService
+
+[33mcommit 992fe48641e684d10e3135f3b45ccca44021f0ee[m
+Merge: c357aaf c32710a
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Wed May 22 14:07:21 2024 +0700
+
+    commit stages...
+
+[33mcommit c32710a80af47303ea76332f873495dad0e00178[m
+Merge: 34a7d45 47bbe83
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Wed May 22 14:05:07 2024 +0700
+
+    Merge pull request #13 from DanhThanhLe/kiet
+    
+    update userController
+
+[33mcommit 47bbe831fb965e5a856530d41305c4d1ea910910[m
+Merge: 2fe5e33 34a7d45
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Wed May 22 14:05:00 2024 +0700
+
+    Merge branch 'main' into kiet
+
+[33mcommit 2fe5e331ea39ac01c9acf3657ccc657968e3a3b0[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Wed May 22 14:02:20 2024 +0700
+
+    update userController
+
+[33mcommit c357aaf011f5610e77d50d6954c8f327dae9e749[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Wed May 22 13:58:28 2024 +0700
+
+    commit before pull
+
+[33mcommit 34a7d45bbdecf1a935f929a4c8b82f71d60eb660[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Wed May 22 11:34:08 2024 +0700
+
+    up date docker file
+
+[33mcommit b3aaf2b5cfa1703dcda459b72d6fa4ece9bc0c4e[m
+Merge: 36197b2 77cd954
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Fri May 17 23:38:39 2024 +0700
+
+    Merge branch 'main' into danh
+
+[33mcommit 77cd954dd2e54ec32ac6d40a43d8e3739841bcd7[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 08:14:47 2024 +0700
+
+    deploy dotnet-desktop.yml
+
+[33mcommit fbd9a2eb348d0ce29b58c2db90f121facdead76d[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 01:17:37 2024 +0700
+
+    deploy dotnet-desktop.yml
+
+[33mcommit ae0f144d31583f79ff38dbdf3638a2e3bfc79064[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 01:14:16 2024 +0700
+
+    deploy  dotnet-desktop.yml
+
+[33mcommit e5caf327b56a2a2be3fd22fd9d6cc478f8747a0e[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 01:10:58 2024 +0700
+
+    deploy dotnet-desktop.yml
+
+[33mcommit b860451aca2cbb1571bf1e85a6daecb2d1278535[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 01:09:53 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit 690659f48177475337e078c53af6a81c79cde2df[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 01:04:04 2024 +0700
+
+    deploy dotnet-desktop.yml
+
+[33mcommit 11167be2443ebc67b48f625a0563206ca027ab93[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Fri May 17 00:55:25 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit 60052fde4424008a2a7f6b7c0537db41f517e1f9[m
+Merge: 8239226 2124a0b
+Author: long nguyen <longlop68@gmail.com>
+Date:   Fri May 17 00:53:57 2024 +0700
+
+    Merge branch 'main' of https://github.com/DanhThanhLe/WMK_BE_01
+
+[33mcommit 823922633f0c4dc6a0afc51ce709c230afb26f9a[m
+Author: long nguyen <longlop68@gmail.com>
+Date:   Fri May 17 00:53:52 2024 +0700
+
+    add swagger for production
+
+[33mcommit 36197b2e452dc0ba5ec60ca69d3f1f0fc7ef94eb[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 16 23:34:38 2024 +0700
+
+    commit berfore pull
+
+[33mcommit 2124a0bf73744387855b3ae4876a8b23f0cf9f77[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 16 22:44:52 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit 6bc4a393eacf2120e6474c4fa9c5dc61d9d76e86[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 16 22:41:18 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit c814370aa3fe78c3d9278627843e44f38c93d91a[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 16 22:15:42 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit 6d549dd80ec398b77bf2b1f8c2213ab84cf52106[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 16 22:13:17 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit 14707cf7afe8f063cf453257aad67b82d5ac24b7[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 16 17:58:56 2024 +0700
+
+    Update dotnet-desktop.yml
+
+[33mcommit 841721c7be1d347bd0d095809848faf4446fcf87[m
+Author: Long Nguyen <60567661+nglong2@users.noreply.github.com>
+Date:   Thu May 16 17:56:55 2024 +0700
+
+    Create dotnet-desktop.yml
+
+[33mcommit 3bf7aae4eb0f116ecb7a30a6e9914b8dff69b8e1[m
+Merge: 87a0477 fc050fc
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Thu May 16 17:48:08 2024 +0700
+
+    Merge pull request #12 from DanhThanhLe/kiet
+    
+    add CRUD User
+
+[33mcommit fc050fc98f97c2020b128dd5e0ba052f44b0ff8a[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 16 17:47:45 2024 +0700
+
+    add CRUD User
+
+[33mcommit 87a04772e1b9ca5398ff114ef12a72fd4f64d767[m
+Merge: 8f58d3d f563889
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Thu May 16 14:09:01 2024 +0700
+
+    Merge pull request #11 from DanhThanhLe/kiet
+    
+    Update WeMealKitContext
+
+[33mcommit f563889b9ed1384699f0a83a3b784f154196cb35[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 16 14:08:41 2024 +0700
+
+    Update WeMealKitContext
+
+[33mcommit 8f58d3d0c065cc9e90518af534ccb843ef6eaf04[m
+Merge: ea77e72 d116933
+Author: henrykiet <112917779+henry-kiet@users.noreply.github.com>
+Date:   Thu May 16 13:58:08 2024 +0700
+
+    Merge pull request #10 from DanhThanhLe/kiet
+    
+    Update Migrations (Add User, Order, Transaction,...)
+
+[33mcommit d116933868fb63289a79d423e4ff480d250120bb[m
+Author: henrykiet <kietyasuo2016@gmail.com>
+Date:   Thu May 16 13:56:09 2024 +0700
+
+    Update Migrations (Add User, Order, Transaction,...)
+
+[33mcommit e83e9c2cfc08d102f52947c9c5740177c07c6c90[m
+Merge: dbb85c7 ea77e72
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 16 07:05:16 2024 +0700
+
+    merge
+
+[33mcommit dbb85c782e6b4800e07a09ed2dd944bde1753083[m
+Author: Danh Thanh Lê <DahThaLee@gmail.com>
+Date:   Thu May 16 06:59:26 2024 +0700
+
+    commit before merge
+
+[33mcommit ea77e72755ebeeb2689adb6ae9f1fdf624cda307[m
+Merge: ccec8c1 6597818
+Author: fishbone2710 <72903624+vtk2710@users.noreply.github.com>
+Date:   Thu May 16 05:32:28 2024 +0700
+
+    Merge pull request #9 from DanhThanhLe/khanh
+    
+    add GetRecipeSteps()
+
+[33mcommit 6597818d36745ee166263286dd5e980801519062[m[33m ([m[1;31morigin/khanh[m[33m)[m
+Merge: 2673732 ccec8c1
+Author: fishbone2710 <72903624+vtk2710@users.noreply.github.com>
+Date:   Thu May 16 05:32:13 2024 +0700
+
+    Merge branch 'main' into khanh

@@ -19,46 +19,85 @@ jobs:
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4 
       with:
+        ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
         fetch-depth: 0
 
-    # Install the .NET Core workload
-    - name: Install .NET Core
-      uses: actions/setup-dotnet@v4
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
-    #test
-    - name: .net Test
-      run: dotnet test WMK_BE_Core/WMK_BE_Test/WMK_BE_Test.csproj
+        dotnet-version: 8.0.x  # Use the latest available .NET Core version
 
-    - name: publish the application
-      run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: daikmasa
+        password: 7LL@iArX?wpb6!; #${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    - name: Build Docker image
+      run: docker-compose -f WMK_BE_Core/docker-compose.yml build 
+      
+    - name: Tag Docker image with version
+      run: docker tag wmkberecipesandplanscontroller:latest daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
+    - name: switching from HTTPS to SSH
+      run: |
+        git remote set-url origin git@github.com:DanhThanhLe/WMK_BE_01.git
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        sed -i "s|image: daikmasa/wemealkit:[0-9a-f]*$|image: daikmasa/wemealkit:${GITHUB_SHA:0:7}|" k8s/configs.yaml
+
+    - name: check for changes
+      run: git status
+    - name: stage changed files
+      run: git add .
+    - name: commit changed files
+      run: git commit -m "Auto updating yaml.txt"
+    - name: fetch from master
+      run: git fetch origin main
+    - name: push code to master
+      run: git push origin HEAD:main
+
+    # # Install the .NET Core workload
+    # - name: Install .NET Core
+    #   uses: actions/setup-dotnet@v4
+    #   with:
+    #     dotnet-version: 8.0.x
+    # #test
+    # - name: .net Test
+    #   run: dotnet test WMK_BE_Core/WMK_BE_Test/WMK_BE_Test.csproj
+
+    # - name: publish the application
+    #   run: dotnet publish WMK_BE_Core/WMK_BE_Core.sln -c Release --force --output publishCode
     
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: wemealkit.shop
-        username: Administrator
-        password: 000000Long@
-        port: 22
-        script:   NET STOP WAS /Y 
-    # Deploy to FTP
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: api.wemealkit.shop
-        username: Administrator
-        password: 000000Long@
-        local-dir: publishCode/
-        server-dir: /
+    # - name: executing remote ssh commands using password
+    #   uses: appleboy/ssh-action@v1.0.3
+    #   with:
+    #     host: wemealkit.shop
+    #     username: Administrator
+    #     password: 000000Long@
+    #     port: 22
+    #     script:   NET STOP WAS /Y 
+    # # Deploy to FTP
+    # - name: 📂 Sync files
+    #   uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+    #   with:
+    #     server: api.wemealkit.shop
+    #     username: Administrator
+    #     password: 000000Long@
+    #     local-dir: publishCode/
+    #     server-dir: /
         
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: wemealkit.shop
-        username: Administrator
-        password: 000000Long@
-        port: 22
-        script: NET START W3SVC
+    # - name: executing remote ssh commands using password
+    #   uses: appleboy/ssh-action@v1.0.3
+    #   with:
+    #     host: wemealkit.shop
+    #     username: Administrator
+    #     password: 000000Long@
+    #     port: 22
+    #     script: NET START W3SVC
    

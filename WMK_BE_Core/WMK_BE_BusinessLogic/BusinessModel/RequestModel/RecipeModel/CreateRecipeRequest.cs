@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.NutritionModel;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
@@ -19,6 +21,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public ProcessStatus ProcessStatus { get; set; }
 		public List<RecipeAmountCreateModel> Ingredients { get; set; }
 		public List<Guid> CategoryIds { get; set; }
+        public List<CreateRecipeStepRequest> Steps { get; set; }
+        public CreateNutritionRequest Nutrition { get; set; }
 	}
     public class RecipeAmountCreateModel
     {
