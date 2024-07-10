@@ -9,6 +9,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 	public enum TransactionStatus
 	{
 		PAID = 0,
+
 		UNPAID = 1
 	}
 	public static class TransactionStatusHelper

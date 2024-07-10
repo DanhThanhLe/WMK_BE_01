@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel;
 using WMK_BE_BusinessLogic.Mapper;
 using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -157,11 +158,13 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 			builder.Services.AddScoped<IRecipeIngredientService , RecipeIngredientService>();
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
-			builder.Services.AddScoped<IIngredientService , IngredientService>();
-			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 			builder.Services.AddScoped<IRecipeNutrientService, RecipeNutrientService>();
+			builder.Services.AddScoped<IIngredientService , IngredientService>();
             builder.Services.AddScoped<IIngredientCategoryService, IngredientCategoryService>();
             builder.Services.AddScoped<IIngredientNutrientService, IngredientNutrientService>();
+			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
+			builder.Services.AddScoped<ITransactionService , TransactionService>();
+			builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 
             var app = builder.Build();
 

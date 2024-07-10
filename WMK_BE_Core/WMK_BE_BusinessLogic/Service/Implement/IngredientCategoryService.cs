@@ -209,11 +209,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             IngredientCategory found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(request.ToString());
             if (found == null)
             {
-                result.StatusCode = 500;
+                result.StatusCode = 404;
                 result.Message = "Not found with ID: " + request + ". Say from GetById - IngredientCategoryService";
                 return result;
             }
-            result.StatusCode = 500;
+            result.StatusCode = 200;
             result.Message = "OK. Ingredient category with ID: " + request;
             result.Data = _mapper.Map<IngredientCategoryResponse>(found);
             return result;

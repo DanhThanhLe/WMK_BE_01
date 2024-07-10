@@ -10,27 +10,26 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
-    public class WeMealKitContext:DbContext
-    {
-        public WeMealKitContext(DbContextOptions<WeMealKitContext> options) : base(options) { }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<WeeklyPlan> WeeklyPlans { get; set; }
-        public DbSet<Ingredient> Ingredients { get; set; }
-        public DbSet<IngredientCategory> IngredientCategorys { get; set; }
-        public DbSet<IngredientNutrient> IngredientNutrients { get; set; }
-        public DbSet<RecipeNutrient> RecipeNutrients { get; set;}
-        public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<RecipeIngredient> RecipeAmounts { get; set;}
-        public DbSet<RecipeCategory> RecipeCategories { get; set; }
-        public DbSet<RecipePLan> RecipePLans { get; set;}
-        public DbSet<RecipeStep> RecipeSteps { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderGroup> OrderGroups { get; set; }
-        public DbSet<CustomPlan> CustomPlans { get; set; }
-        public DbSet<BankingInfo> BankingInfos { get; set; }
-        public DbSet<Feedback> Feedbacks { get; set; }
+	public class WeMealKitContext : DbContext
+	{
+		public WeMealKitContext(DbContextOptions<WeMealKitContext> options) : base(options) { }
+		public DbSet<Category> Categories { get; set; }
+		public DbSet<WeeklyPlan> WeeklyPlans { get; set; }
+		public DbSet<Ingredient> Ingredients { get; set; }
+		public DbSet<IngredientCategory> IngredientCategorys { get; set; }
+		public DbSet<IngredientNutrient> IngredientNutrients { get; set; }
+		public DbSet<RecipeNutrient> RecipeNutrients { get; set; }
+		public DbSet<Recipe> Recipes { get; set; }
+		public DbSet<RecipeIngredient> RecipeAmounts { get; set; }
+		public DbSet<RecipeCategory> RecipeCategories { get; set; }
+		public DbSet<RecipePLan> RecipePLans { get; set; }
+		public DbSet<RecipeStep> RecipeSteps { get; set; }
+		public DbSet<User> Users { get; set; }
+		public DbSet<Transaction> Transactions { get; set; }
+		public DbSet<Order> Orders { get; set; }
+		public DbSet<OrderGroup> OrderGroups { get; set; }
+		public DbSet<CustomPlan> CustomPlans { get; set; }
+		public DbSet<Feedback> Feedbacks { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -39,14 +38,14 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 			// Seed admin user
 			var adminUser = new User
 			{
-				Id = Guid.NewGuid(),
-				Email = "admin@gmail.com",
-				UserName = "admin",
+				Id = Guid.NewGuid() ,
+				Email = "admin@gmail.com" ,
+				UserName = "admin" ,
 				PasswordHash = GetSignature256("Admin123@") ,
 				FirstName = "Admin" ,
 				LastName = "No 1" ,
 				Gender = Gender.Male ,
-				Phone = "",
+				Phone = "" ,
 				Role = Role.Admin ,
 				AccessFailedCount = 0 ,
 				Status = BaseStatus.Available ,

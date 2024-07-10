@@ -45,6 +45,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		//list
 		public List<Feedback> FeedBacks { get; set; }
 		public List<CustomPlan> CustomPlans { get; set; }
-		public List<Transaction> Transactions { get; set; }
+		public List<Transaction> Transactions { get; set; }// cho cọc trước
 	}
 }

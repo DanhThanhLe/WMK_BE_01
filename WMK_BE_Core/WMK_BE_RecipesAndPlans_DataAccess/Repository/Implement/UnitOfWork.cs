@@ -23,11 +23,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public IOrderGroupRepository OrderGroupRepository { get; private set;}
         public IRecipeNutrientRepository RecipeNutrientRepository { get; private set;}
         public IIngredientCategoryRepository IngredientCategoryRepository { get; private set;}
-
         public IRecipeCategoryRepository RecipeCategoryRepository { get; private set; }
         public IIngredientNutrientRepository IngredientNutrientRepository { get; private set;}
+		public ITransactionRepository TransactionRepository { get; private set; }
 
-        private readonly WeMealKitContext _context;
+		private readonly WeMealKitContext _context;
         public UnitOfWork(WeMealKitContext context)
         {
             this._context = context;
@@ -45,7 +45,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             OrderGroupRepository = new OrderGroupRepository(context);
             RecipeNutrientRepository = new RecipeNutrientRepository(context);
             IngredientCategoryRepository = new IngredientCategoryRepository(context);
-            IngredientNutrientRepository = new IngredientNutrientRepository(context) ;
+            IngredientNutrientRepository = new IngredientNutrientRepository(context);
+            TransactionRepository = new TransactionRepository(context);
 		}
         public async Task CompleteAsync()
         {

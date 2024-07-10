@@ -12,6 +12,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientCategoryMod
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public BaseStatus Status { get; set; }
+        public String Status { get; set; } = string.Empty;
     }
 }

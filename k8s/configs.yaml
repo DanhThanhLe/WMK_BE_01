@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: wemealkit
-        image: daikmasa/wemealkit:093e910
+        image: daikmasa/wemealkit:1380638
         ports:
         - containerPort: 8080
         imagePullPolicy: Always  # Set imagePullPolicy to Always to ensure Kubernetes always pulls the latest image
@@ -35,7 +35,7 @@ spec:
     targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
-kind: Ingress
+kind: Ingress 
 metadata:
   name: wemealkit-ingress
   namespace: wemealkit
@@ -45,7 +45,7 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   rules:
-  - host: api.wemealkit.shop  # Replace with your actual domain
+  - host: api.wemealkit.ddns.net  # Replace with your actual domain
     http:
       paths:
       - path: /
@@ -57,5 +57,49 @@ spec:
               number: 8080
   tls:
   - hosts:
-    - api.wemealkit.shop  # Replace with your actual domain
-    secretName: wemealkit-tls
+    - api.wemealkit.ddns.net  # Replace with your actual domain
+    secretName: wemealkit-tlss
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: wemealkit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
+        env:
+        - name: REDIS_PASSWORD
+          value: "000000Long@"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: wemealkit
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
+

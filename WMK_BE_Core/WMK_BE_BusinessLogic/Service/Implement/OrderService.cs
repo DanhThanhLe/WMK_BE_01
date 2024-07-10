@@ -51,10 +51,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id)
+		public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse?>();
-			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
 			if ( orderExist != null )
 			{
 				result.StatusCode = 200;
@@ -70,9 +70,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<BaseOrderResponse>> CreateOrderAsync(CreateOrderRequest model)
+		public async Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model)
 		{
-			var result = new ResponseObject<BaseOrderResponse>();
+			var result = new ResponseObject<OrderResponse>();
 			var validationResult = _createOrderValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
@@ -91,11 +91,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.User = userExist;
-			newOrder.TotalPrice = model.TotalPrice * 1000;
+			//newOrder.TotalPrice = model.TotalPrice * 1000;
 			newOrder.OrderDate = DateTime.Now;
 			newOrder.Status = OrderStatus.Processing;
 			newOrder.User = userExist;
-			
+
 			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 			if ( createResult )
 			{
@@ -123,18 +123,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						return result;
 					}
 				}
-				else if (model.CustomPlans != null && model.CustomPlans.Any())
+				else if ( model.CustomPlans != null && model.CustomPlans.Any() )
 				{
 					await _unitOfWork.CompleteAsync(); //save order to DB
-					//create order by custom plan
+													   //create order by custom plan
 					foreach ( var customPlanRequest in model.CustomPlans )
 					{
 						var customPlan = new CustomPlan
 						{
-							OrderId = newOrder.Id,
-							RecipeId = customPlanRequest.RecipeId,
-							StandardWeeklyPlanId = customPlanRequest.StandardWeeklyPlanId,
-							Price = customPlanRequest.Price,
+							OrderId = newOrder.Id ,
+							RecipeId = customPlanRequest.RecipeId ,
+							StandardWeeklyPlanId = customPlanRequest.StandardWeeklyPlanId ,
+							Price = customPlanRequest.Price ,
 							Order = newOrder
 						};
 						var createCustomPlanResult = await _unitOfWork.CustomPlanRepository.CreateAsync(customPlan);
@@ -157,6 +157,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync(); //save order to DB
 				result.StatusCode = 200;
 				result.Message = "Created order of user(" + userExist.FirstName + userExist.LastName + ") successfully.";
+				result.Data = _mapper.Map<OrderResponse>(newOrder);
 				return result;
 			}
 			else
@@ -167,9 +168,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<BaseOrderResponse>> UpdateOrderAsync(UpdateOrderRequest model)
+		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(UpdateOrderRequest model)
 		{
-			var result = new ResponseObject<BaseOrderResponse>();
+			var result = new ResponseObject<OrderResponse>();
 			var validationResult = _updateOrderValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
@@ -217,6 +218,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Updated order of user(" + orderExist.User.FirstName + orderExist.User.LastName + ") successfully.";
+				result.Data = _mapper.Map<OrderResponse>(orderExist);
 				return result;
 			}
 			else
@@ -225,6 +227,87 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Update order unsuccessfully!";
 				return result;
 			}
+		}
+
+		public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(IdOrderRequest model)
+		{
+			var result = new ResponseObject<OrderResponse>();
+
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+			if ( orderExist != null )
+			{
+				var userExist = await _unitOfWork.OrderRepository.GetUserExistInOrderAsync(orderExist.Id , orderExist.UserId);
+				if ( userExist )
+				{
+					//change order status
+					orderExist.Status = OrderStatus.Canceled;
+					var orderUpdate = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+					if ( orderUpdate )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Change status order (" + orderExist.Id + ") into canceled success.";
+						return result;
+					}
+					else
+					{
+						result.StatusCode = 500;
+						result.Message = "Fail to change status went delete order!";
+						return result;
+					}
+				}
+				else
+				{
+					var orderDelete = await _unitOfWork.OrderRepository.DeleteAsync(orderExist.Id.ToString());
+					if ( orderDelete )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Delete order success.";
+						result.Data = _mapper.Map<OrderResponse>(orderExist);
+						return result;
+					}
+					else
+					{
+						result.StatusCode = 500;
+						result.Message = "Delete order unsucces!";
+						return result;
+					}
+				}
+			}
+			result.StatusCode = 404;
+			result.Message = "Order not exist!";
+			return result;
+		}
+
+		public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(ChangeStatusOrderRequest model)
+		{
+			var result = new ResponseObject<OrderResponse>();
+
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+			if ( orderExist != null )
+			{
+				orderExist.Status = model.Status;
+				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+				if ( updateResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Change order status into " + orderExist.Status + " success.";
+					result.Data = _mapper.Map<OrderResponse>(orderExist);
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 500;
+					result.Message = "Fail to update order!";
+					return result;
+				}
+			}
+			result.StatusCode = 404;
+			result.Message = "Order not exist!";
+			return result;
+
 		}
 	}
 }

@@ -8,8 +8,8 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-    public class RecipeNutrientRepository : BaseRepository<RecipeNutrient>, IRecipeNutrientRepository
-    {
+	public class RecipeNutrientRepository : BaseRepository<RecipeNutrient>, IRecipeNutrientRepository
+	{
         public RecipeNutrientRepository(WeMealKitContext context) : base(context)
         {
             
