@@ -80,6 +80,9 @@ spec:
         image: redis:latest
         ports:
         - containerPort: 6379
+        env:
+        - name: REDIS_PASSWORD
+          value: "000000Long@"
         volumeMounts:
         - name: redis-data
           mountPath: /data
