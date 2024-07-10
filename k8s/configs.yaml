@@ -45,10 +45,10 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   rules:
-  - host: wemealkit.ddns.net  # Replace with your actual domain
+  - host: api.wemealkit.ddns.net  # Replace with your actual domain
     http:
       paths:
-      - path: /api
+      - path: /
         pathType: Prefix
         backend:
           service:
@@ -57,5 +57,5 @@ spec:
               number: 8080
   tls:
   - hosts:
-    - wemealkit.ddns.net  # Replace with your actual domain
-    secretName: wemealkit-tls
+    - api.wemealkit.ddns.net  # Replace with your actual domain
+    secretName: wemealkit-tlss
