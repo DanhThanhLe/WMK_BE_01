@@ -132,7 +132,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(OrderProfile));
 			builder.Services.AddAutoMapper(typeof(CategoryProfile));
 			builder.Services.AddAutoMapper(typeof(WeeklyPlanProfile));
-			//builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeStepProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeCategoryProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeProfile));
 			builder.Services.AddAutoMapper(typeof(OrderGroupProfile));

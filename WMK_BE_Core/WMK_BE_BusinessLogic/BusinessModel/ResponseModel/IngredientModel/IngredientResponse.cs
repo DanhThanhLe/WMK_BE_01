@@ -23,7 +23,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
 
-        
+        public IngredientNutrientResponse IngredientNutrient { get; set; }
+
+
+
 
         public string CategoryName { get; set; } = string.Empty;
         public string CategoryDescription { get; set; } = string.Empty;

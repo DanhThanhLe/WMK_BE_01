@@ -18,20 +18,18 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DateTime? BeginDate { get; set; }//update after manager approve
         public DateTime? EndDate { get; set; }
         public string? Description { set; get; } = string.Empty;
-
         public DateTime CreateAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
-        public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
-                                                        //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
+        public ProcessStatus ProcessStatus { get; set; }
 
         //reference
         public List<Order> Orders { get; set; }
 
-        public List<RecipePLan> RecipePLans { get; set; }
+        public virtual List<RecipePLan> RecipePLans { get; set; }
 
     }
 }
