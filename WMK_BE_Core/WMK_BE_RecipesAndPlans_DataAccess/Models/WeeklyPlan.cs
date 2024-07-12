@@ -25,14 +25,17 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; }
-        public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
-                                                        //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
+        public string? UpdatedBy { get; set; } = string.Empty;
+        public ProcessStatus ProcessStatus { get; set; }
 
         //reference
         public List<Order> Orders { get; set; }
 
-        public List<RecipePLan> RecipePLans { get; set; }
+        public virtual List<RecipePLan> RecipePLans { get; set; }
+
+        public WeeklyPlan()
+        {
+        }
 
     }
 }

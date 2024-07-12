@@ -24,5 +24,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public virtual Recipe Recipe { get; set; }
         public virtual Ingredient Ingredient { get; set; }
 
+        public RecipeIngredient()
+        {
+            
+        }
+
     }
 }

@@ -30,5 +30,30 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             var ingredient = await _dbSet.Include(i => i.IngredientNutrient).Include(i => i.IngredientCategory).ToListAsync();
 			return ingredient;
 		}
-	}
+
+        public override async Task<Ingredient> GetByIdAsync(string id)
+        {
+            try
+            {
+                Guid guidId;
+                if (!Guid.TryParse(id, out guidId))
+                {
+                    return null;
+                }
+
+                var ingredient = await _dbSet
+                                    .Include(i => i.IngredientNutrient)
+                                    .Include(i => i.IngredientCategory)
+                                    .SingleOrDefaultAsync(i => i.Id == guidId);
+
+                return ingredient;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred in GetByIdAsync: {ex}");
+                return null;
+            }
+        }
+
+    }
 }

@@ -22,5 +22,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         //reference
         public virtual Recipe Recipe { get; set; }
+
+        public RecipeStep()
+        {
+            
+        }
     }
 }

@@ -50,13 +50,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     CreateRecipeNutrientRequest createRequest = new CreateRecipeNutrientRequest();
                     createRequest.RecipeID = recipeId;
-                    //lay list recipeIngredient vs list ingredientNutrient
-                    //sau do nhan lai vs nhau
-
-                    //lay list RecipeIngredient
-                    //List<IngredientNutrient> listIngredientNutrient = _unitOfWork.IngredientNutrientRepository.Get(x => x.)
-                    //List<RecipeIngredient> listRecipeIngredient = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
-                    //List<RecipeIngredient> foundListRecipeIngredient = listRecipeIngredient.Where(x => x.RecipeId.ToString().Equals(recipeId.ToString())).ToList();//list cua RecipeIngredient tuong ung voi recipeId dua vao
 
                     List<IngredientNutrient> listIngredientNutrient = await _unitOfWork.IngredientNutrientRepository.GetAllAsync();
                     if (listIngredientNutrient.Count() > 0)
@@ -77,6 +70,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         var createResult = await _unitOfWork.RecipeNutrientRepository.CreateAsync(newOne);
                         if (createResult)
                         {
+                            await _unitOfWork.CompleteAsync();
                             result.StatusCode = 200;
                             result.Message = "OK create nutrient ok";
                             result.Data = newOne;
@@ -85,14 +79,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         else
                         {
                             result.StatusCode = 400;
-                            result.Message = "error in create nutrient. Say from Create - RecipeNutrientService";
+                            result.Message = "Error in create nutrient. Say from Create - RecipeNutrientService";
                             return result;
                         }
                     }
                     else
                     {
                         result.StatusCode = 400;
-                        result.Message = "no have ingredint nutrient. Say from Create - RecipeNutrientService";
+                        result.Message = "Not have ingredint nutrient. Say from Create - RecipeNutrientService";
                         return result;
                     }
                 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -49,7 +50,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var returnLists = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
 				foreach ( var weeklyPlan in returnLists )
 				{
-					var recipeList = new List<Recipe>();
+					var recipeList = new List<RecipeResponse>();
 					foreach ( var recipe in weeklyPlan.Recipes )
 					{
 						recipeList.Add(recipe);
@@ -75,7 +76,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist != null )
 			{
 				var weeklyPlan = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
-				var recipeList = new List<Recipe>();
+				var recipeList = new List<RecipeResponse>();
 				foreach ( var recipe in weeklyPlan.Recipes )
 				{
 					recipeList.Add(recipe);
@@ -120,7 +121,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 				//check size of recipe create by staff
-				if ( model.recipesId.Count < 5 || model.recipesId.Count > 21 )
+				if ( model.recipeIds.Count < 5 || model.recipeIds.Count > 21 )
 				{
 					result.StatusCode = 402;
 					result.Message = "Recipe must be 5 - 30!";
@@ -140,7 +141,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();//Save database
 
 				//create list recipePlan
-				var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(newWeeklyPlan.Id , model.recipesId);
+				var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(newWeeklyPlan.Id , model.recipeIds);
 				if ( createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null )
 				{
 					//assign the value of recipe plan to new weekly plan
@@ -193,11 +194,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//if status is approve or cancel cant update
 				switch ( weeklyPlanExist.ProcessStatus )
 				{
-					case WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Approved:
+					case ProcessStatus.Approved:
 						result.StatusCode = 402;
 						result.Message = "Can't update this weekly plan with approve!";
 						return result;
-					case WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Cancel:
+					case ProcessStatus.Cancel:
 						result.StatusCode = 402;
 						result.Message = "Can't update this weekly plan with Cancel!";
 						return result;

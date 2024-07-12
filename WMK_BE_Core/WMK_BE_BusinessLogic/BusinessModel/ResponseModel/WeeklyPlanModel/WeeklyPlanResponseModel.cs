@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
@@ -20,7 +21,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
 		public DateTime? UpdatedAt { get; set; }
 		public string? UpdatedBy { get; set; } = string.Empty;
 		public string ProcessStatus { get; set; } = string.Empty;
-		public List<WMK_BE_RecipesAndPlans_DataAccess.Models.Recipe> Recipes { get; set; }
+		public List<RecipeResponse> Recipes { get; set; }
 
 	}
 }

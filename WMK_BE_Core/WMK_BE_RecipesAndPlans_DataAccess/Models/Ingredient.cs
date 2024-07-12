@@ -35,8 +35,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         public Ingredient()
         {
-            RecipeIngredients = new List<RecipeIngredient>();
+            
         }
-
     }
 }

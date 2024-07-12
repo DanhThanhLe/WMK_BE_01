@@ -28,5 +28,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 
 		public virtual Order Order { get; set; }
-	}
+
+        public Transaction()
+        {
+            
+        }
+    }
 }

@@ -18,17 +18,13 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel
 		public string Img { get; set; } = string.Empty;
 		public string Unit { get; set; } = string.Empty;
 		public double Price { get; set; }
-		public BaseStatus Status { get; set; }
+		public string Status { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; } = string.Empty;
 		public DateTime? UpdatedAt { get; set; }
 		public string? UpdatedBy { get; set; } = string.Empty;
 
-
 		public IngredientNutrientResponse IngredientNutrient { get; set; }
 		public IngredientCategoryResponse IngredientCategory { get; set; }
-
-		//public string CategoryName { get; set; } = string.Empty;
-		//      public string CategoryDescription { get; set; } = string.Empty;
 	}
 }

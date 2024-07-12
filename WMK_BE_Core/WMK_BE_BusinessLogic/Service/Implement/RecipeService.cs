@@ -48,12 +48,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<List<RecipeResponse>>();
             var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
-            //var responseList = currentList.ToList().Where(x => x.ProcessStatus == ProcessStatus.Processing);
+            var responseList = currentList.ToList().Where(x => x.ProcessStatus == ProcessStatus.Processing);
             if (currentList != null && currentList.Count() > 0)
             {
                 result.StatusCode = 200;
                 result.Message = "OK. Recipe list";
-                result.Data = _mapper.Map<List<RecipeResponse>>(currentList);
+                result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
                 return result;
             }
             else
@@ -160,61 +160,78 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 await _unitOfWork.CompleteAsync();
 
+                //bat dau tao cac thanh phan lien quan
+
                 //create RecipeCategory
                 var checkCreateRecipeCategory = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
-                if (checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null)
-                {
-                    resetRecipe(newRecipe.Id);
-                    result.StatusCode = checkCreateRecipeCategory.StatusCode;
-                    result.Message = checkCreateRecipeCategory.Message;
-                    return result;
-                }
-                newRecipe.RecipeCategories = checkCreateRecipeCategory.Data.ToList();
-                //create RecipeCategory
-
                 //create RecipeIngredient
                 var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(newRecipe.Id, recipe.RecipeIngredientsList);
-                if (checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null)
-                {
-                    resetRecipe(newRecipe.Id);
-                    result.StatusCode = checkCreateRecipeIngredient.StatusCode;
-                    result.Message = checkCreateRecipeIngredient.Message;
-                    return result;
-                }
-                newRecipe.RecipeIngredients = checkCreateRecipeIngredient.Data.ToList();
-                //create RecipeIngredient
-
                 //create RecipeStep
                 var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(newRecipe.Id, recipe.Steps);
-                if (checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null)
-                {
-                    resetRecipe(newRecipe.Id);
-                    result.StatusCode = checkCreateRecipeIngredient.StatusCode;
-                    result.Message = checkCreateRecipeIngredient.Message;
-                    return result;
-                }
-                newRecipe.RecipeSteps = checkCreateRecipeStep.Data.ToList();
-                //create RecipeStep
-
                 //create RecipeNutrient
                 var checkCreateRecipeNutrient = await _recipeNutrientService.Create(newRecipe.Id, recipe.RecipeIngredientsList);
-                if (checkCreateRecipeNutrient.StatusCode != 200 || checkCreateRecipeNutrient.Data == null)
+
+                if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
+                    checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null 
+                    || checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
+                    || checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null
+                    || checkCreateRecipeNutrient.StatusCode != 200 || checkCreateRecipeNutrient.Data == null
+                    )
                 {
                     resetRecipe(newRecipe.Id);
-                    result.StatusCode = checkCreateRecipeIngredient.StatusCode;
-                    result.Message = checkCreateRecipeIngredient.Message;
+                    result.StatusCode = 500;
+                    result.Message = checkCreateRecipeCategory.Message 
+                        + " | " + checkCreateRecipeIngredient.Message 
+                        + " | " + checkCreateRecipeIngredient.Message 
+                        + " | " + checkCreateRecipeNutrient.Message;
                     return result;
                 }
-                else
+                else//ko co loi va hoan thanh tao moi
                 {
                     await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Message = "Create Recipe successfully.";
+                    return result;
                 }
-                //newRecipe.RecipeSteps = checkCreateRecipeStep.Data.ToList();
-                //create RecipeNutrient
+                #region old
+                //newRecipe.RecipeCategories = checkCreateRecipeCategory.Data.ToList();
+                //create RecipeCategory
 
-                result.StatusCode = 200;
-                result.Message = "Create Recipe successfully.";
-                return result;
+                //if ()
+                //{
+                //    resetRecipe(newRecipe.Id);
+                //    result.StatusCode = checkCreateRecipeIngredient.StatusCode;
+                //    result.Message = ;
+                //    return result;
+                //}
+                //newRecipe.RecipeIngredients = checkCreateRecipeIngredient.Data.ToList();
+                ////create RecipeIngredient
+
+
+
+                //if ()
+                //{
+                //    resetRecipe(newRecipe.Id);
+                //    result.StatusCode = checkCreateRecipeIngredient.StatusCode;
+                //    result.Message = ;
+                //    return result;
+                //}
+                //newRecipe.RecipeSteps = checkCreateRecipeStep.Data.ToList();
+                ////create RecipeStep
+
+
+                //if ()
+                //{
+                //    resetRecipe(newRecipe.Id);
+                //    result.StatusCode = checkCreateRecipeIngredient.StatusCode;
+                //    result.Message = checkCreateRecipeIngredient.Message;
+                //    return result;
+                //}
+                //else
+                //{
+                //    await _unitOfWork.CompleteAsync();
+                //}
+                #endregion
             }
             catch (Exception ex)
             {
