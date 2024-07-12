@@ -9,9 +9,9 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
-	[Table("IngredientCategorys")]
-	public class IngredientCategory
-	{
+    [Table("IngredientCategorys")]
+    public class IngredientCategory
+    {
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -24,7 +24,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         public IngredientCategory()
         {
-            Ingredients = new List<Ingredient>();
         }
     }
 }

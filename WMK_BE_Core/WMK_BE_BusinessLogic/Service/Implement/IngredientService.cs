@@ -1,14 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
-using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
-using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
@@ -33,6 +26,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _updateValidator = new UpdateIngredientValidator();
             _updateStatusValidator = new UpdateStatusIngredientValidator();
         }
+
         #region Change status
         public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient)
         {
@@ -118,6 +112,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
         #endregion
+
         #region Delete from Database
         public async Task<ResponseObject<IngredientResponse>> DeleteIngredientById(Guid id)//ko khuyen khich dung
         {
@@ -148,6 +143,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
         #endregion
+
         #region Get by ID
         public async Task<ResponseObject<IngredientResponse>> GetIngredientById(Guid id)
         {
@@ -204,26 +200,28 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Get all
-        public async Task<ResponseObject<IngredientResponse>> GetIngredients()
+        public async Task<ResponseObject<List<IngredientResponse>>> GetIngredients()
         {
-            var result = new ResponseObject<IngredientResponse>();
+            var result = new ResponseObject<List<IngredientResponse>>();
             var ingredients = await _unitOfWork.IngredientRepository.GetAllAsync();
-            var responseList = ingredients.ToList().Where(x => x.Status.ToInt() == 0);
+            var responseList = ingredients.ToList().Where(x => x.Status == BaseStatus.Available);
             if (responseList != null && responseList.Count() > 0)
             {
                 result.StatusCode = 200;
                 result.Message = "OK. Ingredients list";
-                result.List = _mapper.Map<List<IngredientResponse>>(responseList);
-				foreach ( var ingredientResponse in result.List )
-				{
-					var ingredient = responseList.FirstOrDefault(i => i.Id == ingredientResponse.Id);
-					if ( ingredient != null )
-					{
-						ingredientResponse.IngredientNutrient = _mapper.Map<IngredientNutrientResponse>(ingredient.IngredientNutrient);
-                        ingredientResponse.IngredientCategory = _mapper.Map<IngredientCategoryResponse>(ingredient.IngredientCategory);
-                    }
-				}
-				return result;
+                result.Data = _mapper.Map<List<IngredientResponse>>(responseList);
+                #region old
+                //foreach ( var ingredientResponse in result.List )
+                //{
+                //	var ingredient = responseList.FirstOrDefault(i => i.Id == ingredientResponse.Id);
+                //	if ( ingredient != null )
+                //	{
+                //		ingredientResponse.IngredientNutrient = _mapper.Map<IngredientNutrientResponse>(ingredient.IngredientNutrient);
+                //                    ingredientResponse.IngredientCategory = _mapper.Map<IngredientCategoryResponse>(ingredient.IngredientCategory);
+                //                }
+                //}
+                #endregion
+                return result;
             }
             else
             {

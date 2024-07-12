@@ -22,14 +22,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string? Img { get; set; }
         public double Price { get; set; }
         public int Popularity { get; set; }
-        public ProcessStatus ProcessStatus { get; set; }//thong tin ve viec duoc duyet hay chua.
-                                                        //approve là đc duyet va co the hien thi tren app, deny hoac processing thi ko hien thi
+        public ProcessStatus ProcessStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; } = string.Empty;
-
-
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
 
@@ -39,5 +36,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public virtual List<RecipeCategory> RecipeCategories { get; set; }
         public virtual List<RecipeStep> RecipeSteps { get; set; }
         public virtual RecipeNutrient RecipeNutrient { get; set; }
+
+        public Recipe()
+        {}
     }
 }

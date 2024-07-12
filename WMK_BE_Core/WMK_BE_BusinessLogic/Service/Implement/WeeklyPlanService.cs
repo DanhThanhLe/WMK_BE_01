@@ -121,7 +121,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 				//check size of recipe create by staff
-				if ( model.recipesId.Count < 5 || model.recipesId.Count > 21 )
+				if ( model.recipeIds.Count < 5 || model.recipeIds.Count > 21 )
 				{
 					result.StatusCode = 402;
 					result.Message = "Recipe must be 5 - 30!";
@@ -141,7 +141,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();//Save database
 
 				//create list recipePlan
-				var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(newWeeklyPlan.Id , model.recipesId);
+				var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(newWeeklyPlan.Id , model.recipeIds);
 				if ( createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null )
 				{
 					//assign the value of recipe plan to new weekly plan

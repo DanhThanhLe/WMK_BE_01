@@ -25,5 +25,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public double Sodium { get; set; }
 
 		public virtual Ingredient Ingredient { get; set; }
+
+        public IngredientNutrient()
+        {
+            
+        }
     }
 }

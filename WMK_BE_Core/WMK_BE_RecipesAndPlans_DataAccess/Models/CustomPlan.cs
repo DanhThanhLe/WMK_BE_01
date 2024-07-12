@@ -23,5 +23,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         //reference
         public virtual Order Order { get; set; }
 
-	}
+        public CustomPlan()
+        {
+            
+        }
+
+    }
 }

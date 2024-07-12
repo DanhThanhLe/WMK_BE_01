@@ -25,5 +25,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public virtual Recipe Recipe { get; set; }
         public virtual WeeklyPlan WeeklyPlan { get; set; }
 
+        public RecipePLan()
+        {
+            
+        }
+
     }
 }

@@ -31,5 +31,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         //list
         public List<Order> Orders { get; set; }
-	}
+
+        public User()
+        {
+            
+        }
+    }
 }

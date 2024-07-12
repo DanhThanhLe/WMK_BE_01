@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
+﻿using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -20,7 +16,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId , List<RecipeWeeklyPlanCreate> recipesId)
+		public async Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId , List<RecipeWeeklyPlanCreate> recipeIds)
 		{
 			var result = new ResponseObject<List<RecipePLan>?>();
 			var recipePlans = new List<RecipePLan>();
@@ -28,16 +24,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				//check weeklyPlan have exist
 				var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
-				if ( weeklyPlanExist == null || weeklyPlanExist.ProcessStatus != WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Processing)
+				if ( weeklyPlanExist == null || weeklyPlanExist.ProcessStatus != ProcessStatus.Processing)
 				{
 					result.StatusCode = 404;
-					result.Message = "weekly plan not exist!";
+					result.Message = "Weekly plan not exist!";
 					return result;
 				}
-				foreach ( var recipe in recipesId )
+				foreach ( var recipe in recipeIds )
 				{
 					var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.recipeId.ToString());
-					if ( recipeExist != null && recipeExist.ProcessStatus == WMK_BE_RecipesAndPlans_DataAccess.Enums.ProcessStatus.Approved)
+					if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved)
 					{
 						var recipePlan = new RecipePLan
 						{
@@ -60,9 +56,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//add recipe plan into DB
 				if ( recipePlans.Any() )
 				{
-					await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);//add list recipe plan into DB
+					await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);
 				}
-				await _unitOfWork.CompleteAsync();
+                //add list recipe plan into DB
+                await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Create recipe plan successfully.";
 				result.Data = recipePlans;
@@ -75,6 +72,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		public async Task<ResponseObject<List<RecipePLan>?>> UpdateRecipePlanAsync(Guid weeklyPlanId , List<Guid> newRecipesId)
 		{
 			var result = new ResponseObject<List<RecipePLan>?>();
