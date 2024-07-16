@@ -259,14 +259,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-
+#endregion
         //reset Recipe
-        private void resetRecipe(Guid recipeId)
+        private async void resetRecipe(Guid recipeId)
         {
-            _unitOfWork.RecipeRepository.DeleteAsync(recipeId.ToString());
+            await _unitOfWork.RecipeRepository.DeleteAsync(recipeId.ToString());
         }
 
-        #endregion
+        
 
         #region Update (26/05/2024)
         public async Task<ResponseObject<RecipeResponse>> Update(RecipeRequest updateRecipe)
