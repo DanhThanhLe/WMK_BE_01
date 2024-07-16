@@ -32,10 +32,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public override async Task<List<Recipe>> GetAllAsync()
         {
             var recipes = await _dbSet
-                                .Include(r => r.RecipeNutrient)
                                 .Include(r => r.RecipeIngredients)
-                                    .ThenInclude(ri => ri.Ingredient) // Nếu RecipeIngredient có quan hệ với Ingredient
+                                    .ThenInclude(ri => ri.Ingredient)
+                                        .ThenInclude(i => i.IngredientNutrient)
+                                .Include(r => r.RecipeIngredients)
+                                    .ThenInclude(ri => ri.Ingredient)
+                                        .ThenInclude(i => i.IngredientCategory)
                                 .Include(r => r.RecipeCategories)
+                                .Include(r => r.RecipeNutrient)
+                                .Include(r => r.RecipeSteps)
                                 .ToListAsync();
             return recipes;
         }
@@ -51,10 +56,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                 }
 
                 var recipe = await _dbSet
-                                .Include(r => r.RecipeNutrient)
                                 .Include(r => r.RecipeIngredients)
-                                    .ThenInclude(ri => ri.Ingredient) // Nếu RecipeIngredient có quan hệ với Ingredient
+                                    .ThenInclude(ri => ri.Ingredient)
+                                        .ThenInclude(i => i.IngredientNutrient)
+                                .Include(r => r.RecipeIngredients)
+                                    .ThenInclude(ri => ri.Ingredient)
+                                        .ThenInclude(i => i.IngredientCategory)
                                 .Include(r => r.RecipeCategories)
+                                .Include(r => r.RecipeNutrient)
+                                .Include(r => r.RecipeSteps)
                                 .SingleOrDefaultAsync(r => r.Id == guidId);
 
                 return recipe;

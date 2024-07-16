@@ -71,6 +71,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             modelBuilder.Entity<User>().HasData(adminUser);
             modelBuilder.Entity<User>().HasData(staff);
 
+
+
+            //===Ingredient(IngredientNutrient, IngredientCategory) | Recipe(Category, RecipeNutrient, RecipeIngredient)====================================
+
             //quan hệ 1 - 1 giữa Ingredint và IngredientNutrient
             modelBuilder.Entity<Ingredient>()
                 .HasOne(i => i.IngredientNutrient)
@@ -83,6 +87,13 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
                 .HasOne(r => r.RecipeNutrient)
                 .WithOne(rn => rn.Recipe)
                 .HasForeignKey<RecipeNutrient>(rn => rn.RecipeID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Quan hệ 1 - nhiều giữa Recipe và RecipeStep
+            modelBuilder.Entity<Recipe>()
+                .HasMany(r => r.RecipeSteps)
+                .WithOne(rs => rs.Recipe)
+                .HasForeignKey(rs => rs.RecipeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Quan hệ 1 - nhiều giữa Recipe và RecipeIngredient
@@ -104,12 +115,17 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
                 .HasOne(ri => ri.Recipe)
                 .WithMany(r => r.RecipeIngredients)
                 .HasForeignKey(ri => ri.RecipeId);
-            //.OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RecipeIngredient>()
                 .HasOne(ri => ri.Ingredient)
                 .WithMany(i => i.RecipeIngredients)
                 .HasForeignKey(ri => ri.IngredientId);
+
+            //===Ingredient(IngredientNutrient, IngredientCategory) | Recipe(Category, RecipeNutrient, RecipeIngredient, RecipeStep)====================================
+
+
+
+            //===Recipe() | WeeklyPlan()=============================================================================================
 
             // Quan hệ nhiều - nhiều giữa Recipe và WeeklPlan thông qua RecipePlan
             modelBuilder.Entity<RecipePLan>()
@@ -127,6 +143,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             //    .HasOne(rp => rp.CustomPlan)
             //    .WithMany(cp => cp.RecipePlans)
             //    .HasForeignKey(rp => rp.CustomPlanId);
+            
+            // Quan hệ 1 - nhiều của 
+
+
+            //===Recipe() | WeeklyPlan()=============================================================================================
+
         }
 
         private string GetSignature256(String text)

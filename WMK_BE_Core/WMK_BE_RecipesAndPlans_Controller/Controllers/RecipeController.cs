@@ -74,5 +74,25 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var result = await _recipeService.CreateRecipeAsync(model);
             return Ok(result);
         }
+
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteById([FromQuery] string id)
+        {
+            Guid recipeId;
+            if (Guid.TryParse(id, out recipeId))
+            {
+                var result = await _recipeService.DeleteRecipeById(recipeId);
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
+        }
+
     }
 }

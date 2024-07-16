@@ -16,6 +16,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 	public class RecipeWeeklyPlanCreate
 	{
 		public Guid recipeId { get; set; }
-        public int Amount { get; set; }
+		public int Quantity { get; set; } = 1;
     }
 }

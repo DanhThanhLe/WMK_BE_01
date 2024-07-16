@@ -48,11 +48,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<List<RecipeResponse>>();
             var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
-            var responseList = currentList.ToList().Where(x => x.ProcessStatus == ProcessStatus.Processing);
+            var responseList = currentList.ToList().Where(x => x.ProcessStatus == ProcessStatus.Approved);
             if (currentList != null && currentList.Count() > 0)
             {
                 result.StatusCode = 200;
-                result.Message = "OK. Recipe list";
+                result.Message = "OK. Recipe list "+responseList.Count() ;
                 result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
                 return result;
             }
@@ -151,6 +151,22 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     result.Message = "Duplicate name with ID " + checkDuplicateName.Id.ToString();
                     return result;
                 }
+                //tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
+                foreach (var item in recipe.RecipeIngredientsList)
+                {
+                    var ingredientFound = await _unitOfWork.IngredientRepository.GetByIdAsync(item.IngredientId.ToString());
+                    if (ingredientFound != null)
+                    {
+                        newRecipe.Price += ingredientFound.Price * item.amount;
+                    }
+                    else
+                    {
+                        result.StatusCode = 400;
+                        result.Message = "Ingredient ID " + item.IngredientId + " not found.";
+                        return result;
+                    }
+                }
+
                 var createResult = await _unitOfWork.RecipeRepository.CreateAsync(newRecipe);
                 if (!createResult)
                 {
@@ -164,15 +180,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
                 //create RecipeCategory
                 var checkCreateRecipeCategory = await _recipeCategoryService.Create(newRecipe.Id, recipe.CategoryIds);
+
                 //create RecipeIngredient
                 var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(newRecipe.Id, recipe.RecipeIngredientsList);
+
                 //create RecipeStep
                 var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(newRecipe.Id, recipe.Steps);
+
                 //create RecipeNutrient
                 var checkCreateRecipeNutrient = await _recipeNutrientService.Create(newRecipe.Id, recipe.RecipeIngredientsList);
 
                 if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
-                    checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null 
+                    checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
                     || checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
                     || checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null
                     || checkCreateRecipeNutrient.StatusCode != 200 || checkCreateRecipeNutrient.Data == null
@@ -180,9 +199,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     resetRecipe(newRecipe.Id);
                     result.StatusCode = 500;
-                    result.Message = checkCreateRecipeCategory.Message 
-                        + " | " + checkCreateRecipeIngredient.Message 
-                        + " | " + checkCreateRecipeIngredient.Message 
+                    result.Message = checkCreateRecipeCategory.Message
+                        + " | " + checkCreateRecipeIngredient.Message
+                        + " | " + checkCreateRecipeIngredient.Message
                         + " | " + checkCreateRecipeNutrient.Message;
                     return result;
                 }
@@ -371,18 +390,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Delete
-        public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(IdRecipeRequest recipe)
+        public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid request)
         {
             var result = new ResponseObject<RecipeResponse>();
-            var validateResult = _idValidator.Validate(recipe);
-            if (!validateResult.IsValid)
-            {
-                var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-                result.StatusCode = 400;
-                result.Message = string.Join(" - ", error);
-                return result;
-            }
-            var found = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.Id.ToString());
+            var found = await _unitOfWork.RecipeRepository.GetByIdAsync(request.ToString());
             if (found == null)
             {
                 result.StatusCode = 404;
@@ -390,10 +401,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
 
+
             //check recipe exist in weekly plan - if have, just change status -> cancel
-
-
-            var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipe.Id.ToString());
+            var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(request.ToString());
             if (deleteResult)
             {
                 await _unitOfWork.CompleteAsync();

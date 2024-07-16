@@ -19,7 +19,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DateTime? EndDate { get; set; }
         public string? Description { set; get; }
 		public string? Notice { get; set; }
-
 		public DateTime CreateAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
