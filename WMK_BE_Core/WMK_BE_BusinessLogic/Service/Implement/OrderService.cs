@@ -123,11 +123,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						return result;
 					}
 				}
-				else if ( model.CustomPlans != null && model.CustomPlans.Any() )
+				else if ( model.RecipeList != null && model.RecipeList.Any() )
 				{
 					await _unitOfWork.CompleteAsync(); //save order to DB
 													   //create order by custom plan
-					foreach ( var customPlanRequest in model.CustomPlans )
+					foreach ( var customPlanRequest in model.RecipeList )
 					{
 						var customPlan = new CustomPlan
 						{
