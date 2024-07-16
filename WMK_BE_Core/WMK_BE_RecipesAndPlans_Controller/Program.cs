@@ -34,7 +34,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			{
 				ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect") ,
 					b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
-			});
+			}, ServiceLifetime.Transient);
+
             //add swagger
             //I want get date time of this file to show version of API 
             var fileInfo = new FileInfo("WMK_BE_RecipesAndPlans_Controller.dll");
