@@ -19,9 +19,26 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public override Task<List<WeeklyPlan>> GetAllAsync()
 		{
 			return _dbSet.Include(wp => wp.RecipePLans)
-				.ThenInclude(rp => rp.Recipe)
-				.ToListAsync();
-		}
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeIngredients)//lay toi RecipeIngredient
+										.ThenInclude(ri => ri.Ingredient)
+											.ThenInclude(i => i.IngredientNutrient)//lay toi ingredientNutrient
+                          .Include(wp => wp.RecipePLans)
+                                    .ThenInclude(rp => rp.Recipe)
+                                        .ThenInclude(r => r.RecipeIngredients)
+                                            .ThenInclude(ri => ri.Ingredient)
+                                                .ThenInclude(i => i.IngredientCategory)//lay toi ingredientCategory
+                          .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+									.ThenInclude(r => r.RecipeCategories)
+                           .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeNutrient)//lay toi recipeNutrient
+                           .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeSteps)//lay toi recipeStep
+                           .ToListAsync();
+        }
 		public override async Task<WeeklyPlan?> GetByIdAsync(string id)
 		{
 			try
@@ -32,8 +49,25 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 					return null;
 				}
 				var entity = await _dbSet.Include(wp => wp.RecipePLans)
-									.ThenInclude(rp => rp.Recipe)
-									.FirstOrDefaultAsync(wp => wp.Id == guidId);
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeIngredients)//lay toi RecipeIngredient
+                                        .ThenInclude(ri => ri.Ingredient)
+                                            .ThenInclude(i => i.IngredientNutrient)//lay toi ingredientNutrient
+                          .Include(wp => wp.RecipePLans)
+                                    .ThenInclude(rp => rp.Recipe)
+                                        .ThenInclude(r => r.RecipeIngredients)
+                                            .ThenInclude(ri => ri.Ingredient)
+                                                .ThenInclude(i => i.IngredientCategory)//lay toi ingredientCategory
+                          .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeCategories)
+                           .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeNutrient)//lay toi recipeNutrient
+                           .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeSteps)//lay toi recipeStep
+                                    .FirstOrDefaultAsync(wp => wp.Id == guidId);
 				return entity;
 			}
 			catch ( Exception ex )

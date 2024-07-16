@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipePlanModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
 {
@@ -21,7 +23,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
 		public DateTime? UpdatedAt { get; set; }
 		public string? UpdatedBy { get; set; } = string.Empty;
 		public string ProcessStatus { get; set; } = string.Empty;
-		public List<RecipeResponse> Recipes { get; set; }
+		public List<RecipePlanResponseInWeeklyPlan> RecipePLans { get; set; }
 
 	}
 }

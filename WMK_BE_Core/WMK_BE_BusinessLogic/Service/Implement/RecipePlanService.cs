@@ -41,15 +41,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							RecipeId = recipeExist.Id ,
 							Recipe = recipeExist ,
 							WeeklyPlan = weeklyPlanExist,
-							Quantity = recipe.Amount,
-							Price = recipeExist.Price * recipe.Amount
+							Quantity = recipe.Quantity,
+							Price = recipeExist.Price * recipe.Quantity
 						};
 						recipePlans.Add(recipePlan);
 					}
 					else
 					{
 						result.StatusCode = 404;
-						result.Message = $"Recipe with ID {recipeExist} not found!";
+						result.Message = $"Recipe with ID {recipeExist.Id} not found!";
 						return result;
 					}
 				}
