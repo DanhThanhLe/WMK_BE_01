@@ -89,6 +89,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "User not found!";
 				return result;
 			}
+			//chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.User = userExist;
 			//newOrder.TotalPrice = model.TotalPrice * 1000;
@@ -114,6 +115,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 						newOrder.StanderdWeeklyPlanId = weeklyPlanId;
 						newOrder.WeeklyPlan = weeklyPlanExist;
+						double totalPrice = 0;//phan nay tinh total price cho order formal (la dat han theo weeklyPlan co san)
+						foreach(var item in weeklyPlanExist.RecipePLans)
+						{
+							totalPrice += item.Recipe.Price * item.Quantity;
+						}
+						newOrder.TotalPrice = totalPrice;
+						newOrder.ShipDate = DateTime.Now.AddDays(7);
 						await _unitOfWork.CompleteAsync(); //save order to DB
 					}
 					else

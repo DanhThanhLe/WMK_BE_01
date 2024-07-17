@@ -1,4 +1,5 @@
 
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -144,6 +145,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(IngredientNutrientProfile));
 			builder.Services.AddAutoMapper(typeof(IngredientProfile));
 			builder.Services.AddAutoMapper(typeof(RecipePlanProfile));
+            builder.Services.AddAutoMapper(typeof(CustomPlanProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , WeMealKitContext>();
@@ -166,7 +168,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<IIngredientNutrientService, IngredientNutrientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 			builder.Services.AddScoped<ITransactionService , TransactionService>();
-			builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.AddScoped<ICustomPlanService, CustomPLanService>();
+            builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 
             var app = builder.Build();
 

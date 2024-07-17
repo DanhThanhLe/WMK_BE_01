@@ -121,7 +121,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			return _dbSet.Find(id);
 		}
 
-		public IQueryable<T> Get(Expression<Func<T , bool>> expression)
+		public virtual IQueryable<T> Get(Expression<Func<T , bool>> expression)
 		{
 			return _dbSet.Where(expression);
 		}

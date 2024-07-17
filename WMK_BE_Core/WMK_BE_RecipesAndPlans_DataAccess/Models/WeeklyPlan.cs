@@ -15,7 +15,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public DateTime? BeginDate { get; set; }//update after manager approve
+        public DateTime? BeginDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string? Description { set; get; }
 		public string? Notice { get; set; }
@@ -31,6 +31,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public List<Order> Orders { get; set; }
 
         public virtual List<RecipePLan> RecipePLans { get; set; }
+
 
         public WeeklyPlan()
         {

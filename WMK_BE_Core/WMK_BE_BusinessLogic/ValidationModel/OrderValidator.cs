@@ -17,10 +17,10 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			RuleFor(x => x.UserId).NotEmpty().WithMessage("UserId is required!")
 				.Must(_expendValidator.BeValidGuid).WithMessage("UserId invalid fortmat GUID!");
 			RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required!");
-			RuleFor(x => x.TotalPrice).NotEmpty().WithMessage("TotalPrice is required!");
-			RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
-				.Must(shipDate => shipDate > DateTime.Now)
-				.WithMessage("ShipDate must be after the current date.");
+			//RuleFor(x => x.TotalPrice).NotEmpty().WithMessage("TotalPrice is required!");
+			//RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
+				//.Must(shipDate => shipDate > DateTime.Now)
+				//.WithMessage("ShipDate must be after the current date.");
 		}
 	}
 	public class UpdateOrderModelValidator : AbstractValidator<UpdateOrderRequest>

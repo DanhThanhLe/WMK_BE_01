@@ -11,11 +11,17 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 	{
 		public string? Description { set; get; } = string.Empty;
 		public string CreatedBy { get; set; } = string.Empty;
-		public List<RecipeWeeklyPlanCreate> recipeIds { get; set; }
+        public DateTime BeginDate { get; set; }//chua co validate
+        public DateTime EndDate { get; set; }//chua co validate
+
+        public List<RecipeWeeklyPlanCreate> recipeIds { get; set; }
 	}
 	public class RecipeWeeklyPlanCreate
 	{
 		public Guid recipeId { get; set; }
 		public int Quantity { get; set; } = 1;
+        public DayInWeek DayInWeek { get; set; }
+        public MealInDay MealInDay { get; set; }
+
     }
 }

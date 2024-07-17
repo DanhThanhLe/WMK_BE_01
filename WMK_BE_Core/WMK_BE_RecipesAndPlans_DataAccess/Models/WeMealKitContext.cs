@@ -143,11 +143,28 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             //    .HasOne(rp => rp.CustomPlan)
             //    .WithMany(cp => cp.RecipePlans)
             //    .HasForeignKey(rp => rp.CustomPlanId);
-            
+
             // Quan hệ 1 - nhiều của 
 
 
             //===Recipe() | WeeklyPlan()=============================================================================================
+
+            //===recipe - order - customPlan============================================================================
+            modelBuilder.Entity<CustomPlan>()
+                .HasOne(cp => cp.Recipe)
+                .WithMany(r => r.CustomPlans)
+                .HasForeignKey( cp => cp.RecipeId)
+                .OnDelete(DeleteBehavior.Restrict);//xoa recipe thi
+
+          
+
+            
+
+
+
+
+
+            //===recipe - weeklyPlan - order - customPlan=============================================================================
 
         }
 

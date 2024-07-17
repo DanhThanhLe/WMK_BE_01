@@ -130,8 +130,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             //tim id cua recipe
             var result = new ResponseObject<RecipeCategoryResponse>();
-            var recipeCategoryList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
-            var recipe = _unitOfWork.RecipeRepository.GetById(recipeCategory.RecipeId.ToString());
+            //var recipeCategoryList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
+            var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeCategory.RecipeId.ToString());
             if (recipe == null)
             {
                 result.StatusCode = 400;
@@ -140,11 +140,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             else
             {
-                
+                result.StatusCode = 200;
+                result.Message = "Ok recipeCategory";
+                result.Data = _mapper.Map<RecipeCategoryResponse>(recipeCategory);
+                return result;
             }
-            result.StatusCode = 200;
-            result.Message = "test";
-            return result;
+
         }
         #endregion Update
         //public async Task<ResponseObject<RecipeCategoryResponse>> GetByRecipeId(Guid recipeId)
@@ -164,7 +165,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public List<Guid> GetRecipeIdByCategoryId(Guid categoryId)
         {
             var recipeCategoryFoundList = _unitOfWork.RecipeCategoryRepository.Get(x => x.CategoryId == categoryId);
-            if(recipeCategoryFoundList == null)
+            if (recipeCategoryFoundList == null)
             {
                 return null;
             }
@@ -182,10 +183,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<RecipeCategoryResponse>();
             var list = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
-            if(list == null || list.Count == 0)
+            if (list == null || list.Count == 0)
             {
-                result.StatusCode=400;
-                result.Message= "Not found. Empty list";
+                result.StatusCode = 400;
+                result.Message = "Not found. Empty list";
                 return result;
             }
             result.StatusCode = 200;
@@ -200,7 +201,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<RecipeCategoryResponse>();
             var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-            if(checkRecipe == null)
+            if (checkRecipe == null)
             {
                 result.StatusCode = 400;
                 result.Message = "Recipe not existed";
@@ -215,10 +216,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     foundList.Add(item);
                 }
             }
-            if(foundList.Count == 0)
+            if (foundList.Count == 0)
             {
                 result.StatusCode = 500;
-                result.Message = "Not found List for Id: "+recipeId;
+                result.Message = "Not found List for Id: " + recipeId;
                 return result;
             }
             result.StatusCode = 200;
