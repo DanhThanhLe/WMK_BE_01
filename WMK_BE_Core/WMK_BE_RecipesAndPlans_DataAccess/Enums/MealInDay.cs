@@ -17,7 +17,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
     {
         public static int ToInt(this MealInDay mealInDay)
         {
-            return (int) mealInDay;
+            return (int)mealInDay;
         }
         public static MealInDay FromInt(int value)
         {

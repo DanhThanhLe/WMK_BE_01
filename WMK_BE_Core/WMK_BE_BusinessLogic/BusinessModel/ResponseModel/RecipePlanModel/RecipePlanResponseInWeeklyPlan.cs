@@ -16,8 +16,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipePlanModel
         public Guid RecipeId { get; set; }
         public Guid StandardWeeklyPlanId { get; set; }
 
-        public string DayInWeek { get; set; }
-        public string MealInDay { get; set; }
+        public DayInWeek  DayInWeek { get; set; }
+        public MealInDay MealInDay { get; set; }
 
         public int Quantity { get; set; }
         public double Price { get; set; }
