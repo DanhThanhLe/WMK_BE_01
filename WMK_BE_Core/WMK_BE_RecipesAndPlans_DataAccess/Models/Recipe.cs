@@ -15,8 +15,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-		public int ServingSize { get; set; }
-		public LevelOfDifficult Difficulty { get; set; }
+        public int ServingSize { get; set; }
+        public LevelOfDifficult Difficulty { get; set; }
         public string? Description { get; set; }
         public string? Notice { get; set; }
         public string? Img { get; set; }
@@ -31,13 +31,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string? UpdatedBy { get; set; } = string.Empty;
 
         //reference
-        public List<RecipePLan> RecipePlans { get; set; }
+
         public virtual List<RecipeIngredient> RecipeIngredients { get; set; }
         public virtual List<RecipeCategory> RecipeCategories { get; set; }
         public virtual List<RecipeStep> RecipeSteps { get; set; }
         public virtual RecipeNutrient RecipeNutrient { get; set; }
+        public List<RecipePLan> RecipePlans { get; set; }//quan he 1 - nhieu (recipe - recipePlan)
+        public virtual List<CustomPlan> CustomPlans { get; set; }//quan he 1 nhieu (recipe - customPlan)    
 
         public Recipe()
-        {}
+        { }
     }
 }

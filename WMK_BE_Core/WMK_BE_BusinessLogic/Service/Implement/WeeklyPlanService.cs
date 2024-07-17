@@ -124,6 +124,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "User not exist or not have access!";
 					return result;
 				}
+				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+				if (currentList.Count() > 0)
+				{
+					WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(model.Description.Trim())).SingleOrDefault();
+					if (foundDuplicate != null && (foundDuplicate.ProcessStatus == ProcessStatus.Processing || foundDuplicate.ProcessStatus == ProcessStatus.Approved))
+					{
+                        result.StatusCode = 400;
+						result.Message = "Weekly plan Description already existed";
+                        return result;
+                    }
+				}
 				//create weekly plan
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
 				newWeeklyPlan.CreateAt = DateTime.Now;

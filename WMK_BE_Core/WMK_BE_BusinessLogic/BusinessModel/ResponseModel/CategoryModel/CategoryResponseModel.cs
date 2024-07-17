@@ -15,4 +15,11 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.CategoryModel
 		public string Description { get; set; } = string.Empty;
 		public string Status { get; set; } = string.Empty;
 	}
+
+	public class CategoryResponseInRecipeCategory
+	{
+        public string Type { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
 }

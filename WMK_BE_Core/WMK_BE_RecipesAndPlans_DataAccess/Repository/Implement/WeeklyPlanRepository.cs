@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
@@ -77,7 +78,32 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			}
 		}
 
-		public async Task<bool> RecipeExistInWeeklyPlanAsync(Guid weeklyPlanId)
+        public override IQueryable<WeeklyPlan> Get(Expression<Func<WeeklyPlan, bool>> expression)
+        {
+            return _dbSet
+                .Where(expression)
+                .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeIngredients)//lay toi RecipeIngredient
+                                        .ThenInclude(ri => ri.Ingredient)
+                                            .ThenInclude(i => i.IngredientNutrient)//lay toi ingredientNutrient
+                          .Include(wp => wp.RecipePLans)
+                                    .ThenInclude(rp => rp.Recipe)
+                                        .ThenInclude(r => r.RecipeIngredients)
+                                            .ThenInclude(ri => ri.Ingredient)
+                                                .ThenInclude(i => i.IngredientCategory)//lay toi ingredientCategory
+                          .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeCategories)//lay danh sach recipeCategory
+                           .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeNutrient)//lay toi recipeNutrient
+                           .Include(wp => wp.RecipePLans)
+                                .ThenInclude(rp => rp.Recipe)
+                                    .ThenInclude(r => r.RecipeSteps);//lay toi recipeStep
+        }
+
+        public async Task<bool> RecipeExistInWeeklyPlanAsync(Guid weeklyPlanId)
 		{
 			var weeklyplan = await _dbSet.Include(w => w.RecipePLans).FirstOrDefaultAsync(w => w.Id == weeklyPlanId);
             if (weeklyplan != null)
