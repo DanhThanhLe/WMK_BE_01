@@ -11,7 +11,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 	{
 		public string? Description { set; get; } = string.Empty;
 		public string CreatedBy { get; set; } = string.Empty;
-		public List<RecipeWeeklyPlanCreate> recipeIds { get; set; }
+        public string? UrlImage { get; set; }
+        public string? Title { get; set; }
+        public List<RecipeWeeklyPlanCreate> recipeIds { get; set; }
 	}
 	public class RecipeWeeklyPlanCreate
 	{

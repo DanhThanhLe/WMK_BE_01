@@ -18,6 +18,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DateTime? BeginDate { get; set; }//update after manager approve
         public DateTime? EndDate { get; set; }
         public string? Description { set; get; }
+        public string? UrlImage { get; set; }
+        public string? Title { get; set; }
 		public string? Notice { get; set; }
 		public DateTime CreateAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
