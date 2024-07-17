@@ -156,9 +156,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
                 .HasForeignKey( cp => cp.RecipeId)
                 .OnDelete(DeleteBehavior.Restrict);//xoa recipe thi
 
-          
+            modelBuilder.Entity<WeeklyPlan>()
+                .HasMany(w => w.RecipePLans)
+                .WithOne(rp => rp.WeeklyPlan)
+                .HasForeignKey(rp => rp.StandardWeeklyPlanId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            
 
 
 
