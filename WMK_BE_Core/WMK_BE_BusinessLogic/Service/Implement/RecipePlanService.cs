@@ -42,8 +42,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							Recipe = recipeExist ,
 							WeeklyPlan = weeklyPlanExist,
 							Quantity = recipe.Quantity,
-							Price = recipeExist.Price * recipe.Quantity
-						};
+							Price = recipeExist.Price * recipe.Quantity,
+							DayInWeek = recipe.DayInWeek,
+							MealInDay = recipe.MealInDay,
+                        };
 						recipePlans.Add(recipePlan);
 					}
 					else
