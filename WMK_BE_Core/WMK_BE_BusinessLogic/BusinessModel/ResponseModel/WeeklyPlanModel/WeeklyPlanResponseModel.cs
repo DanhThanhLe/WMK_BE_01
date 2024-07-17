@@ -15,7 +15,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
 		public Guid Id { get; set; }
 		public DateTime BeginDate { get; set; }
 		public DateTime EndDate { get; set; }
-		public string? Description { set; get; } = string.Empty;
+        public string? UrlImage { get; set; }
+        public string? Title { get; set; }
+        public string? Description { set; get; } = string.Empty;
 		public DateTime CreateAt { get; set; }
 		public string CreatedBy { get; set; } = string.Empty;
 		public DateTime? ApprovedAt { get; set; }
