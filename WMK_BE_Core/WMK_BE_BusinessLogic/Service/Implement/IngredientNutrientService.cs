@@ -32,12 +32,21 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _fullIngredientNutrientValidator = new FullIngredientNutrientValidator();
         }
 
+        private async Task<List<IngredientNutrient>> GetAllToProcess()
+        {
+            var currentList = await _unitOfWork.IngredientNutrientRepository.GetAllAsync();
+            if (currentList.Any())
+            {
+                return currentList;
+            }
+            return new List<IngredientNutrient>();
+        }
 
         #region get all
         public async Task<ResponseObject<List<IngredientNutrientResponse>>> GetAll()
         {
             var result = new ResponseObject<List<IngredientNutrientResponse>>();
-            List<IngredientNutrient> currentList = await _unitOfWork.IngredientNutrientRepository.GetAllAsync();
+            List<IngredientNutrient> currentList = await GetAllToProcess();
             if (currentList.Count > 0)
             {
                 result.StatusCode = 200;
@@ -82,10 +91,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        #region create
-        public async Task<ResponseObject<IngredientNutrientResponse>> Create(CreateIngredientNutrientRequest request)
+        #region Create
+        public async Task<ResponseObject<IngredientNutrient>> Create(Guid ingredientId, CreateIngredientNutrientRequest request)
         {
-            var result = new ResponseObject<IngredientNutrientResponse>();
+            var result = new ResponseObject<IngredientNutrient>();
             var validateResult = _createIngredientNutrientValidator.Validate(request);
             if (!validateResult.IsValid)//bat loi dau vao
             {
@@ -96,13 +105,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             else//du lieu cua request ko co loi
             {
-                var checkIngredient = await _unitOfWork.IngredientRepository.GetByIdAsync(request.IngredientID.ToString());
-                var currentList = await _unitOfWork.IngredientNutrientRepository.GetAllAsync();
-                var checkExist = currentList.FirstOrDefault(x => x.IngredientID == request.IngredientID);
+                var checkIngredient = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredientId.ToString());
+                var currentList = await GetAllToProcess();
+                var checkExist = currentList.FirstOrDefault(x => x.IngredientID == ingredientId);
                 if (checkIngredient != null && checkExist != null)//khac null nghia la co ton tai ingredient nhu tren, tim luon co thong tin nutrient chua
                 {
                     result.StatusCode = 400;
-                    result.Message = "Nutrient information for ingredient id " + request.IngredientID + " already existed. Say from Create - IngredientNutrientService";
+                    result.Message = "Nutrient information for ingredient id " + ingredientId + " already existed. Say from Create - IngredientNutrientService";
                     return result;
 
                 }
@@ -114,14 +123,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     {
                         await _unitOfWork.CompleteAsync();
                         //checkIngredient.IngredientNutrient = newOne;
-                        result.StatusCode = 500;
-                        result.Message = "OK with create nutrient information with Ingredient ID: " + request.IngredientID;
+                        result.StatusCode = 200;
+                        result.Message = "OK with create nutrient information with Ingredient ID: " + ingredientId;
+                        result.Data = _mapper.Map<IngredientNutrient>(newOne);
                         return result;
                     }
                     else
                     {
                         result.StatusCode = 400;
-                        result.Message = "Create failed with ingredient with id " + request.IngredientID + ". Say from Create - IngredientNutrientService";
+                        result.Message = "Create failed with ingredient with id " + ingredientId + ". Say from Create - IngredientNutrientService";
                         return result;
                     }
 
@@ -129,7 +139,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 else if (checkIngredient == null)//null la coi nhu ko tim thay ingredient trong db -> bao loi khog tim thay
                 {
                     result.StatusCode = 400;
-                    result.Message = " Ingredient with id " + request.IngredientID + " not found. Say from Create - IngredientNutrientService";
+                    result.Message = " Ingredient with id " + ingredientId + " not found. Say from Create - IngredientNutrientService";
                     return result;
                 }
                 else//cac loai ket qua khac

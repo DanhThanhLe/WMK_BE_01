@@ -14,6 +14,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
 		public string? StanderdWeeklyPlanId { get; set; }
 		public string? Note { get; set; } = string.Empty;
 		public string Address { get; set; } = string.Empty;
+        public double TotalPrice { get; set; }
         //public string CoordinatesJson { get; set; } = string.Empty;
         //[NotMapped]
         public List<CreateCustomPlanRequest>? RecipeList { get; set; }

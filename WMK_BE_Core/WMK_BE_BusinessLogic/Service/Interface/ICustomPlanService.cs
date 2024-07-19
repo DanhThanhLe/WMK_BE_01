@@ -12,7 +12,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface ICustomPlanService
 	{
-        Task<ResponseObject<List<CustomPlanResponse>?>> CreateCustomPlanAsync(Guid orderId, List<CreateCustomPlanRequest> RecipeList);
+        Task<ResponseObject<List<CustomPlan>?>> CreateCustomPlanAsync(Guid orderId, List<CreateCustomPlanRequest> RecipeList);
 
 
     }

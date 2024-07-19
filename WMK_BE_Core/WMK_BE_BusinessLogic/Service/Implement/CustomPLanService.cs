@@ -10,6 +10,7 @@ using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -27,12 +28,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
         #region create (tạo ra khi order của khách ko nhận id của weekly plan có sẵn mà là custome plan của khách)
-        public async Task<ResponseObject<List<CustomPlanResponse>?>> CreateCustomPlanAsync(Guid orderId, List<CreateCustomPlanRequest> RecipeList)
+        public async Task<ResponseObject<List<CustomPlan>?>> CreateCustomPlanAsync(Guid orderId, List<CreateCustomPlanRequest> RecipeList)
         {
             //kiêm tra thông tin order (getId từ orderId)
             //kiểm tra thông tin recipeList truyền vào 
             //-> tính coi có đủ suất ăn quy định ko (5-100)
-            var result = new ResponseObject<List<CustomPlanResponse>?>();
+            var result = new ResponseObject<List<CustomPlan>?>();
             var orderFound = await _unitOfWork.OrderRepository.GetByIdAsync(orderId.ToString());
             if (orderFound == null)
             {
@@ -42,34 +43,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             if (RecipeList.Count() > 0)//trong list co thong tin
             {
-                int quantity = 0;
-                foreach (var item in RecipeList)
-                {
-                    quantity += item.Quantity;
-                }
-                if (quantity < 5)//khong du so luong phan an toi thieu
-                {
-                    result.StatusCode = 500;
-                    result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn";
-                    return result;
-                }
-
                 CustomPlan newOne;
+                List<CustomPlan> returnList = new List<CustomPlan>();
                 foreach (var item in RecipeList)
                 {
-                    newOne = _mapper.Map<CustomPlan>(item);
-                    newOne.OrderId = orderId;
-                    var createResult = await _unitOfWork.CustomPlanRepository.CreateAsync(newOne);
-                    if (!createResult)
+                    Recipe checkRecipe;
+                    checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
+                    if (checkRecipe != null && checkRecipe.BaseStatus == BaseStatus.Available)//check coi recipe tim duoc co dang cho dat hang hay khong
                     {
-                        result.StatusCode = 500;
-                        result.Message = "Error at CreateCustomPlanAsync - CustomPlanService ";
-                        return result;
-                    }
-                    result.StatusCode = 500;
-                    result.Message = "Error at CreateCustomPlanAsync - CustomPlanService ";
-                    return result;
+                        newOne = _mapper.Map<CustomPlan>(item);
+                        newOne.OrderId = orderId;
+                        newOne.StandardWeeklyPlanId = Guid.Empty;
+                        var createResult = await _unitOfWork.CustomPlanRepository.CreateAsync(newOne);
+                        if (!createResult)
+                        {
+                            result.StatusCode = 500;
+                            result.Message = "Error at CreateCustomPlanAsync - CustomPlanService ";
+                            return result;
+                        }
+                        await _unitOfWork.CompleteAsync();
+                        returnList.Add(newOne);
+                        
+                    }//check coi recipe tim duoc co dang cho dat hang hay khong
                 }
+                result.StatusCode = 200;
+                result.Message = "OK - Create CustomPlan ok ";
+                result.Data = _mapper.Map<List<CustomPlan>>(returnList);
+                return result;
             }
             else//khong co thong tin
             {
@@ -77,7 +77,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = "Vui lòng đặt ít nhất 5 món ăn";
                 return result;
             }
-            throw new NotImplementedException();
         }
         #endregion
 

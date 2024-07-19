@@ -26,6 +26,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe
         public double Price { get; set; }
         public int Popularity { get; set; }
         public string ProcessStatus { get; set; }
+        public BaseStatus BaseStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }

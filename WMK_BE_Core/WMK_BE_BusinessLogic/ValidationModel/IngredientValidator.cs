@@ -77,7 +77,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public CreateIngredientNutrientValidator()
         {
-            RuleFor(x => x.IngredientID).NotEmpty().WithMessage("Id khong de trong");
+            //RuleFor(x => x.IngredientID).NotEmpty().WithMessage("Id khong de trong");
             RuleFor(x => x.Calories).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot Calories");
             RuleFor(x => x.Fat).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot Fat");
             RuleFor(x => x.SaturatedFat).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot SaturatedFat");

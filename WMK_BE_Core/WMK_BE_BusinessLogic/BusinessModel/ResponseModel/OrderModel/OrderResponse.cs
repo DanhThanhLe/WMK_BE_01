@@ -12,7 +12,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 	{
 		public string Id { get; set; } = string.Empty;
 		public string UserId { get; set; } = string.Empty;
-		public string? StanderdWeeklyPlanId { get; set; }
+		//public string? StanderdWeeklyPlanId { get; set; }
 
 		public string Note { get; set; } = string.Empty;
 		public string Address { get; set; } = string.Empty;
