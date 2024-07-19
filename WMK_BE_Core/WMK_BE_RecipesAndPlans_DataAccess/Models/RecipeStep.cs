@@ -16,6 +16,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         [ForeignKey(nameof(Recipe))]
         public Guid RecipeId { get; set; }
         public int Index { get; set; }
+        public string Name { get; set; }
         public string? MediaURL { get; set; }
         public string? ImageLink { get; set; }
         public string? Description { get; set; }

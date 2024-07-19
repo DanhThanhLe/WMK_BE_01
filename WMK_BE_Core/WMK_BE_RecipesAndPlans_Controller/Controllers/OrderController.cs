@@ -29,19 +29,19 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);  
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
-        {
-            var result = await _orderService.CreateOrderAsync(model);
-            return Ok(result);
-        }
+        //[HttpPost("create")]
+        //public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
+        //{
+        //    var result = await _orderService.CreateOrderAsync(model);
+        //    return Ok(result);
+        //}
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] UpdateOrderRequest model)
-        {
-            var result = await _orderService.UpdateOrderAsync(model);
-            return Ok(result);
-        }
+        //[HttpPut("update")]
+        //public async Task<IActionResult> Update([FromBody] UpdateOrderRequest model)
+        //{
+        //    var result = await _orderService.UpdateOrderAsync(model);
+        //    return Ok(result);
+        //}
 
         [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] IdOrderRequest model)

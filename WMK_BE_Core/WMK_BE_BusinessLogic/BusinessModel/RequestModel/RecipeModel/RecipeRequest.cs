@@ -22,6 +22,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public int Popularity { get; set; }
         public double Price { get; set; } = 10000;
         public ProcessStatus ProcessStatus { get; set; }
+        public BaseStatus BaseStatus { get; set; }
     }
     public class ChangeRecipeStatusRequest
     {

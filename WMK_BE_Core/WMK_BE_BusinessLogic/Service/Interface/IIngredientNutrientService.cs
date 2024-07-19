@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
 {
@@ -14,7 +15,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<List<IngredientNutrientResponse>>> GetAll();
         Task<ResponseObject<IngredientNutrientResponse>> GetById(Guid request);
         Task<ResponseObject<IngredientNutrientResponse>> GetByIngredientId(Guid request);
-        Task<ResponseObject<IngredientNutrientResponse>> Create(CreateIngredientNutrientRequest request);
+        Task<ResponseObject<IngredientNutrient>> Create(Guid ingredientId, CreateIngredientNutrientRequest request);
         Task<ResponseObject<IngredientNutrientResponse>> Update(FullIngredientNutrientRequest request);
         Task<ResponseObject<IngredientNutrientResponse>> DeleteById(Guid request);
         

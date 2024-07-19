@@ -23,6 +23,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public double Price { get; set; }
         public int Popularity { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
+        public BaseStatus BaseStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }

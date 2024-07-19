@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,17 +43,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _recipeStepService = recipeStepService;
         }
 
+        private async Task<List<Recipe>> GetAllToProcess()
+        {
+            var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
+            if (currentList.Any())
+            {
+                return currentList;
+            }
+            return new List<Recipe>();
+        }
+
 
         #region Get all
-        public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes()//ham nay ko dung cho user
+        public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes()
         {
             var result = new ResponseObject<List<RecipeResponse>>();
-            var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
-            var responseList = currentList.ToList().Where(x => x.ProcessStatus == ProcessStatus.Approved);
+            var currentList = await GetAllToProcess();
+            var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
             if (currentList != null && currentList.Count() > 0)
             {
                 result.StatusCode = 200;
-                result.Message = "OK. Recipe list "+responseList.Count() ;
+                result.Message = "OK. Recipe list " + responseList.Count();
                 result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
                 return result;
             }
@@ -63,6 +74,30 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
+        #endregion
+
+        #region Get all for create custome plan
+        public async Task<ResponseObject<List<RecipeResponse>>> GetForCustomPlan()
+        {
+            var result = new ResponseObject<List<RecipeResponse>>();
+            var currentList = await GetAllToProcess();
+            var responseList = currentList.ToList().Where(x => x.ProcessStatus == ProcessStatus.Approved && x.BaseStatus == BaseStatus.Available);
+            if (currentList != null && currentList.Count() > 0)
+            {
+                result.StatusCode = 200;
+                result.Message = "OK. Recipe list " + responseList.Count();
+                result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
+                return result;
+            }
+            else
+            {
+                result.StatusCode = 500;
+                result.Message = "Not found. Empty list or Data not found. Say from GetRecipes - RecipeService";
+                return result;
+            }
+        }
+
+
         #endregion
 
         #region Get by ID
@@ -89,25 +124,39 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Get by name
-        public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name)//ham nay hien tai cho coi tat ca recipe bat ke status
+        public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name = "", bool status = true)//tim bang ten cua recipe lan cua ca category
         {
+            name.Trim();
+            name = name.RemoveDiacritics();
             var result = new ResponseObject<RecipeResponse>();
-            var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
+            var currentList = await GetAllToProcess();
             if (currentList != null && currentList.Count() > 0)
             {
-                var foundList = currentList.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
+
+                var foundList = new List<Recipe>();
+                if (status)//search de dat hang
+                {
+                    foundList = currentList.Where(x => x.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower()) || x.RecipeCategories.Where(y => y.Category.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower())).Any() && x.ProcessStatus == ProcessStatus.Approved && x.BaseStatus == BaseStatus.Available).ToList();
+                }
+                else
+                {
+                    foundList = currentList.Where(x => x.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower()) || x.RecipeCategories.Where(y => y.Category.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower())).Any() && x.ProcessStatus == ProcessStatus.Approved).ToList();
+
+                }
+
+
                 if (foundList == null)
                 {
                     result.StatusCode = 404;
                     result.Message = "Not found. No such recipe in collection contain keyword: " + name;
                     return result;
-
                 }
                 else
                 {
+                    var returnList = foundList.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
                     result.StatusCode = 200;
-                    result.Message = "Ingredient list found by name";
-                    result.List = _mapper.Map<List<RecipeResponse>>(foundList);
+                    result.Message = "Recipe list found by name";
+                    result.List = _mapper.Map<List<RecipeResponse>>(returnList);
                 }
             }
             else
@@ -120,6 +169,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
+
+
         #region Search
         #endregion
 
@@ -127,7 +178,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe)
         {
             var result = new ResponseObject<RecipeResponse>();
-            var currentList = await _unitOfWork.RecipeRepository.GetAllAsync();
+            var currentList = await GetAllToProcess();
             try
             {
                 var validateResult = _validator.Validate(recipe);
@@ -259,14 +310,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-#endregion
+        #endregion
         //reset Recipe
         private async void resetRecipe(Guid recipeId)
         {
             await _unitOfWork.RecipeRepository.DeleteAsync(recipeId.ToString());
+            await _unitOfWork.CompleteAsync();
         }
 
-        
+
 
         #region Update (26/05/2024)
         public async Task<ResponseObject<RecipeResponse>> Update(RecipeRequest updateRecipe)
@@ -285,7 +337,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = "Not found recipe";
                 return result;
             }
-            var currentList = await (_unitOfWork.RecipeRepository.GetAllAsync());
+            var currentList = await GetAllToProcess();
             var duplicateName = currentList.FirstOrDefault(x => x.Name == updateRecipe.Name);
             if (duplicateName != null
                 && duplicateName.Id != updateRecipe.Id
@@ -462,5 +514,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             return result;
         }
         #endregion
+
+
+
+
+    }
+    public static class StringExtensions
+    {
+        public static string RemoveDiacritics(this string text)
+        {
+            string normalizedString = text.Normalize(NormalizationForm.FormD);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
     }
 }

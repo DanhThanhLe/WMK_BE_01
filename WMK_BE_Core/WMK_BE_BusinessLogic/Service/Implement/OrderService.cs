@@ -22,15 +22,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#region Validator
 		private readonly CreateOrderModelValidator _createOrderValidator;
 		private readonly UpdateOrderModelValidator _updateOrderValidator;
+		private readonly ICustomPlanService _customPlanService;
 
 		#endregion
-		public OrderService(IUnitOfWork unitOfWork , IMapper mapper)
+		public OrderService(IUnitOfWork unitOfWork , IMapper mapper, ICustomPlanService customPlanService)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 
 			_createOrderValidator = new CreateOrderModelValidator();
 			_updateOrderValidator = new UpdateOrderModelValidator();
+			_customPlanService = customPlanService;
 		}
 		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders()
 		{
@@ -50,7 +52,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse?>();
@@ -69,174 +70,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
-		public async Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model)
-		{
-			var result = new ResponseObject<OrderResponse>();
-			var validationResult = _createOrderValidator.Validate(model);
-			if ( !validationResult.IsValid )
-			{
-				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-				result.StatusCode = 400;
-				result.Message = string.Join(" - " , error);
-				return result;
-			}
-			//check userId exists
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.UserId);
-			if ( userExist == null )
-			{
-				result.StatusCode = 404;
-				result.Message = "User not found!";
-				return result;
-			}
-			//chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
-			var newOrder = _mapper.Map<Order>(model);
-			newOrder.User = userExist;
-			//newOrder.TotalPrice = model.TotalPrice * 1000;
-			newOrder.OrderDate = DateTime.Now;
-			newOrder.Status = OrderStatus.Processing;
-			newOrder.User = userExist;
-
-			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
-			if ( createResult )
-			{
-				//check if weekly plan not null then asign with order 
-				Guid weeklyPlanId;
-				if ( model.StanderdWeeklyPlanId != null )
-				{
-					if ( Guid.TryParse(model.StanderdWeeklyPlanId , out weeklyPlanId) )
-					{
-						var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
-						if ( weeklyPlanExist == null )
-						{
-							result.StatusCode = 404;
-							result.Message = "WeeklyPlan not exist!";
-							return result;
-						}
-						newOrder.StanderdWeeklyPlanId = weeklyPlanId;
-						newOrder.WeeklyPlan = weeklyPlanExist;
-						double totalPrice = 0;//phan nay tinh total price cho order formal (la dat han theo weeklyPlan co san)
-						foreach(var item in weeklyPlanExist.RecipePLans)
-						{
-							totalPrice += item.Recipe.Price * item.Quantity;
-						}
-						newOrder.TotalPrice = totalPrice;
-						newOrder.ShipDate = DateTime.Now.AddDays(7);
-						await _unitOfWork.CompleteAsync(); //save order to DB
-					}
-					else
-					{
-						result.StatusCode = 401;
-						result.Message = "WeeklyPlanId wrong fortmat GUID!";
-						return result;
-					}
-				}
-				else if ( model.RecipeList != null && model.RecipeList.Any() )
-				{
-					await _unitOfWork.CompleteAsync(); //save order to DB
-													   //create order by custom plan
-					foreach ( var customPlanRequest in model.RecipeList )
-					{
-						var customPlan = new CustomPlan
-						{
-							OrderId = newOrder.Id ,
-							RecipeId = customPlanRequest.RecipeId ,
-							StandardWeeklyPlanId = customPlanRequest.StandardWeeklyPlanId ,
-							Price = customPlanRequest.Price ,
-							Order = newOrder
-						};
-						var createCustomPlanResult = await _unitOfWork.CustomPlanRepository.CreateAsync(customPlan);
-						if ( !createCustomPlanResult )
-						{
-							result.StatusCode = 500;
-							result.Message = "Create custom plan unsuccessfully!";
-							return result;
-						}
-					}
-					await _unitOfWork.CompleteAsync();//save custom plan to DB
-				}
-				else
-				{
-					result.StatusCode = 403;
-					result.Message = "Create order unsuccessfully!Don't have weekly pLan or custom plan!";
-					return result;
-				}
-				userExist.Orders.Add(newOrder);
-				await _unitOfWork.CompleteAsync(); //save order to DB
-				result.StatusCode = 200;
-				result.Message = "Created order of user(" + userExist.FirstName + userExist.LastName + ") successfully.";
-				result.Data = _mapper.Map<OrderResponse>(newOrder);
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 500;
-				result.Message = "Create order unsuccessfully!";
-				return result;
-			}
-		}
-
-		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(UpdateOrderRequest model)
-		{
-			var result = new ResponseObject<OrderResponse>();
-			var validationResult = _updateOrderValidator.Validate(model);
-			if ( !validationResult.IsValid )
-			{
-				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-				result.StatusCode = 400;
-				result.Message = string.Join(" - " , error);
-				return result;
-			}
-			//check order exists
-			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id);
-			if ( orderExist == null )
-			{
-				result.StatusCode = 404;
-				result.Message = "Order not found!";
-				return result;
-			}
-			if ( !string.IsNullOrEmpty(model.StanderdWeeklyPlanId) )
-			{
-				Guid weeklyPlanId;
-				if ( Guid.TryParse(model.StanderdWeeklyPlanId , out weeklyPlanId) )
-				{
-					var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
-					if ( weeklyPlanExist == null )
-					{
-						result.StatusCode = 404;
-						result.Message = "WeeklyPlan not exist!";
-						return result;
-					}
-					orderExist.StanderdWeeklyPlanId = weeklyPlanId;
-					orderExist.WeeklyPlan = weeklyPlanExist;
-				}
-			}
-			if ( !string.IsNullOrEmpty(model.Note) )
-				orderExist.Note = model.Note;
-			if ( !string.IsNullOrEmpty(model.Address) )
-				orderExist.Address = model.Address;
-			if ( model.TotalPrice > 0 )
-				orderExist.TotalPrice = (double)(model.TotalPrice * 1000);
-			if ( model.ShipDate.HasValue )
-				orderExist.ShipDate = model.ShipDate.Value;
-
-			var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
-			if ( updateResult )
-			{
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "Updated order of user(" + orderExist.User.FirstName + orderExist.User.LastName + ") successfully.";
-				result.Data = _mapper.Map<OrderResponse>(orderExist);
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 500;
-				result.Message = "Update order unsuccessfully!";
-				return result;
-			}
-		}
-
 		public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(IdOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse>();
@@ -287,7 +120,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Message = "Order not exist!";
 			return result;
 		}
-
 		public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(ChangeStatusOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse>();
@@ -317,5 +149,68 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 
 		}
-	}
+
+		public async Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model)
+		{
+			var result = new ResponseObject<OrderResponse>();
+            var validationResult = _createOrderValidator.Validate(model);
+            if (!validationResult.IsValid)
+            {
+                var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                result.StatusCode = 400;
+                result.Message = string.Join(" - ", error);
+                return result;
+            }
+            //check userId exists
+            var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.UserId);
+            if (userExist == null)
+            {
+                result.StatusCode = 404;
+                result.Message = "User not found!";
+                return result;
+            }
+            int quantity = 0;
+            foreach (var item in model.RecipeList)//tính số lượng phần ăn (dưới 5 hoặc trên 200 ko cho đặt)
+            {
+                quantity += item.Quantity;
+            }
+            if (quantity < 5 || quantity > 200)//ko đáp ứng quy định phần ăn quy định (5-200)
+            {
+                result.StatusCode = 500;
+                result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn. Nhiều nhất 200 phần/món";
+                return result;
+            }
+            //Tinh so luong trong recipeList
+
+            //chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
+            var newOrder = _mapper.Map<Order>(model);
+            //newOrder.TotalPrice = model.TotalPrice * 1000;
+            newOrder.OrderDate = DateTime.Now;
+            newOrder.Status = OrderStatus.Processing;
+
+            var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
+			if (createResult)//bat dau add cac recipeId thanh cac customPlan thong qua RecipeList
+			{
+				if (model.RecipeList.Any())
+				{
+					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id, model.RecipeList);
+					if(createCustomPlanResult.StatusCode == 200 && createCustomPlanResult.Data != null)
+					{
+						result.StatusCode = 200;
+						result.Message = "OK. Create order success";
+						return result;
+					}
+					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
+					await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());//xoa thong tin cho Order
+                    result.StatusCode = 500;
+                    result.Message = "Create order not success";
+                    return result;
+                }
+			}
+            result.StatusCode = 500;
+            result.Message = "OK. Create order not success";
+            return result;
+		}
+
+    }
 }

@@ -9,7 +9,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientMode
 {
     public class CreateIngredientNutrientRequest
     {
-        public Guid IngredientID { get; set; }
         public double Calories { get; set; }
         public double Fat { get; set; }
         public double SaturatedFat { get; set; }
@@ -18,7 +17,5 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientMode
         public double DietaryFiber { get; set; }
         public double Protein { get; set; }
         public double Sodium { get; set; }
-
-        //public Ingredient Ingredient { get; set; }
     }
 }

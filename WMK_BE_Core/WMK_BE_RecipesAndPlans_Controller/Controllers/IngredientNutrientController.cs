@@ -62,26 +62,26 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpPost("create-witn-ingredient-id")]
-        public async Task<IActionResult> Create([FromBody] CreateIngredientNutrientRequest request)
-        {
-            //var result = _ingredientNutrientService.Create(request);
-            //return Ok(result);
-            Guid convertId;
-            if (Guid.TryParse(request.IngredientID.ToString(), out convertId))
-            {
-                var result = await _ingredientNutrientService.Create(request);
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest(new
-                {
-                    StatusCode = 400,
-                    Message = "Invalid ingredient GUID format! Please provide a valid GUID!"
-                });
-            }
-        }
+        //[HttpPost("create-witn-ingredient-id")]
+        //public async Task<IActionResult> Create([FromBody] CreateIngredientNutrientRequest request)
+        //{
+        //    //var result = _ingredientNutrientService.Create(request);
+        //    //return Ok(result);
+        //    Guid convertId;
+        //    if (Guid.TryParse(request.IngredientID.ToString(), out convertId))
+        //    {
+        //        var result = await _ingredientNutrientService.Create(request);
+        //        return Ok(result);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            StatusCode = 400,
+        //            Message = "Invalid ingredient GUID format! Please provide a valid GUID!"
+        //        });
+        //    }
+        //}
 
         [HttpPut("update-ingredient-nutrient")]
         public async Task<IActionResult> Update([FromBody] FullIngredientNutrientRequest request)

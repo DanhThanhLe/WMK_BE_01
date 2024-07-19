@@ -61,7 +61,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//	weeklyPlan.Recipes = recipeList;
 				//}
 				result.StatusCode = 200;
-				result.Message = "WeeklyPlan list: ";
+				result.Message = "WeeklyPlan list: "+returnLists.Count();
 				result.Data = returnLists;
 				return result;
 			}
@@ -138,7 +138,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//create weekly plan
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
 				newWeeklyPlan.CreateAt = DateTime.Now;
-
 				int countMeal = 0;
 				//check size of recipe create by staff
 				foreach (var item in model.recipeIds)

@@ -18,13 +18,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IngredientValidator _validator;
         private readonly UpdateIngredientValidator _updateValidator;
         private readonly UpdateStatusIngredientValidator _updateStatusValidator;
-        public IngredientService(IMapper mapper, IUnitOfWork unitOfWork)
+        private readonly IIngredientNutrientService _ingredientNutrientService;
+        public IngredientService(IMapper mapper, IUnitOfWork unitOfWork, IIngredientNutrientService ingredientNutrientService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _validator = new IngredientValidator();
             _updateValidator = new UpdateIngredientValidator();
             _updateStatusValidator = new UpdateStatusIngredientValidator();
+            _ingredientNutrientService = ingredientNutrientService;
         }
 
         #region Change status
@@ -80,7 +82,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (checkIngredientCategory == null)
             {
                 result.StatusCode = 400;
-                result.Message = "Ingredient category with id: "+ ingredient.IngredientCategoryId + " not exist";
+                result.Message = "Ingredient category with id: " + ingredient.IngredientCategoryId + " not exist";
                 return result;
             }
             var found = currentList.FirstOrDefault(i => i.Name == ingredient.Name);
@@ -95,14 +97,28 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             newIngredient.UpdatedAt = DateTime.UtcNow;
             newIngredient.UpdatedBy = ingredient.CreatedBy;
             newIngredient.IngredientCategory = checkIngredientCategory;
-            
+
             var createResult = await _unitOfWork.IngredientRepository.CreateAsync(newIngredient);
             if (createResult)
             {
                 await _unitOfWork.CompleteAsync();
-                result.StatusCode = 200;
-                result.Message = "Create successfully";
-                return result;
+                //bat dau tao IngredientNutrient
+                var createIngredientNutrient = await _ingredientNutrientService.Create(newIngredient.Id, ingredient.NutrientInfo);
+                if (createIngredientNutrient.StatusCode == 200 && createIngredientNutrient.Data != null)
+                {
+                    //await _unitOfWork.CompleteAsync(); //ko can cai nay
+                    result.StatusCode = 200;
+                    result.Message = "Create successfully";
+                    return result;
+                }
+                else
+                {
+                    await _unitOfWork.IngredientRepository.DeleteAsync(newIngredient.Id.ToString());
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 500;
+                    result.Message = "Error at create. Say from CreateIngredient - IngredientService";
+                    return result;
+                }
             }
             else
             {
@@ -137,7 +153,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 else
                 {
                     result.StatusCode = 500;
-                    result.Message = "Error at delete ingredient with id "+id+". Say from DeleteIngredientById - IngredientService";
+                    result.Message = "Error at delete ingredient with id " + id + ". Say from DeleteIngredientById - IngredientService";
                     return result;
                 }
             }
@@ -293,7 +309,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             else//bat dau update
             {
                 var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
-                if (duplicateName != null && duplicateName.Status.ToString().Equals("Available")&& !duplicateName.Id.Equals(ingredient.Id))
+                if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(ingredient.Id))
                 {
                     result.StatusCode = 500;
                     result.Message = "Name existed with ID: " + duplicateName.Id;

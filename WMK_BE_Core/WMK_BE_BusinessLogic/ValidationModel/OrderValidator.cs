@@ -21,7 +21,12 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
 				//.Must(shipDate => shipDate > DateTime.Now)
 				//.WithMessage("ShipDate must be after the current date.");
-		}
+			RuleFor(x => x.RecipeList).NotNull().WithMessage("The list cannot be null.")
+            .NotEmpty().WithMessage("The list cannot be empty.");
+			RuleForEach(x => x.RecipeList).NotNull().WithMessage("The item cannot be null.")
+            .NotEmpty().WithMessage("The item cannot be empty.");
+
+        }
 	}
 	public class UpdateOrderModelValidator : AbstractValidator<UpdateOrderRequest>
 	{

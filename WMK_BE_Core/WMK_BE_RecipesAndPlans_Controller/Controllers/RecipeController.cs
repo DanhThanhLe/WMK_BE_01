@@ -61,10 +61,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetByRecipeName([FromQuery] string name)
+        [HttpGet("get-by-name")]//status true là tìm recipe cho đặt hàng, false là tìm để coi thôi
+        public async Task<IActionResult> GetByRecipeName([FromQuery] string name = "", bool status = true)
         {
-            var result = await _recipeService.GetRecipeByName(name);
+            var result = await _recipeService.GetRecipeByName(name, status);
             return Ok(result);
         }
 
