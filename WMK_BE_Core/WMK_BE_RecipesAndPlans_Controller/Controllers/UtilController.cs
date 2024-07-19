@@ -23,7 +23,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
          
 
 
-            var fileName = DateTime.Now.Microsecond+ model.File.FileName;
+            var fileName = model.File.FileName;
             
             var tempDir = Path.Combine(Directory.GetCurrentDirectory(), "tempfiles");
             if (!Directory.Exists(tempDir))
