@@ -185,12 +185,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             //chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
             var newOrder = _mapper.Map<Order>(model);
             //newOrder.TotalPrice = model.TotalPrice * 1000;
+			newOrder.StanderdWeeklyPlanId = Guid.Parse(model.StanderdWeeklyPlanId);
             newOrder.OrderDate = DateTime.Now;
             newOrder.Status = OrderStatus.Processing;
 
             var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 			if (createResult)//bat dau add cac recipeId thanh cac customPlan thong qua RecipeList
 			{
+				await _unitOfWork.CompleteAsync();
 				if (model.RecipeList.Any())
 				{
 					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id, model.RecipeList);
@@ -202,6 +204,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
 					await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());//xoa thong tin cho Order
+					await _unitOfWork.CompleteAsync();
+
                     result.StatusCode = 500;
                     result.Message = "Create order not success";
                     return result;

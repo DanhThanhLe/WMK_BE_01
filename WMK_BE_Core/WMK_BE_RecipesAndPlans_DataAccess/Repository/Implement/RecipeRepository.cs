@@ -65,6 +65,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                                     .ThenInclude(ri => ri.Ingredient)
                                         .ThenInclude(i => i.IngredientCategory)
                                 .Include(r => r.RecipeCategories)
+                                    .ThenInclude(rc => rc.Category)
                                 .Include(r => r.RecipeNutrient)
                                 .Include(r => r.RecipeSteps)
                                 .SingleOrDefaultAsync(r => r.Id == guidId);
