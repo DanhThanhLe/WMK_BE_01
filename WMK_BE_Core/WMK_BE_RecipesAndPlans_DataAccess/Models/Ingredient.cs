@@ -23,6 +23,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string Unit { get; set; } = string.Empty;
         public BaseStatus Status { get; set; }
         public string PackagingMethod { get; set; }
+        public string PreservationMethod { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
