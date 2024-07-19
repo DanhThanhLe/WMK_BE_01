@@ -92,7 +92,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Create
-        public async Task<ResponseObject<IngredientNutrient>> Create(Guid ingredientId, CreateIngredientNutrientRequest request)
+        public async Task<ResponseObject<IngredientNutrient>> Create(Guid IngredientID, CreateIngredientNutrientRequest request)
         {
             var result = new ResponseObject<IngredientNutrient>();
             var validateResult = _createIngredientNutrientValidator.Validate(request);
@@ -105,33 +105,34 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             else//du lieu cua request ko co loi
             {
-                var checkIngredient = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredientId.ToString());
+                var checkIngredient = await _unitOfWork.IngredientRepository.GetByIdAsync(IngredientID.ToString());
                 var currentList = await GetAllToProcess();
-                var checkExist = currentList.FirstOrDefault(x => x.IngredientID == ingredientId);
+                var checkExist = currentList.FirstOrDefault(x => x.IngredientID == IngredientID);
                 if (checkIngredient != null && checkExist != null)//khac null nghia la co ton tai ingredient nhu tren, tim luon co thong tin nutrient chua
                 {
                     result.StatusCode = 400;
-                    result.Message = "Nutrient information for ingredient id " + ingredientId + " already existed. Say from Create - IngredientNutrientService";
+                    result.Message = "Nutrient information for ingredient id " + IngredientID + " already existed. Say from Create - IngredientNutrientService";
                     return result;
 
                 }
                 else if (checkIngredient != null && checkExist == null)//nghia la co ingrerdient ton tai va chua co thong tin nutrient
                 {
                     IngredientNutrient newOne = _mapper.Map<IngredientNutrient>(request);
+                    newOne.IngredientID = IngredientID;
                     var createResult = await _unitOfWork.IngredientNutrientRepository.CreateAsync(newOne);
                     if (createResult)
                     {
                         await _unitOfWork.CompleteAsync();
                         //checkIngredient.IngredientNutrient = newOne;
                         result.StatusCode = 200;
-                        result.Message = "OK with create nutrient information with Ingredient ID: " + ingredientId;
+                        result.Message = "OK with create nutrient information with Ingredient ID: " + IngredientID;
                         result.Data = _mapper.Map<IngredientNutrient>(newOne);
                         return result;
                     }
                     else
                     {
                         result.StatusCode = 400;
-                        result.Message = "Create failed with ingredient with id " + ingredientId + ". Say from Create - IngredientNutrientService";
+                        result.Message = "Create failed with ingredient with id " + IngredientID + ". Say from Create - IngredientNutrientService";
                         return result;
                     }
 
@@ -139,7 +140,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 else if (checkIngredient == null)//null la coi nhu ko tim thay ingredient trong db -> bao loi khog tim thay
                 {
                     result.StatusCode = 400;
-                    result.Message = " Ingredient with id " + ingredientId + " not found. Say from Create - IngredientNutrientService";
+                    result.Message = " Ingredient with id " + IngredientID + " not found. Say from Create - IngredientNutrientService";
                     return result;
                 }
                 else//cac loai ket qua khac
