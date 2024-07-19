@@ -32,6 +32,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                           .Include(wp => wp.RecipePLans)
                                 .ThenInclude(rp => rp.Recipe)
 									.ThenInclude(r => r.RecipeCategories)
+                                        .ThenInclude(rc => rc.Category)
                            .Include(wp => wp.RecipePLans)
                                 .ThenInclude(rp => rp.Recipe)
                                     .ThenInclude(r => r.RecipeNutrient)//lay toi recipeNutrient

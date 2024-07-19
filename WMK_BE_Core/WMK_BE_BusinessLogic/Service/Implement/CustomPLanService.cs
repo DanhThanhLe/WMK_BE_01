@@ -53,7 +53,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     {
                         newOne = _mapper.Map<CustomPlan>(item);
                         newOne.OrderId = orderId;
-                        newOne.StandardWeeklyPlanId = Guid.Empty;
+                        //newOne.StandardWeeklyPlanId = Guid.Empty;
                         var createResult = await _unitOfWork.CustomPlanRepository.CreateAsync(newOne);
                         if (!createResult)
                         {
@@ -65,6 +65,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         returnList.Add(newOne);
                         
                     }//check coi recipe tim duoc co dang cho dat hang hay khong
+                    else
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Error at CreateCustomPlanAsync - CustomPlanService. Unavailable recipe ";
+                        return result;
+                    }
                 }
                 result.StatusCode = 200;
                 result.Message = "OK - Create CustomPlan ok ";
