@@ -12,6 +12,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int ServingSize { get; set; } = 1;
+        public int CookingTime { get; set; }
         public LevelOfDifficult Difficulty { get; set; }
         public string? Description { get; set; }
         public string? ImageLink { get; set; }

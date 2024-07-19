@@ -19,6 +19,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int ServingSize { get; set; }
+        public int CookingTime { get; set; }
         public LevelOfDifficult Difficulty { get; set; }
         public string? Description { get; set; }
         public string? Notice { get; set; }
