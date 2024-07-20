@@ -23,4 +23,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public double TotalPrice { get; set; }
 		public string Status { get; set; } = string.Empty;
 	}
+
+	public class OrderResponseId
+	{
+		public string Id { get; set; }
+	}
 }

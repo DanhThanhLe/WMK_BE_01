@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderGroupModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
+using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
@@ -20,10 +22,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
 
+		#region Validator
+		private readonly CreateOrderGroupModelValidator _createValidator;
+		private readonly UpdateOrderGroupModelValidator _updateValidator;
+		#endregion
+
+
 		public OrderGroupService(IUnitOfWork unitOfWork , IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
+			_createValidator = new CreateOrderGroupModelValidator();
+			_updateValidator = new UpdateOrderGroupModelValidator();
 		}
 
 
@@ -69,7 +79,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
-
+			var validationResult = _createValidator.Validate(model);
+			if ( !validationResult.IsValid )
+			{
+				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
 			//check shipper exist
 			var shipperExist = await _unitOfWork.UserRepository.GetByIdAsync(model.ShipperId.ToString());
 			if ( shipperExist != null && shipperExist.Role != Role.Shipper )
@@ -124,6 +141,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
+			var validationResult = _updateValidator.Validate(model);
+			if ( !validationResult.IsValid )
+			{
+				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
 			//check new shipper
 			var shipperExist = await _unitOfWork.UserRepository.GetByIdAsync(model.ShipperId.ToString());
 			if ( shipperExist != null && shipperExist.Role != Role.Shipper )
@@ -261,6 +286,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync(ClusterOrderGroupRequest model)
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
+
 			var list = new List<List<string>>();
 			var orderGroups = await _unitOfWork.OrderGroupRepository.GetAllAsync();
 			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
@@ -270,13 +296,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var orderProcess = orders.Where(o => o.Status == OrderStatus.Processing).ToList();
 				foreach(var order in orderProcess)
 				{
-					double[] orderCoordinates = order.Coordinates;
+					double[] orderCoordinates = [order.Longitude,order.Latitude];
 					OrderGroup nearestOrderGroup = new OrderGroup();
 					double nearestDistance = double.MaxValue;
 
 					foreach (var orderGroup in orderGroups)
 					{
-						double[] orderGroupCoordinates = orderGroup.Coordinates;
+						double[] orderGroupCoordinates = [orderGroup.Longitude, orderGroup.Latitude];
 						double distance = CalculateDistance(orderCoordinates , orderGroupCoordinates);
 						if ( distance < nearestDistance && distance <= model.radius )
 						{

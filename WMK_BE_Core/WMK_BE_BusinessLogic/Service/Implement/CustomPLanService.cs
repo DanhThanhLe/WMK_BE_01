@@ -47,7 +47,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 List<CustomPlan> returnList = new List<CustomPlan>();
                 foreach (var item in RecipeList)
                 {
-                    Recipe checkRecipe;
+                    Recipe? checkRecipe;
                     checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
                     if (checkRecipe != null && checkRecipe.BaseStatus == BaseStatus.Available)//check coi recipe tim duoc co dang cho dat hang hay khong
                     {

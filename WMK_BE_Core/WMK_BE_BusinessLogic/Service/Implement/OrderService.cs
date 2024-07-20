@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,16 +23,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#region Validator
 		private readonly CreateOrderModelValidator _createOrderValidator;
 		private readonly UpdateOrderModelValidator _updateOrderValidator;
+		private readonly UpdateOrderByUserModelValidator _updateOrderByUserValidator;
 		private readonly ICustomPlanService _customPlanService;
 
 		#endregion
-		public OrderService(IUnitOfWork unitOfWork , IMapper mapper, ICustomPlanService customPlanService)
+		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , ICustomPlanService customPlanService)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 
 			_createOrderValidator = new CreateOrderModelValidator();
 			_updateOrderValidator = new UpdateOrderModelValidator();
+			_updateOrderByUserValidator = new UpdateOrderByUserModelValidator();
 			_customPlanService = customPlanService;
 		}
 		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders()
@@ -150,72 +153,158 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 
-		public async Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model)
+		public async Task<ResponseObject<OrderResponseId>> CreateOrderAsync(CreateOrderRequest model)
 		{
-			var result = new ResponseObject<OrderResponse>();
-            var validationResult = _createOrderValidator.Validate(model);
-            if (!validationResult.IsValid)
-            {
-                var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                result.StatusCode = 400;
-                result.Message = string.Join(" - ", error);
-                return result;
-            }
-            //check userId exists
-            var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.UserId);
-            if (userExist == null)
-            {
-                result.StatusCode = 404;
-                result.Message = "User not found!";
-                return result;
-            }
-            int quantity = 0;
-            foreach (var item in model.RecipeList)//tính số lượng phần ăn (dưới 5 hoặc trên 200 ko cho đặt)
-            {
-                quantity += item.Quantity;
-            }
-            if (quantity < 5 || quantity > 200)//ko đáp ứng quy định phần ăn quy định (5-200)
-            {
-                result.StatusCode = 500;
-                result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn. Nhiều nhất 200 phần/món";
-                return result;
-            }
-            //Tinh so luong trong recipeList
+			var result = new ResponseObject<OrderResponseId>();
+			var validationResult = _createOrderValidator.Validate(model);
+			if ( !validationResult.IsValid )
+			{
+				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
+			//check userId exists
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.UserId);
+			if ( userExist == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "User not found!";
+				return result;
+			}
+			//check recipeList
+			if ( model.RecipeList == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "Recipe list null! Please input recipe!!";
+				return result;
+			}
+			int quantity = 0;
+			foreach ( var item in model.RecipeList )//tính số lượng phần ăn (dưới 5 hoặc trên 200 ko cho đặt)
+			{
+				quantity += item.Quantity;
+			}
+			if ( quantity < 5 || quantity > 200 )//ko đáp ứng quy định phần ăn quy định (5-200)
+			{
+				result.StatusCode = 500;
+				result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn. Nhiều nhất 200 phần/món";
+				return result;
+			}
+			//Tinh so luong trong recipeList
 
-            //chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
-            var newOrder = _mapper.Map<Order>(model);
-            //newOrder.TotalPrice = model.TotalPrice * 1000;
-			newOrder.StanderdWeeklyPlanId = Guid.Parse(model.StanderdWeeklyPlanId);
-            newOrder.OrderDate = DateTime.Now;
-            newOrder.Status = OrderStatus.Processing;
+			//chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
+			var newOrder = _mapper.Map<Order>(model);
+			//newOrder.TotalPrice = model.TotalPrice * 1000;
+			newOrder.OrderDate = DateTime.Now;
+			newOrder.Status = OrderStatus.Processing;
 
-            var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
-			if (createResult)//bat dau add cac recipeId thanh cac customPlan thong qua RecipeList
+			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
+			if ( createResult )//bat dau add cac recipeId thanh cac customPlan thong qua RecipeList
 			{
 				await _unitOfWork.CompleteAsync();
-				if (model.RecipeList.Any())
+				if ( model.RecipeList.Any() )
 				{
-					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id, model.RecipeList);
-					if(createCustomPlanResult.StatusCode == 200 && createCustomPlanResult.Data != null)
+					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id , model.RecipeList);
+					if ( createCustomPlanResult.StatusCode == 200 && createCustomPlanResult.Data != null )
 					{
-						result.StatusCode = 200;
+                        OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder);
+                        result.StatusCode = 200;
 						result.Message = "OK. Create order success";
-						result.Data = _mapper.Map<OrderResponse>(newOrder);
+						result.Data = data;
 						return result;
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
 					await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());//xoa thong tin cho Order
 					await _unitOfWork.CompleteAsync();
 
-                    result.StatusCode = 500;
-                    result.Message = "Create order not success";
-                    return result;
-                }
+					result.StatusCode = 500;
+					result.Message = "Create order not success";
+					return result;
+				}
 			}
             result.StatusCode = 500;
-            result.Message = "OK. Create order not success";
-            return result;
+			result.Message = "OK. Create order not success";
+			return result;
 		}
 
-    }
+		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(UpdateOrderRequest model)
+		{
+			var result = new ResponseObject<OrderResponse>();
+			var validationResult = _updateOrderValidator.Validate(model);
+			if ( !validationResult.IsValid )
+			{
+				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
+			//find order
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+			if ( orderExist != null )
+			{
+				var updateOrder = _mapper.Map<Order>(model);
+				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(updateOrder);
+				if ( updateResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Update successfully.";
+					result.Data = _mapper.Map<OrderResponse>(updateOrder);
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 500;
+					result.Message = "Update faild!";
+					return result;
+				}
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Order not found!";
+				return result;
+			}
+		}
+
+		public async Task<ResponseObject<OrderResponse>> UpdateOrderByUserAsync(UpdateOrderByUserRequest model)
+		{
+			var result = new ResponseObject<OrderResponse>();
+			var validationResult = _updateOrderByUserValidator.Validate(model);
+			if ( !validationResult.IsValid )
+			{
+				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
+			//find order
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+			if ( orderExist != null )
+			{
+				var updateOrder = _mapper.Map<Order>(model);
+				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(updateOrder);
+				if ( updateResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Update successfully.";
+					result.Data = _mapper.Map<OrderResponse>(updateOrder);
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 500;
+					result.Message = "Update faild!";
+					return result;
+				}
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Order not found!";
+				return result;
+			}
+		}
+	}
 }
