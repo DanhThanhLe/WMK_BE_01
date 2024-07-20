@@ -153,9 +153,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 
-		public async Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model)
+		public async Task<ResponseObject<OrderResponseId>> CreateOrderAsync(CreateOrderRequest model)
 		{
-			var result = new ResponseObject<OrderResponse>();
+			var result = new ResponseObject<OrderResponseId>();
 			var validationResult = _createOrderValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
@@ -207,8 +207,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id , model.RecipeList);
 					if ( createCustomPlanResult.StatusCode == 200 && createCustomPlanResult.Data != null )
 					{
-						result.StatusCode = 200;
+                        OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder);
+                        result.StatusCode = 200;
 						result.Message = "OK. Create order success";
+						result.Data = data;
 						return result;
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
@@ -220,7 +222,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 			}
-			result.StatusCode = 500;
+            result.StatusCode = 500;
 			result.Message = "OK. Create order not success";
 			return result;
 		}

@@ -16,6 +16,7 @@ namespace WMK_BE_BusinessLogic.Mapper
         {
             CreateMap<Order, OrderResponse>().ReverseMap();
             CreateMap<Order, CreateOrderRequest>().ReverseMap();
+            CreateMap<Order, OrderResponseId>().ReverseMap();
         }
     }
 }
