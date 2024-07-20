@@ -48,21 +48,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+			var returnList = weeklyPlans.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
 			if (weeklyPlans != null && weeklyPlans.Count > 0)
 			{
-				var returnLists = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
-				//foreach (var weeklyPlan in returnLists)
-				//{
-				//	var recipeList = new List<RecipeResponse>();
-				//	foreach (var recipe in weeklyPlan.Recipes)
-				//	{
-				//		recipeList.Add(recipe);
-				//	}
-				//	weeklyPlan.Recipes = recipeList;
-				//}
+				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
 				result.StatusCode = 200;
-				result.Message = "WeeklyPlan list: "+returnLists.Count();
-				result.Data = returnLists;
+				result.Message = "WeeklyPlan list: "+returnResult.Count();
+				result.Data = returnResult;
 				return result;
 			}
 			else
