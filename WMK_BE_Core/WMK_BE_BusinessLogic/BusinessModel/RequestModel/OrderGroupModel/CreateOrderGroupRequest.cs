@@ -8,8 +8,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderGroupModel
 {
 	public class CreateOrderGroupRequest
 	{
-		public Guid ShipperId { get; set; }
+		public string ShipperId { get; set; } = string.Empty;
 		public string Location { get; set; } = string.Empty;
-		public Guid AsignBy { get; set; }
+		public double Longitude { get; set; }//kinh dộ
+		public double Latitude { get; set; }//vĩ độ
+		public string AsignBy { get; set; } = string.Empty;
 	}
 }

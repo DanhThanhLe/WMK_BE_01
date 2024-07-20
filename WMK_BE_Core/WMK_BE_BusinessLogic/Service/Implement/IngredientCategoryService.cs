@@ -206,7 +206,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<IngredientCategoryResponse>> GetById(Guid request)
         {
             var result = new ResponseObject<IngredientCategoryResponse>();
-            IngredientCategory found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(request.ToString());
+            IngredientCategory? found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(request.ToString());
             if (found == null)
             {
                 result.StatusCode = 404;

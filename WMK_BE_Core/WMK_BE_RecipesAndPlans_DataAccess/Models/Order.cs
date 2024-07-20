@@ -28,13 +28,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public DateTime ShipDate { get; set; }
 		public DateTime OrderDate { get; set; }
 		public double TotalPrice { get; set; }
-		public string CoordinatesJson { get; set; } = string.Empty;
-		//[NotMapped]
-		public double[] Coordinates
-		{
-			get => string.IsNullOrEmpty(CoordinatesJson) ? Array.Empty<double>() : JsonSerializer.Deserialize<double[]>(CoordinatesJson) ?? Array.Empty<double>();
-			set => CoordinatesJson = JsonSerializer.Serialize(value);
-		}
+		public double Longitude { get; set; }//kinh dộ
+		public double Latitude { get; set; }//vĩ độ
 		public OrderStatus Status { get; set; }
 
 		//reference
