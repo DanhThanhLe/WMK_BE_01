@@ -200,6 +200,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						result.StatusCode = 200;
 						result.Message = "OK. Create order success";
+						result.Data = _mapper.Map<OrderResponse>(newOrder);
 						return result;
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
