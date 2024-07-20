@@ -19,14 +19,14 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required!");
 			//RuleFor(x => x.TotalPrice).NotEmpty().WithMessage("TotalPrice is required!");
 			//RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
-				//.Must(shipDate => shipDate > DateTime.Now)
-				//.WithMessage("ShipDate must be after the current date.");
+			//.Must(shipDate => shipDate > DateTime.Now)
+			//.WithMessage("ShipDate must be after the current date.");
 			RuleFor(x => x.RecipeList).NotNull().WithMessage("The list cannot be null.")
-            .NotEmpty().WithMessage("The list cannot be empty.");
+			.NotEmpty().WithMessage("The list cannot be empty.");
 			RuleForEach(x => x.RecipeList).NotNull().WithMessage("The item cannot be null.")
-            .NotEmpty().WithMessage("The item cannot be empty.");
+			.NotEmpty().WithMessage("The item cannot be empty.");
 
-        }
+		}
 	}
 	public class UpdateOrderModelValidator : AbstractValidator<UpdateOrderRequest>
 	{
@@ -40,6 +40,22 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 				.Must(shipDate => shipDate > DateTime.Now)
 				.WithMessage("ShipDate must be after the current date.");
 			RuleFor(x => x.TotalPrice).GreaterThan(0).WithMessage("TotalPrice must be greater than 0!");
+			RuleFor(x => x.Latitude).NotEmpty().WithMessage("Latitude is required!");
+			RuleFor(x => x.Longitude).NotEmpty().WithMessage("Longitude is required!");
 		}
 	}
+
+	public class UpdateOrderByUserModelValidator : AbstractValidator<UpdateOrderByUserRequest>
+	{
+		private readonly IExpendValidator _expendValidator;
+        public UpdateOrderByUserModelValidator()
+        {
+            _expendValidator= new ExpendValidator();
+			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
+					.Must(_expendValidator.BeValidGuid).WithMessage("Id invalid format GUID!");
+			RuleFor(x => x.Latitude).NotEmpty().WithMessage("Latitude is required!");
+			RuleFor(x => x.Longitude).NotEmpty().WithMessage("Longitude is required!");
+        }
+    }
+
 }

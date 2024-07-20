@@ -15,9 +15,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
 		public string? Note { get; set; } = string.Empty;
 		public string Address { get; set; } = string.Empty;
         public double TotalPrice { get; set; }
-        //public string CoordinatesJson { get; set; } = string.Empty;
-        //[NotMapped]
-        public List<CreateCustomPlanRequest>? RecipeList { get; set; }
+		public double Longitude { get; set; }//kinh dộ
+		public double Latitude { get; set; }//vĩ độ
+		public List<CreateCustomPlanRequest>? RecipeList { get; set; }
 	}
 	public class CreateCustomPlanRequest
 	{
