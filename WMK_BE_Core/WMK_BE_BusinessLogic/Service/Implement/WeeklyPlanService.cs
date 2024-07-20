@@ -144,10 +144,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					countMeal += item.Quantity;
 				}
-				if (countMeal < 21 || countMeal > 21)//( model.recipeIds.Count < 5 || model.recipeIds.Count > 21 )
+				if (countMeal < 21 || countMeal > 200)//( model.recipeIds.Count < 5 || model.recipeIds.Count > 21 )
 				{
 					result.StatusCode = 402;
-					result.Message = "Must be 21 meal for each week " + countMeal;//"Recipe must be 5 - 21!";
+					result.Message = "Must be 21 protion for each week " + countMeal;//"Recipe must be 5 - 21!";
 					return result;
 				}
 				newWeeklyPlan.EndDate = DateTime.Now.AddDays(2);//add endDate after 2 day if staff create
