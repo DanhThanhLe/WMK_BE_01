@@ -17,9 +17,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
         public double TotalPrice { get; set; }
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
-		public List<CreateCustomPlanRequest>? RecipeList { get; set; }
+		public List<CreateOrderDetailRequest>? RecipeList { get; set; }
 	}
-	public class CreateCustomPlanRequest
+	public class CreateOrderDetailRequest
 	{
 		public Guid RecipeId { get; set; }
 		public Guid? StandardWeeklyPlanId { get; set; }
@@ -28,4 +28,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
         public int Quantity { get; set; }
         public double Price { get; set; }
     }
+
+	public class CreateRecipeIngredientDetailRequest//co the ko can
+	{
+
+	}
 }

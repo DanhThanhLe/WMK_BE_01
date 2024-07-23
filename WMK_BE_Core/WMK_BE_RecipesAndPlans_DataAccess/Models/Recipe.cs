@@ -39,7 +39,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public virtual List<RecipeStep> RecipeSteps { get; set; }
         public virtual RecipeNutrient RecipeNutrient { get; set; }
         public List<RecipePLan> RecipePlans { get; set; }//quan he 1 - nhieu (recipe - recipePlan)
-        public virtual List<CustomPlan> CustomPlans { get; set; }//quan he 1 nhieu (recipe - customPlan)    
+        //public virtual List<CustomPlan> CustomPlans { get; set; }//quan he 1 nhieu (recipe - customPlan)    
 
         public Recipe()
         { }

@@ -136,12 +136,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 var foundList = new List<Recipe>();
                 if (status)//search de dat hang
                 {
-                    foundList = currentList.Where(x => x.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower()) || x.RecipeCategories.Where(y => y.Category.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower())).Any() && x.ProcessStatus == ProcessStatus.Approved && x.BaseStatus == BaseStatus.Available).ToList();
+                    foundList = currentList.Where(x => (x.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower()) || x.RecipeCategories.Where(y => y.Category.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower())).Any()) && x.ProcessStatus == ProcessStatus.Approved && x.BaseStatus == BaseStatus.Available).ToList();
                 }
                 else
                 {
-                    foundList = currentList.Where(x => x.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower()) || x.RecipeCategories.Where(y => y.Category.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower())).Any() && x.ProcessStatus == ProcessStatus.Approved).ToList();
-
+                    foundList = currentList.Where(x => (x.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower()) || x.RecipeCategories.Where(y => y.Category.Name.Trim().RemoveDiacritics().ToLower().Contains(name.ToLower())).Any()) && x.ProcessStatus == ProcessStatus.Approved).ToList();
                 }
 
 
@@ -153,10 +152,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 else
                 {
-                    var returnList = foundList.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
+                    //var returnList = foundList.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
                     result.StatusCode = 200;
                     result.Message = "Recipe list found by name";
-                    result.List = _mapper.Map<List<RecipeResponse>>(returnList);
+                    result.List = _mapper.Map<List<RecipeResponse>>(foundList);
                 }
             }
             else

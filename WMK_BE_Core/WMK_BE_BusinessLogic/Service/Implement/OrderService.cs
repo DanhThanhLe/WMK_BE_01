@@ -24,10 +24,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly CreateOrderModelValidator _createOrderValidator;
 		private readonly UpdateOrderModelValidator _updateOrderValidator;
 		private readonly UpdateOrderByUserModelValidator _updateOrderByUserValidator;
-		private readonly ICustomPlanService _customPlanService;
+		private readonly IOrderDetailService _orderDetailService;
 
 		#endregion
-		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , ICustomPlanService customPlanService)
+		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , IOrderDetailService orderDetailService)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
@@ -35,7 +35,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_createOrderValidator = new CreateOrderModelValidator();
 			_updateOrderValidator = new UpdateOrderModelValidator();
 			_updateOrderByUserValidator = new UpdateOrderByUserModelValidator();
-			_customPlanService = customPlanService;
+            _orderDetailService = orderDetailService;
 		}
 		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders()
 		{
@@ -199,13 +199,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			newOrder.Status = OrderStatus.Processing;
 
 			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
-			if ( createResult )//bat dau add cac recipeId thanh cac customPlan thong qua RecipeList
+			if ( createResult )//bat dau add cac recipeId thanh cac OrderDetail thong qua RecipeList
 			{
 				await _unitOfWork.CompleteAsync();
 				if ( model.RecipeList.Any() )
 				{
-					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id , model.RecipeList);
-					if ( createCustomPlanResult.StatusCode == 200 && createCustomPlanResult.Data != null )
+					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
+					if (createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
 					{
                         OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder);
                         result.StatusCode = 200;

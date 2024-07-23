@@ -14,12 +14,12 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
-    public class CustomPLanService : ICustomPlanService
+    public class OrderDetailService : IOrderDetailService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CustomPLanService(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrderDetailService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -27,13 +27,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 
-        #region create (tạo ra khi order của khách ko nhận id của weekly plan có sẵn mà là custome plan của khách)
-        public async Task<ResponseObject<List<CustomPlan>?>> CreateCustomPlanAsync(Guid orderId, List<CreateCustomPlanRequest> RecipeList)
+        #region create 
+        public async Task<ResponseObject<List<OrderDetail>?>> CreateOrderDetailAsync(Guid orderId, List<CreateOrderDetailRequest> RecipeList)
         {
             //kiêm tra thông tin order (getId từ orderId)
             //kiểm tra thông tin recipeList truyền vào 
             //-> tính coi có đủ suất ăn quy định ko (5-100)
-            var result = new ResponseObject<List<CustomPlan>?>();
+            var result = new ResponseObject<List<OrderDetail>?>();
             var orderFound = await _unitOfWork.OrderRepository.GetByIdAsync(orderId.ToString());
             if (orderFound == null)
             {
@@ -43,18 +43,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             if (RecipeList.Count() > 0)//trong list co thong tin
             {
-                CustomPlan newOne;
-                List<CustomPlan> returnList = new List<CustomPlan>();
+                OrderDetail newOne;
+                List<OrderDetail> returnList = new List<OrderDetail>();
                 foreach (var item in RecipeList)
                 {
                     Recipe? checkRecipe;
                     checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
                     if (checkRecipe != null && checkRecipe.BaseStatus == BaseStatus.Available)//check coi recipe tim duoc co dang cho dat hang hay khong
                     {
-                        newOne = _mapper.Map<CustomPlan>(item);
+                        newOne = _mapper.Map<OrderDetail>(item);
                         newOne.OrderId = orderId;
                         //newOne.StandardWeeklyPlanId = Guid.Empty;
-                        var createResult = await _unitOfWork.CustomPlanRepository.CreateAsync(newOne);
+                        var createResult = await _unitOfWork.OrderDetailRepository.CreateAsync(newOne);
                         if (!createResult)
                         {
                             result.StatusCode = 500;
@@ -73,8 +73,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     }
                 }
                 result.StatusCode = 200;
-                result.Message = "OK - Create CustomPlan ok ";
-                result.Data = _mapper.Map<List<CustomPlan>>(returnList);
+                result.Message = "OK - Create OrderDetail ok ";
+                result.Data = _mapper.Map<List<OrderDetail>>(returnList);
                 return result;
             }
             else//khong co thong tin
