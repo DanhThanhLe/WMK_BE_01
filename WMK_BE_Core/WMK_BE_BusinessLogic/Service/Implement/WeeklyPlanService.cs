@@ -78,7 +78,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
                 if (currentList.Count() > 0)
                 {
-                    WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(model.Description.Trim())).SingleOrDefault();
+                    WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(model.Description.Trim())).FirstOrDefault();
                     if (foundDuplicate != null && (foundDuplicate.ProcessStatus == ProcessStatus.Processing || foundDuplicate.ProcessStatus == ProcessStatus.Approved))
                     {
                         result.StatusCode = 400;
@@ -176,11 +176,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
                 if (currentList.Count() > 0)
                 {
-                    WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(request.Description.Trim())).SingleOrDefault();
+                    WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(request.Title.Trim())).FirstOrDefault();
                     if (foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer)
                     {
                         result.StatusCode = 400;
-                        result.Message = "Weekly plan Description already existed";
+                        result.Message = "Weekly plan Title already existed";
                         return result;
                     }
                     else

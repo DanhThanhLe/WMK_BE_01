@@ -8,13 +8,11 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-	public class OrderDetailRepository : BaseRepository<OrderDetail>, IOrderDetailRepository
-	{
-        public OrderDetailRepository(WeMealKitContext context) : base(context)
+    public class RecipeIngredientOrderDetailRepository : BaseRepository<RecipeIngredientOrderDetail>, IRecipeIngredientOrderDetailRepository
+    {
+        public RecipeIngredientOrderDetailRepository(WeMealKitContext context) : base(context)
         {
             
         }
-
-        
     }
 }

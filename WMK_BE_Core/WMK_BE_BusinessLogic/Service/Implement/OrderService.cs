@@ -207,7 +207,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
 					if (createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
 					{
-                        OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder);
+                        OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder.Id);
                         result.StatusCode = 200;
 						result.Message = "OK. Create order success";
 						result.Data = data;

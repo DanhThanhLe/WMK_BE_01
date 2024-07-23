@@ -23,4 +23,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipePlanModel
         //reference
         public RecipeResponse Recipe { get; set; }
     }
+
+    public class RecipePlanResponseInCustomPlan
+    {
+
+    }
 }

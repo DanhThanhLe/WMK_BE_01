@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel;
 using WMK_BE_BusinessLogic.ResponseObject;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
 {
