@@ -10,9 +10,9 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
 {
-	public interface ICustomPlanService
+	public interface IOrderDetailService
 	{
-        Task<ResponseObject<List<CustomPlan>?>> CreateCustomPlanAsync(Guid orderId, List<CreateCustomPlanRequest> RecipeList);
+        Task<ResponseObject<List<OrderDetail>?>> CreateOrderDetailAsync(Guid orderId, List<CreateOrderDetailRequest> RecipeList);
 
 
     }

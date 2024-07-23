@@ -145,7 +145,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(IngredientNutrientProfile));
 			builder.Services.AddAutoMapper(typeof(IngredientProfile));
 			builder.Services.AddAutoMapper(typeof(RecipePlanProfile));
-            builder.Services.AddAutoMapper(typeof(CustomPlanProfile));
+            builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , WeMealKitContext>();
@@ -168,7 +168,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<IIngredientNutrientService, IngredientNutrientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 			builder.Services.AddScoped<ITransactionService , TransactionService>();
-            builder.Services.AddScoped<ICustomPlanService, CustomPLanService>();
+            builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
             builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 
             var app = builder.Build();

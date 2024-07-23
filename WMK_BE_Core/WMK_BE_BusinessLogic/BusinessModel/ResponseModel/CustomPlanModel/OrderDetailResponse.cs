@@ -12,7 +12,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.CustomPlanModel
 {
-    public class CustomPlanResponse
+    public class OrderDetailResponse
     {
         public Guid Id { get; set; }
         public Guid RecipeId { get; set; }

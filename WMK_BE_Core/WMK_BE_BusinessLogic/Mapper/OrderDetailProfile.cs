@@ -10,12 +10,12 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Mapper
 {
-    public class CustomPlanProfile : Profile
+    public class OrderDetailProfile : Profile
     {
-        public CustomPlanProfile()
+        public OrderDetailProfile()
         {
-            CreateMap<CustomPlan, CreateCustomPlanRequest>().ReverseMap();
-            CreateMap<CustomPlan, CustomPlanResponse>().ReverseMap();
+            CreateMap<OrderDetail, CreateOrderDetailRequest>().ReverseMap();
+            CreateMap<OrderDetail, OrderDetailResponse>().ReverseMap();
         }
     }
 }
