@@ -24,8 +24,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 		IIngredientCategoryRepository IngredientCategoryRepository { get; }
 		IIngredientNutrientRepository IngredientNutrientRepository { get; }
 		ITransactionRepository TransactionRepository { get; }
-
-
-		Task CompleteAsync();
+        IRecipeIngredientOrderDetailRepository RecipeIngredientOrderDetailRepository { get; }
+        Task CompleteAsync();
 	}
 }

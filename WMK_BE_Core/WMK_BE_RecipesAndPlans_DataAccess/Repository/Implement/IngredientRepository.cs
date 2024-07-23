@@ -44,7 +44,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                 var ingredient = await _dbSet
                                     .Include(i => i.IngredientNutrient)
                                     .Include(i => i.IngredientCategory)
-                                    .SingleOrDefaultAsync(i => i.Id == guidId);
+                                    .FirstOrDefaultAsync(i => i.Id == guidId);
 
                 return ingredient;
             }
