@@ -2,6 +2,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -262,7 +263,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
 
-            var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+            var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.Get(x=>x.ProcessStatus == ProcessStatus.Approved).ToListAsync();
             var returnList = weeklyPlans.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
             if (weeklyPlans != null && weeklyPlans.Count > 0)
             {
