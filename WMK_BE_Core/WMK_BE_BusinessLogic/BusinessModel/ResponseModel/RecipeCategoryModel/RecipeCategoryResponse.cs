@@ -12,7 +12,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeCategoryModel
         public Guid Id { get; set; }
         public Guid CategoryId { get; set; }
         public Guid RecipeId { get; set; }
-        public CategoryResponseInRecipeCategory Category { get; set; }
+        public CategoryResponseModel Category { get; set; }
     }
 }
 /*

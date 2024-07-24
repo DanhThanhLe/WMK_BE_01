@@ -14,5 +14,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         {
             
         }
+
+        public async Task AddRangeAsync(IEnumerable<RecipeIngredientOrderDetail> recipeIngredientOrderDetails)
+        {
+            await _dbSet.AddRangeAsync(recipeIngredientOrderDetails);
+        }
     }
 }

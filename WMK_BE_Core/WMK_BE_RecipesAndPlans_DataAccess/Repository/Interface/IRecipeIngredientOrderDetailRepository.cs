@@ -9,5 +9,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
     public interface IRecipeIngredientOrderDetailRepository : IBaseRepository<RecipeIngredientOrderDetail>
     {
+        Task AddRangeAsync(IEnumerable<RecipeIngredientOrderDetail> recipeIngredientOrderDetails);
     }
 }

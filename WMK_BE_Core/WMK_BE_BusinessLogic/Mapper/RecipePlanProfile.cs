@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.Mapper
     {
         public RecipePlanProfile()
         {
-            CreateMap<RecipePLan, RecipePlanResponseInWeeklyPlan>().ReverseMap();//ko can reverse cung dc
+            CreateMap<RecipePLan, RecipePlanResponseInWeeklyPlan>().ForMember(dest => dest.Recipe, opt => opt.MapFrom(src => src.Recipe)).ReverseMap();//ko can reverse cung dc
             
         }
     }

@@ -57,8 +57,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             {
                 Id = Guid.NewGuid(),
                 Email = "staff01@gmail.com",
-                UserName = "admin",
-                PasswordHash = GetSignature256("12345"),
+                UserName = "staff",
+                PasswordHash = GetSignature256("Admin123@"),
                 FirstName = "Staff01",
                 LastName = "No 1",
                 Gender = Gender.Male,
@@ -69,8 +69,25 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
                 EmailConfirm = EmailConfirm.Confirm,
             };
 
+            var manager = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "manager01@gmail.com",
+                UserName = "manager",
+                PasswordHash = GetSignature256("Admin123@"),
+                FirstName = "Manager01",
+                LastName = "No 1",
+                Gender = Gender.Male,
+                Phone = "",
+                Role = Role.Manager,
+                AccessFailedCount = 0,
+                Status = BaseStatus.Available,
+                EmailConfirm = EmailConfirm.Confirm,
+            };
+
             modelBuilder.Entity<User>().HasData(adminUser);
             modelBuilder.Entity<User>().HasData(staff);
+            modelBuilder.Entity<User>().HasData(manager);
 
 
 
@@ -105,11 +122,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             //    .OnDelete(DeleteBehavior.Cascade);
 
             //// Quan hệ 1 - nhiều giữa Recipe và RecipeCategory
-            //modelBuilder.Entity<Recipe>()
-            //    .HasMany(r => r.RecipeCategories)
-            //    .WithOne(ri => ri.Recipe)
-            //    .HasForeignKey(ri => ri.RecipeId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Recipe>()
+                .HasMany(r => r.RecipeCategories)
+                .WithOne(ri => ri.Recipe)
+                .HasForeignKey(ri => ri.RecipeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //// Quan hệ nhiều - nhiều giữa Recipe và Ingredient thông qua RecipeIngredient
             //modelBuilder.Entity<RecipeIngredient>()
