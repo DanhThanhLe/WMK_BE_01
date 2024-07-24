@@ -51,10 +51,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     Recipe? checkRecipe;
                     checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
-                    if (checkRecipe != null && checkRecipe.ProcessStatus == ProcessStatus.Approved)//check coi recipe tim duoc co dang cho dat hang hay khong
+                    if (checkRecipe != null && checkRecipe.ProcessStatus == ProcessStatus.Approved)//check coi recipe tim duoc co la approve hay ko
                     {
                         newOne = _mapper.Map<OrderDetail>(item);
                         newOne.OrderId = orderId;
+                        newOne.Price = checkRecipe.Price * item.Quantity;//tinh tong gia tien cho moi recipe trong order
                         //newOne.StandardWeeklyPlanId = Guid.Empty;
                         var createResult = await _unitOfWork.OrderDetailRepository.CreateAsync(newOne);//bar dau tao thong tin luu tru cho ingredient dua vao reipce
                         if (!createResult)
