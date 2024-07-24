@@ -73,10 +73,15 @@ namespace WMK_BE_RecipesAndPlans_Controller
 
             //CORS
 
-            //Redis
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
-            builder.Services.AddScoped<IRedisService, RedisService>();
-            builder.Services.AddHttpClient();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    policyBuilder => policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
 
             //JWT
             builder.Services.AddAuthentication(op =>
@@ -184,9 +189,9 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			//{
 			app.UseSwagger();
 			app.UseSwaggerUI();
-			//}
-
-			app.UseAuthentication();
+            //}
+            app.UseCors("AllowAllOrigins"); //cau hinh CORs
+            app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllers();
 
