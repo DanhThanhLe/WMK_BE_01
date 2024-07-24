@@ -70,11 +70,20 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
-			//CORS
-			
-			
-			//JWT
-			builder.Services.AddAuthentication(op =>
+            //CORS
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    policyBuilder => policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
+
+            //JWT
+            builder.Services.AddAuthentication(op =>
 			{
 				op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				op.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -179,9 +188,9 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			//{
 			app.UseSwagger();
 			app.UseSwaggerUI();
-			//}
-
-			app.UseAuthentication();
+            //}
+            app.UseCors("AllowAllOrigins"); //cau hinh CORs
+            app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllers();
 

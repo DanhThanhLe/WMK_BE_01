@@ -18,11 +18,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IRecipeIngredientOrderDetailService _recipeIngredientOrderDetailService;
 
-        public OrderDetailService(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrderDetailService(IUnitOfWork unitOfWork, IMapper mapper, IRecipeIngredientOrderDetailService recipeIngredientOrderDetailService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _recipeIngredientOrderDetailService = recipeIngredientOrderDetailService;
         }
 
 
@@ -54,16 +56,23 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         newOne = _mapper.Map<OrderDetail>(item);
                         newOne.OrderId = orderId;
                         //newOne.StandardWeeklyPlanId = Guid.Empty;
-                        var createResult = await _unitOfWork.OrderDetailRepository.CreateAsync(newOne);
+                        var createResult = await _unitOfWork.OrderDetailRepository.CreateAsync(newOne);//bar dau tao thong tin luu tru cho ingredient dua vao reipce
                         if (!createResult)
                         {
                             result.StatusCode = 500;
                             result.Message = "Error at CreateCustomPlanAsync - CustomPlanService ";
                             return result;
                         }
+                        //bat dau tao thong tin recipeIngredient trong orderDetail
                         await _unitOfWork.CompleteAsync();
+                        var createRecipeIngredientOrderDetail = await _recipeIngredientOrderDetailService.CreateRecipeIngredientOrderDetail(newOne.Id, item.RecipeId);
+                        if (createRecipeIngredientOrderDetail.StatusCode != 200)//ko tao dc recipeIngredient trong order detail
+                        {
+                            result.StatusCode = createRecipeIngredientOrderDetail.StatusCode;
+                            result.Message = createRecipeIngredientOrderDetail.Message;
+                            return result;
+                        }
                         returnList.Add(newOne);
-                        
                     }//check coi recipe tim duoc co dang cho dat hang hay khong
                     else
                     {
