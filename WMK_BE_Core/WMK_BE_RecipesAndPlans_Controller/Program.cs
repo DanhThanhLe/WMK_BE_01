@@ -71,16 +71,21 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
+            //Redis
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
+            builder.Services.AddScoped<IRedisService, RedisService>();
+            builder.Services.AddHttpClient();
+
             //CORS
 
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("AllowAllOrigins",
-            //        policyBuilder => policyBuilder
-            //            .AllowAnyOrigin()
-            //            .AllowAnyMethod()
-            //            .AllowAnyHeader());
-            //});
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    policyBuilder => policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
 
 
             //JWT
@@ -179,7 +184,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 			builder.Services.AddScoped<ITransactionService , TransactionService>();
             builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
-			builder.Services.AddScoped<IRecipeIngredientOrderDetailService, RecipeIngredientOrderDetailService>();
+            builder.Services.AddScoped<IRecipeIngredientOrderDetailService, RecipeIngredientOrderDetailService>();
             builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 
             var app = builder.Build();
@@ -191,7 +196,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			app.UseSwagger();
 			app.UseSwaggerUI();
             //}
-            //app.UseCors("AllowAllOrigins"); //cau hinh CORs
+            app.UseCors("AllowAllOrigins"); //cau hinh CORs
             app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllers();

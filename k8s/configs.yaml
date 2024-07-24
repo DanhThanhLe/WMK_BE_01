@@ -1,4 +1,4 @@
-#v1
+#v1 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: wemealkit
-        image: daikmasa/wemealkit:f65074a
+        image: daikmasa/wemealkit:e437c76
         ports:
         - containerPort: 8080
         imagePullPolicy: Always  # Set imagePullPolicy to Always to ensure Kubernetes always pulls the latest image
