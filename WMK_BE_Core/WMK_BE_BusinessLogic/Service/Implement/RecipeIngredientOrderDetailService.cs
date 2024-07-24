@@ -39,7 +39,30 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 else
                 {
-                    var checkRecipeId = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+                    if (recipeId.ToString().ToLower().Equals(checkOrderDetail.Id.ToString().ToLower()))
+                    {
+                        var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());//tim recipe
+                        if (checkRecipe.Id.ToString() != null)//bat dau tao thong tin recipeIngredient trong 
+                        {
+                            //lay thong tin cua recipeIngredient
+                            //lay thong tin cua ingreident
+                            //nhan thong tin gia voi thong tin cua amount trong recipe amount
+                            RecipeIngredientOrderDetail newOne = new RecipeIngredientOrderDetail();
+                        }
+                        else
+                        {
+                            result.StatusCode = 500;
+                            result.Message = "Recipe not found";
+                            return result;
+                        }
+                    }
+                    else//recipe id dua xuong  ko khop voi recipe id duoc luu trong order detail
+                    {
+                        result.StatusCode=500;
+                        result.Message = "Recipe id not match with request";
+                        return result;
+                    }
+                    
                 }
 
             }catch (Exception ex)
