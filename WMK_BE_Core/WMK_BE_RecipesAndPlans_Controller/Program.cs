@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel;
@@ -70,11 +71,15 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
-			//CORS
-			
-			
-			//JWT
-			builder.Services.AddAuthentication(op =>
+            //CORS
+
+            //Redis
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
+            builder.Services.AddScoped<IRedisService, RedisService>();
+            builder.Services.AddHttpClient();
+
+            //JWT
+            builder.Services.AddAuthentication(op =>
 			{
 				op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				op.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

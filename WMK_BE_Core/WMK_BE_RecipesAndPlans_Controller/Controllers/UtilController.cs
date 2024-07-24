@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.UtilModel;
+using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
@@ -14,7 +15,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
     [Route("api/util")]
     public class UtilController : ControllerBase
     {
-        // GET: UtilController
+        // GET: UtilController  
+        private readonly IRedisService _redisService;
+        public UtilController(IRedisService redisService)
+        {
+            _redisService = redisService;
+        }
 
 
         [HttpPost("UploadFile")]
@@ -66,6 +72,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             //    client.UploadFile("ftp://wemealkit.shop/images/" + fileName, WebRequestMethods.Ftp.UploadFile, filePath);
             //}
             return Ok("https://cdn.wemealkit.shop/"+ fileName);
+        }
+
+        [HttpGet("ClearRedisCache")]
+        public async Task<ActionResult> ClearRedisCache()
+        {
+            var listKey = new string[] { "WeeklyPlanList" };
+            foreach (var key in listKey)
+            {
+                await _redisService.RemoveAsync(key);
+            }
+          return Ok("Clear cache success");
         }
 
         //private simple encypt and decrypt

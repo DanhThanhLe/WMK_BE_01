@@ -15,6 +15,7 @@ using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
+using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
@@ -24,6 +25,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRecipePlanService _recipePlanService;
         private readonly IMapper _mapper;
+        private readonly IRedisService _redisService;
 
         #region Validator
         private readonly CreateWeeklyPlanValidator _createValidator;
@@ -31,11 +33,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly DeleteWeeklyPlanValidator _deleteValidator;
         private readonly ChangeStatusWeeklyPlanValidator _changeStatusValidator;
         #endregion
-        public WeeklyPlanService(IUnitOfWork unitOfWork, IMapper mapper, IRecipePlanService recipePlanService)
+        public WeeklyPlanService(IUnitOfWork unitOfWork, IMapper mapper, IRecipePlanService recipePlanService, IRedisService redisService)
         {
             _unitOfWork = unitOfWork;
             _recipePlanService = recipePlanService;
             _mapper = mapper;
+            _redisService = redisService;
 
             _createValidator = new CreateWeeklyPlanValidator();
             _updateValidator = new UpdateWeeklyPlanValidator();
@@ -247,6 +250,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync()
         {
             var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+            
+            //get from redis
+            var redisKey = "WeeklyPlanList";
+            var redisData = await _redisService.GetValueAsync<List<WeeklyPlanResponseModel>>(redisKey);
+            if (redisData != null && redisData.Count > 0)
+            {
+                result.StatusCode = 200;
+                result.Message = "WeeklyPlan list: " + redisData.Count();
+                result.Data = redisData;
+                return result;
+            }
+
             var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
             var returnList = weeklyPlans.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
             if (weeklyPlans != null && weeklyPlans.Count > 0)
@@ -255,6 +270,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.StatusCode = 200;
                 result.Message = "WeeklyPlan list: " + returnResult.Count();
                 result.Data = returnResult;
+
+                //set cache to redis
+                await _redisService.SetValueAsync(redisKey, returnResult, TimeSpan.FromDays(3));
+
                 return result;
             }
             else
