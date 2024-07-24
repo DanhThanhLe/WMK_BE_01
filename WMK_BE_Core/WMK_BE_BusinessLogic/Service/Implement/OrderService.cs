@@ -153,9 +153,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 
-		public async Task<ResponseObject<OrderResponseId>> CreateOrderAsync(CreateOrderRequest model)
+		public async Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model)
 		{
-			var result = new ResponseObject<OrderResponseId>();
+			var result = new ResponseObject<Guid>();
 			var validationResult = _createOrderValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
@@ -207,10 +207,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
 					if (createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
 					{
-                        OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder.Id);
+                        
                         result.StatusCode = 200;
 						result.Message = "OK. Create order success";
-						result.Data = data;
+						result.Data = newOrder.Id;
 						return result;
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong

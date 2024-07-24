@@ -251,7 +251,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync()
         {
             var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
-            
+
             //get from redis
             var redisKey = "WeeklyPlanList";
             var redisData = await _redisService.GetValueAsync<List<WeeklyPlanResponseModel>>(redisKey);

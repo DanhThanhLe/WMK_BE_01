@@ -51,7 +51,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     Recipe? checkRecipe;
                     checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
-                    if (checkRecipe != null && checkRecipe.BaseStatus == BaseStatus.Available)//check coi recipe tim duoc co dang cho dat hang hay khong
+                    if (checkRecipe != null && checkRecipe.ProcessStatus == ProcessStatus.Approved)//check coi recipe tim duoc co dang cho dat hang hay khong
                     {
                         newOne = _mapper.Map<OrderDetail>(item);
                         newOne.OrderId = orderId;
@@ -65,9 +65,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         }
                         //bat dau tao thong tin recipeIngredient trong orderDetail
                         await _unitOfWork.CompleteAsync();
-                        var createRecipeIngredientOrderDetail = await _recipeIngredientOrderDetailService.CreateRecipeIngredientOrderDetail(newOne.Id, item.RecipeId);
+                        var createRecipeIngredientOrderDetail = await _recipeIngredientOrderDetailService.CreateRecipeIngredientOrderDetail(newOne.Id, item.RecipeId, item.Quantity);
                         if (createRecipeIngredientOrderDetail.StatusCode != 200)//ko tao dc recipeIngredient trong order detail
                         {
+                            await _unitOfWork.OrderDetailRepository.DeleteAsync(newOne.Id.ToString());
+                            await _unitOfWork.CompleteAsync();
                             result.StatusCode = createRecipeIngredientOrderDetail.StatusCode;
                             result.Message = createRecipeIngredientOrderDetail.Message;
                             return result;

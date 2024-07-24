@@ -10,7 +10,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 {
     [Table("IngredientCategorys")]
-    public class IngredientCategory
+    public class IngredientCategory                                                                 
     {
         [Key]
         public Guid Id { get; set; }
