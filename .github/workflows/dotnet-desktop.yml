@@ -1,6 +1,6 @@
 
 name: .NET Core Desktop
- 
+
 on:
   push:
     branches: [ "main" ] 
@@ -41,27 +41,16 @@ jobs:
     - name: Tag Docker image with version
       run: docker tag wmkberecipesandplanscontroller:latest daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
 
-    - name: Tag Docker image manager with version
-      run: docker tag manager:latest daikmasa/wemealkit-manager:$(echo "${GITHUB_SHA:0:7}")
-
     - name: Push Docker image to Docker Hub
       run: |
         docker push daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
-    - name: Push Docker image to Docker Hub
-      run: | 
-        docker push daikmasa/wemealkit-manager:$(echo "${GITHUB_SHA:0:7}")
     - name: switching from HTTPS to SSH
       run: |
         git remote set-url origin git@github.com:DanhThanhLe/WMK_BE_01.git
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         sed -i "s|image: daikmasa/wemealkit:[0-9a-f]*$|image: daikmasa/wemealkit:${GITHUB_SHA:0:7}|" k8s/configs.yaml
-    - name: switching from HTTPS to SSH
-      run: |
-        git remote set-url origin git@github.com:DanhThanhLe/WMK_BE_01.git
-        git config --global user.email "you@example.com"
-        git config --global user.name "Your Name"
-        sed -i "s|image: daikmasa/wemealkit-manager:[0-9a-f]*$|image:daikmasa/wemealkit-manager:${GITHUB_SHA:0:7}|" k8s/configs.yaml
+
     - name: check for changes
       run: git status
     - name: stage changed files
