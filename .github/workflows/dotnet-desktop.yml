@@ -49,7 +49,7 @@ jobs:
         docker push daikmasa/wemealkit:$(echo "${GITHUB_SHA:0:7}")
 	
     - name: Push Docker image to Docker Hub
-      run: |
+      run: | 
         docker push daikmasa/wemealkit-manager:$(echo "${GITHUB_SHA:0:7}")
 
     - name: switching from HTTPS to SSH
