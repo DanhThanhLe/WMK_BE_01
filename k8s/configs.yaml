@@ -60,6 +60,69 @@ spec:
     - api.wemealkit.ddns.net  # Replace with your actual domain
     secretName: wemealkit-tlss
 ---
+#admin
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wemealkit-admin-deployment
+  namespace: wemealkit
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wemealkit-manager
+  template:
+    metadata:
+      labels:
+        app: wemealkit-manager
+    spec:
+      containers:
+      - name: wemealkit-manager
+        image: daikmasa/wemealkit-manager:107f12c
+        ports:
+        - containerPort: 8081
+        imagePullPolicy: Always  # Set imagePullPolicy to Always to ensure Kubernetes always pulls the latest image
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wemealkit-manager-service
+  namespace: wemealkit
+spec:
+  selector:
+    app: wemealkit-manager
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress 
+metadata:
+  name: wemealkit-manager-ingress
+  namespace: wemealkit
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - host: manager.wemealkit.ddns.net  # Replace with your actual domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wemealkit-manager-service
+            port:
+              number: 8081
+  tls:
+  - hosts:
+    - manager.wemealkit.ddns.net  # Replace with your actual domain
+    secretName: wemealkit-tlsss
+---
+#redis
 apiVersion: apps/v1
 kind: Deployment
 metadata:

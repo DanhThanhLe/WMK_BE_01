@@ -6,3 +6,9 @@ services:
     build:
       context: .
       dockerfile: WMK_BE_RecipesAndPlans_Controller/Dockerfile
+  manager:
+    image: manager
+    build:
+      context: .
+      dockerfile: ../Manager/Dockerfile
+
