@@ -48,30 +48,29 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                             //lay thong tin cua recipeIngredient
                             //lay thong tin cua ingreident
                             //nhan thong tin gia voi thong tin cua amount trong recipe amount
-                            RecipeIngredientOrderDetail newOne = new RecipeIngredientOrderDetail();
-                            newOne.OrderDetailId = orderDetailId;
-                            newOne.RecipeId = recipeId;
                             foreach(var item in checkRecipe.RecipeIngredients)
                             {
+                                RecipeIngredientOrderDetail newOne = new RecipeIngredientOrderDetail();
+                                newOne.OrderDetailId = orderDetailId;
+                                newOne.RecipeId = recipeId;
                                 newOne.IngredientId = item.IngredientId;
                                 newOne.Amount = item.Amount;
                                 newOne.IngredientPrice = item.Amount * item.Ingredient.Price * recipeQuantity;//dinh luong trong recipeIngredient * gia unit cua Ingredient * so luong cua so phan recipe
-                                //var createResult = await _unitOfWork.RecipeIngredientOrderDetailRepository.CreateAsync(newOne);
-                                //if (!createResult)
-                                //{
-                                //    result.StatusCode = 500;
-                                //    result.Message = "Error when create RecipeIngredient Order Detail";
-                                //    return result;
-                                //}
-                                //await _unitOfWork.CompleteAsync();
+                                var createResult = await _unitOfWork.RecipeIngredientOrderDetailRepository.CreateAsync(newOne);
+                                if (!createResult)
+                                {
+                                    result.StatusCode = 500;
+                                    result.Message = "Error when create RecipeIngredient Order Detail";
+                                    return result;
+                                }
+                                await _unitOfWork.CompleteAsync();
                                 returnList.Add(newOne);
                             }
-                            if (returnList.Any())
-                            {
-                                await _unitOfWork.RecipeIngredientOrderDetailRepository.AddRangeAsync(returnList);
-                                
-                            }
-                            await _unitOfWork.CompleteAsync();
+                            //if (returnList.Any())
+                            //{
+                            //    await _unitOfWork.RecipeIngredientOrderDetailRepository.AddRangeAsync(returnList);
+                            //}
+                            //await _unitOfWork.CompleteAsync();
                             result.StatusCode = 200;
                             result.Message = "OK";
                             result.Data = returnList;

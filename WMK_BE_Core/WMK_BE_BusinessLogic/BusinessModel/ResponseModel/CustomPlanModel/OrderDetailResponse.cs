@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeIngredientOrderDetailModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
@@ -23,6 +24,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.CustomPlanModel
         public double Price { get; set; }
 
         public RecipeResponse Recipe { get; set; }
+        public List<RecipeIngredientOrderDetailResponse> RecipeIngredientOrderDetails { get; set; }
         //public WeeklyPlanResponseModel WeeklyPlan { get; set; }
     }
 }

@@ -55,7 +55,31 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
+
+        #region Get orders by user id
+        public async Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId)
+		{
+			var result = new ResponseObject<List<OrderResponse>>();
+			try
+			{
+				//tim thong tin cua order lien quan toi id nguoi  dung
+				var returnList = _unitOfWork.OrderRepository.Get(x => x.UserId.ToString().ToLower().Equals(userId.ToString().ToLower()));
+				result.StatusCode = 200;
+				result.Message = "Ok, list order "+ returnList.Count();
+				result.Data = _mapper.Map<List<OrderResponse>>(returnList);
+				return result;
+
+			}
+			catch (Exception ex)
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+				return result;
+			}
+        }
+        #endregion
+
+        public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse?>();
 			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
@@ -306,5 +330,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
+
 	}
 }

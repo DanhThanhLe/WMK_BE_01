@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
@@ -25,5 +26,54 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			}
 			return false;
 		}
-	}
+
+		public override async Task<List<Order>> GetAllAsync()
+		{
+			return await _dbSet
+                .Include(o => o.OrderDetails)
+					.ThenInclude(od => od.Recipe)
+				.Include(o => o.OrderDetails)
+					.ThenInclude(od => od.RecipeIngredientOrderDetails)
+						.ThenInclude(ri => ri.Ingredient)
+				.ToListAsync();
+		}
+
+		public override async Task<Order> GetByIdAsync(string id)
+		{
+            try
+            {
+                Guid guidId;
+                if (!Guid.TryParse(id, out guidId))
+                {
+                    return null;
+                }
+
+                var recipe = await _dbSet
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Recipe)
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.RecipeIngredientOrderDetails)
+                            .ThenInclude(ri => ri.Ingredient)
+                    .FirstOrDefaultAsync(r => r.Id == guidId);
+                return recipe;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred in GetByIdAsync: {ex}");
+                return null;
+            }
+        }
+
+        public override IQueryable<Order> Get(Expression<Func<Order, bool>> expression)
+        {
+            return _dbSet
+                .Where(expression)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Recipe)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.RecipeIngredientOrderDetails)
+                        .ThenInclude(ri => ri.Ingredient);
+        }
+
+    }
 }
