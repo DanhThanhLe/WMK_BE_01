@@ -478,7 +478,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        #region getweek plan list with user id
+        #region get week plan list with user id
         public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId)
         {
             var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
