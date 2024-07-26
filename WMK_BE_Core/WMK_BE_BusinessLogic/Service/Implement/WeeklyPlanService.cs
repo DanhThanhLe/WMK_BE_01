@@ -263,7 +263,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
 
-            var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.Get(x=>x.ProcessStatus == ProcessStatus.Approved).ToListAsync();
+            var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved).ToListAsync();
             var returnList = weeklyPlans.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
             if (weeklyPlans != null && weeklyPlans.Count > 0)
             {
@@ -493,23 +493,114 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 //}
                 //else
                 //{
-                    ////var foundList = currentWeekPlanList.Where(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
-                    var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
-                    if (foundList.Count() == 0) //ko tim dc
-                    {
-                        result.StatusCode = 500;
-                        result.Message = "Not found with user id";
-                        return result;
-                    }
-                    else //co thong tin
-                    {
-                        var returnList = _mapper.Map<List<WeeklyPlanResponseModel>>(foundList);
-                        result.StatusCode = 200;
-                        result.Message = "Ok";
-                        result.Data = returnList;
-                        return result;
-                    }
+                ////var foundList = currentWeekPlanList.Where(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
+                var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
+                if (foundList.Count() == 0) //ko tim dc
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Not found with user id";
+                    return result;
+                }
+                else //co thong tin
+                {
+                    var returnList = _mapper.Map<List<WeeklyPlanResponseModel>>(foundList);
+                    result.StatusCode = 200;
+                    result.Message = "Ok";
+                    result.Data = returnList;
+                    return result;
+                }
                 //}
+            }
+            catch (Exception ex)
+            {
+                result.StatusCode = 500;
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+        #endregion
+
+        #region update - full info
+        public async Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(UpdateWeeklyPlanRequest request)
+        {
+            var result = new ResponseObject<WeeklyPlanResponseModel>();
+            try
+            {
+                //tim thong tin cua weeklyPlan - ok
+                //cap nhat thong tin co ban cho week plan do
+                //tim thong tin cho tat ra recipePlan lien quan - ok
+                //xoa het thong tin - ok
+                //tao lai thong tin moi - ok
+                if (request.recipeIds.Count > 200)
+                {
+                    result.Message = "Vuot qua pham vi cho phep. dat toi da duoi 200 con thuc";
+                    return result;
+                }
+                else
+                {
+                    var foundWeeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(request.Id.ToString());
+                    if (foundWeeklyPlan == null)
+                    {
+                        result.Message = "Not found week plan";
+                        return result;
+                    }
+                    else//bat dau tim recipePlans
+                    {
+                        //bat dau thay doi thong tin cho week plan
+                        _unitOfWork.WeeklyPlanRepository.DetachEntity(foundWeeklyPlan);
+                        foundWeeklyPlan.BeginDate = request.BeginDate != null ? request.BeginDate : foundWeeklyPlan.BeginDate;
+                        foundWeeklyPlan.EndDate = request.EndDate != null ? request.EndDate : foundWeeklyPlan.EndDate;
+                        foundWeeklyPlan.Description = request.Description != null ? request.Description : foundWeeklyPlan.Description;
+                        foundWeeklyPlan.UrlImage = request.UrlImage != null ? request.UrlImage : foundWeeklyPlan.UrlImage;
+                        foundWeeklyPlan.Title = request.Title != null ? request.Title : foundWeeklyPlan.Title;
+                        foundWeeklyPlan.Notice = request.Notice != null ? request.Notice : foundWeeklyPlan.Notice;
+                        foundWeeklyPlan.ApprovedAt = request.ApprovedAt != null ? request.ApprovedAt : foundWeeklyPlan.ApprovedAt;
+                        foundWeeklyPlan.ApprovedBy = request.ApprovedBy != null ? request.ApprovedBy : foundWeeklyPlan.ApprovedBy;
+                        foundWeeklyPlan.UpdatedAt = request.UpdatedAt != null ? request.UpdatedAt : foundWeeklyPlan.UpdatedAt;
+                        foundWeeklyPlan.UpdatedBy = request.UpdatedBy != null ? request.UpdatedBy : foundWeeklyPlan.UpdatedBy;
+                        foundWeeklyPlan.ProcessStatus = (ProcessStatus)request.ProcessStatus != null ? (ProcessStatus)request.ProcessStatus : foundWeeklyPlan.ProcessStatus;
+
+                        var updateWeeklyPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(foundWeeklyPlan);
+                        if (updateWeeklyPlanResult) //update thanh cong
+                        {
+                            var relatedRecipePlans = _unitOfWork.RecipePlanRepository.Get(x => x.StandardWeeklyPlanId.ToString().ToLower().Equals(request.Id.ToString().ToLower())).ToList();
+                            if (relatedRecipePlans.Any())
+                            {
+                                foreach (var item in relatedRecipePlans.ToList())
+                                {
+                                    await _unitOfWork.RecipePlanRepository.DeleteAsync(item.Id.ToString()); //co the su dung removeRange - can tim hieu them
+                                    //await _unitOfWork.CompleteAsync();
+                                }
+                            }
+                            else //bao loi ko tim thay gi het - cho nay co the cai tien cho thanh 1 ham vua tao moi vua cap nhat duoc. neu co cai tien thi duoiday la phan tao moi
+                            {
+                                result.Message = "Not found any existed to update";
+                                return result;
+                            }
+                            //bat dau tao recipePlan moi tu day
+                            var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(request.Id, request.recipeIds);
+                            if (createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null)
+                            {
+
+                                await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
+                                result.StatusCode = createRecipePlansResult.StatusCode;
+                                result.Message = "Update Weekly plan successfully.";
+                                return result;
+                            }
+                            else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
+                            {
+                                result.StatusCode = createRecipePlansResult.StatusCode;
+                                result.Message = createRecipePlansResult.Message;
+                                return result;
+                            }
+                        }
+                        else //update khong thanh cong -> bao loi
+                        {
+                            result.Message = "Update failed";
+                            return result;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {

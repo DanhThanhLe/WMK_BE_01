@@ -94,5 +94,24 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
+        [HttpPut("change-status")]
+        public async Task<IActionResult> UpdateStatusRecipe([FromQuery] ChangeRecipeStatusRequest request)
+        {
+            Guid recipeId;
+            if (Guid.TryParse(request.Id.ToString(), out recipeId))
+            {
+                var result = await _recipeService.ChangeStatus(request);
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
@@ -418,7 +420,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = "Not found recipe id " + recipe.Id + "!";
                 return result;
             }
-            var changeResult = await _unitOfWork.RecipeRepository.ChangeStatusAsync(recipe.Id, recipe.ProcessStatus);
+            found.ProcessStatus = recipe.ProcessStatus;
+            if (recipe.Notice.IsNullOrEmpty() || recipe.Notice.Equals("string"))
+            {
+                found.Notice = "Not have";
+            }
+            found.Notice = recipe.Notice;
+            var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(found);
             if (changeResult)
             {
                 await _unitOfWork.CompleteAsync();
@@ -506,6 +514,84 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Recipe list base on categoryID: ";
             result.List = _mapper.Map<List<RecipeResponse>>(listRecipe);
             return result;
+        }
+        #endregion
+
+        #region auto update
+        public async Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId)
+        {
+            var result = new ResponseObject<List<RecipeNutrientResponse>>();
+            //lay thong tin cua tat ca recipe
+            //tu do lay thong tin cua recipeIngredient
+            //lay thong tin cua ingredient
+            //lay thong tin cua nutrient trong ingredient
+            //tinh lai thong tin do
+            //lenh update
+            //luu thong tin
+            var currentListRecipe = _unitOfWork.RecipeRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved && x.RecipeIngredients.Any(x => x.IngredientId.ToString().ToLower().Equals(IngredientId.ToString().ToLower()))).ToList();
+            if (currentListRecipe.Any())
+            {
+                foreach (var item in currentListRecipe)
+                {
+                    double updatePrice = 0;
+                    RecipeNutrient nutrientInfor = _unitOfWork.RecipeNutrientRepository.Get(x => x.RecipeID.ToString().ToLower().Equals(item.Id.ToString().ToLower())).FirstOrDefault();
+                    RecipeNutrient temp = new RecipeNutrient();
+                    temp.RecipeID = item.Id;
+                    if (nutrientInfor != null && nutrientInfor.RecipeID.ToString() != null)
+                    {
+                        temp.Id = nutrientInfor.Id;
+                        foreach (var ri in item.RecipeIngredients)
+                        {
+                            temp.Calories += ri.Ingredient.IngredientNutrient.Calories * ri.Amount;
+                            temp.Fat += ri.Ingredient.IngredientNutrient.Fat * ri.Amount;
+                            temp.SaturatedFat += ri.Ingredient.IngredientNutrient.SaturatedFat * ri.Amount;
+                            temp.Sugar += ri.Ingredient.IngredientNutrient.Sugar * ri.Amount;
+                            temp.Carbonhydrate += ri.Ingredient.IngredientNutrient.Carbonhydrate * ri.Amount;
+                            temp.DietaryFiber += ri.Ingredient.IngredientNutrient.DietaryFiber * ri.Amount;
+                            temp.Protein += ri.Ingredient.IngredientNutrient.Protein * ri.Amount;
+                            temp.Sodium += ri.Ingredient.IngredientNutrient.Sodium * ri.Amount;
+                            updatePrice += ri.Amount * ri.Ingredient.Price;
+                        }
+                        item.Price = updatePrice;
+                        _unitOfWork.RecipeRepository.DetachEntity(item);
+                        _unitOfWork.RecipeNutrientRepository.DetachEntity(nutrientInfor);
+                        var updateRecipePrice = await _unitOfWork.RecipeRepository.UpdateAsync(item);
+                        if (updateRecipePrice)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        else
+                        {
+                            result.Message = "Update price false";
+                            return result;
+                        }
+                        _unitOfWork.RecipeNutrientRepository.DetachEntity(temp);
+                        var updateResult = await _unitOfWork.RecipeNutrientRepository.UpdateAsync(temp);
+                        if (updateResult)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        else
+                        {
+                            result.Message = "Update nutrient false";
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "Not found nutreint infor";
+                        return result;
+                    }
+                }
+                result.StatusCode = 200;
+                result.Message = "ok";
+                return result;
+            }
+            else
+            {
+                result.Message = "Not found preference recipe. Its ok";
+                return result;
+            }
         }
         #endregion
     }

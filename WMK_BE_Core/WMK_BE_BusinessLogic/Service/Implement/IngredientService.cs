@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FluentValidation;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -19,7 +22,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly UpdateIngredientValidator _updateValidator;
         private readonly UpdateStatusIngredientValidator _updateStatusValidator;
         private readonly IIngredientNutrientService _ingredientNutrientService;
-        public IngredientService(IMapper mapper, IUnitOfWork unitOfWork, IIngredientNutrientService ingredientNutrientService)
+        private readonly IRecipeService _recipeService;
+        public IngredientService(IMapper mapper, IUnitOfWork unitOfWork, IIngredientNutrientService ingredientNutrientService, IRecipeService recipeService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -27,6 +31,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _updateValidator = new UpdateIngredientValidator();
             _updateStatusValidator = new UpdateStatusIngredientValidator();
             _ingredientNutrientService = ingredientNutrientService;
+            _recipeService = recipeService;
         }
 
         #region Change status
@@ -290,57 +295,74 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(IngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
-            var validateResult = _updateValidator.Validate(ingredient);
-            var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
-            if (!validateResult.IsValid)//validate
+            try
             {
-                var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-                result.StatusCode = 400;
-                result.Message = string.Join(" - ", error);
-                return result;
-            }
-            var foundUpdate = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
-            if (foundUpdate == null)//check exist
-            {
-                result.StatusCode = 500;
-                result.Message = "Not found with ID: " + ingredient.Id;
-                return result;
-            }
-            else//bat dau update
-            {
-                var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
-                if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(ingredient.Id))
+                var validateResult = _updateValidator.Validate(ingredient);
+                var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
+                if (!validateResult.IsValid)//validate
                 {
-                    result.StatusCode = 500;
-                    result.Message = "Name existed with ID: " + duplicateName.Id;
+                    var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    result.StatusCode = 400;
+                    result.Message = string.Join(" - ", error);
                     return result;
                 }
-                else
+                var foundUpdate = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
+                if (foundUpdate == null)//check exist
                 {
-                    //foundUpdate.Category = ingredient.Category;
-                    foundUpdate.Name = ingredient.Name;
-                    foundUpdate.Img = ingredient.Img;
-                    foundUpdate.Unit = ingredient.Unit;
-                    foundUpdate.Status = ingredient.Status;
-                    foundUpdate.UpdatedAt = ingredient.UpdatedAt;
-                    foundUpdate.UpdatedBy = ingredient.UpdatedBy;
-                    foundUpdate.Price = ingredient.Price;
-                    var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);
-                    if (updateResult)
+                    result.StatusCode = 500;
+                    result.Message = "Not found with ID: " + ingredient.Id;
+                    return result;
+                }
+                else//bat dau update
+                {
+                    _unitOfWork.IngredientRepository.DetachEntity(foundUpdate);
+                    var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
+                    if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(ingredient.Id))
                     {
-                        await _unitOfWork.CompleteAsync();
-                        result.StatusCode = 200;
-                        result.Message = "Update done";
+                        result.StatusCode = 500;
+                        result.Message = "Name existed with ID: " + duplicateName.Id;
                         return result;
                     }
                     else
                     {
-                        result.StatusCode = 500;
-                        result.Message = "Update error";
-                        return result;
+                        FullIngredientNutrientRequest updateNutrient = _mapper.Map<FullIngredientNutrientRequest>(ingredient.UpdateIngredientNutrientRequest);
+                        updateNutrient.Id = foundUpdate.IngredientNutrient.Id;
+                        updateNutrient.IngredientID = foundUpdate.Id;
+                        foundUpdate.Name = ingredient.Name;
+                        foundUpdate.Img = ingredient.Img;
+                        foundUpdate.Unit = ingredient.Unit;
+                        foundUpdate.Status = ingredient.Status;
+                        foundUpdate.UpdatedAt = ingredient.UpdatedAt;
+                        foundUpdate.UpdatedBy = ingredient.UpdatedBy;
+                        foundUpdate.Price = ingredient.Price;
+                        
+                        var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);
+                        if (updateResult)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                            _unitOfWork.IngredientRepository.DetachEntity(foundUpdate);
+                            var updateNutrientResult = await _ingredientNutrientService.Update(updateNutrient);
+                            var updateRecipeInfo = await _recipeService.AutoUpdate(foundUpdate.Id);
+                            result.StatusCode = 200;
+                            result.Message = "Update done. - " + "Nutrient update result: " + updateNutrientResult.Message + "Recipe nutrient update result: " + updateRecipeInfo.Message;
+                            return result;
+                        }
+                        else
+                        {
+                            result.StatusCode = 500;
+                            result.Message = "Update error";
+                            return result;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                result.StatusCode = 500;
+                result.Message = ex.Message;
+                return result;
+            }
+            
         }
         #endregion
     }

@@ -21,6 +21,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(UpdateWeeklyPlanRequestModel model);
 		Task<ResponseObject<WeeklyPlanResponseModel>> DeleteWeeklyPlanAsync(DeleteWeeklyPlanRequestModel model);
 		Task<ResponseObject<WeeklyPlanResponseModel>> ChangeStatusWeeklyPlanAsync(ChangeStatusWeeklyPlanRequestModel model);
-	}
+		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(UpdateWeeklyPlanRequest request);
+
+    }
 }
 

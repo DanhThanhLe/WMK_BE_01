@@ -63,13 +63,33 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpPut]
+        [HttpPut("update(not test)")]
         public async Task<IActionResult> Update([FromBody]UpdateWeeklyPlanRequestModel model) 
         {
             var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(model);
             return Ok(result);
         }
-        [HttpDelete]
+
+        [HttpPut("update-full-info")]
+        public async Task<IActionResult> UpdateFullInfo([FromBody]UpdateWeeklyPlanRequest request)
+        {
+            Guid convertId;
+            if (Guid.TryParse(request.Id.ToString(), out convertId))
+            {
+                var result = await _weeklyPLanService.UpdateFullInfo(request);
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
+        }
+
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromBody]DeleteWeeklyPlanRequestModel model) 
         {
             var result = await _weeklyPLanService.DeleteWeeklyPlanAsync(model);
