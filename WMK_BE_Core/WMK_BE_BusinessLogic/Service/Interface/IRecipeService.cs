@@ -7,6 +7,7 @@ using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
@@ -28,6 +29,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         public Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe);
 
         public Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId);
+
+        Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId);
 
         //public Task<ResponseObject<RecipeResponse>> FilterToMenu(MenuFilterRequest request);
 

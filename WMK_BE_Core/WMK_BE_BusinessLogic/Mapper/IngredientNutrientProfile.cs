@@ -18,6 +18,9 @@ namespace WMK_BE_BusinessLogic.Mapper
             CreateMap<IngredientNutrient, FullIngredientNutrientRequest>().ReverseMap();
 
             CreateMap<IngredientNutrient,IngredientNutrientResponse>().ReverseMap();
+
+            CreateMap<IngredientNutrient, UpdateIngredientNutrientRequest>().ReverseMap();
+            CreateMap<FullIngredientNutrientRequest, UpdateIngredientNutrientRequest>().ReverseMap();
         }
     }
 }

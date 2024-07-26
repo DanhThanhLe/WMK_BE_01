@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
@@ -53,6 +54,14 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                 Console.WriteLine($"Error occurred in GetByIdAsync: {ex}");
                 return null;
             }
+        }
+
+        public override IQueryable<Ingredient> Get(Expression<Func<Ingredient, bool>> expression)
+        {
+            return _dbSet
+                .Where(expression)
+                .Include(i => i.IngredientCategory)
+                .Include(i => i.IngredientNutrient);
         }
 
     }

@@ -29,6 +29,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
     {
         public Guid Id { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
+        public string? Notice { get; set; }
+
     }
 
     public class IdRecipeRequest
