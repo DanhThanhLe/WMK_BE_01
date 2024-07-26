@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -20,6 +21,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
+		private readonly ITransactionService _transactionService;
 		#region Validator
 		private readonly CreateOrderModelValidator _createOrderValidator;
 		private readonly UpdateOrderModelValidator _updateOrderValidator;
@@ -27,15 +29,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IOrderDetailService _orderDetailService;
 
 		#endregion
-		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , IOrderDetailService orderDetailService)
+		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , IOrderDetailService orderDetailService , ITransactionService transactionService)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
-
+			_transactionService = transactionService;
 			_createOrderValidator = new CreateOrderModelValidator();
 			_updateOrderValidator = new UpdateOrderModelValidator();
 			_updateOrderByUserValidator = new UpdateOrderByUserModelValidator();
-            _orderDetailService = orderDetailService;
+			_orderDetailService = orderDetailService;
 		}
 		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders()
 		{
@@ -56,8 +58,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-        #region Get orders by user id
-        public async Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId)
+		#region Get orders by user id
+		public async Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId)
 		{
 			var result = new ResponseObject<List<OrderResponse>>();
 			try
@@ -65,21 +67,21 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//tim thong tin cua order lien quan toi id nguoi  dung
 				var returnList = _unitOfWork.OrderRepository.Get(x => x.UserId.ToString().ToLower().Equals(userId.ToString().ToLower()));
 				result.StatusCode = 200;
-				result.Message = "Ok, list order "+ returnList.Count();
+				result.Message = "Ok, list order " + returnList.Count();
 				result.Data = _mapper.Map<List<OrderResponse>>(returnList);
 				return result;
 
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
 				result.StatusCode = 500;
 				result.Message = ex.Message;
 				return result;
 			}
-        }
-        #endregion
+		}
+		#endregion
 
-        public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
+		public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse?>();
 			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
@@ -159,6 +161,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( updateResult )
 				{
 					await _unitOfWork.CompleteAsync();
+					//change status transaction
+					foreach (var zaloPay in orderExist.Transactions)
+					{
+						zaloPay.Status = TransactionStatus.PAID;
+						zaloPay.TransactionDate = DateTime.Now;
+					}
+					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Change order status into " + orderExist.Status + " success.";
 					result.Data = _mapper.Map<OrderResponse>(orderExist);
@@ -225,28 +234,45 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 			if ( createResult )//bat dau add cac recipeId thanh cac OrderDetail thong qua RecipeList
 			{
-				await _unitOfWork.CompleteAsync();
 				if ( model.RecipeList.Any() )
 				{
 					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
-					if (createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
+					if ( createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
 					{
-                        
-                        result.StatusCode = 200;
-						result.Message = "OK. Create order success";
-						result.Data = newOrder.Id;
-						return result;
+						await _unitOfWork.CompleteAsync();
+						//create transaction
+						var zaloPayModel = new ZaloPayCreatePaymentRequest();
+						zaloPayModel.OrderId = newOrder.Id;
+						zaloPayModel.OrderPrice = newOrder.TotalPrice;
+						var createTransaction = await _transactionService.CreatePaymentZaloPayAsync(zaloPayModel);
+						if ( createTransaction != null && createTransaction.StatusCode == 200 && createTransaction.Data != null)
+						{
+							newOrder.Transactions.Add(createTransaction.Data);
+							await _unitOfWork.CompleteAsync();
+							result.StatusCode = 200;
+							result.Message = "OK. Create order success";
+							result.Data = newOrder.Id;
+							return result;
+						}
+						if(createTransaction != null )
+						{
+							// Delete the order if transaction creation fails
+							await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
+							await _unitOfWork.CompleteAsync();
+							result.StatusCode = createTransaction.StatusCode;
+							result.Message = createTransaction.Message;
+							return result;
+						}
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
 					await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());//xoa thong tin cho Order
 					await _unitOfWork.CompleteAsync();
-
 					result.StatusCode = 500;
-					result.Message = "Create order not success";
+					result.Message = "Create order not success!";
 					return result;
 				}
 			}
-            result.StatusCode = 500;
+			result.StatusCode = 500;
 			result.Message = "OK. Create order not success";
 			return result;
 		}
