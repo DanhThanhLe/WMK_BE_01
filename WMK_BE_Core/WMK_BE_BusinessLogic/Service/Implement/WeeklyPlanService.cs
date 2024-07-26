@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Castle.Components.DictionaryAdapter.Xml;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Web;
@@ -82,11 +83,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
                 if (currentList.Count() > 0)
                 {
-                    WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(model.Description.Trim())).FirstOrDefault();
+                    WeeklyPlan foundDuplicate = currentList.Where(x => x.Title.Trim().Equals(model.Title.Trim())).FirstOrDefault();
                     if (foundDuplicate != null && (foundDuplicate.ProcessStatus == ProcessStatus.Processing || foundDuplicate.ProcessStatus == ProcessStatus.Approved))
                     {
                         result.StatusCode = 400;
-                        result.Message = "Weekly plan Description already existed";
+                        result.Message = "Weekly plan Title already existed";
                         return result;
                     }
                 }
@@ -102,10 +103,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 if (countMeal < 21 || countMeal > 200)//( model.recipeIds.Count < 5 || model.recipeIds.Count > 21 )
                 {
                     result.StatusCode = 402;
-                    result.Message = "Must be 21 protion for each week " + countMeal;//"Recipe must be 5 - 21!";
+                    result.Message = "Must be 21 portion for each week " + countMeal;//"Recipe must be 5 - 21!";
                     return result;
                 }
-                newWeeklyPlan.EndDate = DateTime.Now.AddDays(2);//add endDate after 2 day if staff create
+
+                newWeeklyPlan.BeginDate = model.BeginDate;
+                newWeeklyPlan.EndDate = model.EndDate;
 
                 //add new weekly plan
                 var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
