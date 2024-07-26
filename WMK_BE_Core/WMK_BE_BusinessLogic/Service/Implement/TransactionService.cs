@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ using WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel;
 using WMK_BE_BusinessLogic.Helpers;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
+using WMK_BE_BusinessLogic.ValidationModel;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
@@ -17,12 +20,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IOptions<MomoOption> _momoOptions;
-
-		public TransactionService(IUnitOfWork unitOfWork, IOptions<MomoOption> momoOptions)
-        {
-            _unitOfWork = unitOfWork;
+		private readonly IMapper _mapper;
+		private readonly CreateZaloPayValidator _createZaloPayValidator;
+		public TransactionService(IUnitOfWork unitOfWork , IOptions<MomoOption> momoOptions , IMapper mapper)
+		{
+			_unitOfWork = unitOfWork;
 			_momoOptions = momoOptions;
-        }
+			_mapper = mapper;
+			_createZaloPayValidator = new CreateZaloPayValidator();
+		}
 
 		public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
 		{
@@ -38,9 +44,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var transactionExist = orderExist.Transactions;
 			if ( transactionExist != null )
 			{
-				foreach(var transaction in transactionExist )
+				foreach ( var transaction in transactionExist )
 				{
-					if(transaction.Status == WMK_BE_RecipesAndPlans_DataAccess.Enums.TransactionStatus.PAID )
+					if ( transaction.Status == WMK_BE_RecipesAndPlans_DataAccess.Enums.TransactionStatus.PAID )
 					{
 						break;
 					}
@@ -111,6 +117,78 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Fail call to MoMo!";
 				return result;
 			}
+		}
+
+		public async Task<ResponseObject<Transaction>> CreatePaymentZaloPayAsync(ZaloPayCreatePaymentRequest model)
+		{
+			var result = new ResponseObject<Transaction>();
+			//check validation
+			var validateResult = _createZaloPayValidator.Validate(model);
+			if ( !validateResult.IsValid )
+			{
+				var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
+			//check orderExist
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.OrderId.ToString());
+			if ( orderExist == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "Order not exist!";
+				return result;
+			}
+			var newTransaction = _mapper.Map<Transaction>(model);
+			newTransaction.TransactionDate = DateTime.Now;
+			newTransaction.Type = WMK_BE_RecipesAndPlans_DataAccess.Enums.TransactionType.ZaloPay;
+			newTransaction.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.TransactionStatus.PendingZaloPay;
+			var createRessult = _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
+			if ( createRessult == null )
+			{
+				result.StatusCode = 500;
+				result.Message = "Eroror!!";
+				return result;
+			}
+			if ( createRessult != null && createRessult.Result == true )
+			{
+				newTransaction.Order = orderExist;
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Data = newTransaction;
+				result.Message = "Create transction success.";
+				return result;
+			}
+			result.StatusCode = 403;
+			result.Message = "Create Transaction unsuccessfully!";
+			return result;
+
+		}
+
+		public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
+		{
+			var result = new ResponseObject<Transaction>();
+			//check payment exist
+			var zaloPayExist = await _unitOfWork.TransactionRepository.GetByIdAsync(model.Id.ToString());
+			if ( zaloPayExist == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "Not found transaction!";
+				return result;
+			}
+			zaloPayExist.Status = model.Status;
+			var updateResult = await _unitOfWork.TransactionRepository.UpdateAsync(zaloPayExist);
+			if ( updateResult )
+			{
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Data = zaloPayExist;
+				result.Message = "Update status (" + zaloPayExist.Status + ") of transaction success";
+				return result;
+			}
+			result.StatusCode = 500;
+			result.Message = "Update transaction status unsuccess!";
+			return result;
 		}
 	}
 }

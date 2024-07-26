@@ -19,7 +19,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public Guid OrderId { get; set; }
 		public TransactionType Type { get; set; } //refield
 
-		public double Amount { get; set; }
+		public double OrderPrice { get; set; }
 		public DateTime TransactionDate { get; set; }
 		public string? Notice { get; set; }
 		public string? ExtraData { get; set; }
