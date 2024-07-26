@@ -324,6 +324,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     foundUpdate.Status = ingredient.Status;
                     foundUpdate.UpdatedAt = ingredient.UpdatedAt;
                     foundUpdate.UpdatedBy = ingredient.UpdatedBy;
+                    foundUpdate.Price = ingredient.Price;
                     var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);
                     if (updateResult)
                     {

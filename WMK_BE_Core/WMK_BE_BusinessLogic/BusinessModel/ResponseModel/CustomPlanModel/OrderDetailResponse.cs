@@ -16,6 +16,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.CustomPlanModel
     public class OrderDetailResponse
     {
         public Guid Id { get; set; }
+        public Guid OrderId { get; set; }
         public Guid RecipeId { get; set; }
         public Guid StandardWeeklyPlanId { get; set; }
         public DayInWeek DayInWeek { get; set; }
