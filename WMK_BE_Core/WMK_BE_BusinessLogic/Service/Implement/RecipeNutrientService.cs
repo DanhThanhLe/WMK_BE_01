@@ -12,6 +12,7 @@ using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -90,6 +91,62 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         return result;
                     }
                 }
+            }
+        }
+
+        public async Task<ResponseObject<RecipeNutrient>> AutoUpdate()
+        {
+            var result = new ResponseObject<RecipeNutrient>();
+            //lay thong tin cua tat ca recipe
+            //tu do lay thong tin cua recipeIngredient
+            //lay thong tin cua ingredient
+            //lay thong tin cua nutrient trong ingredient
+            //tinh lai thong tin do
+            //lenh update
+            //luu thong tin
+            var currentListRecipe = _unitOfWork.RecipeRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved);
+            if (currentListRecipe != null)
+            {
+                foreach (var item in currentListRecipe)
+                {
+                    var nutrientInfor = _unitOfWork.RecipeNutrientRepository.Get(x => x.RecipeID.ToString().ToLower().Equals(item.Id.ToString().ToLower())).FirstOrDefault();
+                    if (nutrientInfor != null && nutrientInfor.RecipeID.ToString() != null)
+                    {
+                        foreach(var ri in item.RecipeIngredients)
+                        {
+                            nutrientInfor.Calories += ri.Ingredient.IngredientNutrient.Calories * ri.Amount;
+                            nutrientInfor.Fat += ri.Ingredient.IngredientNutrient.Fat * ri.Amount;
+                            nutrientInfor.SaturatedFat += ri.Ingredient.IngredientNutrient.SaturatedFat * ri.Amount;
+                            nutrientInfor.Sugar += ri.Ingredient.IngredientNutrient.Sugar * ri.Amount;
+                            nutrientInfor.Carbonhydrate += ri.Ingredient.IngredientNutrient.Carbonhydrate * ri.Amount;
+                            nutrientInfor.DietaryFiber += ri.Ingredient.IngredientNutrient.DietaryFiber * ri.Amount;
+                            nutrientInfor.Protein += ri.Ingredient.IngredientNutrient.Protein * ri.Amount;
+                            nutrientInfor.Sodium += ri.Ingredient.IngredientNutrient.Sodium * ri.Amount;
+                            var updateResult = await _unitOfWork.RecipeNutrientRepository.UpdateAsync(nutrientInfor);
+                            if (updateResult)
+                            {
+                                await _unitOfWork.CompleteAsync();
+                            }
+                            else
+                            {
+                                result.Message = "Update false";
+                                return result;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "not found nutreint infor";
+                        return result;
+                    }
+                }
+                result.StatusCode = 200;
+                result.Message = "ok";
+                return result;
+            }
+            else
+            {
+                return result;
             }
         }
     }

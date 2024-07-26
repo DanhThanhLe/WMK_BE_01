@@ -123,7 +123,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        #region Get by name
+        #region Search
         public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name = "", bool status = true)//tim bang ten cua recipe lan cua ca category
         {
             name.Trim();
@@ -168,11 +168,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-
-
-        #region Search
-        #endregion
-
         #region Create
         public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe)
         {
@@ -193,7 +188,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 newRecipe.Popularity = 0;
                 newRecipe.CreatedAt = DateTime.Now;
                 newRecipe.UpdatedAt = DateTime.Now;
-                newRecipe.ProcessStatus = ProcessStatus.Processing;
+                newRecipe.ProcessStatus = ProcessStatus.Approved;
                 var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Equals(recipe.Name.ToLower()));
                 if (checkDuplicateName != null)
                 {
@@ -513,10 +508,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             return result;
         }
         #endregion
-
-
-
-
     }
     public static class StringExtensions
     {
