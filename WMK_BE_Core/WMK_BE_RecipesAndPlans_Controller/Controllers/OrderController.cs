@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel;
+using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
@@ -15,12 +16,31 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			_orderService = orderService;
 		}
 
-		[HttpGet("get-all")]
-		public async Task<IActionResult> GetAll()
-		{
-			var result = await _orderService.GetAllOrders();
-			return Ok(result);
-		}
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _orderService.GetAllOrders();
+            return Ok(result);  
+        }
+
+        [HttpGet("get-by-userid")]
+        public async Task<IActionResult> GetByUserId([FromQuery]string userId)
+        {
+            Guid idConvert;
+            if (Guid.TryParse(userId, out idConvert))
+            {
+                var result = await _orderService.GetOrdersByUserId(idConvert);
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
+        }
 
 		[HttpGet("get-order")]
 		public async Task<IActionResult> GetById([FromQuery] IdOrderRequest model)

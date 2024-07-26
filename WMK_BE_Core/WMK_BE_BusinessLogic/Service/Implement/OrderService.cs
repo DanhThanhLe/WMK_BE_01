@@ -24,10 +24,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly CreateOrderModelValidator _createOrderValidator;
 		private readonly UpdateOrderModelValidator _updateOrderValidator;
 		private readonly UpdateOrderByUserModelValidator _updateOrderByUserValidator;
-		private readonly ICustomPlanService _customPlanService;
+		private readonly IOrderDetailService _orderDetailService;
 
 		#endregion
-		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , ICustomPlanService customPlanService)
+		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , IOrderDetailService orderDetailService)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
@@ -35,7 +35,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_createOrderValidator = new CreateOrderModelValidator();
 			_updateOrderValidator = new UpdateOrderModelValidator();
 			_updateOrderByUserValidator = new UpdateOrderByUserModelValidator();
-			_customPlanService = customPlanService;
+            _orderDetailService = orderDetailService;
 		}
 		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders()
 		{
@@ -55,7 +55,31 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
+
+        #region Get orders by user id
+        public async Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId)
+		{
+			var result = new ResponseObject<List<OrderResponse>>();
+			try
+			{
+				//tim thong tin cua order lien quan toi id nguoi  dung
+				var returnList = _unitOfWork.OrderRepository.Get(x => x.UserId.ToString().ToLower().Equals(userId.ToString().ToLower()));
+				result.StatusCode = 200;
+				result.Message = "Ok, list order "+ returnList.Count();
+				result.Data = _mapper.Map<List<OrderResponse>>(returnList);
+				return result;
+
+			}
+			catch (Exception ex)
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+				return result;
+			}
+        }
+        #endregion
+
+        public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse?>();
 			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
@@ -153,9 +177,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 
-		public async Task<ResponseObject<OrderResponseId>> CreateOrderAsync(CreateOrderRequest model)
+		public async Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model)
 		{
-			var result = new ResponseObject<OrderResponseId>();
+			var result = new ResponseObject<Guid>();
 			var validationResult = _createOrderValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
@@ -199,18 +223,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			newOrder.Status = OrderStatus.Processing;
 
 			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
-			if ( createResult )//bat dau add cac recipeId thanh cac customPlan thong qua RecipeList
+			if ( createResult )//bat dau add cac recipeId thanh cac OrderDetail thong qua RecipeList
 			{
 				await _unitOfWork.CompleteAsync();
 				if ( model.RecipeList.Any() )
 				{
-					var createCustomPlanResult = await _customPlanService.CreateCustomPlanAsync(newOrder.Id , model.RecipeList);
-					if ( createCustomPlanResult.StatusCode == 200 && createCustomPlanResult.Data != null )
+					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
+					if (createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
 					{
-                        OrderResponseId data = _mapper.Map<OrderResponseId>(newOrder);
+                        
                         result.StatusCode = 200;
 						result.Message = "OK. Create order success";
-						result.Data = data;
+						result.Data = newOrder.Id;
 						return result;
 					}
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
@@ -306,5 +330,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
+
 	}
 }

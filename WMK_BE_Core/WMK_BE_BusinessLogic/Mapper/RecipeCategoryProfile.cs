@@ -15,10 +15,11 @@ namespace WMK_BE_BusinessLogic.Mapper
         public RecipeCategoryProfile()
         {
             CreateMap<RecipeCategory, RecipeCategoryResponse>()
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category)).ReverseMap();
             //.ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Category.Id))
             //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Category.Type))//Mapping type của Category
             //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Category.Name)) // Mapping tên Category
-                .ReverseMap();
+               
 
             CreateMap<RecipeCategory, CreateRecipeCategoryRequest>().ReverseMap();
         }

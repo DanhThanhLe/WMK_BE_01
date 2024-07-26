@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel;
@@ -70,11 +71,25 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
-			//CORS
-			
-			
-			//JWT
-			builder.Services.AddAuthentication(op =>
+            //Redis
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
+            builder.Services.AddScoped<IRedisService, RedisService>();
+            builder.Services.AddHttpClient();
+
+            //CORS
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    policyBuilder => policyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
+
+            //JWT
+            builder.Services.AddAuthentication(op =>
 			{
 				op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				op.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -145,7 +160,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(IngredientNutrientProfile));
 			builder.Services.AddAutoMapper(typeof(IngredientProfile));
 			builder.Services.AddAutoMapper(typeof(RecipePlanProfile));
-            builder.Services.AddAutoMapper(typeof(CustomPlanProfile));
+            builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeIngredientOrderDetailProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , WeMealKitContext>();
@@ -168,7 +184,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<IIngredientNutrientService, IngredientNutrientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 			builder.Services.AddScoped<ITransactionService , TransactionService>();
-            builder.Services.AddScoped<ICustomPlanService, CustomPLanService>();
+            builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
+            builder.Services.AddScoped<IRecipeIngredientOrderDetailService, RecipeIngredientOrderDetailService>();
             builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 
             var app = builder.Build();
@@ -179,9 +196,9 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			//{
 			app.UseSwagger();
 			app.UseSwaggerUI();
-			//}
-
-			app.UseAuthentication();
+            //}
+            app.UseCors("AllowAllOrigins"); //cau hinh CORs
+            app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllers();
 

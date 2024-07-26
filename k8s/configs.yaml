@@ -1,11 +1,11 @@
-#v1
+#v1 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wemealkit-deployment
   namespace: wemealkit
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: wemealkit
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: wemealkit
-        image: daikmasa/wemealkit:bfe7a00
+        image: daikmasa/wemealkit:d8690ea
         ports:
         - containerPort: 8080
         imagePullPolicy: Always  # Set imagePullPolicy to Always to ensure Kubernetes always pulls the latest image
@@ -60,6 +60,7 @@ spec:
     - api.wemealkit.ddns.net  # Replace with your actual domain
     secretName: wemealkit-tlss
 ---
+#redis
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -96,10 +97,11 @@ metadata:
   name: redis-service
   namespace: wemealkit
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port: 6379
     targetPort: 6379
+    nodePort: 30007  # Optional: specify a port in the range 30000-32767
   selector:
     app: redis
 

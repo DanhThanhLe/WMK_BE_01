@@ -13,9 +13,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 		public string CreatedBy { get; set; } = string.Empty;
         public string? UrlImage { get; set; }
         public string? Title { get; set; }
-        public DateTime BeginDate { get; set; }//chua co validate
-        public DateTime EndDate { get; set; }//chua co validate
-
+		public ProcessStatus? ProcessStatus { get; set; }
+        public DateTime? BeginDate { get; set; }//chua co validate
+        public DateTime? EndDate { get; set; }//chua co validate
         public List<RecipeWeeklyPlanCreate> recipeIds { get; set; }
 	}
 	public class RecipeWeeklyPlanCreate

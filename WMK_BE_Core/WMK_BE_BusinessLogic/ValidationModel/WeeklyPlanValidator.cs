@@ -8,7 +8,7 @@ using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 
 namespace WMK_BE_BusinessLogic.ValidationModel
 {
-	public class CreateWeeklyPlanValidator : AbstractValidator<CreateWeeklyPlanRequest> 
+	public class CreateWeeklyPlanValidator : AbstractValidator<CreateWeeklyPlanRequest> //dung cho create new week plan (staff tao)
 	{
         public CreateWeeklyPlanValidator()
         {
@@ -24,6 +24,15 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             .WithMessage("EndDate must be after BeginDate!");
         }
     }
+
+    //public class CreateWeeklyPlanForUserValidator : AbstractValidator<CreateWeeklyPlanRequest> //dung cho create new plan (customer tao)
+    //{
+    //    public CreateWeeklyPlanForUserValidator()
+    //    {
+    //        RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateBy is required!");
+    //    }
+    //}
+
     public class UpdateWeeklyPlanValidator : AbstractValidator<UpdateWeeklyPlanRequestModel> 
 	{
         public UpdateWeeklyPlanValidator()

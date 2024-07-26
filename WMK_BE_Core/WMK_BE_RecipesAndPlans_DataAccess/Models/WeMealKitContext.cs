@@ -28,8 +28,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderGroup> OrderGroups { get; set; }
-        public DbSet<CustomPlan> CustomPlans { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<RecipeIngredientOrderDetail> RecipeIngredientOrderDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,8 +57,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             {
                 Id = Guid.NewGuid(),
                 Email = "staff01@gmail.com",
-                UserName = "admin",
-                PasswordHash = GetSignature256("12345"),
+                UserName = "staff",
+                PasswordHash = GetSignature256("Admin123@"),
                 FirstName = "Staff01",
                 LastName = "No 1",
                 Gender = Gender.Male,
@@ -68,99 +69,116 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
                 EmailConfirm = EmailConfirm.Confirm,
             };
 
+            var manager = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "manager01@gmail.com",
+                UserName = "manager",
+                PasswordHash = GetSignature256("Admin123@"),
+                FirstName = "Manager01",
+                LastName = "No 1",
+                Gender = Gender.Male,
+                Phone = "",
+                Role = Role.Manager,
+                AccessFailedCount = 0,
+                Status = BaseStatus.Available,
+                EmailConfirm = EmailConfirm.Confirm,
+            };
+
             modelBuilder.Entity<User>().HasData(adminUser);
             modelBuilder.Entity<User>().HasData(staff);
+            modelBuilder.Entity<User>().HasData(manager);
 
 
 
             //===Ingredient(IngredientNutrient, IngredientCategory) | Recipe(Category, RecipeNutrient, RecipeIngredient)====================================
 
-            //quan hệ 1 - 1 giữa Ingredint và IngredientNutrient
-            modelBuilder.Entity<Ingredient>()
-                .HasOne(i => i.IngredientNutrient)
-                .WithOne(n => n.Ingredient)
-                .HasForeignKey<IngredientNutrient>(n => n.IngredientID)
-                .OnDelete(DeleteBehavior.Cascade);
+            ////quan hệ 1 - 1 giữa Ingredint và IngredientNutrient
+            //modelBuilder.Entity<Ingredient>()
+            //    .HasOne(i => i.IngredientNutrient)
+            //    .WithOne(n => n.Ingredient)
+            //    .HasForeignKey<IngredientNutrient>(n => n.IngredientID)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            // Quan hệ 1 - 1 giữa Recipe và RecipeNutrient
-            modelBuilder.Entity<Recipe>()
-                .HasOne(r => r.RecipeNutrient)
-                .WithOne(rn => rn.Recipe)
-                .HasForeignKey<RecipeNutrient>(rn => rn.RecipeID)
-                .OnDelete(DeleteBehavior.Cascade);
+            //// Quan hệ 1 - 1 giữa Recipe và RecipeNutrient
+            //modelBuilder.Entity<Recipe>()
+            //    .HasOne(r => r.RecipeNutrient)
+            //    .WithOne(rn => rn.Recipe)
+            //    .HasForeignKey<RecipeNutrient>(rn => rn.RecipeID)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            // Quan hệ 1 - nhiều giữa Recipe và RecipeStep
-            modelBuilder.Entity<Recipe>()
-                .HasMany(r => r.RecipeSteps)
-                .WithOne(rs => rs.Recipe)
-                .HasForeignKey(rs => rs.RecipeId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //// Quan hệ 1 - nhiều giữa Recipe và RecipeStep
+            //modelBuilder.Entity<Recipe>()
+            //    .HasMany(r => r.RecipeSteps)
+            //    .WithOne(rs => rs.Recipe)
+            //    .HasForeignKey(rs => rs.RecipeId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            // Quan hệ 1 - nhiều giữa Recipe và RecipeIngredient
-            modelBuilder.Entity<Recipe>()
-                .HasMany(r => r.RecipeIngredients)
-                .WithOne(ri => ri.Recipe)
-                .HasForeignKey(ri => ri.RecipeId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //// Quan hệ 1 - nhiều giữa Recipe và RecipeIngredient
+            //modelBuilder.Entity<Recipe>()
+            //    .HasMany(r => r.RecipeIngredients)
+            //    .WithOne(ri => ri.Recipe)
+            //    .HasForeignKey(ri => ri.RecipeId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            // Quan hệ 1 - nhiều giữa Recipe và RecipeCategory
+            //// Quan hệ 1 - nhiều giữa Recipe và RecipeCategory
             modelBuilder.Entity<Recipe>()
                 .HasMany(r => r.RecipeCategories)
                 .WithOne(ri => ri.Recipe)
                 .HasForeignKey(ri => ri.RecipeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Quan hệ nhiều - nhiều giữa Recipe và Ingredient thông qua RecipeIngredient
-            modelBuilder.Entity<RecipeIngredient>()
-                .HasOne(ri => ri.Recipe)
-                .WithMany(r => r.RecipeIngredients)
-                .HasForeignKey(ri => ri.RecipeId);
+            //// Quan hệ nhiều - nhiều giữa Recipe và Ingredient thông qua RecipeIngredient
+            //modelBuilder.Entity<RecipeIngredient>()
+            //    .HasOne(ri => ri.Recipe)
+            //    .WithMany(r => r.RecipeIngredients)
+            //    .HasForeignKey(ri => ri.RecipeId);
 
-            modelBuilder.Entity<RecipeIngredient>()
-                .HasOne(ri => ri.Ingredient)
-                .WithMany(i => i.RecipeIngredients)
-                .HasForeignKey(ri => ri.IngredientId);
+            //modelBuilder.Entity<RecipeIngredient>()
+            //    .HasOne(ri => ri.Ingredient)
+            //    .WithMany(i => i.RecipeIngredients)
+            //    .HasForeignKey(ri => ri.IngredientId);
 
-            //===Ingredient(IngredientNutrient, IngredientCategory) | Recipe(Category, RecipeNutrient, RecipeIngredient, RecipeStep)====================================
+            ////===Ingredient(IngredientNutrient, IngredientCategory) | Recipe(Category, RecipeNutrient, RecipeIngredient, RecipeStep)====================================
 
 
 
-            //===Recipe() | WeeklyPlan()=============================================================================================
+            ////===Recipe() | WeeklyPlan()=============================================================================================
 
-            // Quan hệ nhiều - nhiều giữa Recipe và WeeklPlan thông qua RecipePlan
-            modelBuilder.Entity<RecipePLan>()
-                .HasOne(rp => rp.Recipe)
-                .WithMany(r => r.RecipePlans)
-                .HasForeignKey(rp => rp.RecipeId);
-
-            modelBuilder.Entity<RecipePLan>()
-                .HasOne(rp => rp.WeeklyPlan)
-                .WithMany(wp => wp.RecipePLans)
-                .HasForeignKey(rp => rp.StandardWeeklyPlanId);
-
-            //// CustomPlan and RecipePlan relationship
+            //// Quan hệ nhiều - nhiều giữa Recipe và WeeklPlan thông qua RecipePlan
             //modelBuilder.Entity<RecipePLan>()
-            //    .HasOne(rp => rp.CustomPlan)
-            //    .WithMany(cp => cp.RecipePlans)
-            //    .HasForeignKey(rp => rp.CustomPlanId);
+            //    .HasOne(rp => rp.Recipe)
+            //    .WithMany(r => r.RecipePlans)
+            //    .HasForeignKey(rp => rp.RecipeId);
 
-            // Quan hệ 1 - nhiều của 
+            //modelBuilder.Entity<RecipePLan>()
+            //    .HasOne(rp => rp.WeeklyPlan)
+            //    .WithMany(wp => wp.RecipePLans)
+            //    .HasForeignKey(rp => rp.StandardWeeklyPlanId);
+
+            ////// CustomPlan and RecipePlan relationship
+            ////modelBuilder.Entity<RecipePLan>()
+            ////    .HasOne(rp => rp.CustomPlan)
+            ////    .WithMany(cp => cp.RecipePlans)
+            ////    .HasForeignKey(rp => rp.CustomPlanId);
+
+            //// Quan hệ 1 - nhiều của 
 
 
-            //===Recipe() | WeeklyPlan()=============================================================================================
+            ////===Recipe() | WeeklyPlan()=============================================================================================
 
-            //===recipe - order - customPlan============================================================================
-            modelBuilder.Entity<CustomPlan>()
-                .HasOne(cp => cp.Recipe)
-                .WithMany(r => r.CustomPlans)
-                .HasForeignKey(cp => cp.RecipeId)
-                .OnDelete(DeleteBehavior.Restrict);//xoa recipe thi
+            ////===recipe - order - customPlan============================================================================
+            ////modelBuilder.Entity<CustomPlan>()
+            ////    .HasOne(cp => cp.Recipe)
+            ////    .WithMany(r => r.CustomPlans)
+            ////    .HasForeignKey(cp => cp.RecipeId)
+            ////    .OnDelete(DeleteBehavior.Restrict);//xoa recipe thi
 
-            modelBuilder.Entity<WeeklyPlan>()
-                .HasMany(w => w.RecipePLans)
-                .WithOne(rp => rp.WeeklyPlan)
-                .HasForeignKey(rp => rp.StandardWeeklyPlanId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<WeeklyPlan>()
+            //    .HasMany(w => w.RecipePLans)
+            //    .WithOne(rp => rp.WeeklyPlan)
+            //    .HasForeignKey(rp => rp.StandardWeeklyPlanId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
 
 

@@ -19,7 +19,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public IRecipeStepRepository RecipeStepRepository { get; private set;}
         public IUserRepository UserRepository { get; private set;}
         public IOrderRepository OrderRepository { get; private set;}
-        public ICustomPlanRepository CustomPlanRepository { get; private set;}
+        public IOrderDetailRepository OrderDetailRepository { get; private set;}
         public IOrderGroupRepository OrderGroupRepository { get; private set;}
         public IRecipeNutrientRepository RecipeNutrientRepository { get; private set;}
         public IIngredientCategoryRepository IngredientCategoryRepository { get; private set;}
@@ -27,7 +27,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public IIngredientNutrientRepository IngredientNutrientRepository { get; private set;}
 		public ITransactionRepository TransactionRepository { get; private set; }
 
-		private readonly WeMealKitContext _context;
+        public IRecipeIngredientOrderDetailRepository RecipeIngredientOrderDetailRepository { get; private set; }
+
+        private readonly WeMealKitContext _context;
         public UnitOfWork(WeMealKitContext context)
         {
             this._context = context;
@@ -41,13 +43,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             RecipeStepRepository = new RecipeStepRepository(context);
 			UserRepository = new UserRepository(context);
             OrderRepository = new OrderRepository(context);
-            CustomPlanRepository = new CustomPlanRepository(context);
+            OrderDetailRepository = new OrderDetailRepository(context);
             OrderGroupRepository = new OrderGroupRepository(context);
             RecipeNutrientRepository = new RecipeNutrientRepository(context);
             IngredientCategoryRepository = new IngredientCategoryRepository(context);
             IngredientNutrientRepository = new IngredientNutrientRepository(context);
             TransactionRepository = new TransactionRepository(context);
-		}
+            RecipeIngredientOrderDetailRepository = new RecipeIngredientOrderDetailRepository(context);
+
+        }
         public async Task CompleteAsync()
         {
             await this._context.SaveChangesAsync();
