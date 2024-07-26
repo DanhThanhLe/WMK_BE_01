@@ -9,8 +9,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 	public enum TransactionStatus
 	{
 		PAID = 0,
-
-		UNPAID = 1
+		PendingMomo = 1,
+		PendingZaloPay = 2,
+		UNPAID = 3,
+		Cancel = 4
 	}
 	public static class TransactionStatusHelper
 	{
@@ -20,7 +22,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 		}
 		public static TransactionStatus FromInt(int value)
 		{
-			return Enum.IsDefined(typeof(TransactionStatus) , value) ? (TransactionStatus)value : TransactionStatus.UNPAID;
+			return Enum.IsDefined(typeof(TransactionStatus) , value) ? (TransactionStatus)value : TransactionStatus.Cancel;
 		}
 	}
 }

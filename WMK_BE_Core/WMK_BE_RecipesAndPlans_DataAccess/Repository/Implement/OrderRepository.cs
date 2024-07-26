@@ -54,6 +54,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                     .Include(o => o.OrderDetails)
                         .ThenInclude(od => od.RecipeIngredientOrderDetails)
                             .ThenInclude(ri => ri.Ingredient)
+                    .Include(o => o.Transactions)
                     .FirstOrDefaultAsync(r => r.Id == guidId);
                 return recipe;
             }
