@@ -162,6 +162,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(RecipePlanProfile));
             builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeIngredientOrderDetailProfile));
+			builder.Services.AddAutoMapper(typeof(TransactionProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , WeMealKitContext>();
