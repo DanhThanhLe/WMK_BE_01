@@ -484,16 +484,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
             try
             {
-                var currentWeekPlanList = await GetAllToProcess();
-                if (currentWeekPlanList.Count() == 0)
-                {
-                    result.StatusCode = 500;
-                    result.Message = "Empty list week plan";
-                    return result;
-                }
-                else
-                {
-                    var foundList = currentWeekPlanList.Where(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
+                //var currentWeekPlanList = await GetAllToProcess();
+                //if (currentWeekPlanList.Count() == 0)
+                //{
+                //    result.StatusCode = 500;
+                //    result.Message = "Empty list week plan";
+                //    return result;
+                //}
+                //else
+                //{
+                    ////var foundList = currentWeekPlanList.Where(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
+                    var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
                     if (foundList.Count() == 0) //ko tim dc
                     {
                         result.StatusCode = 500;
@@ -508,7 +509,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         result.Data = returnList;
                         return result;
                     }
-                }
+                //}
             }
             catch (Exception ex)
             {
