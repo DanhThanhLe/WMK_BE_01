@@ -147,7 +147,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( createRessult == null )
 			{
 				result.StatusCode = 500;
-				result.Message = "Eroror!!";
+				result.Message = "Error!!";
 				return result;
 			}
 			if ( createRessult != null && createRessult.Result == true )
