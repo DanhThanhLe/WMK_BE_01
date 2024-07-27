@@ -234,6 +234,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 			if ( createResult )//bat dau add cac recipeId thanh cac OrderDetail thong qua RecipeList
 			{
+				await _unitOfWork.CompleteAsync();
 				if ( model.RecipeList.Any() )
 				{
 					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
@@ -254,8 +255,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							result.Data = newOrder.Id;
 							return result;
 						}
-						if(createTransaction != null )
-						{
+						if(createTransaction.StatusCode != 200)//code cu la (createTransaction != null)
+                        {
 							// Delete the order if transaction creation fails
 							await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
 							await _unitOfWork.CompleteAsync();

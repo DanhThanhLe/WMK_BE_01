@@ -47,8 +47,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                 {
                     return null;
                 }
-
-                var recipe = await _dbSet
+                var order = await _dbSet
                     .Include(o => o.OrderDetails)
                         .ThenInclude(od => od.Recipe)
                     .Include(o => o.OrderDetails)
@@ -56,7 +55,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                             .ThenInclude(ri => ri.Ingredient)
                     .Include(o => o.Transactions)
                     .FirstOrDefaultAsync(r => r.Id == guidId);
-                return recipe;
+                return order;
             }
             catch (Exception ex)
             {

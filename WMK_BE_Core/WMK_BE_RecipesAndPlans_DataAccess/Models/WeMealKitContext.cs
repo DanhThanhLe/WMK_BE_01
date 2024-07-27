@@ -122,11 +122,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
             //    .OnDelete(DeleteBehavior.Cascade);
 
             //// Quan hệ 1 - nhiều giữa Recipe và RecipeCategory
-            modelBuilder.Entity<Recipe>()
-                .HasMany(r => r.RecipeCategories)
-                .WithOne(ri => ri.Recipe)
-                .HasForeignKey(ri => ri.RecipeId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Recipe>()
+            //    .HasMany(r => r.RecipeCategories)
+            //    .WithOne(ri => ri.Recipe)
+            //    .HasForeignKey(ri => ri.RecipeId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             //// Quan hệ nhiều - nhiều giữa Recipe và Ingredient thông qua RecipeIngredient
             //modelBuilder.Entity<RecipeIngredient>()
