@@ -14,17 +14,17 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 	public class Transaction
 	{
 		[Key]
-		public string Id { get; set; } = string.Empty;
+		public string Id { get; set; }
 		[ForeignKey(nameof(Order))]
 		public Guid OrderId { get; set; }
 		public TransactionType Type { get; set; } //refield
 
-		public double OrderPrice { get; set; }
+		public double Amount { get; set; }
 		public DateTime TransactionDate { get; set; }
 		public string? Notice { get; set; }
 		public string? ExtraData { get; set; }
 		public string? Signature { get; set; }
-		public Enums.TransactionStatus Status { get; set; }
+        public Enums.TransactionStatus Status { get; set; }
 
 
 		public virtual Order Order { get; set; }

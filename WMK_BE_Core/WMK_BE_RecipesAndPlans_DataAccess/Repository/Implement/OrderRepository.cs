@@ -30,6 +30,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		public override async Task<List<Order>> GetAllAsync()
 		{
 			return await _dbSet
+                .Include(o => o.Transactions)
                 .Include(o => o.OrderDetails)
 					.ThenInclude(od => od.Recipe)
 				.Include(o => o.OrderDetails)
@@ -48,12 +49,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                     return null;
                 }
                 var order = await _dbSet
+                    .Include(o => o.Transactions)
                     .Include(o => o.OrderDetails)
                         .ThenInclude(od => od.Recipe)
                     .Include(o => o.OrderDetails)
                         .ThenInclude(od => od.RecipeIngredientOrderDetails)
                             .ThenInclude(ri => ri.Ingredient)
-                    .Include(o => o.Transactions)
                     .FirstOrDefaultAsync(r => r.Id == guidId);
                 return order;
             }
@@ -68,6 +69,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         {
             return _dbSet
                 .Where(expression)
+                .Include(o => o.Transactions)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Recipe)
                 .Include(o => o.OrderDetails)
