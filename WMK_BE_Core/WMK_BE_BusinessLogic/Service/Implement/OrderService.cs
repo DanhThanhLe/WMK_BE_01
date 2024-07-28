@@ -64,13 +64,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<OrderResponse>>();
 			try
 			{
-				//tim thong tin cua order lien quan toi id nguoi  dung
-				var returnList = _unitOfWork.OrderRepository.Get(x => x.UserId.ToString().ToLower().Equals(userId.ToString().ToLower()));
+                //tim thong tin cua order lien quan toi id nguoi  dung
+                var foundList = _unitOfWork.OrderRepository.Get(x => x.UserId == userId).ToList();
+                if (foundList.Count() == 0)
+				{
+					result.StatusCode=500;
+					result.Message = "Empty";
+					return result;
+				}
 				result.StatusCode = 200;
-				result.Message = "Ok, list order " + returnList.Count();
-				result.Data = _mapper.Map<List<OrderResponse>>(returnList);
+				result.Message = "Ok, list order " + foundList.Count();
+				var returnList = _mapper.Map<List<OrderResponse>>(foundList);
+				result.Data = returnList;
 				return result;
-
 			}
 			catch ( Exception ex )
 			{
@@ -244,11 +250,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//create transaction
 						var zaloPayModel = new ZaloPayCreatePaymentRequest();
 						zaloPayModel.OrderId = newOrder.Id;
-						zaloPayModel.OrderPrice = newOrder.TotalPrice;
+						zaloPayModel.Amount = newOrder.TotalPrice;
 						var createTransaction = await _transactionService.CreatePaymentZaloPayAsync(zaloPayModel);
 						if ( createTransaction != null && createTransaction.StatusCode == 200 && createTransaction.Data != null)
 						{
-							newOrder.Transactions.Add(createTransaction.Data);
+							//newOrder.Transactions.Add(createTransaction.Data);
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "OK. Create order success";

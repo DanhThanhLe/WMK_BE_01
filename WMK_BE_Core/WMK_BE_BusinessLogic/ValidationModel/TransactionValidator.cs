@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         public CreateZaloPayValidator()
         {
             RuleFor(x => x.OrderId).NotEmpty().WithMessage("Order id is required!");
-            RuleFor(x => x.OrderPrice).NotEmpty().WithMessage("Price is required!")
+            RuleFor(x => x.Amount).NotEmpty().WithMessage("Price is required!")
                 .Must(x => x > 0).WithMessage("Price is more than 0!");
         }
     }
