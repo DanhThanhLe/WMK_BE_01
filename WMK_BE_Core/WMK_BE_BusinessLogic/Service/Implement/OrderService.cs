@@ -244,7 +244,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//create transaction
 						var zaloPayModel = new ZaloPayCreatePaymentRequest();
 						zaloPayModel.OrderId = newOrder.Id;
-						zaloPayModel.OrderPrice = newOrder.TotalPrice;
+						zaloPayModel.Amount = newOrder.TotalPrice;
 						var createTransaction = await _transactionService.CreatePaymentZaloPayAsync(zaloPayModel);
 						if ( createTransaction != null && createTransaction.StatusCode == 200 && createTransaction.Data != null)
 						{
