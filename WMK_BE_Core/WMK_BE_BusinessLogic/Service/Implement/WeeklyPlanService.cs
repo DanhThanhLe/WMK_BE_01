@@ -267,7 +267,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
 
             var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved).ToListAsync();
-            var returnList = weeklyPlans.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
+            var returnList = weeklyPlans.ToList();
             if (weeklyPlans != null && weeklyPlans.Count > 0)
             {
                 var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
