@@ -225,7 +225,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<List<IngredientResponse>>();
             var ingredients = await _unitOfWork.IngredientRepository.GetAllAsync();
-            var responseList = ingredients.ToList().Where(x => x.Status == BaseStatus.Available);
+            var responseList = ingredients.ToList();
             if (responseList != null && responseList.Count() > 0)
             {
                 result.StatusCode = 200;
