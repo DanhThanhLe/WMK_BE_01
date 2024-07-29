@@ -145,11 +145,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Search
-		public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name = "" , bool status = true)//tim bang ten cua recipe lan cua ca category
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name = "" , bool status = true)//tim bang ten cua recipe lan cua ca category
 		{
 			name.Trim();
 			name = name.RemoveDiacritics();
-			var result = new ResponseObject<RecipeResponse>();
+			var result = new ResponseObject<List<RecipeResponse>>();
 			var currentList = await GetAllToProcess();
 			if ( currentList != null && currentList.Count() > 0 )
 			{
@@ -176,7 +176,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					//var returnList = foundList.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
 					result.StatusCode = 200;
 					result.Message = "Recipe list found by name";
-					result.List = _mapper.Map<List<RecipeResponse>>(foundList);
+					result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
 				}
 			}
 			else
@@ -493,7 +493,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Search recipe list with recipe category id
-		public async Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId)
+		public async Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId)
 		{
 			/*
 			 1-lay list recipe category lien quan
@@ -506,7 +506,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				2.2 - cho chay vong for gap dung thi add
 			 3- tra ve 200 va list recipe
 			 */
-			var result = new ResponseObject<RecipeResponse>();
+			var result = new ResponseObject<List<RecipeResponse>>();
 			var checkCategory = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString());
 			if ( checkCategory == null )
 			{
@@ -519,18 +519,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 200;
 				result.Message = "Not found suitable recipe";
-				result.List = new List<RecipeResponse>();
+				result.Data  = new List<RecipeResponse>();
 				return result;
 			}
 			List<Recipe> listRecipe = new List<Recipe>();
 			foreach ( var item in recipeIdListfound )
 			{
 				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.ToString());
+				if(recipe != null )
 				listRecipe.Add(recipe);
 			}
 			result.StatusCode = 200;
 			result.Message = "Recipe list base on categoryID: ";
-			result.List = _mapper.Map<List<RecipeResponse>>(listRecipe);
+			result.Data = _mapper.Map<List<RecipeResponse>>(listRecipe);
 			return result;
 		}
 		#endregion

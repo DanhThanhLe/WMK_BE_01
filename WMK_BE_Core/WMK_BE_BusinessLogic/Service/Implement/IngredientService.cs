@@ -188,9 +188,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Get by name
-        public async Task<ResponseObject<IngredientResponse>> GetIngredientByName(string name)
+        public async Task<ResponseObject<List<IngredientResponse>>> GetIngredientByName(string name)
         {
-            var result = new ResponseObject<IngredientResponse>();
+            var result = new ResponseObject<List<IngredientResponse>>();
             var ingredientList = await _unitOfWork.IngredientRepository.GetAllAsync();
             if (ingredientList != null && ingredientList.Count() > 0)
             {
@@ -207,7 +207,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     result.StatusCode = 200;
                     result.Message = "Ingredient list found by name";
-                    result.List = _mapper.Map<List<IngredientResponse>>(foundList);
+                    result.Data = _mapper.Map<List<IngredientResponse>>(foundList);
                 }
             }
             else

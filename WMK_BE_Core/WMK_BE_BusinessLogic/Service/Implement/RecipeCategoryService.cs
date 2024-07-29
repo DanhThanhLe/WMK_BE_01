@@ -179,9 +179,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion Get-recipe-list-by-category-id
 
         #region Get-all
-        public async Task<ResponseObject<RecipeCategoryResponse>> GetAll()
+        public async Task<ResponseObject<List<RecipeCategoryResponse>>> GetAll()
         {
-            var result = new ResponseObject<RecipeCategoryResponse>();
+            var result = new ResponseObject<List<RecipeCategoryResponse>>();
             var list = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
             if (list == null || list.Count == 0)
             {
@@ -191,15 +191,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 200;
             result.Message = "OK. list recipe cateory";
-            result.List = _mapper.Map<List<RecipeCategoryResponse>>(list);
+            result.Data = _mapper.Map<List<RecipeCategoryResponse>>(list);
             return result;
         }
         #endregion Get-all
 
         #region Get-by-recipe-id
-        public async Task<ResponseObject<RecipeCategoryResponse>> GetListByRecipeId(Guid recipeId)
+        public async Task<ResponseObject<List<RecipeCategoryResponse>>> GetListByRecipeId(Guid recipeId)
         {
-            var result = new ResponseObject<RecipeCategoryResponse>();
+            var result = new ResponseObject<List<RecipeCategoryResponse>>();
             var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
             if (checkRecipe == null)
             {
@@ -224,7 +224,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 200;
             result.Message = "Ok. Recipe category list:";
-            result.List = _mapper.Map<List<RecipeCategoryResponse>>(foundList);
+            result.Data = _mapper.Map<List<RecipeCategoryResponse>>(foundList);
             return result;
         }
         #endregion

@@ -4,7 +4,6 @@ namespace WMK_BE_BusinessLogic.ResponseObject
     {
         public int StatusCode { get; set; } = 500;
         public string Message { get; set; } = "The server has encountered a situation it does not know how to handle";
-        public List<T>? List { get; set; }
         public T? Data { get; set; }
 
     }

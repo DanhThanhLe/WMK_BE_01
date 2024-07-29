@@ -18,7 +18,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         public Task<ResponseObject<RecipeResponse>> GetRecipeById(string id);
 
-        public Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name, bool status);
+        public Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name, bool status);
 
         public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe);
 
@@ -28,7 +28,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         //public Task<ResponseObject<RecipeResponse>> RemoveRecipe(Guid id);//an khoi app
         public Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe);
 
-        public Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId);
+        public Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId);
 
         Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId);
 

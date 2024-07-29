@@ -91,11 +91,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        public async Task<ResponseObject<RecipeIngredientResponse>> GetAll()
+        public async Task<ResponseObject<List<RecipeIngredientResponse>>> GetAll()
         {
-            var result = new ResponseObject<RecipeIngredientResponse>();
+            var result = new ResponseObject<List<RecipeIngredientResponse>>();
             var list = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
-            if (list == null && list.Count == 0)
+            if (list == null)
             {
                 result.StatusCode = 400;
                 result.Message = "Not found. Empty list recipe amount";
@@ -103,14 +103,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 200;
             result.Message = "OK. list recipe amount";
-            result.List = _mapper.Map<List<RecipeIngredientResponse>>(list);
+            result.Data = _mapper.Map<List<RecipeIngredientResponse>>(list);
             return result;
         }
 
         #region Get-by-recipe-id dang sua
-        public async Task<ResponseObject<RecipeIngredientResponse>> GetListByRecipeId(Guid recipeId)
+        public async Task<ResponseObject<List<RecipeIngredientResponse>>> GetListByRecipeId(Guid recipeId)
         {
-            var result = new ResponseObject<RecipeIngredientResponse>();
+            var result = new ResponseObject<List<RecipeIngredientResponse>>();
             var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
             if (checkRecipe == null)
             {
@@ -135,7 +135,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 200;
             result.Message = "Ok. Recipe category list:";
-            result.List = _mapper.Map<List<RecipeIngredientResponse>>(foundList);
+            result.Data = _mapper.Map<List<RecipeIngredientResponse>>(foundList);
             return result;
         }
         #endregion
