@@ -22,7 +22,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		[ForeignKey(nameof(WeeklyPlan))]
 		public Guid? StanderdWeeklyPlanId { get; set; }
 
-		public string? Note { get; set; }
+        public int OrderCode { get; set; }
+        public string? Note { get; set; }
 		public string Address { get; set; } = string.Empty;
 		public string? Img { get; set; }
 		public DateTime ShipDate { get; set; }
