@@ -91,7 +91,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 500;
 				result.Message = ex.Message;
-				return result;
+				return result; 
 			}
 		}
 		#endregion
