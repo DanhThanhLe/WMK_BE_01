@@ -9,7 +9,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel
 	public class ZaloPayCreatePaymentRequest
 	{
 		public Guid OrderId { get; set; }
-        public double Amount { get; set; }
+        public double Amount  { get; set; }
 
     }
 }
