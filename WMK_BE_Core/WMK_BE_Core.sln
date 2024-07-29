@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WMK_BE_Test", "WMK_BE_Test\
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EB664A0E-B264-40CE-9408-1567D820EAD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMK_WebAdmin", "..\WMK_WebAdmin\WMK_WebAdmin.csproj", "{763F90CC-F244-42C1-AA31-CFC8E118A8C0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,10 +38,6 @@ Global
 		{EB664A0E-B264-40CE-9408-1567D820EAD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB664A0E-B264-40CE-9408-1567D820EAD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB664A0E-B264-40CE-9408-1567D820EAD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{763F90CC-F244-42C1-AA31-CFC8E118A8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{763F90CC-F244-42C1-AA31-CFC8E118A8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{763F90CC-F244-42C1-AA31-CFC8E118A8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{763F90CC-F244-42C1-AA31-CFC8E118A8C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
