@@ -93,7 +93,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		
 		[Authorize(Roles = "Admin")]
-		[HttpDelete("delete")]
+		[HttpDelete("delete/{id}")]
 		public async Task<IActionResult> Delete( Guid id)
 		{
 			var model = new IdUserRequest();
