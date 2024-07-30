@@ -101,11 +101,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-        public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(UpdateCategoryRequestModel model)
+        public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id,UpdateCategoryRequestModel model)
         {
             var result = new ResponseObject<CategoryResponseModel>();
 
-            var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(model.Id.ToString());
+            var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
 
             if (categoryExist == null)
             {
@@ -141,17 +141,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
 
         }
-        public async Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(DeleteCategoryRequestModel model)
+        public async Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(Guid id)
         {
             var result = new ResponseObject<CategoryResponseModel>();
-            var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(model.Id.ToString());
+            var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
             if (categoryExist == null)
             {
                 result.StatusCode = 500;
                 result.Message = "Category not found!";
                 return result;
             }
-            var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(model.Id);
+            var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(id);
             if (recipeExistCategory)
             {
                 categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.UnAvailable;
@@ -170,7 +170,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     return result;
                 }
             }
-            var deleteResult = await _unitOfWork.CategoryRepository.DeleteAsync(model.Id.ToString());
+            var deleteResult = await _unitOfWork.CategoryRepository.DeleteAsync(id.ToString());
             if (deleteResult)
             {
                 await _unitOfWork.CompleteAsync();

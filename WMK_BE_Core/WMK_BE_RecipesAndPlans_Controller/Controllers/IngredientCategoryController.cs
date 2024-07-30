@@ -24,10 +24,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] FullIngredientCategoryRequest request)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] FullIngredientCategoryRequest request)
         {
-            var result = await _ingredientCategoryService.UpdateCategory(request);
+            var result = await _ingredientCategoryService.UpdateCategory(id, request);
             return Ok(result);
         }
 
@@ -38,15 +38,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetByName([FromQuery] string name)
+        [HttpGet("get-by-name/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
             var result = await _ingredientCategoryService.GetByName(name);
             return Ok(result);
         }
 
-        [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))
@@ -64,8 +64,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpDelete("delete-by-id")]
-        public async Task<IActionResult> DeleteById([FromQuery] string id)
+        [HttpDelete("delete-by-id/{id}")]
+        public async Task<IActionResult> DeleteById(string id)
         {
             Guid convertID;
             if (Guid.TryParse(id, out convertID))

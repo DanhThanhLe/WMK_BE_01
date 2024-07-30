@@ -339,7 +339,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     else
                     {
                         FullIngredientNutrientRequest updateNutrient = _mapper.Map<FullIngredientNutrientRequest>(ingredient.UpdateIngredientNutrientRequest);
-                        updateNutrient.Id = foundUpdate.IngredientNutrient.Id;
+                        //updateNutrient.Id = foundUpdate.IngredientNutrient.Id;
                         updateNutrient.IngredientID = foundUpdate.Id;
                         foundUpdate.Name = ingredient.Name;
                         foundUpdate.Img = ingredient.Img;
@@ -354,7 +354,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         {
                             await _unitOfWork.CompleteAsync();
                             _unitOfWork.IngredientRepository.DetachEntity(foundUpdate);
-                            var updateNutrientResult = await _ingredientNutrientService.Update(updateNutrient);
+                            var updateNutrientResult = await _ingredientNutrientService.Update(foundUpdate.IngredientNutrient.Id, updateNutrient);//truyen id cua nutrient va model de update
                             var updateRecipeInfo = await _recipeService.AutoUpdate(foundUpdate.Id);
                             result.StatusCode = 200;
                             result.Message = "Update done. - " + "Nutrient update result: " + updateNutrientResult.Message + "Recipe nutrient update result: " + updateRecipeInfo.Message;

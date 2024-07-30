@@ -22,8 +22,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get-by-recipe-id")]
-        public async Task<IActionResult> GetListByRecipeId([FromQuery] string recipeId)
+        [HttpGet("get-by-recipe-id/{recipeId}")]
+        public async Task<IActionResult> GetListByRecipeId(string recipeId)
         {
             Guid id;
             if (Guid.TryParse(recipeId, out id))

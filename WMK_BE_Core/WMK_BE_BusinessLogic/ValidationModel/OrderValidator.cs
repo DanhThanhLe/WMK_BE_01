@@ -35,8 +35,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		public UpdateOrderModelValidator()
 		{
 			_expendValidator = new ExpendValidator();
-			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
-				.Must(_expendValidator.BeValidGuid).WithMessage("Id invalid fortmat GUID!");
+			//RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
+			//	.Must(_expendValidator.BeValidGuid).WithMessage("Id invalid fortmat GUID!");
 			RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
 				.Must(shipDate => shipDate > DateTime.Now)
 				.WithMessage("ShipDate must be after the current date.");

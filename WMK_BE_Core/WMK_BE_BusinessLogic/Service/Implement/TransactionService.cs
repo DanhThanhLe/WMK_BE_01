@@ -24,22 +24,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IOptions<MomoOption> _momoOptions;
         private readonly IMapper _mapper;
         private readonly CreateZaloPayValidator _createZaloPayValidator;
-        //private readonly CreateTransactionValidator _createTransactionValidator;
+        private readonly CreateTransactionValidator _createTransactionValidator;
         public TransactionService(IUnitOfWork unitOfWork, IOptions<MomoOption> momoOptions, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _momoOptions = momoOptions;
             _mapper = mapper;
             _createZaloPayValidator = new CreateZaloPayValidator();
-            //_createTransactionValidator = new CreateTransactionValidator();
+            _createTransactionValidator = new CreateTransactionValidator();
         }
 
-		public Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request)
-		{
-			throw new NotImplementedException();
-		}
 
-		public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
+        #region Create momo - tao rieng cho momo - chua kiem thu
+        public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
         {
             var result = new ResponseObject<MomoCreatePaymentRequest>();
             //check order exist
@@ -128,6 +125,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
 
+        #endregion
+
+        #region Create zalopay - tao rieng zalopay
         public async Task<ResponseObject<Transaction>> CreatePaymentZaloPayAsync(ZaloPayCreatePaymentRequest model)
         {
             var result = new ResponseObject<Transaction>();
@@ -180,12 +180,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
 
-		public Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
-		{
-			throw new NotImplementedException();
-		}
-		#region update payment (zalopay)
-		public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
+
+        #endregion
+
+        #region update payment (zalopay)
+        public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
         {
             var result = new ResponseObject<Transaction>();
             //check payment exist
@@ -210,6 +209,66 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Update transaction status unsuccess!";
             return result;
         }
-		#endregion
-	}
+        #endregion
+
+        #region create new payment - all - testing
+        public async Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request)
+        {
+            var result = new ResponseObject<Transaction>();
+            try
+            {
+                //check validation
+                var validateResult = _createTransactionValidator.Validate(request);
+                if (!validateResult.IsValid)
+                {
+                    var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    result.StatusCode = 400;
+                    result.Message = string.Join(" - ", error);
+                    return result;
+                }
+                //check orderExist
+                var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(request.OrderId.ToString());
+                if (orderExist == null)
+                {
+                    result.StatusCode = 404;
+                    result.Message = "Order not exist!";
+                    return result;
+                }
+                var newTransaction = _mapper.Map<Transaction>(request);
+                newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
+                newTransaction.TransactionDate = DateTime.Now;
+                newTransaction.Type = request.TransactionType;
+                newTransaction.Status = TransactionStatus.Pending;
+                var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
+                if (!createResult)
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Error!!";
+                    return result;
+                }
+                else
+                {
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Data = newTransaction;
+                    result.Message = "Create transction success.";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.StatusCode = 500;
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+
+        public Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+    }
 }

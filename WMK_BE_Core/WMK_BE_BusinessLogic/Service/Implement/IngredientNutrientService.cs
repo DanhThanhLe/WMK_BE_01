@@ -154,7 +154,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Update
-        public async Task<ResponseObject<IngredientNutrientResponse>> Update(FullIngredientNutrientRequest request)
+        public async Task<ResponseObject<IngredientNutrientResponse>> Update(Guid id,FullIngredientNutrientRequest request)
         {
             var result = new ResponseObject<IngredientNutrientResponse>();
             try
@@ -175,14 +175,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     var checkIngredient = await _unitOfWork.IngredientRepository.GetByIdAsync(request.IngredientID.ToString());
                     var currentList = await _unitOfWork.IngredientNutrientRepository.GetAllAsync();
                     var checkExist = currentList.FirstOrDefault(x => x.IngredientID == request.IngredientID);
-                    if (checkIngredient != null && checkExist != null && !checkExist.Id.ToString().Equals(request.Id.ToString()))//co ingredient, co nutrient nhung khong phai cai dang update - bao loi. tranh truogn hop bi duplicate thong tin
+                    if (checkIngredient != null && checkExist != null && !checkExist.Id.ToString().Equals(id.ToString()))//co ingredient, co nutrient nhung khong phai cai dang update - bao loi. tranh truogn hop bi duplicate thong tin
                     {
                         result.StatusCode = 500;
                         result.Message = "Wrong id for update nutrient info with ingredient Id: " + request.IngredientID + " Say from Update - IngredientNutrientService.";
                         return result;
 
                     }
-                    else if (checkIngredient != null && checkExist != null && checkExist.Id.ToString().Equals(request.Id.ToString()))//co ingredient, co nutrient va la dung cai dang update
+                    else if (checkIngredient != null && checkExist != null && checkExist.Id.ToString().Equals(id.ToString()))//co ingredient, co nutrient va la dung cai dang update
                     {
                         _unitOfWork.IngredientNutrientRepository.DetachEntity(checkExist);//detach khi can
                         _unitOfWork.IngredientRepository.DetachEntity(checkIngredient);//detach khi can
