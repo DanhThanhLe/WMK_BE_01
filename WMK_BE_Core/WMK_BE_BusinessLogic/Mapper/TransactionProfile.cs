@@ -16,6 +16,7 @@ namespace WMK_BE_BusinessLogic.Mapper
         {
             CreateMap<Transaction, ZaloPayCreatePaymentRequest>().ReverseMap();
             CreateMap<Transaction, TransactionResponse>().ReverseMap();
+            CreateMap<Transaction, CreatePaymentRequest>().ReverseMap();
         }
     }
 }

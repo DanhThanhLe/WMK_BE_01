@@ -201,8 +201,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         #endregion
-
-
         #region create new payment - all - testing
         public async Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request)
         {

@@ -32,7 +32,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
 		public OrderStatus Status { get; set; }
-		public int OrderCode { get; set; }
+		public string ReceiveName { get; set; }
+		public string ReceivePhone { get; set; }
+
 
 		//reference
 		public virtual User User { get; set; }
