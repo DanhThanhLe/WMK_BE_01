@@ -101,10 +101,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region get order by id
-        public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model)
+        public async Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id)
         {
             var result = new ResponseObject<OrderResponse?>();
-            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
             if (orderExist != null)
             {
                 result.StatusCode = 200;
@@ -121,11 +121,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         #endregion
-        public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(IdOrderRequest model)
+        public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id)
         {
             var result = new ResponseObject<OrderResponse>();
 
-            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
             if (orderExist != null)
             {
                 var userExist = await _unitOfWork.OrderRepository.GetUserExistInOrderAsync(orderExist.Id, orderExist.UserId);
@@ -171,11 +171,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Order not exist!";
             return result;
         }
-        public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(ChangeStatusOrderRequest model)
+        public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id,ChangeStatusOrderRequest model)
         {
             var result = new ResponseObject<OrderResponse>();
 
-            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
             if (orderExist != null)
             {
                 orderExist.Status = model.Status;
@@ -321,7 +321,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region update order
-        public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(UpdateOrderRequest model)
+        public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id,UpdateOrderRequest model)
         {
             var result = new ResponseObject<OrderResponse>();
             var validationResult = _updateOrderValidator.Validate(model);
@@ -333,10 +333,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
             //find order
-            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id.ToString());
+            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
             if (orderExist != null)
             {
                 var updateOrder = _mapper.Map<Order>(model);
+                updateOrder.Id = orderExist.Id;
                 var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(updateOrder);
                 if (updateResult)
                 {

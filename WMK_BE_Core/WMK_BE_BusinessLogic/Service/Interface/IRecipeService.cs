@@ -26,7 +26,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         public Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid request);//xoa khoi db
         //public Task<ResponseObject<RecipeResponse>> RemoveRecipe(Guid id);//an khoi app
-        public Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> ChangeStatus(Guid id, ChangeRecipeStatusRequest recipe);
 
         public Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId);
 

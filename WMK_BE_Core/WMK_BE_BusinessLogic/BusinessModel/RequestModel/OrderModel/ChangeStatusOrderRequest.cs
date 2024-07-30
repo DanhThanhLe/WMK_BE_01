@@ -9,7 +9,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
 {
 	public class ChangeStatusOrderRequest
 	{
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public OrderStatus Status { get; set; }
     }
 }

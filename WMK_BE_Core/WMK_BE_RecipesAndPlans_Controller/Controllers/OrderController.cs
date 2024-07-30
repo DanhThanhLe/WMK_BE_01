@@ -23,8 +23,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);  
         }
 
-        [HttpGet("get-by-userid")]
-        public async Task<IActionResult> GetByUserId([FromQuery]string userId)
+        [HttpGet("get-by-userid/{userId}")]
+        public async Task<IActionResult> GetByUserId(string userId)
         {
             Guid idConvert;
             if (Guid.TryParse(userId, out idConvert))
@@ -42,10 +42,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-		[HttpGet("get-order")]
-		public async Task<IActionResult> GetById([FromQuery] IdOrderRequest model)
+		[HttpGet("get-order/{id}")]
+		public async Task<IActionResult> GetById(Guid id)
 		{
-			var result = await _orderService.GetOrderByIdAsync(model);
+			var result = await _orderService.GetOrderByIdAsync(id);
 			return Ok(result);
 		}
 
@@ -56,24 +56,24 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return Ok(result);
 		}
 
-		[HttpPut("update")]
-		public async Task<IActionResult> Update([FromBody] UpdateOrderRequest model)
+		[HttpPut("update/{id}")]
+		public async Task<IActionResult> Update(string id,[FromBody] UpdateOrderRequest model)
 		{
-			var result = await _orderService.UpdateOrderAsync(model);
+			var result = await _orderService.UpdateOrderAsync(id,model);
 			return Ok(result);
 		}
 
-		[HttpDelete("delete")]
-		public async Task<IActionResult> Delete([FromQuery] IdOrderRequest model)
+		[HttpDelete("delete/{id}")]
+		public async Task<IActionResult> Delete(Guid id)
 		{
-			var result = await _orderService.DeleteOrderAsync(model);
+			var result = await _orderService.DeleteOrderAsync(id);
 			return Ok(result);
 		}
 
-		[HttpPut("change-status")]
-		public async Task<IActionResult> ChangeStatus([FromQuery] ChangeStatusOrderRequest model)
+		[HttpPut("change-status/{id}")]
+		public async Task<IActionResult> ChangeStatus(Guid id,[FromQuery] ChangeStatusOrderRequest model)
 		{
-			var result = await _orderService.ChangeStatusOrderAsync(model);
+			var result = await _orderService.ChangeStatusOrderAsync(id,model);
 			return Ok(result);
 		}
 	}

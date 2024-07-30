@@ -23,8 +23,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             if (Guid.TryParse(id, out var categoryId))
             {
@@ -37,8 +37,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-type")]
-        public async Task<IActionResult> GetByType([FromQuery] string type)
+        [HttpGet("get-by-type/{type}")]
+        public async Task<IActionResult> GetByType(string type)
         {
             if (type != null)
             {
@@ -51,8 +51,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetByName([FromQuery] string name)
+        [HttpGet("get-by-name/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
             if (name != null)
             {
@@ -72,17 +72,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] UpdateCategoryRequestModel model)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(Guid id,[FromBody] UpdateCategoryRequestModel model)
         {
-            var result = await _categoryService.UpdateCategoryAsync(model);
+            var result = await _categoryService.UpdateCategoryAsync(id,model);
             return Ok(result);
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromBody] DeleteCategoryRequestModel model)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _categoryService.DeleteCategoryAsync(model);
+            var result = await _categoryService.DeleteCategoryAsync(id);
             return Ok(result);
         }
     }

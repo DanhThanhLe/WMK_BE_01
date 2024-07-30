@@ -10,7 +10,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientMode
 {
     public class FullIngredientNutrientRequest
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public Guid IngredientID { get; set; }
         public double Calories { get; set; }
         public double Fat { get; set; }

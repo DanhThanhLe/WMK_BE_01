@@ -24,8 +24,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get-by-ingredient-id")]
-        public async Task<IActionResult> GetByIngredientId([FromQuery] string ingredientId)
+        [HttpGet("get-by-ingredient-id/{ingredientId}")]
+        public async Task<IActionResult> GetByIngredientId(string ingredientId)
         {
             Guid convertId;
             if (Guid.TryParse(ingredientId, out convertId))
@@ -43,8 +43,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))
@@ -83,14 +83,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         //    }
         //}
 
-        [HttpPut("update-ingredient-nutrient")]
-        public async Task<IActionResult> Update([FromBody] FullIngredientNutrientRequest request)
+        [HttpPut("update-ingredient-nutrient/{id}")]
+        public async Task<IActionResult> Update(Guid id,[FromBody] FullIngredientNutrientRequest request)
         {
             Guid convertId;
             Guid convertIngredientId;
-            if (Guid.TryParse(request.Id.ToString(), out convertId) && Guid.TryParse(request.IngredientID.ToString(), out convertIngredientId))
+            if (Guid.TryParse(id.ToString(), out convertId) && Guid.TryParse(request.IngredientID.ToString(), out convertIngredientId))
             {
-                var result = await _ingredientNutrientService.Update(request);
+                var result = await _ingredientNutrientService.Update(id, request);
                 return Ok(result);
             }
             else
@@ -103,8 +103,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpDelete("delete-with-id")]
-        public async Task<IActionResult> Delete([FromQuery] string id)
+        [HttpDelete("delete-with-id/{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))

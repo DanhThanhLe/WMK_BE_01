@@ -420,7 +420,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Change status -- just manager use
-		public async Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe)
+		public async Task<ResponseObject<RecipeResponse>> ChangeStatus(Guid id,ChangeRecipeStatusRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var validateResult = _recipeChangeStatusValidator.Validate(recipe);
@@ -431,11 +431,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
-			var found = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.Id.ToString());
+			var found = await _unitOfWork.RecipeRepository.GetByIdAsync(id.ToString());
 			if ( found == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found recipe id " + recipe.Id + "!";
+				result.Message = "Not found recipe id " + id + "!";
 				return result;
 			}
 			found.ProcessStatus = recipe.ProcessStatus;
@@ -455,7 +455,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Change Recipe " + recipe.Id + " status Unsuccessfully!";
+				result.Message = "Change Recipe " + id + " status Unsuccessfully!";
 				return result;
 			}
 		}

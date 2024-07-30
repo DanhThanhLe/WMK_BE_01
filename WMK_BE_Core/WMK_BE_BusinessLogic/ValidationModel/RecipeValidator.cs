@@ -27,7 +27,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public RecipeChangeStatusValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Not null id");
+            //RuleFor(x => x.Id).NotEmpty().WithMessage("Not null id");
             RuleFor(x => x.ProcessStatus).NotEmpty().WithMessage("Not empty")
                 .IsInEnum().WithMessage("Must be in enum ProcessStatus 0--4");
         }

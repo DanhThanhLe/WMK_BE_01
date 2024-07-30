@@ -23,8 +23,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             Guid recipeId;
             if (Guid.TryParse(id, out recipeId))
@@ -42,13 +42,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-category")]
-        public async Task<IActionResult> GetWithCategoryId([FromQuery] string id)
+        [HttpGet("get-by-category/{categoryId}")]
+        public async Task<IActionResult> GetWithCategoryId(string categoryId)
         {
-            Guid categoryId;
-            if (Guid.TryParse(id,out categoryId))
+            Guid categoryIdConvert;
+            if (Guid.TryParse(categoryId,out categoryIdConvert))
             {
-                var result = await _recipeService.GetListByCategoryId(categoryId);
+                var result = await _recipeService.GetListByCategoryId(categoryIdConvert);
                 return Ok(result);
             }
             else
@@ -61,8 +61,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-name")]//status true là tìm recipe cho đặt hàng, false là tìm để coi thôi
-        public async Task<IActionResult> GetByRecipeName([FromQuery] string name = "", bool status = true)
+        [HttpGet("get-by-name/{name}/{status}")]//status true là tìm recipe cho đặt hàng, false là tìm để coi thôi
+        public async Task<IActionResult> GetByRecipeName(string name = "", bool status = true)
         {
             var result = await _recipeService.GetRecipeByName(name, status);
             return Ok(result);
@@ -75,8 +75,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteById([FromQuery] string id)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteById(string id)
         {
             Guid recipeId;
             if (Guid.TryParse(id, out recipeId))
@@ -94,13 +94,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpPut("change-status")]
-        public async Task<IActionResult> UpdateStatusRecipe([FromQuery] ChangeRecipeStatusRequest request)
+        [HttpPut("change-status/{id}")]
+        public async Task<IActionResult> UpdateStatusRecipe(Guid id,[FromQuery] ChangeRecipeStatusRequest request)
         {
             Guid recipeId;
-            if (Guid.TryParse(request.Id.ToString(), out recipeId))
+            if (Guid.TryParse(id.ToString(), out recipeId))
             {
-                var result = await _recipeService.ChangeStatus(request);
+                var result = await _recipeService.ChangeStatus(id,request);
                 return Ok(result);
             }
             else

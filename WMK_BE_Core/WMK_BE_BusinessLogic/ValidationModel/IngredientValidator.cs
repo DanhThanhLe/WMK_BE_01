@@ -63,7 +63,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public FullIngredientCategoryValdator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Guid khong de trong");
+            //RuleFor(x => x.Id).NotEmpty().WithMessage("Guid khong de trong");
             RuleFor(x => x.Name).NotEmpty().WithMessage("Khong de trong ten cua Category cho ingredient");
             RuleFor(x => x.Description).NotEmpty().WithMessage("Khong de trong mo ta danh cho categor cua ingredient");
             RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
@@ -91,7 +91,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public FullIngredientNutrientValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Guid khong de trong");
+            //RuleFor(x => x.Id).NotEmpty().WithMessage("Guid khong de trong");
             RuleFor(x => x.IngredientID).NotEmpty().WithMessage("Id khong de trong");
             RuleFor(x => x.Calories).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot Calories");
             RuleFor(x => x.Fat).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot Fat");

@@ -15,12 +15,12 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<List<OrderResponse>>> GetAllOrders();
 		Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId);
 
-        Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(IdOrderRequest model);
+        Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id);
 		Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model);
-		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(UpdateOrderRequest model);
+		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id,UpdateOrderRequest model);
 		Task<ResponseObject<OrderResponse>> UpdateOrderByUserAsync(UpdateOrderByUserRequest model);
-		Task<ResponseObject<OrderResponse>> DeleteOrderAsync(IdOrderRequest model);
-		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(ChangeStatusOrderRequest model);
+		Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id);
+		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model);
 
 	}
 }
