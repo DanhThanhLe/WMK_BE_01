@@ -11,7 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
     {
 		Task<List<T>> GetAllAsync();
         public IQueryable<T> GetAll();
-        Task<T?> GetByIdAsync(string id);
+        Task<T?> GetByIdAsync(string? id);
 		//public void Create(T entity);
 		Task<bool> CreateAsync(T entity);
 		//public void Update(T entity);

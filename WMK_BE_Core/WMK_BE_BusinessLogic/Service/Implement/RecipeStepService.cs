@@ -26,15 +26,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         #region Get all
-        public async Task<ResponseObject<RecipeStepRespone>> GetRecipeSteps()
+        public async Task<ResponseObject<List<RecipeStepRespone>>> GetRecipeSteps()
         {
-            var result = new ResponseObject<RecipeStepRespone>();
+            var result = new ResponseObject<List<RecipeStepRespone>>();
             var recipeStepList = await _unitOfWork.RecipeStepRepository.GetAllAsync();
             if (recipeStepList != null && recipeStepList.Count > 0)
             {
                 result.StatusCode = 200;
                 result.Message = "List all recipe steps";
-                result.List = _mapper.Map<List<RecipeStepRespone>>(recipeStepList);
+                result.Data = _mapper.Map<List<RecipeStepRespone>>(recipeStepList);
                 return result;
             }
             else

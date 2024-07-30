@@ -48,7 +48,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 200;
 				result.Message = "Order List";
-				result.Data = _mapper.Map<List<OrderResponse>>(orders);
+				var orderR = _mapper.Map<List<OrderResponse>>(orders);
+				foreach ( var item in orderR )
+				{
+					var user = await _unitOfWork.UserRepository.GetByIdAsync(item.UserId.ToString());
+					if ( user != null )
+					{
+						item.UserId = user.FirstName + " " + user.LastName;
+					}
+				}
+				result.Data = orderR;
 				return result;
 			}
 			else
@@ -65,11 +74,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<OrderResponse>>();
 			try
 			{
-                //tim thong tin cua order lien quan toi id nguoi  dung
-                var foundList = _unitOfWork.OrderRepository.Get(x => x.UserId == userId).ToList();
-                if (foundList.Count() == 0)
+				//tim thong tin cua order lien quan toi id nguoi  dung
+				var foundList = _unitOfWork.OrderRepository.Get(x => x.UserId == userId).ToList();
+				if ( foundList.Count() == 0 )
 				{
-					result.StatusCode=500;
+					result.StatusCode = 500;
 					result.Message = "Empty";
 					return result;
 				}
@@ -83,7 +92,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 500;
 				result.Message = ex.Message;
-				return result;
+				return result; 
 			}
 		}
 		#endregion
@@ -169,7 +178,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					//change status transaction
-					foreach (var zaloPay in orderExist.Transactions)
+					foreach ( var zaloPay in orderExist.Transactions )
 					{
 						zaloPay.Status = TransactionStatus.PAID;
 						zaloPay.TransactionDate = DateTime.Now;
@@ -231,9 +240,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//Tinh so luong trong recipeList
-
+			Random random = new Random();
+			int minValue = 10000000;
+			int maxValue = 99999999;
+			int randomOrderCode = random.Next(minValue , maxValue + 1);
 			//chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
 			var newOrder = _mapper.Map<Order>(model);
+			newOrder.OrderCode = randomOrderCode;
 			//newOrder.TotalPrice = model.TotalPrice * 1000;
 			newOrder.OrderDate = DateTime.Now;
 			newOrder.Status = OrderStatus.Processing;
