@@ -25,7 +25,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public UpdateIngredientValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Id khong de trong hoac sai form");
             RuleFor(x => x.IngredientCategoryId).NotEmpty().WithMessage("Category khong de trong");
             RuleFor(x => x.Name).NotEmpty().WithMessage("Ten khong de trong");
             RuleFor(x => x.Img).NotEmpty().WithMessage("Image link khong de trong");
@@ -44,7 +43,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public UpdateStatusIngredientValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("ID khong de trong");
             RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
                 .IsInEnum().WithMessage("phai la available hoac unavailable");
         }
