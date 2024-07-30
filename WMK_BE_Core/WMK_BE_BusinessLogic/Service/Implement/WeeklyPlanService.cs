@@ -334,7 +334,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region update
-		public async Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(UpdateWeeklyPlanRequestModel model)
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(Guid id,UpdateWeeklyPlanRequestModel model)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			try
@@ -348,7 +348,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				//check weekly plan exist
-				var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.Id.ToString());
+				var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
 				if ( weeklyPlanExist == null )
 				{
 					result.StatusCode = 404;
@@ -370,7 +370,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						break;
 				}
 				var weeklyPlanUpdate = _mapper.Map<WeeklyPlan>(model);
-				var updateRecipePlansResult = await _recipePlanService.UpdateRecipePlanAsync(model.Id , model.recipeIds);
+				var updateRecipePlansResult = await _recipePlanService.UpdateRecipePlanAsync(id , model.recipeIds);
 				if ( updateRecipePlansResult.StatusCode == 200 && updateRecipePlansResult.Data != null )
 				{
 					weeklyPlanUpdate.RecipePLans = updateRecipePlansResult.Data;
@@ -399,19 +399,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Delete
-		public async Task<ResponseObject<WeeklyPlanResponseModel>> DeleteWeeklyPlanAsync(DeleteWeeklyPlanRequestModel model)
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> DeleteWeeklyPlanAsync(Guid id)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
-			var validateResult = _deleteValidator.Validate(model);
-			if ( !validateResult.IsValid )
-			{
-				var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-				result.StatusCode = 400;
-				result.Message = string.Join(" - " , error);
-				return result;
-			}
+			//var validateResult = _deleteValidator.Validate(model);
+			//if ( !validateResult.IsValid )
+			//{
+			//	var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+			//	result.StatusCode = 400;
+			//	result.Message = string.Join(" - " , error);
+			//	return result;
+			//}
 
-			var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.Id.ToString());
+			var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
 			if ( weeklyPlanExist == null )
 			{
 				result.StatusCode = 404;
@@ -419,7 +419,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check recipe have in weekly plan
-			var RecipeExist = await _unitOfWork.WeeklyPlanRepository.RecipeExistInWeeklyPlanAsync(model.Id);
+			var RecipeExist = await _unitOfWork.WeeklyPlanRepository.RecipeExistInWeeklyPlanAsync(id);
 			if ( RecipeExist )
 			{
 				//if have just change status
@@ -531,7 +531,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region update - full info
-		public async Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(UpdateWeeklyPlanRequest request)
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(Guid id,UpdateWeeklyPlanRequest request) //ham nay se dung cho ca viec update thong tin co ban hoac ca thog tin cu the cua weekPlan
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			try
@@ -548,7 +548,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				else
 				{
-					var foundWeeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(request.Id.ToString());
+					var foundWeeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
 					if ( foundWeeklyPlan == null )
 					{
 						result.Message = "Not found week plan";
@@ -571,44 +571,64 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						foundWeeklyPlan.ProcessStatus = (ProcessStatus)request.ProcessStatus != null ? (ProcessStatus)request.ProcessStatus : foundWeeklyPlan.ProcessStatus;
 
 						var updateWeeklyPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(foundWeeklyPlan);
-						if ( updateWeeklyPlanResult ) //update thanh cong
+						if (request.recipeIds != null && request.recipeIds.Any())//kiem tra neu thong tin cu the co dinh kem khong
 						{
-							var relatedRecipePlans = _unitOfWork.RecipePlanRepository.Get(x => x.StandardWeeklyPlanId.ToString().ToLower().Equals(request.Id.ToString().ToLower())).ToList();
-							if ( relatedRecipePlans.Any() )
-							{
-								foreach ( var item in relatedRecipePlans.ToList() )
-								{
-									await _unitOfWork.RecipePlanRepository.DeleteAsync(item.Id.ToString()); //co the su dung removeRange - can tim hieu them
-																											//await _unitOfWork.CompleteAsync();
-								}
-							}
-							else //bao loi ko tim thay gi het - cho nay co the cai tien cho thanh 1 ham vua tao moi vua cap nhat duoc. neu co cai tien thi duoiday la phan tao moi
-							{
-								result.Message = "Not found any existed to update";
-								return result;
-							}
-							//bat dau tao recipePlan moi tu day
-							var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(request.Id , request.recipeIds);
-							if ( createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null )
-							{
+                            if (updateWeeklyPlanResult) //update thanh cong
+                            {
+                                var relatedRecipePlans = _unitOfWork.RecipePlanRepository.Get(x => x.StandardWeeklyPlanId.ToString().ToLower().Equals(id.ToString().ToLower())).ToList();
+                                if (relatedRecipePlans != null)
+                                {
+                                    foreach (var item in relatedRecipePlans.ToList())
+                                    {
+                                        await _unitOfWork.RecipePlanRepository.DeleteAsync(item.Id.ToString()); //co the su dung removeRange - can tim hieu them
+                                                                                                                //await _unitOfWork.CompleteAsync();
+                                    }
+                                }
+                                else //bao loi ko tim thay gi het - cho nay co the cai tien cho thanh 1 ham vua tao moi vua cap nhat duoc. neu co cai tien thi duoiday la phan tao moi
+                                {
+                                    result.Message = "Not found any existed to update";
+                                    return result;
+                                }
+                                //bat dau tao recipePlan moi tu day
+                                var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(id, request.recipeIds);
+                                if (createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null)
+                                {
 
-								await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
-								result.StatusCode = createRecipePlansResult.StatusCode;
-								result.Message = "Update Weekly plan successfully.";
-								return result;
-							}
-							else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
-							{
-								result.StatusCode = createRecipePlansResult.StatusCode;
-								result.Message = createRecipePlansResult.Message;
-								return result;
-							}
+                                    await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
+									result.StatusCode = 200;
+                                    result.Message = "Update Weekly plan successfully.";
+                                    return result;
+                                }
+                                else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
+                                {
+                                    result.StatusCode = createRecipePlansResult.StatusCode;
+                                    result.Message = createRecipePlansResult.Message;
+                                    return result;
+                                }
+                            }
+                            else //update khong thanh cong -> bao loi
+                            {
+                                result.Message = "Update failed";
+                                return result;
+                            }
 						}
-						else //update khong thanh cong -> bao loi
+						else //chi update lai thong tin co ban cua week plan ma khong dung toi thong tin cu the
 						{
-							result.Message = "Update failed";
-							return result;
+							if (updateWeeklyPlanResult)
+							{
+								await _unitOfWork.CompleteAsync();
+                                result.StatusCode = 200;
+                                result.Message = "Update Weekly plan successfully.";
+                                return result;
+							}
+							else
+							{
+                                result.StatusCode = 500;
+                                result.Message = "Update failed";
+                                return result;
+                            }
 						}
+						
 					}
 				}
 			}

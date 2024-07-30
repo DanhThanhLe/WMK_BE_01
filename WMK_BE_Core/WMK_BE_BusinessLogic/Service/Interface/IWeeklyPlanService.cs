@@ -18,10 +18,10 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model);
 		Task<ResponseObject<WeeklyPlanResponseModel>> CreateForSutomer(CreateWeeklyPlanRequest request);
 
-        Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(UpdateWeeklyPlanRequestModel model);
-		Task<ResponseObject<WeeklyPlanResponseModel>> DeleteWeeklyPlanAsync(DeleteWeeklyPlanRequestModel model);
+        Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(Guid id, UpdateWeeklyPlanRequestModel model);
+		Task<ResponseObject<WeeklyPlanResponseModel>> DeleteWeeklyPlanAsync(Guid id);
 		Task<ResponseObject<WeeklyPlanResponseModel>> ChangeStatusWeeklyPlanAsync(ChangeStatusWeeklyPlanRequestModel model);
-		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(UpdateWeeklyPlanRequest request);
+		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(Guid id,UpdateWeeklyPlanRequest request);
 
     }
 }

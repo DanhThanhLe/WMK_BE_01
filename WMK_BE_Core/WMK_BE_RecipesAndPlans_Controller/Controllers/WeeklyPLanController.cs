@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.Service.Implement;
@@ -23,8 +24,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);  
         }
 
-        [HttpGet("get-by-customer-id")]
-        public async Task<IActionResult> GetByCustomerId([FromQuery] string id)
+        [HttpGet("get-by-customer-id/{id}")]
+        public async Task<IActionResult> GetByCustomerId(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))
@@ -42,7 +43,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-id")]
+        [HttpGet("get-id/{id}")]
         public async Task<IActionResult> GetId(Guid id)
         {
             var result = await _weeklyPLanService.GetByIdAsync(id);
@@ -63,20 +64,20 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpPut("update(not test)")]
-        public async Task<IActionResult> Update([FromBody]UpdateWeeklyPlanRequestModel model) 
+        [HttpPut("update(not test)/{id}")]
+        public async Task<IActionResult> Update(Guid id,[FromBody]UpdateWeeklyPlanRequestModel model) 
         {
-            var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(model);
+            var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(id,model);
             return Ok(result);
         }
 
-        [HttpPut("update-full-info")]
-        public async Task<IActionResult> UpdateFullInfo([FromBody]UpdateWeeklyPlanRequest request)
+        [HttpPut("update-full-info/{id}")]
+        public async Task<IActionResult> UpdateFullInfo(Guid id, [FromBody]UpdateWeeklyPlanRequest request)
         {
             Guid convertId;
-            if (Guid.TryParse(request.Id.ToString(), out convertId))
+            if (Guid.TryParse(id.ToString(), out convertId))
             {
-                var result = await _weeklyPLanService.UpdateFullInfo(request);
+                var result = await _weeklyPLanService.UpdateFullInfo(id,request);
                 return Ok(result);
             }
             else
@@ -89,11 +90,23 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromBody]DeleteWeeklyPlanRequestModel model) 
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(Guid id) 
         {
-            var result = await _weeklyPLanService.DeleteWeeklyPlanAsync(model);
-            return Ok(result);
+            Guid convertId;
+            if (Guid.TryParse(id.ToString(), out convertId))
+            {
+                var result = await _weeklyPLanService.DeleteWeeklyPlanAsync(id);
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
         }
     }
 }
