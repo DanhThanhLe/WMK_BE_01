@@ -12,7 +12,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 		PendingMomo = 1,
 		PendingZaloPay = 2,
 		UNPAID = 3,
-		Cancel = 4
+		Cancel = 4,
+		Pending = 5//pending chung
 	}
 	public static class TransactionStatusHelper
 	{

@@ -25,6 +25,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			.NotEmpty().WithMessage("The list cannot be empty.");
 			RuleForEach(x => x.RecipeList).NotNull().WithMessage("The item cannot be null.")
 			.NotEmpty().WithMessage("The item cannot be empty.");
+			RuleFor(x => x.TransactionType).IsInEnum().WithMessage("Transaction type not accepted");
 
 		}
 	}
