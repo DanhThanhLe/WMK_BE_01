@@ -23,6 +23,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return Ok(result);	
 		}
 
+		[HttpGet("get-all")]
+		public async Task<IActionResult> GetAllTransaction()
+		{
+			var result = await _transactionService.GetAllAsync();
+			return Ok(result);	
+		}
+
 
     }
 }

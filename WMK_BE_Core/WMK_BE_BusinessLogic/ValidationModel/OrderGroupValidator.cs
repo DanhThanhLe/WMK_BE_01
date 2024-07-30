@@ -14,8 +14,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		public CreateOrderGroupModelValidator()
 		{
 			_expendValidator = new ExpendValidator();
-			RuleFor(o => o.Latitude).NotEmpty().WithMessage("Latitude is required!");
-			RuleFor(o => o.Longitude).NotEmpty().WithMessage("Longitude is required!");
 			RuleFor(o => o.ShipperId).NotEmpty().WithMessage("ID shipper is required!")
 					.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!"); 
 			RuleFor(o => o.AsignBy).NotEmpty().WithMessage("Asign by is required!")

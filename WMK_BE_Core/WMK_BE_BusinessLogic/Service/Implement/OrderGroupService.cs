@@ -101,7 +101,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Shipper not exist!";
 				return result;
 			}
-
+			//check orderGroup exist shipper
+			var existOrderGroup = _unitOfWork.OrderGroupRepository.GetAll().FirstOrDefault(od => od.ShipperId == shipperExist.Id);
+			if(existOrderGroup != null )
+			{
+				result.StatusCode = 409;
+				result.Message = "Shipper have order group!";
+				return result;
+			}
 			var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(model.AsignBy.ToString());
 			if ( staffExist != null && staffExist.Role != Role.Staff )
 			{
@@ -125,6 +132,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				shipperExist.OrderGroup = orderGroupModel;
+				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Create order group successfully";
 				result.Data = _mapper.Map<OrderGroupsResponse>(orderGroupModel);

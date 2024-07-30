@@ -14,6 +14,7 @@ using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.TransactionModel;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -178,7 +179,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
         }
 
-        public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
+
+		public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
         {
             var result = new ResponseObject<Transaction>();
             //check payment exist
@@ -203,5 +205,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Update transaction status unsuccess!";
             return result;
         }
+		public async Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
+		{
+			var result = new ResponseObject<List<TransactionResponse>>();
+            var list = await _unitOfWork.TransactionRepository.GetAllAsync();
+            if(list == null )
+            {
+                result.StatusCode = 404;
+                result.Message = "Doesn't have transaction!";
+                return result;
+            }
+            result.StatusCode = 200;
+            result.Message = "Transactions";
+            result.Data = _mapper.Map<List<TransactionResponse>>(list); ;
+            return result;
+		}
     }
 }

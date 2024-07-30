@@ -230,7 +230,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 result.StatusCode = 200;
                 result.Message = "OK. Ingredients list";
-                result.Data = _mapper.Map<List<IngredientResponse>>(responseList);
+                var returnResult = _mapper.Map<List<IngredientResponse>>(responseList);
+				foreach ( var item in returnResult )
+				{
+					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
+					if ( item.UpdatedBy != null )
+					{
+						var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
+					}
+					if ( userCreate != null )
+					{
+						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
+					}
+				}
+                result.Data = returnResult;
                 #region old
                 //foreach ( var ingredientResponse in result.List )
                 //{
