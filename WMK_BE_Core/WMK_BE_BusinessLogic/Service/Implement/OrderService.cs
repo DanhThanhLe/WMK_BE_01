@@ -284,7 +284,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         var newPaymentRequest = new CreatePaymentRequest();
                         newPaymentRequest.OrderId = newOrder.Id;
                         newPaymentRequest.Amount = newOrder.TotalPrice;
-                        newPaymentRequest.Type = model.TransactionType;
+                        newPaymentRequest.TransactionType = model.TransactionType;
                         var createTransactionResult = await _transactionService.CreateNewPaymentAsync(newPaymentRequest);
                         if (createTransactionResult != null && createTransactionResult.StatusCode == 200 && createTransactionResult.Data != null)
                         {

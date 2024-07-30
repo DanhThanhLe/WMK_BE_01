@@ -33,6 +33,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _createTransactionValidator = new CreateTransactionValidator();
         }
 
+
+        #region Create momo - tao rieng cho momo - chua kiem thu
         public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
         {
             var result = new ResponseObject<MomoCreatePaymentRequest>();
@@ -122,6 +124,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
         }
 
+        #endregion
+
+        #region Create zalopay - tao rieng zalopay
         public async Task<ResponseObject<Transaction>> CreatePaymentZaloPayAsync(ZaloPayCreatePaymentRequest model)
         {
             var result = new ResponseObject<Transaction>();
@@ -173,6 +178,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
+
+
+        #endregion
 
         #region update payment (zalopay)
         public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
@@ -228,7 +236,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 var newTransaction = _mapper.Map<Transaction>(request);
                 newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
                 newTransaction.TransactionDate = DateTime.Now;
-                newTransaction.Type = request.Type;
+                newTransaction.Type = request.TransactionType;
                 newTransaction.Status = TransactionStatus.Pending;
                 var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
                 if (!createResult)

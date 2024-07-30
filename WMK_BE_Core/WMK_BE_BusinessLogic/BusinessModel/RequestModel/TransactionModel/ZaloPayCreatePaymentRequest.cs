@@ -17,7 +17,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel
     public class CreatePaymentRequest //model nay dung chung cho khi update thong tin tracsaction cho order (vi order co 1 list transaction nen khi update status transaction thi se tao mot transaction voi status moi
     {
         public Guid OrderId { get; set; }
-        public TransactionType Type { get; set; }//loai hinh thanh toan
+        public TransactionType TransactionType { get; set; }//loai hinh thanh toan
         public double Amount { get; set; }
         public DateTime? TransactionDate { get; set; }
         public string? Notice { get; set; }
