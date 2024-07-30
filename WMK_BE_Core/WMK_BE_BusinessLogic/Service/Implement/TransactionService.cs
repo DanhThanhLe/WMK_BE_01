@@ -24,17 +24,22 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IOptions<MomoOption> _momoOptions;
         private readonly IMapper _mapper;
         private readonly CreateZaloPayValidator _createZaloPayValidator;
-        private readonly CreateTransactionValidator _createTransactionValidator;
+        //private readonly CreateTransactionValidator _createTransactionValidator;
         public TransactionService(IUnitOfWork unitOfWork, IOptions<MomoOption> momoOptions, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _momoOptions = momoOptions;
             _mapper = mapper;
             _createZaloPayValidator = new CreateZaloPayValidator();
-            _createTransactionValidator = new CreateTransactionValidator();
+            //_createTransactionValidator = new CreateTransactionValidator();
         }
 
-        public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
+		public Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
         {
             var result = new ResponseObject<MomoCreatePaymentRequest>();
             //check order exist
@@ -174,8 +179,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-        #region update payment (zalopay)
-        public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
+
+		public Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
+		{
+			throw new NotImplementedException();
+		}
+		#region update payment (zalopay)
+		public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
         {
             var result = new ResponseObject<Transaction>();
             //check payment exist
@@ -200,5 +210,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Update transaction status unsuccess!";
             return result;
         }
-    }
+		#endregion
+	}
 }

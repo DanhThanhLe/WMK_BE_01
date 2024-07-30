@@ -94,8 +94,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		
 		[Authorize(Roles = "Admin")]
 		[HttpDelete("delete")]
-		public async Task<IActionResult> Delete([FromQuery] IdUserRequest model)
+		public async Task<IActionResult> Delete( Guid id)
 		{
+			var model = new IdUserRequest();
+			model.Id = id.ToString();
 			var result = await _userService.DeleteUserAsync(model);
 			return Ok(result);
 		}
