@@ -25,7 +25,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpGet("get")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        public async Task<IActionResult> GetById([FromQuery]string id)
         {
             Guid ingredientId;
             if (Guid.TryParse(id, out ingredientId))

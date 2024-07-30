@@ -173,6 +173,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
+
         #region update payment (zalopay)
         public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
         {
@@ -199,8 +200,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Update transaction status unsuccess!";
             return result;
         }
-
         #endregion
+
         #region create new payment - all - testing
         public async Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request)
         {
@@ -227,7 +228,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 var newTransaction = _mapper.Map<Transaction>(request);
                 newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
                 newTransaction.TransactionDate = DateTime.Now;
-                newTransaction.Type = request.TransactionType;
+                newTransaction.Type = request.Type;
                 newTransaction.Status = TransactionStatus.Pending;
                 var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
                 if (!createResult)
