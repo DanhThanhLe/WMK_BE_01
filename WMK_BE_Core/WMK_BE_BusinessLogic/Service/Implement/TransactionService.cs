@@ -24,12 +24,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IOptions<MomoOption> _momoOptions;
         private readonly IMapper _mapper;
         private readonly CreateZaloPayValidator _createZaloPayValidator;
+        private readonly CreateTransactionValidator _createTransactionValidator;
         public TransactionService(IUnitOfWork unitOfWork, IOptions<MomoOption> momoOptions, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _momoOptions = momoOptions;
             _mapper = mapper;
             _createZaloPayValidator = new CreateZaloPayValidator();
+            _createTransactionValidator = new CreateTransactionValidator();
         }
 
         public async Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model)
@@ -48,7 +50,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 foreach (var transaction in transactionExist)
                 {
-                    if (transaction.Status == WMK_BE_RecipesAndPlans_DataAccess.Enums.TransactionStatus.PAID)
+                    if (transaction.Status == TransactionStatus.PAID)
                     {
                         break;
                     }
@@ -171,16 +173,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = ex.Message;
                 return result;
             }
-            
-
-            result.StatusCode = 403;
-            result.Message = "Create Transaction unsuccessfully!";
-            return result;
-
         }
-
-
-		public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
+        #region update payment (zalopay)
+        public async Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model)
         {
             var result = new ResponseObject<Transaction>();
             //check payment exist
@@ -205,20 +200,5 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Update transaction status unsuccess!";
             return result;
         }
-		public async Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
-		{
-			var result = new ResponseObject<List<TransactionResponse>>();
-            var list = await _unitOfWork.TransactionRepository.GetAllAsync();
-            if(list == null )
-            {
-                result.StatusCode = 404;
-                result.Message = "Doesn't have transaction!";
-                return result;
-            }
-            result.StatusCode = 200;
-            result.Message = "Transactions";
-            result.Data = _mapper.Map<List<TransactionResponse>>(list); ;
-            return result;
-		}
     }
 }

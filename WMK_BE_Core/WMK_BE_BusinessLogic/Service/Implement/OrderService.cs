@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -260,30 +261,32 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
 					{
 						await _unitOfWork.CompleteAsync();
-						//create transaction
-						var zaloPayModel = new ZaloPayCreatePaymentRequest();
-						zaloPayModel.OrderId = newOrder.Id;
-						zaloPayModel.Amount = newOrder.TotalPrice;
-						var createTransaction = await _transactionService.CreatePaymentZaloPayAsync(zaloPayModel);
-						if ( createTransaction != null && createTransaction.StatusCode == 200 && createTransaction.Data != null )
-						{
-							//newOrder.Transactions.Add(createTransaction.Data);
-							await _unitOfWork.CompleteAsync();
-							result.StatusCode = 200;
-							result.Message = "OK. Create order success";
-							result.Data = newOrder.Id;
-							return result;
-						}
-						if ( createTransaction != null && createTransaction.StatusCode != 200 )//code cu la (createTransaction != null)
-						{
-							// Delete the order if transaction creation fails
-							await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
-							await _unitOfWork.CompleteAsync();
-							result.StatusCode = createTransaction.StatusCode;
-							result.Message = createTransaction.Message;
-							return result;
-						}
-					}
+                        //create transaction
+                        //phan biet loai transaction
+                        var newPaymentRequest = new CreatePaymentRequest();
+                        newPaymentRequest.OrderId = newOrder.Id;
+                        newPaymentRequest.Amount = newOrder.TotalPrice;
+                        newPaymentRequest.TransactionType = model.TransactionType;
+                        var createTransactionResult = await _transactionService.CreateNewPaymentAsync(newPaymentRequest);
+                        if (createTransactionResult != null && createTransactionResult.StatusCode == 200 && createTransactionResult.Data != null)
+                        {
+                            //newOrder.Transactions.Add(createTransaction.Data);
+                            await _unitOfWork.CompleteAsync();
+                            result.StatusCode = 200;
+                            result.Message = "OK. Create order success";
+                            result.Data = newOrder.Id;
+                            return result;
+                        }
+                        if (createTransactionResult.StatusCode != 200)//code cu la (createTransaction != null)
+                        {
+                            // Delete the order if transaction creation fails
+                            await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
+                            await _unitOfWork.CompleteAsync();
+                            result.StatusCode = createTransactionResult.StatusCode;
+                            result.Message = createTransactionResult.Message;
+                            return result;
+                        }
+                    }
 					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
 					await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());//xoa thong tin cho Order
 					await _unitOfWork.CompleteAsync();
