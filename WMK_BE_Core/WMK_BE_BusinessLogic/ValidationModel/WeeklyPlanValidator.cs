@@ -37,7 +37,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 	{
         public UpdateWeeklyPlanValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Id by is required!");
+            //RuleFor(x => x.Id).NotEmpty().WithMessage("Id by is required!");
             RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("Updated by is required!");
 			RuleFor(x => x.EndDate)
 			.NotEmpty().WithMessage("EndDate is required!")

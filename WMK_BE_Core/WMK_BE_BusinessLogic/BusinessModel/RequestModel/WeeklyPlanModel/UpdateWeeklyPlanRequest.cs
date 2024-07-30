@@ -10,7 +10,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 {
     public class UpdateWeeklyPlanRequest//model nay dung cho viec cap nhat thong tin toan phan danh cho weeklyPlan nhat dinh, ap dung cho ca web admin va ca customer
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public DateTime? BeginDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string? UrlImage { get; set; } = string.Empty;
@@ -22,6 +22,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
         public ProcessStatus? ProcessStatus { get; set; }
-        public List<RecipeWeeklyPlanCreate> recipeIds { get; set; }
+        public List<RecipeWeeklyPlanCreate>? recipeIds { get; set; }
     }
 }
