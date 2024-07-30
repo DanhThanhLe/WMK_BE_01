@@ -19,7 +19,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
         public double TotalPrice { get; set; }
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
-		public List<CreateOrderDetailRequest>? RecipeList { get; set; }
+		public TransactionType TransactionType { get; set; }
+        public int OrderCode { get; set; }
+        public List<CreateOrderDetailRequest>? RecipeList { get; set; }
 	}
 	public class CreateOrderDetailRequest
 	{

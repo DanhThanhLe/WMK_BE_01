@@ -17,4 +17,16 @@ namespace WMK_BE_BusinessLogic.ValidationModel
                 .Must(x => x > 0).WithMessage("Price is more than 0!");
         }
     }
+
+    public class CreateTransactionValidator : AbstractValidator<CreatePaymentRequest>
+    {
+        public CreateTransactionValidator()
+        {
+            RuleFor(x => x.OrderId).NotEmpty().WithMessage("Order id is required!");
+            RuleFor(x => x.Amount).NotEmpty().WithMessage("Price is required!")
+                .Must(x => x > 0).WithMessage("Price is more than 0!");
+            RuleFor(x => x.TransactionType).IsInEnum().WithMessage("Transaction type not accepted");
+        }
+    }
+
 }
