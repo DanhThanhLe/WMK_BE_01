@@ -24,7 +24,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IOptions<MomoOption> _momoOptions;
         private readonly IMapper _mapper;
         private readonly CreateZaloPayValidator _createZaloPayValidator;
-        //private readonly CreateTransactionValidator _createTransactionValidator;
+        private readonly CreateTransactionValidator _createTransactionValidator;
         public TransactionService(IUnitOfWork unitOfWork, IOptions<MomoOption> momoOptions, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -261,6 +261,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = ex.Message;
                 return result;
             }
+        }
+
+        public Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
