@@ -14,6 +14,7 @@ using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.TransactionModel;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -23,7 +24,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IOptions<MomoOption> _momoOptions;
         private readonly IMapper _mapper;
         private readonly CreateZaloPayValidator _createZaloPayValidator;
-        private readonly CreateTransactionValidator _createTransactionValidator;
+        //private readonly CreateTransactionValidator _createTransactionValidator;
         public TransactionService(IUnitOfWork unitOfWork, IOptions<MomoOption> momoOptions, IMapper mapper)
         {
             _unitOfWork = unitOfWork;

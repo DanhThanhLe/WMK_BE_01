@@ -10,14 +10,13 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel
 {
     public class IngredientRequest//dung cho update ingredient
     {
-        public Guid Id { get; set; }
         public Guid IngredientCategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Img { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
         public double Price { get; set; }
-        public string PackagingMethod { get; set; }
-        public string PreservationMethod { get; set; }
+        public string PackagingMethod { get; set; } = string.Empty;
+        public string PreservationMethod { get; set; } = string.Empty;
         public BaseStatus Status { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
@@ -27,7 +26,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel
 
     public class UpdateStatusIngredientRequest
     {
-        public Guid Id { get; set; }
         public BaseStatus Status { get; set; }
 
     }

@@ -10,8 +10,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         public Task<ResponseObject<IngredientResponse>> GetIngredientById(Guid id);
         public Task<ResponseObject<List<IngredientResponse>>> GetIngredientByName(string name);
         public Task<ResponseObject<IngredientResponse>> CreateIngredient(CreateIngredientRequest ingredient);
-        public Task<ResponseObject<IngredientResponse>> UpdateIngredient(IngredientRequest ingredient);
-        public Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient);
+        public Task<ResponseObject<IngredientResponse>> UpdateIngredient(Guid id, IngredientRequest ingredient);
+        public Task<ResponseObject<IngredientResponse>> ChangeStatus(Guid id, UpdateStatusIngredientRequest ingredient);
         public Task<ResponseObject<IngredientResponse>> DeleteIngredientById(Guid id);//xoa han
         public Task<ResponseObject<IngredientResponse>> RemoveIngredientById(Guid id);//chinh status
 

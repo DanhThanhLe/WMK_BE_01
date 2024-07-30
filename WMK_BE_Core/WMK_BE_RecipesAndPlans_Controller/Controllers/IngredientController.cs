@@ -24,11 +24,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get")]
-        public async Task<IActionResult> GetById([FromQuery]string id)
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             Guid ingredientId;
-            if (Guid.TryParse(id, out ingredientId))
+            if ( Guid.TryParse(id , out ingredientId) )
             {
                 var result = await _ingredientService.GetIngredientById(ingredientId);
                 return Ok(result);
@@ -37,14 +37,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             {
                 return BadRequest(new
                 {
-                    StatusCode = 400,
+                    StatusCode = 400 ,
                     Message = "Invalid GUID format! Please provide a valid GUID!"
                 });
             }
         }
 
-        [HttpGet("get-name")]
-        public async Task<IActionResult> GetByName([FromQuery] string name)
+        [HttpGet("get-name/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
             var result = await _ingredientService.GetIngredientByName(name);
             return Ok(result);
@@ -57,41 +57,41 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return Ok(result);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] IngredientRequest model)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(Guid id, IngredientRequest model)
         {
-            var result = await _ingredientService.UpdateIngredient(model);
+            var result = await _ingredientService.UpdateIngredient(id, model);
             return Ok(result);
         }
 
-        [HttpPut("update-status")]
-        public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusIngredientRequest model)
+        [HttpPut("update-status/{id}")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusIngredientRequest model)
         {
-            var result = await _ingredientService.ChangeStatus(model);
+            var result = await _ingredientService.ChangeStatus(id, model);
             return Ok(result);
         }
 
-        [HttpPut("remove-from-app")]
-        public async Task<IActionResult> RemoveById([FromQuery] string id)//dung de chuyen status thanh Unavailable
-        {
-            Guid ingredientId;
-            if (Guid.TryParse(id, out ingredientId))
-            {
-                var result = await _ingredientService.RemoveIngredientById(ingredientId);
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest(new
-                {
-                    StatusCode = 400,
-                    Message = "Invalid GUID format! Please provide a valid GUID!"
-                });
-            }
-        }
+        //[HttpPut("remove-from-app")]
+        //public async Task<IActionResult> RemoveById(string id)//dung de chuyen status thanh Unavailable
+        //{
+        //    Guid ingredientId;
+        //    if (Guid.TryParse(id, out ingredientId))
+        //    {
+        //        var result = await _ingredientService.RemoveIngredientById(ingredientId);
+        //        return Ok(result);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            StatusCode = 400,
+        //            Message = "Invalid GUID format! Please provide a valid GUID!"
+        //        });
+        //    }
+        //}
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteById([FromQuery] string id)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteById(string id)
         {
             Guid ingredientId;
             if (Guid.TryParse(id, out ingredientId))

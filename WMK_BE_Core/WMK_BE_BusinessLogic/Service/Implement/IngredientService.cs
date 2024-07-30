@@ -35,7 +35,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         #region Change status
-        public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> ChangeStatus(Guid id , UpdateStatusIngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             var validateResult = _updateStatusValidator.Validate(ingredient);
@@ -46,25 +46,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = string.Join(" - ", error);
                 return result;
             }
-            var found = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
+            var found = await _unitOfWork.IngredientRepository.GetByIdAsync(id.ToString());
             if (found == null)
             {
                 result.StatusCode = 400;
                 result.Message = "Not found ingredient";
                 return result;
             }
-            var changeResult = await _unitOfWork.IngredientRepository.ChangeStatusAsync(ingredient.Id, ingredient.Status);
+            var changeResult = await _unitOfWork.IngredientRepository.ChangeStatusAsync(id, ingredient.Status);
             if (changeResult)
             {
                 await _unitOfWork.CompleteAsync();
                 result.StatusCode = 200;
-                result.Message = "Change Ingredient " + ingredient.Id + " status Successfully";
+                result.Message = "Change Ingredient " + id + " status Successfully";
                 return result;
             }
             else
             {
                 result.StatusCode = 400;
-                result.Message = "Change Ingredient " + ingredient.Id + " status Unsuccessfully";
+                result.Message = "Change Ingredient " + id + " status Unsuccessfully";
                 return result;
             }
         }
@@ -230,7 +230,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 result.StatusCode = 200;
                 result.Message = "OK. Ingredients list";
-                result.Data = _mapper.Map<List<IngredientResponse>>(responseList);
+                var returnResult = _mapper.Map<List<IngredientResponse>>(responseList);
+				foreach ( var item in returnResult )
+				{
+					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
+					if ( item.UpdatedBy != null )
+					{
+						var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
+					}
+					if ( userCreate != null )
+					{
+						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
+					}
+				}
+                result.Data = returnResult;
                 #region old
                 //foreach ( var ingredientResponse in result.List )
                 //{
@@ -292,7 +305,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Update 
-        public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(IngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(Guid id, IngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             try
@@ -306,18 +319,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     result.Message = string.Join(" - ", error);
                     return result;
                 }
-                var foundUpdate = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
+                var foundUpdate = await _unitOfWork.IngredientRepository.GetByIdAsync(id.ToString());
                 if (foundUpdate == null)//check exist
                 {
                     result.StatusCode = 500;
-                    result.Message = "Not found with ID: " + ingredient.Id;
+                    result.Message = "Not found with ID: " + id;
                     return result;
                 }
                 else//bat dau update
                 {
                     _unitOfWork.IngredientRepository.DetachEntity(foundUpdate);
                     var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
-                    if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(ingredient.Id))
+                    if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(id))
                     {
                         result.StatusCode = 500;
                         result.Message = "Name existed with ID: " + duplicateName.Id;
