@@ -56,8 +56,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		public ChangeRoleUserModelValidator()
 		{
 			_expendValidator = new ExpendValidator();
-			RuleFor(x => x.Id).NotEmpty().WithMessage("ID is required!")
-				.Must(_expendValidator.BeValidGuid).WithMessage("Id must be a valid GUID!");
 			RuleFor(x => x.NewRole).NotEmpty().WithMessage("NewRole is required!");
 		}
 	}

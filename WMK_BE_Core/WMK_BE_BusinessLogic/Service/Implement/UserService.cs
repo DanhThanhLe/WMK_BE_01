@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -42,24 +43,77 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_changeRoleValidator = new ChangeRoleUserModelValidator();
 		}
 
-		public async Task<ResponseObject<List<UsersResponse>>> GetAllUsers()
+		public async Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader)
 		{
 			var result = new ResponseObject<List<UsersResponse>>();
-			var users = await _unitOfWork.UserRepository.GetAllAsync();
-			if ( users != null && users.Count() > 0 )
+			try
 			{
-				var usersModel = _mapper.Map<List<UsersResponse>>(users);
-				result.StatusCode = 200;
-				result.Message = "Success";
-				result.Data = usersModel;
+				//read token
+				var handler = new JwtSecurityTokenHandler();
+				var tokenString = handler.ReadToken(tokenHeader) as JwtSecurityToken;
+				if ( tokenString != null )
+				{
+					//get user id from token
+					var userIdClaim = tokenString.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
+					if ( userIdClaim != null )
+					{
+						var userId = userIdClaim.Value;
+						var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+						if ( user != null && user.Role == Role.Manager )
+						{
+							var userManager = _unitOfWork.UserRepository.GetAll().Where(u => u.Role == Role.Staff);
+							if ( userManager != null ) 
+							{
+								var usersModel = _mapper.Map<List<UsersResponse>>(userManager);
+								result.StatusCode = 200;
+								result.Message = "Success";
+								result.Data = usersModel;
+								return result;
+							}
+							else
+							{
+								result.StatusCode = 404;
+								result.Message = "Don't have staff!";
+								return result;
+							}
+						}
+						var users = await _unitOfWork.UserRepository.GetAllAsync();
+						if ( users != null && users.Count() > 0 )
+						{
+							var usersModel = _mapper.Map<List<UsersResponse>>(users);
+							result.StatusCode = 200;
+							result.Message = "Success";
+							result.Data = usersModel;
+							return result;
+						}
+						else
+						{
+							result.StatusCode = 404;
+							result.Message = "Don't have user!";
+							return result;
+						}
+					}
+					else
+					{
+						result.StatusCode = 401;
+						result.Message = "Token not have userId!";
+						return result;
+					}
+				}
+				else
+				{
+					result.StatusCode = 402;
+					result.Message = "Token is null!";
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = "Error when processing: " + ex.Message;
 				return result;
 			}
-			else
-			{
-				result.StatusCode = 404;
-				result.Message = "Don't have user!";
-				return result;
-			}
+
 		}
 		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername)
 		{
@@ -344,19 +398,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(IdUserRequest model)
+		public async Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(Guid id)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
-			var validationResult = _idUserValidator.Validate(model);
-			if ( !validationResult.IsValid )
-			{
-				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-				result.StatusCode = 400;
-				result.Message = string.Join(" - " , error);
-				return result;
-			}
 			//check user exists
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(id.ToString());
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
@@ -402,7 +448,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
-		public async Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(ChangeRoleUserRequest model)
+		public async Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(Guid idUser , ChangeRoleUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
 			var validationResult = _changeRoleValidator.Validate(model);
@@ -413,7 +459,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(idUser.ToString());
 			if ( userExist != null )
 			{
 				//check role exist
@@ -445,20 +491,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(IdUserRequest model)
+		public async Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(Guid id)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
-			//check validate
-			var validationResult = _idUserValidator.Validate(model);
-			if ( !validationResult.IsValid )
-			{
-				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-				result.StatusCode = 400;
-				result.Message = string.Join(" - " , error);
-				return result;
-			}
 			//check User exist
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(id.ToString());
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
@@ -504,20 +541,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 		//admin
-		public async Task<ResponseObject<BaseUserResponse>> ChangeEmailConfirmAsync(IdUserRequest model)
+		public async Task<ResponseObject<BaseUserResponse>> ChangeEmailConfirmAsync(Guid id)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
-			//check validate
-			var validationResult = _idUserValidator.Validate(model);
-			if ( !validationResult.IsValid )
-			{
-				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-				result.StatusCode = 400;
-				result.Message = string.Join(" - " , error);
-				return result;
-			}
 			//check User exist
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id.ToString());
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(id.ToString());
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
@@ -561,6 +589,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
-		
+
 	}
 }

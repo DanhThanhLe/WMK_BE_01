@@ -9,7 +9,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel
 {
 	public class ChangeRoleUserRequest
 	{
-		public string Id { get; set; } = string.Empty;
 		public Role NewRole { get; set; }
 	}
 }

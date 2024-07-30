@@ -11,7 +11,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IUserService
 	{
-		Task<ResponseObject<List<UsersResponse>>> GetAllUsers();
+		Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader);
 		Task<ResponseObject<List<UsersResponse>>> GetAllStaffs();
 		Task<ResponseObject<List<UsersResponse>>> GetAllShippers();
 		Task<ResponseObject<UserResponse?>> GetUserByIdAsync(Guid id);
@@ -19,9 +19,9 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<UserResponse>> GetUserByTokenAsync(string token);
 		Task<ResponseObject<BaseUserResponse>> CreateUserAsync(CreateUserRequest model);
 		Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(Guid idUser, UpdateUserRequest model);
-		Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(IdUserRequest model);
-		Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(ChangeRoleUserRequest model);
-		Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(IdUserRequest model);
-		Task<ResponseObject<BaseUserResponse>> ChangeEmailConfirmAsync(IdUserRequest model);
+		Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(Guid id);
+		Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(Guid userId, ChangeRoleUserRequest model);
+		Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(Guid id);
+		Task<ResponseObject<BaseUserResponse>> ChangeEmailConfirmAsync(Guid id);
 	}
 }
