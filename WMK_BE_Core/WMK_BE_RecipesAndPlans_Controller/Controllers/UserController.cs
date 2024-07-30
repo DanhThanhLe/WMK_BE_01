@@ -85,10 +85,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		
 		[Authorize]
-		[HttpPut("update")]
-		public async Task<IActionResult> Update([FromBody] UpdateUserRequest model)
+		[HttpPut("update/{id}")]
+		public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest model)
 		{
-			var result = await _userService.UpdateUserAsync(model);
+			var result = await _userService.UpdateUserAsync(id, model);
 			return Ok(result);
 		}
 		

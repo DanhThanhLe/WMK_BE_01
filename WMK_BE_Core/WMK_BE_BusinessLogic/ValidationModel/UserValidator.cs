@@ -32,8 +32,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		public UpdateModelValidator()
 		{
 			_expendValidator = new ExpendValidator();
-			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
-				.Must(_expendValidator.BeValidGuid).WithMessage("Id must be a valid GUID!");
+			//RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
+			//	.Must(_expendValidator.BeValidGuid).WithMessage("Id must be a valid GUID!");
 			RuleFor(x => x.Email)
 			.Empty().When(x => x.Email == null).WithMessage("Email should be null.")
 			.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")

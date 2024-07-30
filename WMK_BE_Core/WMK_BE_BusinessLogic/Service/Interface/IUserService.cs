@@ -18,7 +18,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername);
 		Task<ResponseObject<UserResponse>> GetUserByTokenAsync(string token);
 		Task<ResponseObject<BaseUserResponse>> CreateUserAsync(CreateUserRequest model);
-		Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(UpdateUserRequest model);
+		Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(Guid idUser, UpdateUserRequest model);
 		Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(IdUserRequest model);
 		Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(ChangeRoleUserRequest model);
 		Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(IdUserRequest model);

@@ -264,7 +264,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(UpdateUserRequest model)
+		public async Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(Guid idUser , UpdateUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
 			var validationResult = _updateValidator.Validate(model);
@@ -276,7 +276,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check user exists
-			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.Id);
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(idUser.ToString());
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
