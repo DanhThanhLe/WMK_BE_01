@@ -69,7 +69,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
 						new string[]{ }
 					}
 				});
-			});
+                c.EnableAnnotations();
+            });
 
             //Redis
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
