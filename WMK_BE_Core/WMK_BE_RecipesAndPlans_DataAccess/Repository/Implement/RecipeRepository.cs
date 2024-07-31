@@ -78,8 +78,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                 return null;
             }
         }
-
-        public override IQueryable<Recipe> Get(Expression<Func<Recipe, bool>> expression)
+		public override IQueryable<Recipe> Get(Expression<Func<Recipe, bool>> expression)
         {
             return _dbSet
                 .Where(expression)

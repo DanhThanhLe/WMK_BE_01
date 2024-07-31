@@ -20,14 +20,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> CreateMomoPayment(OrderInfoRequest model)
 		{
 			var result = await _transactionService.CreatePaymentAsync(model);
-			return Ok(result);	
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAllTransaction()
 		{
 			var result = await _transactionService.GetAllAsync();
-			return Ok(result);	
+			return StatusCode(result.StatusCode , result);	
 		}
 
 

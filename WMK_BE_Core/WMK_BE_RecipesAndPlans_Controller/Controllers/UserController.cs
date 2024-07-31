@@ -28,7 +28,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				if ( !string.IsNullOrEmpty(token) )
 				{
 					var result = await _userService.GetAllUsers(token);
-					return Ok(result);
+					return StatusCode(result.StatusCode , result);
 				}
 			}
 
@@ -40,7 +40,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> GetAllStaff()
 		{
 			var result = await _userService.GetAllStaffs();
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpGet("get-all-shipper")]
@@ -58,7 +58,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			if ( Guid.TryParse(id , out userId) )
 			{
 				var result = await _userService.GetUserByIdAsync(userId);
-				return Ok(result);
+				return StatusCode(result.StatusCode , result);
 			}
 			else
 			{
@@ -76,7 +76,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> GetUser(string emailOrUsername)
 		{
 			var result = await _userService.GetUserAsync(emailOrUsername);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		//[Authorize]
@@ -84,7 +84,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> GetUserByToken(string token)
 		{
 			var result = await _userService.GetUserByTokenAsync(token);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -93,7 +93,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Create([FromBody] CreateUserRequest model)
 		{
 			var result = await _userService.CreateUserAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[Authorize]
@@ -101,7 +101,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Update(Guid id , [FromBody] UpdateUserRequest model)
 		{
 			var result = await _userService.UpdateUserAsync(id , model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[Authorize(Roles = "Admin")]
@@ -109,7 +109,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var result = await _userService.DeleteUserAsync(id);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -118,7 +118,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeRole(Guid id , [FromBody] ChangeRoleUserRequest model)
 		{
 			var result = await _userService.ChangeRoleAsync(id , model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -127,7 +127,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeStatus(Guid id)
 		{
 			var result = await _userService.ChangeStatusAsync(id);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -136,7 +136,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeEmailConfirm(Guid id)
 		{
 			var result = await _userService.ChangeEmailConfirmAsync(id);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 	}
 }

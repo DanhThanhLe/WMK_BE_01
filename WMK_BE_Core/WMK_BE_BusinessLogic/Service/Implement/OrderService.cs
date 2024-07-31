@@ -255,11 +255,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             int maxValue = 99999999;
             Order checkOrderCode = new Order();
             int randomOrderCode = 0;
-            do//check toi khi nao order code ko trung thi thoi
-            {
+            //do//check toi khi nao order code ko trung thi thoi
+            //{
                 randomOrderCode = random.Next(minValue, maxValue + 1);
-                checkOrderCode = _unitOfWork.OrderRepository.Get(x => x.OrderCode == randomOrderCode).FirstOrDefault();
-            } while (checkOrderCode.Id.ToString() != null);
+                //checkOrderCode = _unitOfWork.OrderRepository.Get(x => x.OrderCode == randomOrderCode).FirstOrDefault();
+            //} while (checkOrderCode.Id.ToString() != null);
             //tao order code
             _unitOfWork.OrderRepository.DetachEntity(checkOrderCode);
 

@@ -20,7 +20,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> Get()
         {
             var result = await _categoryService.GetAllAsync();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpGet("get/{id}")]
@@ -29,7 +29,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out var categoryId))
             {
                 var result = await _categoryService.GetByIdAsync(categoryId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -43,7 +43,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (type != null)
             {
                 var result = await _categoryService.GetCategoryByType(type);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (name != null)
             {
                 var result = await _categoryService.GetcategoryByName(name);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -69,21 +69,21 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequestModel model)
         {
             var result = await _categoryService.CreateCategoryAsync(model);
-            return Ok(result);
-        }
+            return StatusCode(result.StatusCode , result);
+		}
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(Guid id,[FromBody] UpdateCategoryRequestModel model)
         {
             var result = await _categoryService.UpdateCategoryAsync(id,model);
-            return Ok(result);
-        }
+            return StatusCode(result.StatusCode , result);
+		}
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
-            return Ok(result);
-        }
+            return StatusCode(result.StatusCode , result);
+		}
     }
 }

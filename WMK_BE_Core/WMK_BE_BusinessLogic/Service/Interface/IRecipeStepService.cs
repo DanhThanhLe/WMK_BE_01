@@ -15,5 +15,6 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<List<RecipeStepRespone>>> GetRecipeSteps();
         Task<ResponseObject<List<RecipeStepRespone>>> GetByRecipeId(Guid recipeId);
         Task<ResponseObject<List<RecipeStep>>> CreateRecipeSteps(Guid recipeId, List<CreateRecipeStepRequest> stepList);
+        Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId);
     }
 }

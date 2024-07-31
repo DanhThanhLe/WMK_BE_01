@@ -19,42 +19,42 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> GetAll()
 		{
 			var result = await _orderGroupService.GetAllAsync();
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpGet("get-id")]
 		public async Task<IActionResult> GetById([FromQuery] Guid orderGroupId)
 		{
 			var result = await _orderGroupService.GetOrderGroupByIdAsync(orderGroupId);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.CreateOrderGroupAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPut("update")]
 		public async Task<IActionResult> Update([FromBody] UpdateOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.UpdateOrderGroupAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 		
 		[HttpDelete("delete")]
 		public async Task<IActionResult> Delete([FromQuery] IdOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.DeleteOrderGroupAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPut("change-status")]
 		public async Task<IActionResult> ChangeStatus([FromQuery] IdOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.ChangeStatusOrderGroupAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -62,7 +62,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Cluster([FromBody] ClusterOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.OrderGroupClusterAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 	}
 }

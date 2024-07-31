@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.Service.Interface;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -21,7 +22,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _recipeService.GetRecipes();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpGet("get-by-id/{id}")]
@@ -31,7 +32,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out recipeId))
             {
                 var result = await _recipeService.GetRecipeById(recipeId.ToString());
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -50,7 +51,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(categoryId,out categoryIdConvert))
             {
                 var result = await _recipeService.GetListByCategoryId(categoryIdConvert);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -78,14 +79,21 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
                 name = ""; // Đặt giá trị mặc định nếu không được cung cấp
             }
             var result = await _recipeService.GetRecipeByName(name, status);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpPost("create-new")]
         public async Task<IActionResult> Create([FromBody] CreateRecipeRequest model)
         {
             var result = await _recipeService.CreateRecipeAsync(model);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
+        }
+        
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRecipeRequest model)
+        {
+            var result = await _recipeService.UpdateRecipeAsync(id, model);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpDelete("delete/{id}")]
@@ -95,7 +103,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out recipeId))
             {
                 var result = await _recipeService.DeleteRecipeById(recipeId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -114,7 +122,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id.ToString(), out recipeId))
             {
                 var result = await _recipeService.ChangeStatus(id,request);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {

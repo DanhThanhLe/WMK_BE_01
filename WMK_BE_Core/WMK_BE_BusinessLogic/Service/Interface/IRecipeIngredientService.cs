@@ -14,6 +14,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	{
 
 		Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeIngredientAsync(Guid recipeId , List<CreateRecipeIngredientRequest> recipeIngredientRequest);
+		Task<ResponseObject<List<RecipeIngredient>?>> DeleteRecipeIngredientByRecipeAsync(Guid recipeId);
 		Task<ResponseObject<List<RecipeIngredientResponse>>> GetAll();
 		Task<ResponseObject<List<RecipeIngredientResponse>>> GetListByRecipeId(Guid recipeId);
 

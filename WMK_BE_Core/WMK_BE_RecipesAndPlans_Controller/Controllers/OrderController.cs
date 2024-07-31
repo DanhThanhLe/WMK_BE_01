@@ -20,7 +20,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _orderService.GetAllOrders();
-            return Ok(result);  
+            return StatusCode(result.StatusCode , result);  
         }
 
         [HttpGet("get-by-userid/{userId}")]
@@ -30,7 +30,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(userId, out idConvert))
             {
                 var result = await _orderService.GetOrdersByUserId(idConvert);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -46,35 +46,35 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> GetById(Guid id)
 		{
 			var result = await _orderService.GetOrderByIdAsync(id);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
 		{
 			var result = await _orderService.CreateOrderAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPut("update/{id}")]
 		public async Task<IActionResult> Update(string id,[FromBody] UpdateOrderRequest model)
 		{
 			var result = await _orderService.UpdateOrderAsync(id,model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpDelete("delete/{id}")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var result = await _orderService.DeleteOrderAsync(id);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPut("change-status/{id}")]
 		public async Task<IActionResult> ChangeStatus(Guid id,[FromQuery] ChangeStatusOrderRequest model)
 		{
 			var result = await _orderService.ChangeStatusOrderAsync(id,model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 	}
 }

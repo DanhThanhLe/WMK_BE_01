@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeCategoryModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
@@ -25,6 +26,7 @@ namespace WMK_BE_BusinessLogic.Mapper
                 //}).ToList()))
                 .ReverseMap();
 
+            CreateMap<Recipe , UpdateRecipeRequest>().ReverseMap();
 
                 
             //CreateMap//chua co map cho request voi model nen ko tao đc fuck

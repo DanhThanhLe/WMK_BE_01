@@ -118,11 +118,50 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Data = returnList;
             return result;
         }
-        #endregion
 
-        //public async Task<ResponseObject<bool>> CreateSingleStep(Guid recipeId, CreateRecipeStepRequest recipeStep)
-        //{
-        //    var result
-        //}
-    }
+		public async Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId)
+		{
+			var result = new ResponseObject<List<RecipeStep>>();
+			try
+			{
+				//check recipe exist
+				var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+				if ( recipeExist == null )
+				{
+					result.StatusCode = 404;
+					result.Message = "Recipe not exist!";
+					return result;
+				}
+				//take recipeSteps asign to recipe
+				var recipeSteps = _unitOfWork.RecipeStepRepository.GetAll()
+					.Where(rc => rc.RecipeId == recipeId);
+				if ( recipeSteps == null || !recipeSteps.Any() )
+				{
+					result.StatusCode = 404;
+					result.Message = "No recipeSteps found for the given Recipe.";
+					return result;
+				}
+				// Xóa các recipeSteps liên quan
+				_unitOfWork.RecipeStepRepository.DeleteRange(recipeSteps);
+				await _unitOfWork.CompleteAsync();
+
+				result.StatusCode = 200;
+				result.Message = "Deleted recipeSteps successfully.";
+				result.Data = recipeSteps.ToList();
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+			}
+
+			return result;
+		}
+		#endregion
+
+		//public async Task<ResponseObject<bool>> CreateSingleStep(Guid recipeId, CreateRecipeStepRequest recipeStep)
+		//{
+		//    var result
+		//}
+	}
 }
