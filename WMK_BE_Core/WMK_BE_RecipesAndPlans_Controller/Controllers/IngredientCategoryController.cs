@@ -21,28 +21,28 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> Create([FromBody] CreateIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.CreateNew(request);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] FullIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.UpdateCategory(id, request);
-            return Ok(result);
-        }
+            return StatusCode(result.StatusCode , result);
+		}
 
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _ingredientCategoryService.GetAll();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpGet("get-by-name/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
             var result = await _ingredientCategoryService.GetByName(name);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpGet("get-by-id/{id}")]
@@ -52,7 +52,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out convertId))
             {
                 var result = await _ingredientCategoryService.GetById(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out convertID))
             {
                 var result = await _ingredientCategoryService.DeleteById(convertID);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {

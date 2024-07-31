@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.Service.Interface;
 
@@ -18,7 +19,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> Get()
         {
             var rs = await _recipeStepService.GetRecipeSteps();
-            return Ok(rs);
-        }
+			return StatusCode(rs.StatusCode , rs);
+		}
     }
 }

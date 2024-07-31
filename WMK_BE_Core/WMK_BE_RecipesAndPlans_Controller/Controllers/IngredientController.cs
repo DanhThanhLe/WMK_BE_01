@@ -21,7 +21,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _ingredientService.GetIngredients();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpGet("get/{id}")]
@@ -31,7 +31,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if ( Guid.TryParse(id , out ingredientId) )
             {
                 var result = await _ingredientService.GetIngredientById(ingredientId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -47,28 +47,28 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetByName(string name)
         {
             var result = await _ingredientService.GetIngredientByName(name);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpPost("create-new")]
         public async Task<IActionResult> CreateNew([FromBody] CreateIngredientRequest model)
         {
             var result = await _ingredientService.CreateIngredient(model);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(Guid id, IngredientRequest model)
         {
             var result = await _ingredientService.UpdateIngredient(id, model);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update-status/{id}")]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusIngredientRequest model)
         {
             var result = await _ingredientService.ChangeStatus(id, model);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         //[HttpPut("remove-from-app")]
@@ -97,7 +97,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out ingredientId))
             {
                 var result = await _ingredientService.DeleteIngredientById(ingredientId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {

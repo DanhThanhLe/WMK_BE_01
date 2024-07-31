@@ -16,6 +16,7 @@ using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -609,6 +610,110 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.Message = "Not found preference recipe. Its ok";
+				return result;
+			}
+		}
+
+		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe , CreateRecipeRequest recipe)
+		{
+			var result = new ResponseObject<RecipeResponse>();
+			var currentList = await GetAllToProcess();
+			try
+			{
+				var validateResult = _validator.Validate(recipe);
+				if ( !validateResult.IsValid )
+				{
+					var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+					result.StatusCode = 400;
+					result.Message = "Say from CreateRecipeAsync - RecipeService./n" + string.Join(" - /n" , error);
+					return result;
+				}
+				//check recipe exsit
+				var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(idRecipe.ToString());
+				if(recipeExist == null )
+				{
+					result.StatusCode = 404;
+					result.Message = "Recipe not exist!";
+					return result;
+				}
+				//mapper
+				Recipe updateRecipe = _mapper.Map<Recipe>(recipe);
+				updateRecipe.Popularity = 0;
+				updateRecipe.CreatedAt = DateTime.Now;
+				updateRecipe.ProcessStatus = ProcessStatus.Approved;
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Equals(recipe.Name.ToLower()));
+				if ( checkDuplicateName != null )
+				{
+					result.StatusCode = 400;
+					result.Message = "Duplicate name with ID " + checkDuplicateName.Id.ToString();
+					return result;
+				}
+				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
+				foreach ( var item in recipe.RecipeIngredientsList )
+				{
+					var ingredientFound = await _unitOfWork.IngredientRepository.GetByIdAsync(item.IngredientId.ToString());
+					if ( ingredientFound != null )
+					{
+						updateRecipe.Price += ingredientFound.Price * item.amount;
+					}
+					else
+					{
+						result.StatusCode = 400;
+						result.Message = "Ingredient ID " + item.IngredientId + " not found.";
+						return result;
+					}
+				}
+
+				var createResult = await _unitOfWork.RecipeRepository.CreateAsync(updateRecipe);
+				if ( !createResult )
+				{
+					result.StatusCode = 500;
+					result.Message = "Create Recipe unsuccessfully! Say from CreateRecipeAsync - RecipeService.";
+					return result;
+				}
+				await _unitOfWork.CompleteAsync();
+
+				//bat dau tao cac thanh phan lien quan
+
+				//create RecipeCategory
+				var checkCreateRecipeCategory = await _recipeCategoryService.Create(updateRecipe.Id , recipe.CategoryIds);
+
+				//create RecipeIngredient
+				var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(updateRecipe.Id , recipe.RecipeIngredientsList);
+
+				//create RecipeStep
+				var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(updateRecipe.Id , recipe.Steps);
+
+				//create RecipeNutrient
+				var checkCreateRecipeNutrient = await _recipeNutrientService.Create(updateRecipe.Id , recipe.RecipeIngredientsList);
+
+				if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
+					checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
+					|| checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
+					|| checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null
+					|| checkCreateRecipeNutrient.StatusCode != 200 || checkCreateRecipeNutrient.Data == null
+					)
+				{
+					resetRecipe(updateRecipe.Id);
+					result.StatusCode = 500;
+					result.Message = checkCreateRecipeCategory.Message
+						+ " | " + checkCreateRecipeIngredient.Message
+						+ " | " + checkCreateRecipeIngredient.Message
+						+ " | " + checkCreateRecipeNutrient.Message;
+					return result;
+				}
+				else//ko co loi va hoan thanh tao moi
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Update Recipe successfully.";
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
 				return result;
 			}
 		}

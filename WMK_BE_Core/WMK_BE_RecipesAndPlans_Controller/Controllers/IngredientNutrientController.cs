@@ -21,7 +21,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _ingredientNutrientService.GetAll();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
         [HttpGet("get-by-ingredient-id/{ingredientId}")]
@@ -31,7 +31,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(ingredientId, out convertId))
             {
                 var result = await _ingredientNutrientService.GetByIngredientId(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out convertId))
             {
                 var result = await _ingredientNutrientService.GetById(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -91,8 +91,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id.ToString(), out convertId) && Guid.TryParse(request.IngredientID.ToString(), out convertIngredientId))
             {
                 var result = await _ingredientNutrientService.Update(id, request);
-                return Ok(result);
-            }
+                return StatusCode(result.StatusCode , result);
+			}
             else
             {
                 return BadRequest(new
@@ -110,7 +110,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             if (Guid.TryParse(id, out convertId))
             {
                 var result = await _ingredientNutrientService.DeleteById(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
