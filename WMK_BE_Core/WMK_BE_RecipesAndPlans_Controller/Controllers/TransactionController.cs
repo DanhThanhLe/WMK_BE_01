@@ -30,6 +30,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);	
 		}
 
+		[HttpPost("create-new")]
+		public async Task<IActionResult> UpdateTransactionListForOrder([FromBody] CreatePaymentRequest request)
+		{
+			var result = await _transactionService.CreateNewPaymentAsync(request);
+			return StatusCode(result.StatusCode, result);
+		}
 
     }
 }

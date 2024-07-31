@@ -15,6 +15,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.TransactionModel;
+using System.Data;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -212,9 +213,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region create new payment - all - testing
-        public async Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request)
+        public async Task<ResponseObject<TransactionResponse>> CreateNewPaymentAsync(CreatePaymentRequest request)
         {
-            var result = new ResponseObject<Transaction>();
+            var result = new ResponseObject<TransactionResponse>();
             try
             {
                 //check validation
@@ -238,7 +239,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
                 newTransaction.TransactionDate = DateTime.Now;
                 newTransaction.Type = request.TransactionType;
-                newTransaction.Status = TransactionStatus.Pending;
+                newTransaction.Status = request.Status == null ? TransactionStatus.Pending : (TransactionStatus)request.Status;
+
+                //newTransaction.Status = (TransactionStatus)request.Status;
                 var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
                 if (!createResult)
                 {
@@ -250,7 +253,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     await _unitOfWork.CompleteAsync();
                     result.StatusCode = 200;
-                    result.Data = newTransaction;
+                    result.Data = _mapper.Map<TransactionResponse>(newTransaction);
                     result.Message = "Create transction success.";
                     return result;
                 }
