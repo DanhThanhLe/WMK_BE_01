@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,7 +36,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IRecipeStepService _recipeStepService;
 		private readonly IRecipeNutrientService _recipeNutrientService;
 		private readonly IRecipeIngredientService _recipeIngredientService;
-		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper , IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService , IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService , IRecipeStepService recipeStepService)
+		private readonly IUserService _userService;
+		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper , IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService , IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService , IRecipeStepService recipeStepService, IUserService userService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
@@ -46,6 +49,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_recipeNutrientService = recipeNutrientService;
 			_recipeIngredientService = recipeIngredientService;
 			_recipeStepService = recipeStepService;
+			_userService = userService;	
 		}
 
 		private async Task<List<Recipe>> GetAllToProcess()
@@ -193,7 +197,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Create
-		public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe)
+		public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(string createdBy,CreateRecipeRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var currentList = await GetAllToProcess();
@@ -209,6 +213,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
+				newRecipe.CreatedBy = createdBy;
 				newRecipe.Popularity = 0;
 				newRecipe.CreatedAt = DateTime.Now;
 				newRecipe.ProcessStatus = ProcessStatus.Processing;
@@ -616,7 +621,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe , UpdateRecipeRequest recipe)
+
+		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe , UpdateRecipeRequest recipe, string updatedBy)
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var currentList = await GetAllToProcess();
@@ -632,6 +638,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				_mapper.Map(recipeExist , recipe);
+				recipeExist.UpdatedBy = updatedBy;
 				recipeExist.UpdatedAt = DateTime.Now;
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
 				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu

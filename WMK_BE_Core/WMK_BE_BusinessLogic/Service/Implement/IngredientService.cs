@@ -71,7 +71,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Create
-        public async Task<ResponseObject<IngredientResponse>> CreateIngredient(CreateIngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> CreateIngredient(string createdBy,CreateIngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
@@ -98,9 +98,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
             Ingredient newIngredient = _mapper.Map<Ingredient>(ingredient);
+            newIngredient.CreatedBy = createdBy;
             newIngredient.CreatedAt = DateTime.UtcNow;
             newIngredient.UpdatedAt = DateTime.UtcNow;
-            newIngredient.UpdatedBy = ingredient.CreatedBy;
+            newIngredient.UpdatedBy = createdBy;
             newIngredient.IngredientCategory = checkIngredientCategory;
 
             var createResult = await _unitOfWork.IngredientRepository.CreateAsync(newIngredient);

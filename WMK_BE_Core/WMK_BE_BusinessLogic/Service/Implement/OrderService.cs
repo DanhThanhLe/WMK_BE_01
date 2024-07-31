@@ -121,6 +121,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         #endregion
+
+        #region delete
         public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id)
         {
             var result = new ResponseObject<OrderResponse>();
@@ -171,7 +173,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Message = "Order not exist!";
             return result;
         }
-        public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id,ChangeStatusOrderRequest model)
+
+        #endregion
+
+        #region change status
+        public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model)
         {
             var result = new ResponseObject<OrderResponse>();
 
@@ -182,7 +188,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
                 if (updateResult)
                 {
-                    
+
                     //await _unitOfWork.CompleteAsync();
                     ////change status transaction
                     //foreach (var zaloPay in orderExist.Transactions)
@@ -208,6 +214,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             return result;
 
         }
+        #endregion
 
         #region create
         public async Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model)
@@ -257,8 +264,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             int randomOrderCode = 0;
             //do//check toi khi nao order code ko trung thi thoi
             //{
-                randomOrderCode = random.Next(minValue, maxValue + 1);
-                //checkOrderCode = _unitOfWork.OrderRepository.Get(x => x.OrderCode == randomOrderCode).FirstOrDefault();
+            randomOrderCode = random.Next(minValue, maxValue + 1);
+            //checkOrderCode = _unitOfWork.OrderRepository.Get(x => x.OrderCode == randomOrderCode).FirstOrDefault();
             //} while (checkOrderCode.Id.ToString() != null);
             //tao order code
             _unitOfWork.OrderRepository.DetachEntity(checkOrderCode);
@@ -322,7 +329,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region update order
-        public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id,UpdateOrderRequest model)
+        public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id, UpdateOrderRequest model)
         {
             var result = new ResponseObject<OrderResponse>();
             var validationResult = _updateOrderValidator.Validate(model);
@@ -407,6 +414,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        
+
     }
 }

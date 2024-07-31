@@ -27,7 +27,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		List<string> categoryTypeList = new List<string> { "Nation" , "Classify" , "Cooking Method" , "Meal in day" };
 
-		#region Create-for-recipe-create
+		#region Create-for-recipeCreate
 		public async Task<ResponseObject<List<RecipeCategory>?>> Create(Guid recipeId , List<Guid> categoryIdList)
 		{
 			var result = new ResponseObject<List<RecipeCategory>?>();
@@ -164,6 +164,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		//        return result;
 		//    }
 		//}
+
 		#region Get-recipe-list-by-category-id
 		public List<Guid> GetRecipeIdByCategoryId(Guid categoryId)
 		{
