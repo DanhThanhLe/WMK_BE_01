@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.Service.Interface;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
@@ -61,9 +62,21 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-name/{name}/{status}")]//status true là tìm recipe cho đặt hàng, false là tìm để coi thôi
-        public async Task<IActionResult> GetByRecipeName(string name = "", bool status = true)
+        //[HttpGet("get-by-name/{name?}/{status?}")]//status true là tìm recipe cho đặt hàng, false là tìm để coi thôi
+        //public async Task<IActionResult> GetByRecipeName([FromRoute] string name = "", [FromRoute] bool status = true)
+        //{
+        //    var result = await _recipeService.GetRecipeByName(name, status);
+        //    return Ok(result);
+        //}
+        [HttpGet("get-by-name/{name?}/{status?}")]
+        public async Task<IActionResult> GetByRecipeName(
+        [SwaggerParameter("Name of the recipe", Required = false)] string name = "",
+        [SwaggerParameter("Status of the recipe", Required = false)] bool status = true)
         {
+            if (name == "{name}" || name == null)
+            {
+                name = ""; // Đặt giá trị mặc định nếu không được cung cấp
+            }
             var result = await _recipeService.GetRecipeByName(name, status);
             return Ok(result);
         }

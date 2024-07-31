@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
-using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;

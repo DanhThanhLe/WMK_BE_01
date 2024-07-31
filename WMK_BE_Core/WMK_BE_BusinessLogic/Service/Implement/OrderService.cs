@@ -182,17 +182,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
                 if (updateResult)
                 {
-                    await _unitOfWork.CompleteAsync();
-                    //change status transaction
-                    foreach (var zaloPay in orderExist.Transactions)
-                    {
-                        zaloPay.Status = TransactionStatus.PAID;
-                        zaloPay.TransactionDate = DateTime.Now;
-                    }
+                    
+                    //await _unitOfWork.CompleteAsync();
+                    ////change status transaction
+                    //foreach (var zaloPay in orderExist.Transactions)
+                    //{
+                    //    zaloPay.Status = TransactionStatus.PAID;
+                    //    zaloPay.TransactionDate = DateTime.Now;
+                    //}
                     await _unitOfWork.CompleteAsync();
                     result.StatusCode = 200;
                     result.Message = "Change order status into " + orderExist.Status + " success.";
-                    result.Data = _mapper.Map<OrderResponse>(orderExist);
+                    //result.Data = _mapper.Map<OrderResponse>(orderExist);
                     return result;
                 }
                 else
