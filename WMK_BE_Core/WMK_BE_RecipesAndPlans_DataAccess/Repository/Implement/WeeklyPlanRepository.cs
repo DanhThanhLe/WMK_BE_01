@@ -112,7 +112,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public async Task<bool> RecipeExistInWeeklyPlanAsync(Guid weeklyPlanId)
 		{
 			var weeklyplan = await _dbSet.Include(w => w.RecipePLans).FirstOrDefaultAsync(w => w.Id == weeklyPlanId);
-            if (weeklyplan != null)
+            if (weeklyplan != null && weeklyplan.RecipePLans.Any())
             {
                 return true;
             }

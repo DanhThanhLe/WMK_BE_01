@@ -195,7 +195,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						int countPlan = 0; //tinh xem dang co bao nhieu plan duoc tao boi nguoi dung roi. qua 5 thi ko cho tao them
 						foreach ( var item in currentList )
 						{
-							if ( item.CreatedBy == request.CreatedBy )
+							if ( item.CreatedBy == request.CreatedBy && item.ProcessStatus == ProcessStatus.Customer)
 							{
 								countPlan++;
 							}
@@ -443,6 +443,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var deleteResult = await _unitOfWork.WeeklyPlanRepository.DeleteAsync(weeklyPlanExist.Id.ToString());
 				if ( deleteResult )
 				{
+					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Delete weekly plan with id (" + weeklyPlanExist.Id + ") successfullly";
 					return result;
@@ -503,7 +504,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 			try
 			{
-				var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())).ToList();
+				//tìm list đc tạo bởi ng dùng và nó chưa bị cancel (process status còn là customer)
+				var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower()) && x.ProcessStatus == ProcessStatus.Customer).ToList();
 				if ( foundList.Count() == 0 ) //ko tim dc
 				{
 					result.StatusCode = 500;
@@ -542,7 +544,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//tao lai thong tin moi - ok
 				if ( request.recipeIds.Count > 200 )
 				{
-					result.Message = "Vuot qua pham vi cho phep. dat toi da duoi 200 con thuc";
+					result.Message = "Vuot qua pham vi cho phep. dat toi da duoi 200 cong thuc";
 					return result;
 				}
 				else

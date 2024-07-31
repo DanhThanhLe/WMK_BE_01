@@ -13,7 +13,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface ITransactionService
 	{
 		Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model);
-		Task<ResponseObject<Transaction>> CreateNewPaymentAsync(CreatePaymentRequest request);
+		Task<ResponseObject<TransactionResponse>> CreateNewPaymentAsync(CreatePaymentRequest request);
 
         Task<ResponseObject<Transaction>> CreatePaymentZaloPayAsync(ZaloPayCreatePaymentRequest model);
 		Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model);
