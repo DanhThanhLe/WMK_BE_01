@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
@@ -663,21 +664,79 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//xóa các thành phần liên quan
 				var checkDeleteRecipeCategory = await _recipeCategoryService.DeleteByRcipe(recipeExist.Id);
 				var checkDeleteRecipeIngredient = await _recipeIngredientService.DeleteRecipeIngredientByRecipeAsync(recipeExist.Id);
-				var checkDeleteRecipeStep = await _recipeStepService.DeleteRecipeStepsByRecipe(recipeExist.Id);
-				if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
+				if (//1 trong 2 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
 					checkDeleteRecipeCategory.StatusCode != 200
 					|| checkDeleteRecipeIngredient.StatusCode != 200
-					|| checkDeleteRecipeStep.StatusCode != 200
 					)
 				{
 					resetRecipe(recipeExist.Id);
 					result.StatusCode = 500;
 					result.Message = checkDeleteRecipeCategory.Message
-						+ " | " + checkDeleteRecipeIngredient.Message
-						+ " | " + checkDeleteRecipeStep.Message;
+						+ " | " + checkDeleteRecipeIngredient.Message;
 					return result;
 				}
 				//bat dau update cac thanh phan lien quan
+
+				//kiểm tra xem step nào đã tồn tại, nếu có rồi thì update step, nếu chưa thì delete
+				var recipeSteps = _unitOfWork.RecipeStepRepository.GetAll()
+					.Where(rc => rc.RecipeId == recipeExist.Id).ToList();
+				//nếu recipe.Steps count > recipeSteps thì tạo mới recipestep
+				if ( recipe.Steps.Count > recipeSteps.Count )
+				{
+					//xóa tất cả step có liên quan
+					var checkDeleteStep = await _recipeStepService.DeleteRecipeStepsByRecipe(recipeExist.Id);
+					if ( checkDeleteStep.StatusCode != 200 )
+					{
+						result.StatusCode = 500;
+						result.Message = checkDeleteStep.Message;
+						return result;
+					}
+					//gọi tới create
+					var createStepModel = _mapper.Map<List<CreateRecipeStepRequest>>(recipeSteps);
+					var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(recipeExist.Id , createStepModel);
+					if ( checkCreateRecipeStep.StatusCode != 200 )
+					{
+						resetRecipe(recipeExist.Id);
+						result.StatusCode = 500;
+						result.Message = checkCreateRecipeStep.Message;
+						return result;
+					}
+				}
+				else
+				{
+
+					foreach ( var recipeStepByRecipe in recipe.Steps )
+					{
+						//nếu có rồi thì update 
+						foreach ( var step in recipeSteps )
+						{
+							if ( recipeStepByRecipe.Id == step.Id )
+							{
+								//update
+								var checkUpdateStep = await _recipeStepService.UpdateRecipeStepsByRecipe(step.Id , recipeStepByRecipe);
+								if ( checkUpdateStep.StatusCode != 200 )
+								{
+									resetRecipe(recipeExist.Id);
+									result.StatusCode = 500;
+									result.Message = checkUpdateStep.Message;
+									return result;
+								}
+							}
+							else
+							{
+								//delete
+								var checkDeleteStep = await _recipeStepService.DeleteAsync(step.Id);
+								if ( checkDeleteStep.StatusCode != 200 )
+								{
+									resetRecipe(recipeExist.Id);
+									result.StatusCode = 500;
+									result.Message = checkDeleteStep.Message;
+									return result;
+								}
+							}
+						}
+					}
+				}
 
 				//create RecipeCategory
 				if ( recipe.CategoryIds != null && recipe.RecipeIngredientsList != null && recipe.Steps != null )
@@ -685,21 +744,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var checkCreateRecipeCategory = await _recipeCategoryService.Create(recipeExist.Id , recipe.CategoryIds);
 					//create RecipeIngredient
 					var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(recipeExist.Id , recipe.RecipeIngredientsList);
-					//create RecipeStep
-					var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(recipeExist.Id , recipe.Steps);
 
 					//update RecipeNutrient có thể gọi hàm tự động update vô đây
 
-					if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
+					if (//1 trong 2 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
 						checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
 						|| checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
-						|| checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null
 						)
 					{
 						resetRecipe(recipeExist.Id);
 						result.StatusCode = 500;
 						result.Message = checkCreateRecipeCategory.Message
-							+ " | " + checkCreateRecipeIngredient.Message
 							+ " | " + checkCreateRecipeIngredient.Message;
 						return result;
 					}

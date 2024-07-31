@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
@@ -21,6 +22,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel
 
 		public List<Guid>? CategoryIds { get; set; }
 		public List<CreateRecipeIngredientRequest>? RecipeIngredientsList { get; set; }
-		public List<CreateRecipeStepRequest>? Steps { get; set; }
+		public List<UpdateRecipeStepRequest> Steps { get; set; }
 	}
 }
