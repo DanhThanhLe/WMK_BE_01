@@ -13,6 +13,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
     public interface IRecipeCategoryService
     {
         Task<ResponseObject<List<RecipeCategory>?>> Create(Guid recipeId, List<Guid> categoryList);
+        Task<ResponseObject<List<RecipeCategory>?>> DeleteByRcipe(Guid recipeId);
         Task<ResponseObject<RecipeCategoryResponse>> Update(RecipeCategoryRequest recipeCategory);
         //Task<ResponseObject<RecipeCategoryResponse>> GetByRecipeId(Guid recipeId);
         List<Guid> GetRecipeIdByCategoryId(Guid categoryId);

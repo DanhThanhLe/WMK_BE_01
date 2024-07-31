@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.Service.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
@@ -76,9 +77,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
         
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] CreateRecipeRequest model)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRecipeRequest model)
         {
-            var result = await _recipeService.CreateRecipeAsync(model);
+            var result = await _recipeService.UpdateRecipeAsync(id, model);
             return StatusCode(result.StatusCode , result);
         }
 

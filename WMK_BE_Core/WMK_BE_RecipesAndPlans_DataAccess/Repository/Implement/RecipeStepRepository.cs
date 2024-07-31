@@ -13,7 +13,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
     {
         public RecipeStepRepository(WeMealKitContext context) : base(context) { }
 
-        public override Task<List<RecipeStep>> GetAllAsync()
+		public void DeleteRange(IEnumerable<RecipeStep> recipeSteps)
+		{
+			_dbSet.RemoveRange(recipeSteps);
+		}
+
+		public override Task<List<RecipeStep>> GetAllAsync()
         {
             return _dbSet.Include(r => r.Recipe)
                 .ThenInclude(rs => rs.RecipeSteps)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
@@ -21,7 +22,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         public Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name, bool status);
 
         public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe);
-        public Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe, CreateRecipeRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe, UpdateRecipeRequest recipe);
 
         //public Task<ResponseObject<RecipeResponse>> UpdateRecipe(RecipeRequest recipe);
 
