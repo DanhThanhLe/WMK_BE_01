@@ -63,9 +63,21 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(orderGroupId.ToString());
 			if ( orderGroupExist != null )
 			{
-				result.StatusCode = 200;
+
+				string userName = null;
+                if (orderGroupExist.AsignBy.ToString() != null)
+                {
+					userName = _unitOfWork.UserRepository.GetUserNameById(orderGroupExist.AsignBy);
+                }
+                var returnData = _mapper.Map<OrderGroupsResponse>(orderGroupExist);
+				if ( userName != null )
+				{
+					returnData.AsignBy = userName;
+				}
+
+                result.StatusCode = 200;
 				result.Message = "OrderGroup";
-				result.Data = _mapper.Map<OrderGroupsResponse>(orderGroupExist);
+				result.Data = returnData;
 				return result;
 			}
 			else
@@ -76,7 +88,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model)
+		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model, string assignedBy)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
 			var validationResult = _createValidator.Validate(model);
@@ -109,7 +121,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Shipper have order group!";
 				return result;
 			}
-			var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(model.AsignBy.ToString());
+			var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(assignedBy.ToString());
 			if ( staffExist != null && staffExist.Role != Role.Staff )
 			{
 				result.StatusCode = 403;
@@ -122,8 +134,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Staff not exist!";
 				return result;
 			}
-
 			var orderGroupModel = _mapper.Map<OrderGroup>(model);
+			Guid idConvert;
+			Guid.TryParse(assignedBy, out idConvert);
+			orderGroupModel.AsignBy = idConvert;
 			orderGroupModel.AsignAt = DateTime.Now;
 			orderGroupModel.Status = BaseStatus.Available;
 			orderGroupModel.User = shipperExist;
@@ -146,7 +160,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model)
+		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model, string id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
 			var validationResult = _updateValidator.Validate(model);
@@ -171,7 +185,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Shipper not exist!";
 				return result;
 			}
-			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(model.Id.ToString());
+			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(id.ToString());
 			if ( orderGroupExist != null )
 			{
 				var orderGroup = _mapper.Map(orderGroupExist , model);

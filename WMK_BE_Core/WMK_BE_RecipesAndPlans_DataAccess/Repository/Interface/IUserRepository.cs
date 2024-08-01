@@ -12,6 +12,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 	{
 		Task<User?> GetByEmailOrUserNameAsync(string emailOrUserName);
 		Task<bool> GetOrderExistInUserAsync(Guid idUser);
+		string GetUserNameById(Guid id);
 
-	}
+    }
 }

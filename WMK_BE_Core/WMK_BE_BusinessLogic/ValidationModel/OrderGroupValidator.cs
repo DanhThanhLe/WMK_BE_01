@@ -16,8 +16,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			_expendValidator = new ExpendValidator();
 			RuleFor(o => o.ShipperId).NotEmpty().WithMessage("ID shipper is required!")
 					.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!"); 
-			RuleFor(o => o.AsignBy).NotEmpty().WithMessage("Asign by is required!")
-					.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!");
+			//RuleFor(o => o.AsignBy).NotEmpty().WithMessage("Asign by is required!")
+			//		.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!");
 			RuleFor(o => o.Location).NotEmpty().WithMessage("Location is required!");
 		}
 	}
@@ -31,8 +31,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			RuleFor(o => o.Longitude).NotEmpty().WithMessage("Longitude is required!");
 			RuleFor(o => o.ShipperId).NotEmpty().WithMessage("ID shipper is required!")
 					.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!"); 
-			RuleFor(o => o.Id).NotEmpty().WithMessage("ID is required!")
-					.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!");
+			//RuleFor(o => o.Id).NotEmpty().WithMessage("ID is required!")
+			//		.Must(_expendValidator.BeValidGuid).WithMessage("ID invalid fortmat GUID!");
 			RuleFor(o => o.Location).NotEmpty().WithMessage("Location is required!");
 		}
 	}

@@ -8,7 +8,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderGroupModel
 {
 	public class UpdateOrderGroupRequest
 	{
-        public string Id { get; set; } = string.Empty;
+        //public string Id { get; set; } = string.Empty;
         public string ShipperId { get; set; } = string.Empty;
 		public string Location { get; set; } = string.Empty;
 		public double Longitude { get; set; }//kinh dộ

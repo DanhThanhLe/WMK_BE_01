@@ -140,7 +140,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        #region get by
+        #region get by name
         public async Task<ResponseObject<List<IngredientCategoryResponse>>> GetByName(string request)
         {
             var result = new ResponseObject<List<IngredientCategoryResponse>>();

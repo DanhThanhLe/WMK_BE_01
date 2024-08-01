@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
+using System.Security.Claims;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
 using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -51,20 +53,35 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create-new")]
+        [Authorize]
         public async Task<IActionResult> CreateNew([FromBody] CreateIngredientRequest model)
         {
-            var result = await _ingredientService.CreateIngredient(model);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string createdBy = userId.ToString();
+            var result = await _ingredientService.CreateIngredient(createdBy,model);
             return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, IngredientRequest model)
         {
-            var result = await _ingredientService.UpdateIngredient(id, model);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string updatedBy = userId.ToString();
+            var result = await _ingredientService.UpdateIngredient(id, updatedBy, model);
             return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update-status/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusIngredientRequest model)
         {
             var result = await _ingredientService.ChangeStatus(id, model);
@@ -91,6 +108,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         //}
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteById(string id)
         {
             Guid ingredientId;

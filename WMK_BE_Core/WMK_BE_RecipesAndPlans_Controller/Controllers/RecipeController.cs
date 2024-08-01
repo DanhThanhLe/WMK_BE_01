@@ -4,6 +4,8 @@ using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.Service.Interface;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
@@ -45,6 +47,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpGet("get-by-category/{categoryId}")]
+        [Authorize]
         public async Task<IActionResult> GetWithCategoryId(string categoryId)
         {
             Guid categoryIdConvert;
@@ -83,20 +86,35 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create-new")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateRecipeRequest model)
         {
-            var result = await _recipeService.CreateRecipeAsync(model);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string createdBy = userId.ToString();
+            var result = await _recipeService.CreateRecipeAsync(createdBy,model);
             return StatusCode(result.StatusCode , result);
         }
         
         [HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRecipeRequest model)
         {
-            var result = await _recipeService.UpdateRecipeAsync(id, model);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string updatedBy = userId.ToString();
+            var result = await _recipeService.UpdateRecipeAsync(id, model, updatedBy);
             return StatusCode(result.StatusCode , result);
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteById(string id)
         {
             Guid recipeId;
@@ -116,6 +134,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPut("change-status/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateStatusRecipe(Guid id,[FromQuery] ChangeRecipeStatusRequest request)
         {
             Guid recipeId;
