@@ -18,7 +18,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
         [HttpGet("get-all")]
-        [Authorize]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _orderService.GetAllOrders();

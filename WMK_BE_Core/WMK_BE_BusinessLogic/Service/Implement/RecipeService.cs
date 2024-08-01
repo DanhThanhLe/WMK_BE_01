@@ -670,7 +670,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-
 		public async Task<bool> AutoUpdateNutrientByRecipe(Guid recipeId)
 		{
 			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
