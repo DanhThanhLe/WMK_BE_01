@@ -1,7 +1,7 @@
 
 name: .NET Core Desktop
 
-on:
+on: 
   push:
     branches: [ "main" ] 
   pull_request:
@@ -59,6 +59,8 @@ jobs:
       run: git commit -m "Auto updating yaml.txt"
     - name: fetch from master
       run: git fetch origin main
+    - name: pull from master
+      run: git pull
     - name: push code to master
       run: git push origin HEAD:main
 

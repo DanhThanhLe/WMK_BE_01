@@ -20,17 +20,16 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe
         public string Name { get; set; } = string.Empty;
         public int ServingSize { get; set; }
         public int CookingTime { get; set; }
-        public LevelOfDifficult Difficulty { get; set; }
+        public string Difficulty { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Notice { get; set; }
         public string? Img { get; set; }
         public double Price { get; set; }
         public int Popularity { get; set; }
-        public string ProcessStatus { get; set; }
+        public string ProcessStatus { get; set; } = string.Empty;
         public BaseStatus BaseStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
-        public string CreateName { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }

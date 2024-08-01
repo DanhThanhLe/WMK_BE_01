@@ -17,7 +17,7 @@ namespace WMK_BE_BusinessLogic.Mapper
 
 			//model <-> request
 			CreateMap<Ingredient , CreateIngredientRequest>().ReverseMap();
-			CreateMap<Ingredient , IngredientRequest>().ReverseMap();
+			//CreateMap<Ingredient , IngredientRequest>().ReverseMap();
 
 			//model <-> response
 			CreateMap<Ingredient , IngredientResponse>()

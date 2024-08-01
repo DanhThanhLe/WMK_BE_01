@@ -159,7 +159,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
-		public async Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id , UpdateRecipeStepRequest model)
+		public async Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id , CreateRecipeStepRequest model)
 		{
 			var result = new ResponseObject<List<RecipeStep>>();
             //check recipe step exist

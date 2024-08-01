@@ -19,18 +19,26 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create-new")]
-        [Authorize]
-        public async Task<IActionResult> Create([FromBody] CreateIngredientCategoryRequest request)
+		[Authorize(Roles = "Admin,Manager")]
+		public async Task<IActionResult> Create([FromBody] CreateIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.CreateNew(request);
             return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update/{id}")]
-        [Authorize]
-        public async Task<IActionResult> Update(Guid id, [FromBody] FullIngredientCategoryRequest request)
+		[Authorize(Roles = "Admin,Manager")]
+		public async Task<IActionResult> Update(Guid id, [FromBody] FullIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.UpdateCategory(id, request);
+            return StatusCode(result.StatusCode , result);
+		}
+        
+        [HttpPut("change-status/{id}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatus(Guid id, ChangeStatusIngredientCategoryRequest request)
+        {
+            var result = await _ingredientCategoryService.ChangeStatusIngredientCategoryAsync(id, request);
             return StatusCode(result.StatusCode , result);
 		}
 

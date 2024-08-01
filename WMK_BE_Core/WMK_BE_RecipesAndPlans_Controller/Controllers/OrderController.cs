@@ -18,7 +18,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
         [HttpGet("get-all")]
-        [Authorize]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _orderService.GetAllOrders();
@@ -62,7 +62,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpPut("update/{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Update(string id,[FromBody] UpdateOrderRequest model)
 		{
 			var result = await _orderService.UpdateOrderAsync(id,model);

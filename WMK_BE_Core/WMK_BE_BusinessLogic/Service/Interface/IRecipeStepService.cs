@@ -18,6 +18,6 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<List<RecipeStep>>> CreateRecipeSteps(Guid recipeId, List<CreateRecipeStepRequest> stepList);
         Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId);
         Task<ResponseObject<RecipeStep>> DeleteAsync(Guid recipeStepId);
-        Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id, UpdateRecipeStepRequest model);
+        Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id, CreateRecipeStepRequest model);
     }
 }

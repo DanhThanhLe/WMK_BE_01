@@ -10,23 +10,23 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
 {
-    public class CreateRecipeRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public int ServingSize { get; set; }
-        public int CookingTime { get; set; }
-        public LevelOfDifficult Difficulty { get; set; }
-        public string? Description { get; set; } = string.Empty;
-        public string? Img { get; set; } = string.Empty;
-        //public string CreatedBy { get; set; } = string.Empty;
+	public class CreateRecipeRequest
+	{
+		public string Name { get; set; } = string.Empty;
+		public int ServingSize { get; set; }
+		public int CookingTime { get; set; }
+		public LevelOfDifficult Difficulty { get; set; }
+		public string? Description { get; set; } = string.Empty;
+		public string? Img { get; set; } = string.Empty;
+		//public string CreatedBy { get; set; } = string.Empty;
 
-        public List<Guid> CategoryIds { get; set; }
+		public List<Guid> CategoryIds { get; set; }
 		public List<CreateRecipeIngredientRequest> RecipeIngredientsList { get; set; }
-        public List<CreateRecipeStepRequest> Steps { get; set; }
+		public List<CreateRecipeStepRequest> Steps { get; set; }
 	}
-    public class CreateRecipeIngredientRequest
-    {
-        public Guid IngredientId { get; set; }
-        public double amount { get; set; }
-    }
+	public class CreateRecipeIngredientRequest
+	{
+		public Guid IngredientId { get; set; }
+		public double amount { get; set; }
+	}
 }

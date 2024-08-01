@@ -15,238 +15,260 @@ using System.Net;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
-    public class CategoryService : ICategoryService
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-        }
+	public class CategoryService : ICategoryService
+	{
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IMapper _mapper;
+		public CategoryService(IUnitOfWork unitOfWork , IMapper mapper)
+		{
+			_unitOfWork = unitOfWork;
+			_mapper = mapper;
+		}
 
 
-        public async Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync()
-        {
-            var result = new ResponseObject<List<CategoryResponseModel>>();
-            var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
-            if (categories != null && categories.Count > 0)
-            {
-                result.StatusCode = 200;
-                result.Message = "Categories";
-                result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
-                return result;
-            }
-            else
-            {
-                result.StatusCode = 404;
-                result.Message = "Don't have Categories!";
-                return result;
-            }
-        }
-        public async Task<ResponseObject<CategoryResponseModel?>> GetByIdAsync(Guid id)
-        {
-            var result = new ResponseObject<CategoryResponseModel?>();
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync()
+		{
+			var result = new ResponseObject<List<CategoryResponseModel>>();
+			var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+			if ( categories != null && categories.Count > 0 )
+			{
+				result.StatusCode = 200;
+				result.Message = "Categories";
+				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Don't have Categories!";
+				return result;
+			}
+		}
+		public async Task<ResponseObject<CategoryResponseModel?>> GetByIdAsync(Guid id)
+		{
+			var result = new ResponseObject<CategoryResponseModel?>();
 
-            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
-            if (category != null)
-            {
-                result.StatusCode = 200;
-                result.Message = "Category: ";
-                result.Data = _mapper.Map<CategoryResponseModel>(category);
-                return result;
-            }
-            else
-            {
-                result.StatusCode = 404;
-                result.Message = "Category not found!";
-                return result;
-            }
+			var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
+			if ( category != null )
+			{
+				result.StatusCode = 200;
+				result.Message = "Category: ";
+				result.Data = _mapper.Map<CategoryResponseModel>(category);
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Category not found!";
+				return result;
+			}
 
-        }
-        public async Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequestModel model)
-        {
-            var result = new ResponseObject<CategoryResponseModel>();
-            var newCategory = _mapper.Map<Category>(model);
-            //check co type trong quy dinh
-            var checkMatchTypeResult = CheckMatchType(newCategory.Type);
-            if (!checkMatchTypeResult)
-            {
-                result.StatusCode = 400;
-                result.Message = "Not match pre-set category types!";
-                return result;
-            }
-            //check trung ten
-            var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-            var checkDuplicateNameResult = currentList.FirstOrDefault(x => x.Name == newCategory.Name);
-            if (checkDuplicateNameResult != null)
-            {
-                result.StatusCode = 400;
-                result.Message = "Duplicate name with category id: " + checkDuplicateNameResult.Id + " !";
-                return result;
-            }
-            newCategory.Status = BaseStatus.Available;
-            var createResult = await _unitOfWork.CategoryRepository.CreateAsync(newCategory);
-            if (createResult)
-            {
-                await _unitOfWork.CompleteAsync();
-                result.StatusCode = 200;
-                result.Message = "Create new Category (" + model.Name + ") successfully.";
-                return result;
-            }
-            else
-            {
-                result.StatusCode = 500;
-                result.Message = "Create category unsuccessfully!";
-                return result;
-            }
-        }
-        public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id,UpdateCategoryRequestModel model)
-        {
-            var result = new ResponseObject<CategoryResponseModel>();
+		}
+		public async Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequestModel model)
+		{
+			var result = new ResponseObject<CategoryResponseModel>();
+			var newCategory = _mapper.Map<Category>(model);
+			//check co type trong quy dinh
+			var checkMatchTypeResult = CheckMatchType(newCategory.Type);
+			if ( !checkMatchTypeResult )
+			{
+				result.StatusCode = 400;
+				result.Message = "Not match pre-set category types!";
+				return result;
+			}
+			//check trung ten
+			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
+			var checkDuplicateNameResult = currentList.FirstOrDefault(x => x.Name == newCategory.Name);
+			if ( checkDuplicateNameResult != null )
+			{
+				result.StatusCode = 400;
+				result.Message = "Duplicate name with category id: " + checkDuplicateNameResult.Id + " !";
+				return result;
+			}
+			newCategory.Status = BaseStatus.Available;
+			var createResult = await _unitOfWork.CategoryRepository.CreateAsync(newCategory);
+			if ( createResult )
+			{
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Message = "Create new Category (" + model.Name + ") successfully.";
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 500;
+				result.Message = "Create category unsuccessfully!";
+				return result;
+			}
+		}
+		public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id , UpdateCategoryRequestModel model)
+		{
+			var result = new ResponseObject<CategoryResponseModel>();
 
-            var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
+			var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
 
-            if (categoryExist == null)
-            {
-                result.StatusCode = 200;
-                result.Message = "Category not exist!";
-                return result;
-            }
-            if (!string.IsNullOrEmpty(model.Name))
-            {
-                categoryExist.Name = model.Name;
-            }
-            if (!string.IsNullOrEmpty(model.Description))
-            {
-                categoryExist.Description = model.Description;
-            }
-            if (model.Status != null)
-            {
-                categoryExist.Status = model.Status ?? 0;
-            }
-            var updateResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
-            if (updateResult)
-            {
-                await _unitOfWork.CompleteAsync();
-                result.StatusCode = 200;
-                result.Message = "Update category (" + categoryExist.Name + ") successfully.";
-                return result;
-            }
-            else
-            {
-                result.StatusCode = 500;
-                result.Message = "Update category unsuccessfully!";
-                return result;
-            }
+			if ( categoryExist == null )
+			{
+				result.StatusCode = 200;
+				result.Message = "Category not exist!";
+				return result;
+			}
+			if ( !string.IsNullOrEmpty(model.Name) )
+			{
+				categoryExist.Name = model.Name;
+			}
+			if ( !string.IsNullOrEmpty(model.Description) )
+			{
+				categoryExist.Description = model.Description;
+			}
+			var updateResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
+			if ( updateResult )
+			{
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Message = "Update category (" + categoryExist.Name + ") successfully.";
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 500;
+				result.Message = "Update category unsuccessfully!";
+				return result;
+			}
 
-        }
-        public async Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(Guid id)
-        {
-            var result = new ResponseObject<CategoryResponseModel>();
-            var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
-            if (categoryExist == null)
-            {
-                result.StatusCode = 500;
-                result.Message = "Category not found!";
-                return result;
-            }
-            var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(id);
-            if (recipeExistCategory)
-            {
-                categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.UnAvailable;
-                var updateResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
-                if (updateResult)
-                {
-                    await _unitOfWork.CompleteAsync();
-                    result.StatusCode = 200;
-                    result.Message = "Change status of catgory (" + categoryExist.Name + ") successfully.";
-                    return result;
-                }
-                else
-                {
-                    result.StatusCode = 500;
-                    result.Message = "Fail to change status category (" + categoryExist.Name + ")!";
-                    return result;
-                }
-            }
-            var deleteResult = await _unitOfWork.CategoryRepository.DeleteAsync(id.ToString());
-            if (deleteResult)
-            {
-                await _unitOfWork.CompleteAsync();
-                result.StatusCode = 200;
-                result.Message = "Delete catgory (" + categoryExist.Name + ") successfully.";
-                return result;
-            }
-            else
-            {
-                result.StatusCode = 500;
-                result.Message = "Fail to delete category (" + categoryExist.Name + ")!";
-                return result;
-            }
-        }
-        List<string> categoryTypeList = new List<string> { "Nation", "Classify", "Cooking Method", "Meal in day" };
+		}
+		public async Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(Guid id)
+		{
+			var result = new ResponseObject<CategoryResponseModel>();
+			var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
+			if ( categoryExist == null )
+			{
+				result.StatusCode = 500;
+				result.Message = "Category not found!";
+				return result;
+			}
+			var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(id);
+			if ( recipeExistCategory )
+			{
+				categoryExist.Status = WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.UnAvailable;
+				var updateResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
+				if ( updateResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Change status of catgory (" + categoryExist.Name + ") successfully.";
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 500;
+					result.Message = "Fail to change status category (" + categoryExist.Name + ")!";
+					return result;
+				}
+			}
+			var deleteResult = await _unitOfWork.CategoryRepository.DeleteAsync(id.ToString());
+			if ( deleteResult )
+			{
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Message = "Delete catgory (" + categoryExist.Name + ") successfully.";
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 500;
+				result.Message = "Fail to delete category (" + categoryExist.Name + ")!";
+				return result;
+			}
+		}
+		List<string> categoryTypeList = new List<string> { "Nation" , "Classify" , "Cooking Method" , "Meal in day" };
 
-        private bool CheckMatchType(string type)//nhan noi dung cua type tu request, do theo list type cua category, neu khong nam trong list thi bao loi
-        {
-            foreach (var item in categoryTypeList)
-            {
-                if (item.Equals(type))
-                {
-                    return true;//nghia la co trung voi 1 type trong nay
-                }
-            }
-            return false;
-        }
+		private bool CheckMatchType(string type)//nhan noi dung cua type tu request, do theo list type cua category, neu khong nam trong list thi bao loi
+		{
+			foreach ( var item in categoryTypeList )
+			{
+				if ( item.Equals(type) )
+				{
+					return true;//nghia la co trung voi 1 type trong nay
+				}
+			}
+			return false;
+		}
 
-        public async Task<ResponseObject<List<CategoryResponseModel>>> GetCategoryByType(string type)
-        {
-            var result = new ResponseObject<List<CategoryResponseModel>>();
-            var checkMatchTypeResult = CheckMatchType(type);
-            if (!checkMatchTypeResult)
-            {
-                result.StatusCode = 400;
-                result.Message = "Not match pre-set category types!";
-                return result;
-            }
-            var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-            List<Category> foundList = new List<Category>();
-            foreach (var item in currentList)
-            {
-                if (item.Type.ToLower().Equals(type.ToLower()) && item.Status == BaseStatus.Available)
-                {
-                    foundList.Add(item);
-                }
-            }
-            result.StatusCode = 200;
-            result.Message = "List category with " + type + " type";
-            result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
-            return result;
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetCategoryByType(string type)
+		{
+			var result = new ResponseObject<List<CategoryResponseModel>>();
+			var checkMatchTypeResult = CheckMatchType(type);
+			if ( !checkMatchTypeResult )
+			{
+				result.StatusCode = 400;
+				result.Message = "Not match pre-set category types!";
+				return result;
+			}
+			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
+			List<Category> foundList = new List<Category>();
+			foreach ( var item in currentList )
+			{
+				if ( item.Type.ToLower().Equals(type.ToLower()) && item.Status == BaseStatus.Available )
+				{
+					foundList.Add(item);
+				}
+			}
+			result.StatusCode = 200;
+			result.Message = "List category with " + type + " type";
+			result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
+			return result;
 
-        }
+		}
 
-        public async Task<ResponseObject<List<CategoryResponseModel>>> GetcategoryByName(string name)
-        {
-            var result = new ResponseObject<List<CategoryResponseModel>>();
-            var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-            List<Category> foundList = new List<Category>();
-            foreach (var item in currentList)
-            {
-                if(item.Name.ToLower().Contains(name.ToLower()) && item.Status == BaseStatus.Available)
-                {
-                    foundList.Add(item);
-                }
-            }
-            if(foundList.Count == 0)
-            {
-                result.StatusCode = 400;
-                result.Message = "Not found with name contains " + name;
-                return result;
-            }
-            result.StatusCode = 200;
-            result.Message = "List category with name contains " + name;
-            result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
-            return result;
-        }
-    }
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetcategoryByName(string name)
+		{
+			var result = new ResponseObject<List<CategoryResponseModel>>();
+			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
+			List<Category> foundList = new List<Category>();
+			foreach ( var item in currentList )
+			{
+				if ( item.Name.ToLower().Contains(name.ToLower()) && item.Status == BaseStatus.Available )
+				{
+					foundList.Add(item);
+				}
+			}
+			if ( foundList.Count == 0 )
+			{
+				result.StatusCode = 400;
+				result.Message = "Not found with name contains " + name;
+				return result;
+			}
+			result.StatusCode = 200;
+			result.Message = "List category with name contains " + name;
+			result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
+			return result;
+		}
+
+		public async Task<ResponseObject<CategoryResponseModel>> ChangeCategoryAsync(Guid id , ChangeCategoryRequest model)
+		{
+			var result = new ResponseObject<CategoryResponseModel>();
+			//check category exist 
+			var categoryExist = await _unitOfWork.CategoryRepository.GetByIdAsync(id.ToString());
+			if ( categoryExist != null )
+			{
+				categoryExist.Status = model.Status;
+				var changeResult = await _unitOfWork.CategoryRepository.UpdateAsync(categoryExist);
+				if ( changeResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Change category success";
+					return result;
+				}
+				result.StatusCode = 500;
+				result.Message = "Change category unsuccess";
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Category not exist!";
+			return result;
+
+		}
+	}
 }

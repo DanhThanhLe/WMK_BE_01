@@ -22,6 +22,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel
 
 		public List<Guid>? CategoryIds { get; set; }
 		public List<CreateRecipeIngredientRequest>? RecipeIngredientsList { get; set; }
-		public List<UpdateRecipeStepRequest> Steps { get; set; }
+		public List<CreateRecipeStepRequest> Steps { get; set; }
 	}
 }

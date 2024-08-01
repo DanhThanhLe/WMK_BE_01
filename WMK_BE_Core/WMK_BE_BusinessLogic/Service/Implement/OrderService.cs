@@ -85,6 +85,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     result.Message = "Empty";
                     return result;
                 }
+
+                //tren moblie chi can get trans moi nhat
+                foreach (var item in foundList)
+                {
+                    if(item.Transactions != null && item.Transactions.Count > 1)
+                    item.Transactions = item.Transactions.OrderByDescending(x => x.TransactionDate).Take(1).ToList();
+                }
                 result.StatusCode = 200;
                 result.Message = "Ok, list order " + foundList.Count();
                 var returnList = _mapper.Map<List<OrderResponse>>(foundList);

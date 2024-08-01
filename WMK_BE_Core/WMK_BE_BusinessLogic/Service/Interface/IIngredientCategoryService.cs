@@ -13,6 +13,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
     {
         Task<ResponseObject<IngredientCategoryResponse>> CreateNew(CreateIngredientCategoryRequest request);
         Task<ResponseObject<IngredientCategoryResponse>> UpdateCategory(Guid id, FullIngredientCategoryRequest request);
+        Task<ResponseObject<IngredientCategoryResponse>> ChangeStatusIngredientCategoryAsync(Guid id, ChangeStatusIngredientCategoryRequest request);
         Task<ResponseObject<List<IngredientCategoryResponse>>> GetAll();
         Task<ResponseObject<List<IngredientCategoryResponse>>> GetByName(string request);
         Task<ResponseObject<IngredientCategoryResponse>> DeleteById(Guid id);

@@ -19,8 +19,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.Recipe
 
     public class CreateRecipeStepRequest
     {
-        public int Index { get; set; }
-        public string Name { get; set; }
+		public Guid? Id { get; set; }
+		public int Index { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? MediaURL { get; set; } = string.Empty;
         public string? ImageLink { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty;
