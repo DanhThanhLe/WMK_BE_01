@@ -218,6 +218,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Data = _mapper.Map<IngredientCategoryResponse>(found);
             return result;
         }
-        #endregion
-    }
+
+		#endregion
+		public async Task<ResponseObject<IngredientCategoryResponse>> ChangeStatusIngredientCategoryAsync(Guid id , ChangeStatusIngredientCategoryRequest request)
+		{
+            var result = new ResponseObject<IngredientCategoryResponse>();
+
+            //check exist
+            var ingredientCategoryExist = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString());
+
+            if ( ingredientCategoryExist != null ) 
+            {
+                ingredientCategoryExist.Status = request.Status;
+                var changeStatusResult = await _unitOfWork.IngredientCategoryRepository.UpdateAsync(ingredientCategoryExist);
+                if(changeStatusResult )
+                {
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Message = "Update ingredient category success";
+                    return result;
+                }
+				result.StatusCode = 500;
+				result.Message = "Update ingredient category unsuccess";
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Ingredient category not exist!";
+			return result;
+		}
+	}
 }

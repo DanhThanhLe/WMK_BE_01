@@ -8,10 +8,10 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel
 {
-    public class FullIngredientNutrientRequest
+    public class IngredientNutrientRequest
     {
         //public Guid Id { get; set; }
-        public Guid IngredientID { get; set; }
+        //public Guid IngredientID { get; set; }
         public double Calories { get; set; }
         public double Fat { get; set; }
         public double SaturatedFat { get; set; }

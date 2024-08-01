@@ -33,6 +33,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var result = await _ingredientCategoryService.UpdateCategory(id, request);
             return StatusCode(result.StatusCode , result);
 		}
+        
+        [HttpPut("change-status/{id}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatus(Guid id, ChangeStatusIngredientCategoryRequest request)
+        {
+            var result = await _ingredientCategoryService.ChangeStatusIngredientCategoryAsync(id, request);
+            return StatusCode(result.StatusCode , result);
+		}
 
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()

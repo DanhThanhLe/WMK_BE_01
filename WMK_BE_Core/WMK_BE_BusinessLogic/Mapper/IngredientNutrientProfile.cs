@@ -14,13 +14,13 @@ namespace WMK_BE_BusinessLogic.Mapper
     {
         public IngredientNutrientProfile()
         {
-            CreateMap<IngredientNutrient,CreateIngredientNutrientRequest>().ReverseMap();
-            CreateMap<IngredientNutrient, FullIngredientNutrientRequest>().ReverseMap();
+            CreateMap<IngredientNutrient, CreateIngredientNutrientRequest>().ReverseMap();
+            CreateMap<IngredientNutrient, IngredientNutrientRequest>().ReverseMap();
 
             CreateMap<IngredientNutrient,IngredientNutrientResponse>().ReverseMap();
-
+            CreateMap<IngredientNutrientRequest , CreateIngredientNutrientRequest>().ReverseMap();
             CreateMap<IngredientNutrient, UpdateIngredientNutrientRequest>().ReverseMap();
-            CreateMap<FullIngredientNutrientRequest, UpdateIngredientNutrientRequest>().ReverseMap();
+            CreateMap<IngredientNutrientRequest, UpdateIngredientNutrientRequest>().ReverseMap();
         }
     }
 }

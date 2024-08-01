@@ -21,23 +21,23 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             //RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("UpdatedBy must not empty");
         }
     }
-    public class UpdateIngredientValidator : AbstractValidator<IngredientRequest>
-    {
-        public UpdateIngredientValidator()
-        {
-            RuleFor(x => x.IngredientCategoryId).NotEmpty().WithMessage("Category khong de trong");
-            RuleFor(x => x.Name).NotEmpty().WithMessage("Ten khong de trong");
-            RuleFor(x => x.Img).NotEmpty().WithMessage("Image link khong de trong");
-            RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham");
-            RuleFor(x => x.Price).NotEmpty().Must(p => p > 100).WithMessage("Don vi san pham ko de trong (g; kg; ml; l)");
-            //RuleFor(x => x.CreatedAt).NotEmpty().WithMessage("CreatedAt la ngay them moi san pham");
-            //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateddBy la ten nguoi dung da thao tac len san pham moi");
-            RuleFor(x => x.UpdatedAt).NotEmpty().WithMessage("UpdateddAt field must not empty");
-            RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("UpdatedBy must not empty");
-            RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
-                .IsInEnum().WithMessage("phai la available hoac unavailable");
-        }
-    }
+    //public class UpdateIngredientValidator : AbstractValidator<IngredientRequest>
+    //{
+    //    public UpdateIngredientValidator()
+    //    {
+    //        RuleFor(x => x.IngredientCategoryId).NotEmpty().WithMessage("Category khong de trong");
+    //        RuleFor(x => x.Name).NotEmpty().WithMessage("Ten khong de trong");
+    //        RuleFor(x => x.Img).NotEmpty().WithMessage("Image link khong de trong");
+    //        RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham");
+    //        RuleFor(x => x.Price).NotEmpty().Must(p => p > 100).WithMessage("Don vi san pham ko de trong (g; kg; ml; l)");
+    //        //RuleFor(x => x.CreatedAt).NotEmpty().WithMessage("CreatedAt la ngay them moi san pham");
+    //        //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateddBy la ten nguoi dung da thao tac len san pham moi");
+    //        RuleFor(x => x.UpdatedAt).NotEmpty().WithMessage("UpdateddAt field must not empty");
+    //        RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("UpdatedBy must not empty");
+    //        RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
+    //            .IsInEnum().WithMessage("phai la available hoac unavailable");
+    //    }
+    //}
 
     public class UpdateStatusIngredientValidator : AbstractValidator<UpdateStatusIngredientRequest>
     {
@@ -66,8 +66,6 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             //RuleFor(x => x.Id).NotEmpty().WithMessage("Guid khong de trong");
             RuleFor(x => x.Name).NotEmpty().WithMessage("Khong de trong ten cua Category cho ingredient");
             RuleFor(x => x.Description).NotEmpty().WithMessage("Khong de trong mo ta danh cho categor cua ingredient");
-            RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
-                .IsInEnum().WithMessage("Phai la available hoac unavailable");
         }
     }
 
@@ -87,12 +85,12 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         }
     }
 
-    public class FullIngredientNutrientValidator : AbstractValidator<FullIngredientNutrientRequest>
+    public class FullIngredientNutrientValidator : AbstractValidator<IngredientNutrientRequest>
     {
         public FullIngredientNutrientValidator()
         {
             //RuleFor(x => x.Id).NotEmpty().WithMessage("Guid khong de trong");
-            RuleFor(x => x.IngredientID).NotEmpty().WithMessage("Id khong de trong");
+            //RuleFor(x => x.IngredientID).NotEmpty().WithMessage("Id khong de trong");
             RuleFor(x => x.Calories).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot Calories");
             RuleFor(x => x.Fat).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot Fat");
             RuleFor(x => x.SaturatedFat).GreaterThanOrEqualTo(0).WithMessage("Khong de trong cot SaturatedFat");
