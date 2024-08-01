@@ -231,7 +231,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         }
                     }
                     result.StatusCode = 200;
-                    result.Message = "Recipe list found by name";
+                    result.Message = "Recipe list found by name "+foundList.Count();
                     result.Data = returnList;
 
                 }
