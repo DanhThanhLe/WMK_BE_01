@@ -282,6 +282,30 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             newOrder.OrderCode = randomOrderCode;
             //newOrder.TotalPrice = model.TotalPrice * 1000;
             newOrder.OrderDate = DateTime.Now;
+            switch (DateTime.Now.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(6);
+                    break;
+                case DayOfWeek.Tuesday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(5);
+                    break;
+                case DayOfWeek.Wednesday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(4);
+                    break;
+                case DayOfWeek.Thursday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(3);
+                    break;
+                case DayOfWeek.Friday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(2);
+                    break;
+                case DayOfWeek.Saturday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(8);
+                    break;
+                case DayOfWeek.Sunday:
+                    newOrder.ShipDate = DateTime.Now.AddDays(7);
+                    break;
+            }
             newOrder.Status = OrderStatus.Processing;
 
             var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
