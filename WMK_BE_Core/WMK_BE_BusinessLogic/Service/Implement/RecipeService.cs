@@ -64,7 +64,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<List<RecipeResponse>>();
 			var currentList = await GetAllToProcess();
-			//var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
+			var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
 			if ( currentList != null && currentList.Count() > 0 )
 			{
 				result.StatusCode = 200;
@@ -616,7 +616,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe , UpdateRecipeRequest recipe)
+		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe , CreateRecipeRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var currentList = await GetAllToProcess();
