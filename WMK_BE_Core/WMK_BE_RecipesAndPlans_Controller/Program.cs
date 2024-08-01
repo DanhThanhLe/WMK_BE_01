@@ -69,7 +69,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
 						new string[]{ }
 					}
 				});
-			});
+                c.EnableAnnotations();
+            });
 
             //Redis
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
@@ -161,6 +162,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(IngredientProfile));
 			builder.Services.AddAutoMapper(typeof(RecipePlanProfile));
             builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
+			builder.Services.AddAutoMapper(typeof(RecipeIngredientOrderDetailProfile));
+			builder.Services.AddAutoMapper(typeof(TransactionProfile));
 
             //scope
             builder.Services.AddScoped<DbContext , WeMealKitContext>();

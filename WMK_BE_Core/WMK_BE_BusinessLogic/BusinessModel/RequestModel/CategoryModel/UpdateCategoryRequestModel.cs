@@ -9,7 +9,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel
 {
 	public class UpdateCategoryRequestModel
 	{
-		public Guid Id { get; set; }
+		//public Guid Id { get; set; }
 		public string? Name { get; set; } = string.Empty;
 		public string? Description { get; set; } = string.Empty;
 		public BaseStatus? Status { get; set; }

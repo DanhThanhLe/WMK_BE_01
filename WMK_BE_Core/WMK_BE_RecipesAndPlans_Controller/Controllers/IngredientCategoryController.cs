@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.Service.Implement;
@@ -18,41 +19,43 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create-new")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.CreateNew(request);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] FullIngredientCategoryRequest request)
+        [HttpPut("update/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Update(Guid id, [FromBody] FullIngredientCategoryRequest request)
         {
-            var result = await _ingredientCategoryService.UpdateCategory(request);
-            return Ok(result);
-        }
+            var result = await _ingredientCategoryService.UpdateCategory(id, request);
+            return StatusCode(result.StatusCode , result);
+		}
 
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _ingredientCategoryService.GetAll();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
-        [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetByName([FromQuery] string name)
+        [HttpGet("get-by-name/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
             var result = await _ingredientCategoryService.GetByName(name);
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
-        [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))
             {
                 var result = await _ingredientCategoryService.GetById(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -64,14 +67,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpDelete("delete-by-id")]
-        public async Task<IActionResult> DeleteById([FromQuery] string id)
+        [HttpDelete("delete-by-id/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteById(string id)
         {
             Guid convertID;
             if (Guid.TryParse(id, out convertID))
             {
                 var result = await _ingredientCategoryService.DeleteById(convertID);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {

@@ -25,6 +25,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			.NotEmpty().WithMessage("The list cannot be empty.");
 			RuleForEach(x => x.RecipeList).NotNull().WithMessage("The item cannot be null.")
 			.NotEmpty().WithMessage("The item cannot be empty.");
+			RuleFor(x => x.TransactionType).IsInEnum().WithMessage("Transaction type not accepted");
 
 		}
 	}
@@ -34,8 +35,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		public UpdateOrderModelValidator()
 		{
 			_expendValidator = new ExpendValidator();
-			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
-				.Must(_expendValidator.BeValidGuid).WithMessage("Id invalid fortmat GUID!");
+			//RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
+			//	.Must(_expendValidator.BeValidGuid).WithMessage("Id invalid fortmat GUID!");
 			RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
 				.Must(shipDate => shipDate > DateTime.Now)
 				.WithMessage("ShipDate must be after the current date.");

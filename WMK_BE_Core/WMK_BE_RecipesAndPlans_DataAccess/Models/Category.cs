@@ -22,10 +22,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         //reference
         public List<RecipeCategory> RecipeCategories { get; set; }
 
-        public Category()
-        {
-            
-        }
+        
 
     }
 }

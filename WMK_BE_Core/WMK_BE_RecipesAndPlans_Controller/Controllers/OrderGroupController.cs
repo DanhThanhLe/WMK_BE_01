@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderGroupModel;
+using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
@@ -19,42 +21,60 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> GetAll()
 		{
 			var result = await _orderGroupService.GetAllAsync();
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpGet("get-id")]
 		public async Task<IActionResult> GetById([FromQuery] Guid orderGroupId)
 		{
 			var result = await _orderGroupService.GetOrderGroupByIdAsync(orderGroupId);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateOrderGroupRequest model)
 		{
-			var result = await _orderGroupService.CreateOrderGroupAsync(model);
-			return Ok(result);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string assignedBy = userId.ToString();
+            var result = await _orderGroupService.CreateOrderGroupAsync(model, assignedBy);
+			return StatusCode(result.StatusCode , result);
 		}
 
-		[HttpPut("update")]
-		public async Task<IActionResult> Update([FromBody] UpdateOrderGroupRequest model)
+		[HttpPut("update/{id}")]
+		public async Task<IActionResult> Update([FromBody] UpdateOrderGroupRequest model, string id)
 		{
-			var result = await _orderGroupService.UpdateOrderGroupAsync(model);
-			return Ok(result);
+            Guid ingredientId;
+            if (Guid.TryParse(id, out ingredientId))
+            {
+                var result = await _orderGroupService.UpdateOrderGroupAsync(model, id);
+                return StatusCode(result.StatusCode, result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
 		}
 		
 		[HttpDelete("delete")]
 		public async Task<IActionResult> Delete([FromQuery] IdOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.DeleteOrderGroupAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpPut("change-status")]
 		public async Task<IActionResult> ChangeStatus([FromQuery] IdOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.ChangeStatusOrderGroupAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -62,7 +82,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Cluster([FromBody] ClusterOrderGroupRequest model)
 		{
 			var result = await _orderGroupService.OrderGroupClusterAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 	}
 }

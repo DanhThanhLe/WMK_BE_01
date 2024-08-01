@@ -12,7 +12,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
     public interface IIngredientCategoryService
     {
         Task<ResponseObject<IngredientCategoryResponse>> CreateNew(CreateIngredientCategoryRequest request);
-        Task<ResponseObject<IngredientCategoryResponse>> UpdateCategory(FullIngredientCategoryRequest request);
+        Task<ResponseObject<IngredientCategoryResponse>> UpdateCategory(Guid id, FullIngredientCategoryRequest request);
         Task<ResponseObject<List<IngredientCategoryResponse>>> GetAll();
         Task<ResponseObject<List<IngredientCategoryResponse>>> GetByName(string request);
         Task<ResponseObject<IngredientCategoryResponse>> DeleteById(Guid id);

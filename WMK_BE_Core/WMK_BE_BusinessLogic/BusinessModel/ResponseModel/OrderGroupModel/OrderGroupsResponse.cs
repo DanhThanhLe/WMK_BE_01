@@ -14,6 +14,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderGroupModel
 		public string Location { get; set; } = string.Empty;
         public double[]? Coordinates { get; set; }
         public DateTime AsignAt { get; set; }
-		public Guid AsignBy { get; set; }
+		public string AsignBy { get; set; }
 	}
 }

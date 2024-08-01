@@ -15,7 +15,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage("Not null at RecipeStyle");
             RuleFor(x => x.ServingSize).Must(t => t >= 1).WithMessage("Must be at leat 1 person to eat");
-            RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("Not null at Created By");
+            //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("Not null at Created By");
 
             //RuleFor(x => x.CookingTime).Must(t => t > 5).WithMessage("Cooking time should be more than 5 minutes");
             RuleFor(x => x.Difficulty).IsInEnum().WithMessage("Wrong at validator recipe difficulty in recipeValidator");
@@ -27,7 +27,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public RecipeChangeStatusValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Not null id");
+            //RuleFor(x => x.Id).NotEmpty().WithMessage("Not null id");
             RuleFor(x => x.ProcessStatus).NotEmpty().WithMessage("Not empty")
                 .IsInEnum().WithMessage("Must be in enum ProcessStatus 0--4");
         }

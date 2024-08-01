@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel;
+using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
@@ -9,52 +11,78 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 	[ApiController]
 	public class OrderController : ControllerBase
 	{
-        private readonly IOrderService _orderService;
-        public OrderController(IOrderService orderService)
-        {
-            _orderService = orderService;
-        }
+		private readonly IOrderService _orderService;
+		public OrderController(IOrderService orderService)
+		{
+			_orderService = orderService;
+		}
 
         [HttpGet("get-all")]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             var result = await _orderService.GetAllOrders();
-            return Ok(result);  
+            return StatusCode(result.StatusCode , result);  
         }
 
-        [HttpGet("get-order")]
-        public async Task<IActionResult> GetById([FromQuery] IdOrderRequest model)
+        [HttpGet("get-by-userid/{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetByUserId(string userId)
         {
-            var result = await _orderService.GetOrderByIdAsync(model);
-            return Ok(result);  
+            Guid idConvert;
+            if (Guid.TryParse(userId, out idConvert))
+            {
+                var result = await _orderService.GetOrdersByUserId(idConvert);
+                return StatusCode(result.StatusCode , result);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid GUID format! Please provide a valid GUID!"
+                });
+            }
         }
 
-        [HttpPost("create")]
+		[HttpGet("get-order/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetById(Guid id)
+		{
+			var result = await _orderService.GetOrderByIdAsync(id);
+			return StatusCode(result.StatusCode , result);
+		}
+
+		[HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
-        {
-            var result = await _orderService.CreateOrderAsync(model);
-            return Ok(result);
-        }
+		{
+			var result = await _orderService.CreateOrderAsync(model);
+			return StatusCode(result.StatusCode , result);
+		}
 
-        //[HttpPut("update")]
-        //public async Task<IActionResult> Update([FromBody] UpdateOrderRequest model)
-        //{
-        //    var result = await _orderService.UpdateOrderAsync(model);
-        //    return Ok(result);
-        //}
+		[HttpPut("update/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Update(string id,[FromBody] UpdateOrderRequest model)
+		{
+			var result = await _orderService.UpdateOrderAsync(id,model);
+			return StatusCode(result.StatusCode , result);
+		}
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromQuery] IdOrderRequest model)
-        {
-            var result = await _orderService.DeleteOrderAsync(model);
-            return Ok(result);
-        }
+		[HttpDelete("delete/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(Guid id)
+		{
+			var result = await _orderService.DeleteOrderAsync(id);
+			return StatusCode(result.StatusCode , result);
+		}
 
-        [HttpPut("change-status")]
-        public async Task<IActionResult> ChangeStatus([FromQuery] ChangeStatusOrderRequest model)
-        {
-            var result = await _orderService.ChangeStatusOrderAsync(model);
-            return Ok(result);
-        }
-    }
+		[HttpPut("change-status/{id}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatus(Guid id,[FromQuery] ChangeStatusOrderRequest model)
+		{
+			var result = await _orderService.ChangeStatusOrderAsync(id,model);
+			return StatusCode(result.StatusCode , result);
+		}
+	}
 }

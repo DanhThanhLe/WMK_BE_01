@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FluentValidation;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -19,7 +22,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly UpdateIngredientValidator _updateValidator;
         private readonly UpdateStatusIngredientValidator _updateStatusValidator;
         private readonly IIngredientNutrientService _ingredientNutrientService;
-        public IngredientService(IMapper mapper, IUnitOfWork unitOfWork, IIngredientNutrientService ingredientNutrientService)
+        private readonly IRecipeService _recipeService;
+        public IngredientService(IMapper mapper, IUnitOfWork unitOfWork, IIngredientNutrientService ingredientNutrientService, IRecipeService recipeService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -27,10 +31,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _updateValidator = new UpdateIngredientValidator();
             _updateStatusValidator = new UpdateStatusIngredientValidator();
             _ingredientNutrientService = ingredientNutrientService;
+            _recipeService = recipeService;
         }
 
         #region Change status
-        public async Task<ResponseObject<IngredientResponse>> ChangeStatus(UpdateStatusIngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> ChangeStatus(Guid id , UpdateStatusIngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             var validateResult = _updateStatusValidator.Validate(ingredient);
@@ -41,32 +46,32 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = string.Join(" - ", error);
                 return result;
             }
-            var found = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
+            var found = await _unitOfWork.IngredientRepository.GetByIdAsync(id.ToString());
             if (found == null)
             {
                 result.StatusCode = 400;
                 result.Message = "Not found ingredient";
                 return result;
             }
-            var changeResult = await _unitOfWork.IngredientRepository.ChangeStatusAsync(ingredient.Id, ingredient.Status);
+            var changeResult = await _unitOfWork.IngredientRepository.ChangeStatusAsync(id, ingredient.Status);
             if (changeResult)
             {
                 await _unitOfWork.CompleteAsync();
                 result.StatusCode = 200;
-                result.Message = "Change Ingredient " + ingredient.Id + " status Successfully";
+                result.Message = "Change Ingredient " + id + " status Successfully";
                 return result;
             }
             else
             {
                 result.StatusCode = 400;
-                result.Message = "Change Ingredient " + ingredient.Id + " status Unsuccessfully";
+                result.Message = "Change Ingredient " + id + " status Unsuccessfully";
                 return result;
             }
         }
         #endregion
 
         #region Create
-        public async Task<ResponseObject<IngredientResponse>> CreateIngredient(CreateIngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> CreateIngredient(string createdBy,CreateIngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
@@ -93,9 +98,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
             Ingredient newIngredient = _mapper.Map<Ingredient>(ingredient);
+            newIngredient.CreatedBy = createdBy;
             newIngredient.CreatedAt = DateTime.UtcNow;
             newIngredient.UpdatedAt = DateTime.UtcNow;
-            newIngredient.UpdatedBy = ingredient.CreatedBy;
+            newIngredient.UpdatedBy = createdBy;
             newIngredient.IngredientCategory = checkIngredientCategory;
 
             var createResult = await _unitOfWork.IngredientRepository.CreateAsync(newIngredient);
@@ -183,9 +189,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Get by name
-        public async Task<ResponseObject<IngredientResponse>> GetIngredientByName(string name)
+        public async Task<ResponseObject<List<IngredientResponse>>> GetIngredientByName(string name)
         {
-            var result = new ResponseObject<IngredientResponse>();
+            var result = new ResponseObject<List<IngredientResponse>>();
             var ingredientList = await _unitOfWork.IngredientRepository.GetAllAsync();
             if (ingredientList != null && ingredientList.Count() > 0)
             {
@@ -200,9 +206,35 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 else
                 {
+                    var returnData = _mapper.Map<List<IngredientResponse>>(foundList);
+                    foreach (var item in returnData)
+                    {
+                        string userName = null;
+                        Guid idConvert;
+                        //tim ten cho CreatedBy
+                        if (item.CreatedBy != null)
+                        {
+                            Guid.TryParse(item.CreatedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.CreatedBy = userName;
+                        }
+                        //tim ten cho approvedBy
+                        if (item.UpdatedBy != null)
+                        {
+                            Guid.TryParse(item.UpdatedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.UpdatedBy = userName;
+                        }
+                    }
                     result.StatusCode = 200;
                     result.Message = "Ingredient list found by name";
-                    result.List = _mapper.Map<List<IngredientResponse>>(foundList);
+                    result.Data = returnData;
                 }
             }
             else
@@ -220,12 +252,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<List<IngredientResponse>>();
             var ingredients = await _unitOfWork.IngredientRepository.GetAllAsync();
-            var responseList = ingredients.ToList().Where(x => x.Status == BaseStatus.Available);
+            var responseList = ingredients.ToList();
             if (responseList != null && responseList.Count() > 0)
             {
                 result.StatusCode = 200;
                 result.Message = "OK. Ingredients list";
-                result.Data = _mapper.Map<List<IngredientResponse>>(responseList);
+                var returnResult = _mapper.Map<List<IngredientResponse>>(responseList);
+				foreach ( var item in returnResult )
+				{
+					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
+					if ( item.UpdatedBy != null )
+					{
+						var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
+					}
+					if ( userCreate != null )
+					{
+						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
+					}
+				}
+                result.Data = returnResult;
                 #region old
                 //foreach ( var ingredientResponse in result.List )
                 //{
@@ -287,59 +332,76 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Update 
-        public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(IngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(Guid id, string updatedBy, IngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
-            var validateResult = _updateValidator.Validate(ingredient);
-            var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
-            if (!validateResult.IsValid)//validate
+            try
             {
-                var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-                result.StatusCode = 400;
-                result.Message = string.Join(" - ", error);
-                return result;
-            }
-            var foundUpdate = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredient.Id.ToString());
-            if (foundUpdate == null)//check exist
-            {
-                result.StatusCode = 500;
-                result.Message = "Not found with ID: " + ingredient.Id;
-                return result;
-            }
-            else//bat dau update
-            {
-                var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
-                if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(ingredient.Id))
+                var validateResult = _updateValidator.Validate(ingredient);
+                var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
+                if (!validateResult.IsValid)//validate
                 {
-                    result.StatusCode = 500;
-                    result.Message = "Name existed with ID: " + duplicateName.Id;
+                    var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    result.StatusCode = 400;
+                    result.Message = string.Join(" - ", error);
                     return result;
                 }
-                else
+                var foundUpdate = await _unitOfWork.IngredientRepository.GetByIdAsync(id.ToString());
+                if (foundUpdate == null)//check exist
                 {
-                    //foundUpdate.Category = ingredient.Category;
-                    foundUpdate.Name = ingredient.Name;
-                    foundUpdate.Img = ingredient.Img;
-                    foundUpdate.Unit = ingredient.Unit;
-                    foundUpdate.Status = ingredient.Status;
-                    foundUpdate.UpdatedAt = ingredient.UpdatedAt;
-                    foundUpdate.UpdatedBy = ingredient.UpdatedBy;
-                    var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);
-                    if (updateResult)
+                    result.StatusCode = 500;
+                    result.Message = "Not found with ID: " + id;
+                    return result;
+                }
+                else//bat dau update
+                {
+                    _unitOfWork.IngredientRepository.DetachEntity(foundUpdate);
+                    var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
+                    if (duplicateName != null && duplicateName.Status.ToString().Equals("Available") && !duplicateName.Id.Equals(id))
                     {
-                        await _unitOfWork.CompleteAsync();
-                        result.StatusCode = 200;
-                        result.Message = "Update done";
+                        result.StatusCode = 500;
+                        result.Message = "Name existed with ID: " + duplicateName.Id;
                         return result;
                     }
                     else
                     {
-                        result.StatusCode = 500;
-                        result.Message = "Update error";
-                        return result;
+                        FullIngredientNutrientRequest updateNutrient = _mapper.Map<FullIngredientNutrientRequest>(ingredient.UpdateIngredientNutrientRequest);
+                        //updateNutrient.Id = foundUpdate.IngredientNutrient.Id;
+                        updateNutrient.IngredientID = foundUpdate.Id;
+                        foundUpdate.Name = ingredient.Name;
+                        foundUpdate.Img = ingredient.Img;
+                        foundUpdate.Unit = ingredient.Unit;
+                        foundUpdate.Status = ingredient.Status;
+                        foundUpdate.Price = ingredient.Price;
+                        foundUpdate.UpdatedAt = ingredient.UpdatedAt;
+                        foundUpdate.UpdatedBy = ingredient.UpdatedBy;
+                        var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);
+                        if (updateResult)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                            _unitOfWork.IngredientRepository.DetachEntity(foundUpdate);
+                            var updateNutrientResult = await _ingredientNutrientService.Update(foundUpdate.IngredientNutrient.Id, updateNutrient);//truyen id cua nutrient va model de update
+                            var updateRecipeInfo = await _recipeService.AutoUpdate(foundUpdate.Id);
+                            result.StatusCode = 200;
+                            result.Message = "Update done. - " + "Nutrient update result: " + updateNutrientResult.Message + "Recipe nutrient update result: " + updateRecipeInfo.Message;
+                            return result;
+                        }
+                        else
+                        {
+                            result.StatusCode = 500;
+                            result.Message = "Update error";
+                            return result;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                result.StatusCode = 500;
+                result.Message = ex.Message;
+                return result;
+            }
+            
         }
         #endregion
     }

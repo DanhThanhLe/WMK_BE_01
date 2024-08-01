@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -20,16 +21,16 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> Get()
         {
             var result = await _categoryService.GetAllAsync();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
-        [HttpGet("get")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             if (Guid.TryParse(id, out var categoryId))
             {
                 var result = await _categoryService.GetByIdAsync(categoryId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -37,13 +38,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-type")]
-        public async Task<IActionResult> GetByType([FromQuery] string type)
+        [HttpGet("get-by-type/{type}")]
+        public async Task<IActionResult> GetByType(string type)
         {
             if (type != null)
             {
                 var result = await _categoryService.GetCategoryByType(type);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -51,13 +52,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetByName([FromQuery] string name)
+        [HttpGet("get-by-name/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
             if (name != null)
             {
                 var result = await _categoryService.GetcategoryByName(name);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -66,24 +67,27 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequestModel model)
         {
             var result = await _categoryService.CreateCategoryAsync(model);
-            return Ok(result);
-        }
+            return StatusCode(result.StatusCode , result);
+		}
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] UpdateCategoryRequestModel model)
+        [HttpPut("update/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Update(Guid id,[FromBody] UpdateCategoryRequestModel model)
         {
-            var result = await _categoryService.UpdateCategoryAsync(model);
-            return Ok(result);
-        }
+            var result = await _categoryService.UpdateCategoryAsync(id,model);
+            return StatusCode(result.StatusCode , result);
+		}
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromBody] DeleteCategoryRequestModel model)
+        [HttpDelete("delete/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _categoryService.DeleteCategoryAsync(model);
-            return Ok(result);
-        }
+            var result = await _categoryService.DeleteCategoryAsync(id);
+            return StatusCode(result.StatusCode , result);
+		}
     }
 }

@@ -1,19 +1,27 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderGroupModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -29,7 +37,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IRecipeStepService _recipeStepService;
         private readonly IRecipeNutrientService _recipeNutrientService;
         private readonly IRecipeIngredientService _recipeIngredientService;
-        public RecipeService(IUnitOfWork unitOfWork, IMapper mapper, IRecipeIngredientService recipeAmountService, IRecipeCategoryService recipeCategoryService, IRecipeNutrientService recipeNutrientService, IRecipeIngredientService recipeIngredientService, IRecipeStepService recipeStepService)
+        private readonly IUserService _userService;
+        public RecipeService(IUnitOfWork unitOfWork, IMapper mapper, IRecipeIngredientService recipeAmountService, IRecipeCategoryService recipeCategoryService, IRecipeNutrientService recipeNutrientService, IRecipeIngredientService recipeIngredientService, IRecipeStepService recipeStepService, IUserService userService)
         {
             _unitOfWork = unitOfWork;
             _recipeAmountService = recipeAmountService;
@@ -41,6 +50,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _recipeNutrientService = recipeNutrientService;
             _recipeIngredientService = recipeIngredientService;
             _recipeStepService = recipeStepService;
+            _userService = userService;
         }
 
         private async Task<List<Recipe>> GetAllToProcess()
@@ -59,12 +69,32 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         {
             var result = new ResponseObject<List<RecipeResponse>>();
             var currentList = await GetAllToProcess();
-            var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
+            //var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
             if (currentList != null && currentList.Count() > 0)
             {
                 result.StatusCode = 200;
-                result.Message = "OK. Recipe list " + responseList.Count();
-                result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
+                result.Message = "OK. Recipe list " + currentList.Count();
+                var mapUser = _mapper.Map<List<RecipeResponse>>(currentList);
+
+                foreach (var item in mapUser)
+                {
+                    var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy);
+                    var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy);
+                    var userAprove = await _unitOfWork.UserRepository.GetByIdAsync(item.ApprovedBy);
+                    if (userCreate != null)
+                    {
+                        item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
+                    }
+                    if (userUpdate != null)
+                    {
+                        item.UpdatedBy = userUpdate.FirstName + " " + userUpdate.LastName;
+                    }
+                    if (userAprove != null)
+                    {
+                        item.ApprovedBy = userAprove.FirstName + " " + userAprove.LastName;
+                    }
+                }
+                result.Data = mapUser;
                 return result;
             }
             else
@@ -107,9 +137,31 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(id);
             if (recipe != null && recipe.Id.ToString() != null)
             {
+                string userName = null;
+                Guid idConvert;
+                //tim ten cho CreatedBy
+                if (recipe.CreatedBy != null)
+                {
+                    Guid.TryParse(recipe.CreatedBy, out idConvert);
+                    userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                }
+                if (userName != null)
+                {
+                    recipe.CreatedBy = userName;
+                }
+                //tim ten cho approvedBy
+                if (recipe.ApprovedBy != null)
+                {
+                    Guid.TryParse(recipe.ApprovedBy, out idConvert);
+                    userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                }
+                if (userName != null)
+                {
+                    recipe.ApprovedBy = userName;
+                }
+                RecipeResponse response = _mapper.Map<RecipeResponse>(recipe);
                 result.StatusCode = 200;
                 result.Message = "Recipe with Id " + id + ":";
-                RecipeResponse response = _mapper.Map<RecipeResponse>(recipe);
                 result.Data = response;
                 return result;
             }
@@ -123,12 +175,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        #region Get by name
-        public async Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name = "", bool status = true)//tim bang ten cua recipe lan cua ca category
+        #region Search
+        public async Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name = "", bool status = true)//tim bang ten cua recipe lan cua ca category
         {
             name.Trim();
             name = name.RemoveDiacritics();
-            var result = new ResponseObject<RecipeResponse>();
+            var result = new ResponseObject<List<RecipeResponse>>();
             var currentList = await GetAllToProcess();
             if (currentList != null && currentList.Count() > 0)
             {
@@ -144,7 +196,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
 
 
-                if (foundList == null)
+                if (foundList.Count == 0)
                 {
                     result.StatusCode = 404;
                     result.Message = "Not found. No such recipe in collection contain keyword: " + name;
@@ -152,10 +204,36 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 else
                 {
-                    //var returnList = foundList.Where(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
+                    var returnList = _mapper.Map<List<RecipeResponse>>(foundList);
+                    foreach (var item in returnList)
+                    {
+                        string userName = null;
+                        Guid idConvert;
+                        //tim ten cho CreatedBy
+                        if (item.CreatedBy != null)
+                        {
+                            Guid.TryParse(item.CreatedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.CreatedBy = userName;
+                        }
+                        //tim ten cho approvedBy
+                        if (item.ApprovedBy != null)
+                        {
+                            Guid.TryParse(item.ApprovedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.ApprovedBy = userName;
+                        }
+                    }
                     result.StatusCode = 200;
                     result.Message = "Recipe list found by name";
-                    result.List = _mapper.Map<List<RecipeResponse>>(foundList);
+                    result.Data = returnList;
+
                 }
             }
             else
@@ -168,13 +246,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-
-
-        #region Search
-        #endregion
-
         #region Create
-        public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe)
+        public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(string createdBy, CreateRecipeRequest recipe)
         {
             var result = new ResponseObject<RecipeResponse>();
             var currentList = await GetAllToProcess();
@@ -190,9 +263,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 //mapper
                 Recipe newRecipe = _mapper.Map<Recipe>(recipe);
+                newRecipe.CreatedBy = createdBy;
                 newRecipe.Popularity = 0;
                 newRecipe.CreatedAt = DateTime.Now;
-                newRecipe.UpdatedAt = DateTime.Now;
                 newRecipe.ProcessStatus = ProcessStatus.Processing;
                 var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Equals(recipe.Name.ToLower()));
                 if (checkDuplicateName != null)
@@ -405,7 +478,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Change status -- just manager use
-        public async Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe)
+        public async Task<ResponseObject<RecipeResponse>> ChangeStatus(Guid id, ChangeRecipeStatusRequest recipe)
         {
             var result = new ResponseObject<RecipeResponse>();
             var validateResult = _recipeChangeStatusValidator.Validate(recipe);
@@ -416,14 +489,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 result.Message = string.Join(" - ", error);
                 return result;
             }
-            var found = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.Id.ToString());
+            var found = await _unitOfWork.RecipeRepository.GetByIdAsync(id.ToString());
             if (found == null)
             {
                 result.StatusCode = 404;
-                result.Message = "Not found recipe id " + recipe.Id + "!";
+                result.Message = "Not found recipe id " + id + "!";
                 return result;
             }
-            var changeResult = await _unitOfWork.RecipeRepository.ChangeStatusAsync(recipe.Id, recipe.ProcessStatus);
+            found.ProcessStatus = recipe.ProcessStatus;
+            if (recipe.Notice.IsNullOrEmpty() || recipe.Notice.Equals("string"))
+            {
+                found.Notice = "Not have";
+            }
+            found.Notice = recipe.Notice;
+            var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(found);
             if (changeResult)
             {
                 await _unitOfWork.CompleteAsync();
@@ -434,7 +513,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             else
             {
                 result.StatusCode = 500;
-                result.Message = "Change Recipe " + recipe.Id + " status Unsuccessfully!";
+                result.Message = "Change Recipe " + id + " status Unsuccessfully!";
                 return result;
             }
         }
@@ -472,7 +551,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Search recipe list with recipe category id
-        public async Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId)
+        public async Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId)
         {
             /*
 			 1-lay list recipe category lien quan
@@ -485,7 +564,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				2.2 - cho chay vong for gap dung thi add
 			 3- tra ve 200 va list recipe
 			 */
-            var result = new ResponseObject<RecipeResponse>();
+            var result = new ResponseObject<List<RecipeResponse>>();
             var checkCategory = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString());
             if (checkCategory == null)
             {
@@ -498,25 +577,264 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 result.StatusCode = 200;
                 result.Message = "Not found suitable recipe";
-                result.List = new List<RecipeResponse>();
+                result.Data = new List<RecipeResponse>();
                 return result;
             }
             List<Recipe> listRecipe = new List<Recipe>();
             foreach (var item in recipeIdListfound)
             {
                 var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.ToString());
-                listRecipe.Add(recipe);
+                if (recipe != null)
+                    listRecipe.Add(recipe);
             }
             result.StatusCode = 200;
             result.Message = "Recipe list base on categoryID: ";
-            result.List = _mapper.Map<List<RecipeResponse>>(listRecipe);
+            result.Data = _mapper.Map<List<RecipeResponse>>(listRecipe);
             return result;
         }
         #endregion
 
+        #region auto update
+        public async Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId)
+        {
+            var result = new ResponseObject<List<RecipeNutrientResponse>>();
+            //lay thong tin cua tat ca recipe
+            //tu do lay thong tin cua recipeIngredient
+            //lay thong tin cua ingredient
+            //lay thong tin cua nutrient trong ingredient
+            //tinh lai thong tin do
+            //lenh update
+            //luu thong tin
+            var currentListRecipe = _unitOfWork.RecipeRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved && x.RecipeIngredients.Any(x => x.IngredientId.ToString().ToLower().Equals(IngredientId.ToString().ToLower()))).ToList();
+            if (currentListRecipe.Any())
+            {
+                foreach (var item in currentListRecipe)
+                {
+                    double updatePrice = 0;
+                    RecipeNutrient nutrientInfor = _unitOfWork.RecipeNutrientRepository.Get(x => x.RecipeID.ToString().ToLower().Equals(item.Id.ToString().ToLower())).FirstOrDefault();
+                    RecipeNutrient temp = new RecipeNutrient();
+                    temp.RecipeID = item.Id;
+                    if (nutrientInfor != null && nutrientInfor.RecipeID.ToString() != null)
+                    {
+                        temp.Id = nutrientInfor.Id;
+                        foreach (var ri in item.RecipeIngredients)
+                        {
+                            temp.Calories += ri.Ingredient.IngredientNutrient.Calories * ri.Amount;
+                            temp.Fat += ri.Ingredient.IngredientNutrient.Fat * ri.Amount;
+                            temp.SaturatedFat += ri.Ingredient.IngredientNutrient.SaturatedFat * ri.Amount;
+                            temp.Sugar += ri.Ingredient.IngredientNutrient.Sugar * ri.Amount;
+                            temp.Carbonhydrate += ri.Ingredient.IngredientNutrient.Carbonhydrate * ri.Amount;
+                            temp.DietaryFiber += ri.Ingredient.IngredientNutrient.DietaryFiber * ri.Amount;
+                            temp.Protein += ri.Ingredient.IngredientNutrient.Protein * ri.Amount;
+                            temp.Sodium += ri.Ingredient.IngredientNutrient.Sodium * ri.Amount;
+                            updatePrice += ri.Amount * ri.Ingredient.Price;
+                        }
+                        item.Price = updatePrice;
+                        _unitOfWork.RecipeRepository.DetachEntity(item);
+                        _unitOfWork.RecipeNutrientRepository.DetachEntity(nutrientInfor);
+                        var updateRecipePrice = await _unitOfWork.RecipeRepository.UpdateAsync(item);
+                        if (updateRecipePrice)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        else
+                        {
+                            result.Message = "Update price false";
+                            return result;
+                        }
+                        _unitOfWork.RecipeNutrientRepository.DetachEntity(temp);
+                        var updateResult = await _unitOfWork.RecipeNutrientRepository.UpdateAsync(temp);
+                        if (updateResult)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        else
+                        {
+                            result.Message = "Update nutrient false";
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "Not found nutreint infor";
+                        return result;
+                    }
+                }
+                result.StatusCode = 200;
+                result.Message = "ok";
+                return result;
+            }
+            else
+            {
+                result.Message = "Not found preference recipe. Its ok";
+                return result;
+            }
+        }
 
 
+        public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe, UpdateRecipeRequest recipe, string updatedBy)
+        {
+            var result = new ResponseObject<RecipeResponse>();
+            var currentList = await GetAllToProcess();
+            try
+            {
+                //check recipe exsit
+                var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(idRecipe.ToString());
+                if (recipeExist == null)
+                {
+                    result.StatusCode = 404;
+                    result.Message = "Recipe not exist!";
+                    return result;
+                }
+                //mapper
+                _mapper.Map(recipeExist, recipe);
+                recipeExist.UpdatedBy = updatedBy;
+                recipeExist.UpdatedAt = DateTime.Now;
+                recipeExist.ProcessStatus = ProcessStatus.Processing;
+                //tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
+                if (recipe.RecipeIngredientsList != null)
+                {
+                    foreach (var item in recipe.RecipeIngredientsList)
+                    {
+                        var ingredientFound = await _unitOfWork.IngredientRepository.GetByIdAsync(item.IngredientId.ToString());
+                        if (ingredientFound != null)
+                        {
+                            recipeExist.Price += ingredientFound.Price * item.amount;
+                        }
+                        else
+                        {
+                            result.StatusCode = 400;
+                            result.Message = "Ingredient ID " + item.IngredientId + " not found.";
+                            return result;
+                        }
+                    }
+                }
 
+                var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
+                if (!updateResult)
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Update Recipe unsuccessfully! Say from CreateRecipeAsync - RecipeService.";
+                    return result;
+                }
+                await _unitOfWork.CompleteAsync();
+                //xóa các thành phần liên quan
+                var checkDeleteRecipeCategory = await _recipeCategoryService.DeleteByRcipe(recipeExist.Id);
+                var checkDeleteRecipeIngredient = await _recipeIngredientService.DeleteRecipeIngredientByRecipeAsync(recipeExist.Id);
+                if (//1 trong 2 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
+                    checkDeleteRecipeCategory.StatusCode != 200
+                    || checkDeleteRecipeIngredient.StatusCode != 200
+                    )
+                {
+                    resetRecipe(recipeExist.Id);
+                    result.StatusCode = 500;
+                    result.Message = checkDeleteRecipeCategory.Message
+                        + " | " + checkDeleteRecipeIngredient.Message;
+                    return result;
+                }
+                //bat dau update cac thanh phan lien quan
+
+                //kiểm tra xem step nào đã tồn tại, nếu có rồi thì update step, nếu chưa thì delete
+                var recipeSteps = _unitOfWork.RecipeStepRepository.GetAll()
+                    .Where(rc => rc.RecipeId == recipeExist.Id).ToList();
+                //nếu recipe.Steps count > recipeSteps thì tạo mới recipestep
+                if (recipe.Steps.Count > recipeSteps.Count)
+                {
+                    //xóa tất cả step có liên quan
+                    var checkDeleteStep = await _recipeStepService.DeleteRecipeStepsByRecipe(recipeExist.Id);
+                    if (checkDeleteStep.StatusCode != 200)
+                    {
+                        result.StatusCode = 500;
+                        result.Message = checkDeleteStep.Message;
+                        return result;
+                    }
+                    //gọi tới create
+                    var createStepModel = _mapper.Map<List<CreateRecipeStepRequest>>(recipeSteps);
+                    var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(recipeExist.Id, createStepModel);
+                    if (checkCreateRecipeStep.StatusCode != 200)
+                    {
+                        resetRecipe(recipeExist.Id);
+                        result.StatusCode = 500;
+                        result.Message = checkCreateRecipeStep.Message;
+                        return result;
+                    }
+                }
+                else
+                {
+
+                    foreach (var recipeStepByRecipe in recipe.Steps)
+                    {
+                        //nếu có rồi thì update 
+                        foreach (var step in recipeSteps)
+                        {
+                            if (recipeStepByRecipe.Id == step.Id)
+                            {
+                                //update
+                                var checkUpdateStep = await _recipeStepService.UpdateRecipeStepsByRecipe(step.Id, recipeStepByRecipe);
+                                if (checkUpdateStep.StatusCode != 200)
+                                {
+                                    resetRecipe(recipeExist.Id);
+                                    result.StatusCode = 500;
+                                    result.Message = checkUpdateStep.Message;
+                                    return result;
+                                }
+                            }
+                            else
+                            {
+                                //delete
+                                var checkDeleteStep = await _recipeStepService.DeleteAsync(step.Id);
+                                if (checkDeleteStep.StatusCode != 200)
+                                {
+                                    resetRecipe(recipeExist.Id);
+                                    result.StatusCode = 500;
+                                    result.Message = checkDeleteStep.Message;
+                                    return result;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //create RecipeCategory
+                if (recipe.CategoryIds != null && recipe.RecipeIngredientsList != null && recipe.Steps != null)
+                {
+                    var checkCreateRecipeCategory = await _recipeCategoryService.Create(recipeExist.Id, recipe.CategoryIds);
+                    //create RecipeIngredient
+                    var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(recipeExist.Id, recipe.RecipeIngredientsList);
+
+                    //update RecipeNutrient có thể gọi hàm tự động update vô đây
+
+                    if (//1 trong 2 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
+                        checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
+                        || checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
+                        )
+                    {
+                        resetRecipe(recipeExist.Id);
+                        result.StatusCode = 500;
+                        result.Message = checkCreateRecipeCategory.Message
+                            + " | " + checkCreateRecipeIngredient.Message;
+                        return result;
+                    }
+                    else//ko co loi va hoan thanh update
+                    {
+                        await _unitOfWork.CompleteAsync();
+                        result.StatusCode = 200;
+                        result.Message = "Update Recipe successfully.";
+                        return result;
+                    }
+                }
+                result.StatusCode = 500;
+                result.Message = "Invalid input! Category, ingredient, step is required!";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.StatusCode = 500;
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+        #endregion
     }
     public static class StringExtensions
     {

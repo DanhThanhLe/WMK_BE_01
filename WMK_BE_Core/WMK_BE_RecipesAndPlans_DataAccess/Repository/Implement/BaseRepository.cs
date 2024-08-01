@@ -45,7 +45,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		{
 			return this._dbSet.ToListAsync();
 		}
-		public virtual async Task<T?> GetByIdAsync(string id)
+		public virtual async Task<T?> GetByIdAsync(string? id)
 		{
 			try
 			{

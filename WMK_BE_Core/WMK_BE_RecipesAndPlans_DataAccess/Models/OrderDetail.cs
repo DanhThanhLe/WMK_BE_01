@@ -27,7 +27,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         //reference
         public virtual Order Order { get; set; }
         public virtual List<RecipeIngredientOrderDetail> RecipeIngredientOrderDetails { get; set; }
-        //public virtual Recipe Recipe { get; set; }//quan he 1 - nhieu (recipe - customPlan)
+        public virtual Recipe Recipe { get; set; }//quan he 1 - nhieu (recipe - customPlan)
         //public virtual WeeklyPlan WeeklyPlan { get; set; }//quan he 1 - nhieu (WeeklyPlan - customPlan)
 
         public OrderDetail()

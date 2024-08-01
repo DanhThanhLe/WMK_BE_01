@@ -18,5 +18,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         {
             await _dbSet.AddRangeAsync(recipeCategories);
         }
-    }
+
+		public virtual void DeleteRange(IEnumerable<RecipeCategory> recipeCategories)
+		{
+            _dbSet.RemoveRange(recipeCategories);
+		}
+	}
 }

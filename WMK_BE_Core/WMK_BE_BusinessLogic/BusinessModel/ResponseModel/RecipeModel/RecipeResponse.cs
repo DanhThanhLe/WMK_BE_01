@@ -30,6 +30,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe
         public BaseStatus BaseStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
+        public string CreateName { get; set; } = string.Empty;
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }

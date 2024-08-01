@@ -23,6 +23,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         //reference
         public virtual OrderDetail OrderDetail { get; set; }
+        public virtual Ingredient Ingredient { get; set; }
 
         public RecipeIngredientOrderDetail()
         {

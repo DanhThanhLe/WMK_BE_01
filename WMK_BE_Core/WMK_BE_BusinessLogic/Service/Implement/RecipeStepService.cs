@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeStepModel.RecipeStep;
 using WMK_BE_BusinessLogic.ResponseObject;
@@ -26,15 +27,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
         #region Get all
-        public async Task<ResponseObject<RecipeStepRespone>> GetRecipeSteps()
+        public async Task<ResponseObject<List<RecipeStepRespone>>> GetRecipeSteps()
         {
-            var result = new ResponseObject<RecipeStepRespone>();
+            var result = new ResponseObject<List<RecipeStepRespone>>();
             var recipeStepList = await _unitOfWork.RecipeStepRepository.GetAllAsync();
             if (recipeStepList != null && recipeStepList.Count > 0)
             {
                 result.StatusCode = 200;
                 result.Message = "List all recipe steps";
-                result.List = _mapper.Map<List<RecipeStepRespone>>(recipeStepList);
+                result.Data = _mapper.Map<List<RecipeStepRespone>>(recipeStepList);
                 return result;
             }
             else
@@ -118,11 +119,91 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             result.Data = returnList;
             return result;
         }
-        #endregion
 
-        //public async Task<ResponseObject<bool>> CreateSingleStep(Guid recipeId, CreateRecipeStepRequest recipeStep)
-        //{
-        //    var result
-        //}
-    }
+		public async Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId)
+		{
+			var result = new ResponseObject<List<RecipeStep>>();
+			try
+			{
+				//check recipe exist
+				var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+				if ( recipeExist == null )
+				{
+					result.StatusCode = 404;
+					result.Message = "Recipe not exist!";
+					return result;
+				}
+				//take recipeSteps asign to recipe
+				var recipeSteps = _unitOfWork.RecipeStepRepository.GetAll()
+					.Where(rc => rc.RecipeId == recipeId).ToList();
+				//if ( recipeSteps == null || !recipeSteps.Any() )
+				//{
+				//	result.StatusCode = 404;
+				//	result.Message = "No recipeSteps found for the given Recipe.";
+				//	return result;
+				//}
+				// Nếu dữ liệu truyền vô trùng id thì không xóa mà update
+				_unitOfWork.RecipeStepRepository.DeleteRange(recipeSteps);
+				await _unitOfWork.CompleteAsync();
+
+				result.StatusCode = 200;
+				result.Message = "Deleted recipeSteps successfully.";
+				result.Data = recipeSteps.ToList();
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+			}
+
+			return result;
+		}
+
+		public async Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id , UpdateRecipeStepRequest model)
+		{
+			var result = new ResponseObject<List<RecipeStep>>();
+            //check recipe step exist
+            var recipeStepExist = await _unitOfWork.RecipeStepRepository.GetByIdAsync(Id.ToString());
+            if ( recipeStepExist == null )
+            {
+                result.StatusCode = 404;
+                result.Message = "Step not found!";
+                return result;
+            }
+
+            _mapper.Map(model, recipeStepExist);
+            var updateResult = await _unitOfWork.RecipeStepRepository.UpdateAsync(recipeStepExist);
+            if ( updateResult )
+            {
+                await _unitOfWork.CompleteAsync();
+                result.StatusCode = 200;
+                result.Message = "Update step success.";
+                return result;
+            }
+			result.StatusCode = 500;
+			result.Message = "Update step unsuccess!";
+			return result;
+		}
+
+		public async Task<ResponseObject<RecipeStep>> DeleteAsync(Guid recipeStepId)
+		{
+			var result = new ResponseObject<RecipeStep>();
+            var deleteResult = await _unitOfWork.RecipeStepRepository.DeleteAsync(recipeStepId.ToString());
+            if ( deleteResult ) {
+                await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Message = "delete step success.";
+				return result;
+			}
+			result.StatusCode = 500;
+			result.Message = "Delete step unsuccess!";
+			return result;
+		}
+		#endregion
+
+		//public async Task<ResponseObject<bool>> CreateSingleStep(Guid recipeId, CreateRecipeStepRequest recipeStep)
+		//{
+		//    var result
+		//}
+	}
 }

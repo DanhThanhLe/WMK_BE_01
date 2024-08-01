@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.Service.Implement;
@@ -21,17 +22,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _ingredientNutrientService.GetAll();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
-        [HttpGet("get-by-ingredient-id")]
-        public async Task<IActionResult> GetByIngredientId([FromQuery] string ingredientId)
+        [HttpGet("get-by-ingredient-id/{ingredientId}")]
+        public async Task<IActionResult> GetByIngredientId(string ingredientId)
         {
             Guid convertId;
             if (Guid.TryParse(ingredientId, out convertId))
             {
                 var result = await _ingredientNutrientService.GetByIngredientId(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -43,14 +44,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetById([FromQuery] string id)
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))
             {
                 var result = await _ingredientNutrientService.GetById(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {
@@ -83,16 +84,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         //    }
         //}
 
-        [HttpPut("update-ingredient-nutrient")]
-        public async Task<IActionResult> Update([FromBody] FullIngredientNutrientRequest request)
+        [HttpPut("update-ingredient-nutrient/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Update(Guid id,[FromBody] FullIngredientNutrientRequest request)
         {
             Guid convertId;
             Guid convertIngredientId;
-            if (Guid.TryParse(request.Id.ToString(), out convertId) && Guid.TryParse(request.IngredientID.ToString(), out convertIngredientId))
+            if (Guid.TryParse(id.ToString(), out convertId) && Guid.TryParse(request.IngredientID.ToString(), out convertIngredientId))
             {
-                var result = await _ingredientNutrientService.Update(request);
-                return Ok(result);
-            }
+                var result = await _ingredientNutrientService.Update(id, request);
+                return StatusCode(result.StatusCode , result);
+			}
             else
             {
                 return BadRequest(new
@@ -103,14 +105,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             }
         }
 
-        [HttpDelete("delete-with-id")]
-        public async Task<IActionResult> Delete([FromQuery] string id)
+        [HttpDelete("delete-with-id/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(string id)
         {
             Guid convertId;
             if (Guid.TryParse(id, out convertId))
             {
                 var result = await _ingredientNutrientService.DeleteById(convertId);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {

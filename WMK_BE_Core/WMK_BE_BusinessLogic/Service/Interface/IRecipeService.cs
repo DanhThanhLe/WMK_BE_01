@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
@@ -17,17 +19,20 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         public Task<ResponseObject<RecipeResponse>> GetRecipeById(string id);
 
-        public Task<ResponseObject<RecipeResponse>> GetRecipeByName(string name, bool status);
+        public Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name, bool status);
 
-        public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(CreateRecipeRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(string createdBy,CreateRecipeRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(Guid idRecipe, UpdateRecipeRequest recipe, string updatedBy);
 
         //public Task<ResponseObject<RecipeResponse>> UpdateRecipe(RecipeRequest recipe);
 
         public Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid request);//xoa khoi db
         //public Task<ResponseObject<RecipeResponse>> RemoveRecipe(Guid id);//an khoi app
-        public Task<ResponseObject<RecipeResponse>> ChangeStatus(ChangeRecipeStatusRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> ChangeStatus(Guid id, ChangeRecipeStatusRequest recipe);
 
-        public Task<ResponseObject<RecipeResponse>> GetListByCategoryId(Guid categoryId);
+        public Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId);
+
+        Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId);
 
         //public Task<ResponseObject<RecipeResponse>> FilterToMenu(MenuFilterRequest request);
 

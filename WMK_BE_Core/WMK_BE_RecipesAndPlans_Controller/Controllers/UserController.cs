@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel;
 using WMK_BE_BusinessLogic.Service.Interface;
 
@@ -20,15 +21,26 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll()
 		{
-			var result = await _userService.GetAllUsers();
-			return Ok(result);
+			if ( Request.Headers.TryGetValue("Authorization" , out var tokenHeader) )
+			{
+				var token = tokenHeader.ToString().Replace("Bearer " , "");
+
+				if ( !string.IsNullOrEmpty(token) )
+				{
+					var result = await _userService.GetAllUsers(token);
+					return StatusCode(result.StatusCode , result);
+				}
+			}
+
+			return Unauthorized("Authorization header missing or invalid token");
 		}
-		
+
+
 		[HttpGet("get-all-staff")]
 		public async Task<IActionResult> GetAllStaff()
 		{
 			var result = await _userService.GetAllStaffs();
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpGet("get-all-shipper")]
@@ -39,14 +51,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		//[Authorize]
-		[HttpGet("get-id")]
-		public async Task<IActionResult> GetId([FromQuery] string id)
+		[HttpGet("get-id/{id}")]
+		public async Task<IActionResult> GetId(string id)
 		{
 			Guid userId;
 			if ( Guid.TryParse(id , out userId) )
 			{
 				var result = await _userService.GetUserByIdAsync(userId);
-				return Ok(result);
+				return StatusCode(result.StatusCode , result);
 			}
 			else
 			{
@@ -60,19 +72,19 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 
 		[Authorize]
-		[HttpGet("get-user")]
-		public async Task<IActionResult> GetUser([FromQuery] string emailOrUsername)
+		[HttpGet("get-user/{emailOrUsername}")]
+		public async Task<IActionResult> GetUser(string emailOrUsername)
 		{
 			var result = await _userService.GetUserAsync(emailOrUsername);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
-		
+
 		//[Authorize]
-		[HttpGet("get-user-token")]
-		public async Task<IActionResult> GetUserByToken([FromQuery] string token)
+		[HttpGet("get-user-token/{token}")]
+		public async Task<IActionResult> GetUserByToken(string token)
 		{
 			var result = await _userService.GetUserByTokenAsync(token);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
 
 
@@ -81,50 +93,50 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Create([FromBody] CreateUserRequest model)
 		{
 			var result = await _userService.CreateUserAsync(model);
-			return Ok(result);
+			return StatusCode(result.StatusCode , result);
 		}
-		
+
 		[Authorize]
-		[HttpPut("update")]
-		public async Task<IActionResult> Update([FromBody] UpdateUserRequest model)
+		[HttpPut("update/{id}")]
+		public async Task<IActionResult> Update(Guid id , [FromBody] UpdateUserRequest model)
 		{
-			var result = await _userService.UpdateUserAsync(model);
-			return Ok(result);
-		}
-		
-		[Authorize(Roles = "Admin")]
-		[HttpDelete("delete")]
-		public async Task<IActionResult> Delete([FromQuery] IdUserRequest model)
-		{
-			var result = await _userService.DeleteUserAsync(model);
-			return Ok(result);
+			var result = await _userService.UpdateUserAsync(id , model);
+			return StatusCode(result.StatusCode , result);
 		}
 
-		
 		[Authorize(Roles = "Admin")]
-		[HttpPut("change-role")]
-		public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleUserRequest model)
+		[HttpDelete("delete/{id}")]
+		public async Task<IActionResult> Delete(Guid id)
 		{
-			var result = await _userService.ChangeRoleAsync(model);
-			return Ok(result);
+			var result = await _userService.DeleteUserAsync(id);
+			return StatusCode(result.StatusCode , result);
 		}
 
-		
+
 		[Authorize(Roles = "Admin")]
-		[HttpPut("change-status")]
-		public async Task<IActionResult> ChangeStatus([FromBody] IdUserRequest model)
+		[HttpPut("change-role/{id}")]
+		public async Task<IActionResult> ChangeRole(Guid id , [FromBody] ChangeRoleUserRequest model)
 		{
-			var result = await _userService.ChangeStatusAsync(model);
-			return Ok(result);
+			var result = await _userService.ChangeRoleAsync(id , model);
+			return StatusCode(result.StatusCode , result);
 		}
 
-		
+
 		[Authorize(Roles = "Admin")]
-		[HttpPut("change-emailconfirm")]
-		public async Task<IActionResult> ChangeEmailConfirm([FromQuery] IdUserRequest model)
+		[HttpPut("change-status/{id}")]
+		public async Task<IActionResult> ChangeStatus(Guid id)
 		{
-			var result = await _userService.ChangeEmailConfirmAsync(model);
-			return Ok(result);
+			var result = await _userService.ChangeStatusAsync(id);
+			return StatusCode(result.StatusCode , result);
+		}
+
+
+		[Authorize(Roles = "Admin")]
+		[HttpPut("change-emailconfirm/{id}")]
+		public async Task<IActionResult> ChangeEmailConfirm(Guid id)
+		{
+			var result = await _userService.ChangeEmailConfirmAsync(id);
+			return StatusCode(result.StatusCode , result);
 		}
 	}
 }

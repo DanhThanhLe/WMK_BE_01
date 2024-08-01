@@ -16,7 +16,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         Task<ResponseObject<IngredientNutrientResponse>> GetById(Guid request);
         Task<ResponseObject<IngredientNutrientResponse>> GetByIngredientId(Guid request);
         Task<ResponseObject<IngredientNutrient>> Create(Guid ingredientId, CreateIngredientNutrientRequest request);
-        Task<ResponseObject<IngredientNutrientResponse>> Update(FullIngredientNutrientRequest request);
+        Task<ResponseObject<IngredientNutrientResponse>> Update(Guid id, FullIngredientNutrientRequest request);
         Task<ResponseObject<IngredientNutrientResponse>> DeleteById(Guid request);
         
 

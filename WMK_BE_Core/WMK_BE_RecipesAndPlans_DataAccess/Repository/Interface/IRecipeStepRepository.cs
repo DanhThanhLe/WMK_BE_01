@@ -9,6 +9,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 {
     public interface IRecipeStepRepository : IBaseRepository<RecipeStep>
     {
+		public void DeleteRange(IEnumerable<RecipeStep> recipeSteps);
 
-    }
+	}
 }

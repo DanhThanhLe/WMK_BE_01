@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
@@ -42,5 +43,15 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 			return false;
 		}
 
-	}
+        public string GetUserNameById(Guid id)
+        {
+            // Sử dụng Find để tìm kiếm User theo Id (khóa chính)
+            var user = _dbSet.Find(id);
+
+            // Nếu tìm thấy người dùng, trả về UserName, nếu không trả về null
+            return user?.UserName;
+
+        }
+
+    }
 }

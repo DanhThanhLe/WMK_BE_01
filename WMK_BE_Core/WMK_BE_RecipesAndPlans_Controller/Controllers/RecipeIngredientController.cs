@@ -18,17 +18,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _recipeIngredientService.GetAll();
-            return Ok(result);
+            return StatusCode(result.StatusCode , result);
         }
 
-        [HttpGet("get-by-recipe-id")]
-        public async Task<IActionResult> GetListByRecipeId([FromQuery] string recipeId)
+        [HttpGet("get-by-recipe-id/{recipeId}")]
+        public async Task<IActionResult> GetListByRecipeId(string recipeId)
         {
             Guid id;
             if(Guid.TryParse(recipeId, out id))
             {
                 var result = await _recipeIngredientService.GetListByRecipeId(id);
-                return Ok(result);
+                return StatusCode(result.StatusCode , result);
             }
             else
             {

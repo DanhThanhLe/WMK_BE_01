@@ -10,5 +10,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
     public interface IRecipeCategoryRepository : IBaseRepository<RecipeCategory>
     {
         public Task AddRangeAsync(IEnumerable<RecipeCategory> recipeCategories);
-    }
+		public void DeleteRange(IEnumerable<RecipeCategory> recipeCategories);
+
+	}
 }

@@ -12,6 +12,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderGroupModel
 		public string Location { get; set; } = string.Empty;
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
-		public string AsignBy { get; set; } = string.Empty;
+		//public string AsignBy { get; set; } = string.Empty;
 	}
 }

@@ -71,7 +71,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region update ingredient category
-        public async Task<ResponseObject<IngredientCategoryResponse>> UpdateCategory(FullIngredientCategoryRequest request)
+        public async Task<ResponseObject<IngredientCategoryResponse>> UpdateCategory(Guid id,FullIngredientCategoryRequest request)
         {
             var result = new ResponseObject<IngredientCategoryResponse>();
             //validate request dua vao
@@ -84,7 +84,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
             //check co ton tai trong db khong
-            var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(request.Id.ToString());
+            var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString());
             if (found == null)//ko co nghia la ko tim duoc category tuong ung -> bao loi
             {
                 result.StatusCode = 400;
@@ -101,7 +101,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 await _unitOfWork.CompleteAsync();
                 result.StatusCode = 200;
-                result.Message = "Update ID " + request.Id + " success.";
+                result.Message = "Update ID " + id + " success.";
                 return result;
             }
             else
@@ -140,7 +140,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
         #endregion
 
-        #region get by
+        #region get by name
         public async Task<ResponseObject<List<IngredientCategoryResponse>>> GetByName(string request)
         {
             var result = new ResponseObject<List<IngredientCategoryResponse>>();

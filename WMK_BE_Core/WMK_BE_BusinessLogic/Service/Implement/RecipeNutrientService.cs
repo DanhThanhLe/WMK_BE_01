@@ -12,6 +12,8 @@ using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -57,14 +59,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         foreach (var item in recipeIngredients)
                         {
                             IngredientNutrient foundIngredientNutrient = listIngredientNutrient.FirstOrDefault(x => x.IngredientID.ToString().Equals(item.IngredientId.ToString()));
-                            createRequest.Calories += (foundIngredientNutrient.Calories * item.amount);
-                            createRequest.Fat += (foundIngredientNutrient.Fat * item.amount);
-                            createRequest.SaturatedFat += (foundIngredientNutrient.SaturatedFat * item.amount);
-                            createRequest.Sugar += (foundIngredientNutrient.Sugar * item.amount);
-                            createRequest.Carbonhydrate += (foundIngredientNutrient.Carbonhydrate * item.amount);
-                            createRequest.DietaryFiber += (foundIngredientNutrient.DietaryFiber * item.amount);
-                            createRequest.Protein += (foundIngredientNutrient.Protein * item.amount);
-                            createRequest.Sodium += (foundIngredientNutrient.Sodium * item.amount);
+                            if (foundIngredientNutrient.Id.ToString() != null)
+                            {
+                                createRequest.Calories += (foundIngredientNutrient.Calories * item.amount);
+                                createRequest.Fat += (foundIngredientNutrient.Fat * item.amount);
+                                createRequest.SaturatedFat += (foundIngredientNutrient.SaturatedFat * item.amount);
+                                createRequest.Sugar += (foundIngredientNutrient.Sugar * item.amount);
+                                createRequest.Carbonhydrate += (foundIngredientNutrient.Carbonhydrate * item.amount);
+                                createRequest.DietaryFiber += (foundIngredientNutrient.DietaryFiber * item.amount);
+                                createRequest.Protein += (foundIngredientNutrient.Protein * item.amount);
+                                createRequest.Sodium += (foundIngredientNutrient.Sodium * item.amount);
+                            }
+                            else
+                            {
+                                result.StatusCode = 500;
+                                result.Message = "not found nutrient for ingredient";
+                                return result;
+                            }
+
                         }
                         RecipeNutrient newOne = _mapper.Map<RecipeNutrient>(createRequest);
                         var createResult = await _unitOfWork.RecipeNutrientRepository.CreateAsync(newOne);
@@ -92,5 +104,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
             }
         }
+
+
     }
 }
