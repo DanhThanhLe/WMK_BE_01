@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.Service.Implement;
@@ -18,6 +19,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create-new")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.CreateNew(request);
@@ -25,6 +27,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, [FromBody] FullIngredientCategoryRequest request)
         {
             var result = await _ingredientCategoryService.UpdateCategory(id, request);
@@ -65,6 +68,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpDelete("delete-by-id/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteById(string id)
         {
             Guid convertID;

@@ -67,13 +67,21 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, IngredientRequest model)
         {
-            var result = await _ingredientService.UpdateIngredient(id, model);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string updatedBy = userId.ToString();
+            var result = await _ingredientService.UpdateIngredient(id, updatedBy, model);
             return StatusCode(result.StatusCode , result);
         }
 
         [HttpPut("update-status/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusIngredientRequest model)
         {
             var result = await _ingredientService.ChangeStatus(id, model);
@@ -100,6 +108,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         //}
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteById(string id)
         {
             Guid ingredientId;

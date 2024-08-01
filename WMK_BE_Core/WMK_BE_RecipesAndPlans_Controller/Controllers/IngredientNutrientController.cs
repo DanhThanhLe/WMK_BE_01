@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel;
 using WMK_BE_BusinessLogic.Service.Implement;
@@ -84,6 +85,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         //}
 
         [HttpPut("update-ingredient-nutrient/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id,[FromBody] FullIngredientNutrientRequest request)
         {
             Guid convertId;
@@ -104,6 +106,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpDelete("delete-with-id/{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(string id)
         {
             Guid convertId;

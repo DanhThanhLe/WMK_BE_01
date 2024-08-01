@@ -47,6 +47,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpGet("get-by-category/{categoryId}")]
+        [Authorize]
         public async Task<IActionResult> GetWithCategoryId(string categoryId)
         {
             Guid categoryIdConvert;
@@ -99,6 +100,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
         
         [HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRecipeRequest model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -112,6 +114,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteById(string id)
         {
             Guid recipeId;
@@ -131,6 +134,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPut("change-status/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateStatusRecipe(Guid id,[FromQuery] ChangeRecipeStatusRequest request)
         {
             Guid recipeId;

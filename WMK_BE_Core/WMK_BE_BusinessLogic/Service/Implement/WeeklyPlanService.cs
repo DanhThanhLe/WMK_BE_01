@@ -59,7 +59,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#region Create
-		public async Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model)
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model, string createdBy)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			try
@@ -73,7 +73,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				//check user exist 
-				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.CreatedBy);
+				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(createdBy);
 				if ( userExist == null || userExist.Role != WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Staff )
 				{
 					result.StatusCode = 404;
@@ -179,11 +179,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.StatusCode = 404;
 					result.Message = "User not exist or not have access!";
 					return result;
-				}
+				}                            Guid idConvert;
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 				if ( currentList.Count() > 0 )
 				{
-					WeeklyPlan foundDuplicate = currentList.Where(x => x.Description.Trim().Equals(request.Title.Trim())).FirstOrDefault();
+					WeeklyPlan foundDuplicate = currentList.FirstOrDefault(x => x.Description.Trim().Equals(request.Title.Trim()));
 					if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
 					{
 						result.StatusCode = 400;
@@ -195,7 +195,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						int countPlan = 0; //tinh xem dang co bao nhieu plan duoc tao boi nguoi dung roi. qua 5 thi ko cho tao them
 						foreach ( var item in currentList )
 						{
-							if ( item.CreatedBy == request.CreatedBy && item.ProcessStatus == ProcessStatus.Customer)
+							if ( item.CreatedBy.Equals(request.CreatedBy, StringComparison.OrdinalIgnoreCase) && item.ProcessStatus == ProcessStatus.Customer)
 							{
 								countPlan++;
 							}
@@ -316,7 +316,30 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist != null && weeklyPlanExist.ProcessStatus == ProcessStatus.Approved )
 			{
 				var weeklyPlan = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
-				result.StatusCode = 200;
+				//gan ten cho creatdBy va approvedBy
+                string userName = null;
+                Guid idConvert;
+                //tim ten cho CreatedBy
+                if (weeklyPlan.CreatedBy != null)
+                {
+                    Guid.TryParse(weeklyPlan.CreatedBy, out idConvert);
+                    userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                }
+                if (userName != null)
+                {
+                    weeklyPlan.CreatedBy = userName;
+                }
+                //tim ten cho approvedBy
+                if (weeklyPlan.ApprovedBy != null)
+                {
+                    Guid.TryParse(weeklyPlan.ApprovedBy, out idConvert);
+                    userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                }
+                if (userName != null)
+                {
+                    weeklyPlan.ApprovedBy = userName;
+                }
+                result.StatusCode = 200;
 				result.Message = "Weekly plan";
 				result.Data = weeklyPlan;
 				return result;
@@ -515,7 +538,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				else //co thong tin
 				{
 					var returnList = _mapper.Map<List<WeeklyPlanResponseModel>>(foundList);
-					result.StatusCode = 200;
+					//gan ten cho creatdBy va approvedBy
+                    foreach (var item in returnList)
+                    {
+                        string userName = null;
+                        Guid idConvert;
+                        //tim ten cho CreatedBy
+                        if (item.CreatedBy != null)
+                        {
+                            Guid.TryParse(item.CreatedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.CreatedBy = userName;
+                        }
+                        //tim ten cho approvedBy
+                        if (item.ApprovedBy != null)
+                        {
+                            Guid.TryParse(item.ApprovedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.ApprovedBy = userName;
+                        }
+                    }
+                    result.StatusCode = 200;
 					result.Message = "Ok";
 					result.Data = returnList;
 					return result;

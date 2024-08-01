@@ -206,9 +206,35 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 }
                 else
                 {
+                    var returnData = _mapper.Map<List<IngredientResponse>>(foundList);
+                    foreach (var item in returnData)
+                    {
+                        string userName = null;
+                        Guid idConvert;
+                        //tim ten cho CreatedBy
+                        if (item.CreatedBy != null)
+                        {
+                            Guid.TryParse(item.CreatedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.CreatedBy = userName;
+                        }
+                        //tim ten cho approvedBy
+                        if (item.UpdatedBy != null)
+                        {
+                            Guid.TryParse(item.UpdatedBy, out idConvert);
+                            userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                        }
+                        if (userName != null)
+                        {
+                            item.UpdatedBy = userName;
+                        }
+                    }
                     result.StatusCode = 200;
                     result.Message = "Ingredient list found by name";
-                    result.Data = _mapper.Map<List<IngredientResponse>>(foundList);
+                    result.Data = returnData;
                 }
             }
             else
@@ -306,7 +332,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Update 
-        public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(Guid id, IngredientRequest ingredient)
+        public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(Guid id, string updatedBy, IngredientRequest ingredient)
         {
             var result = new ResponseObject<IngredientResponse>();
             try
@@ -346,10 +372,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         foundUpdate.Img = ingredient.Img;
                         foundUpdate.Unit = ingredient.Unit;
                         foundUpdate.Status = ingredient.Status;
+                        foundUpdate.Price = ingredient.Price;
                         foundUpdate.UpdatedAt = ingredient.UpdatedAt;
                         foundUpdate.UpdatedBy = ingredient.UpdatedBy;
-                        foundUpdate.Price = ingredient.Price;
-                        
                         var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(foundUpdate);
                         if (updateResult)
                         {
