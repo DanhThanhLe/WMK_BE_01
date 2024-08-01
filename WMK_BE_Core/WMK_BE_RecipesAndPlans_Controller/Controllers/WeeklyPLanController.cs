@@ -1,6 +1,8 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -51,9 +53,16 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody]CreateWeeklyPlanRequest model) 
         {
-            var result = await _weeklyPLanService.CreateWeeklyPlanAsync(model);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "Invalid token, user ID not found" });
+            }
+            string createdBy = userId.ToString();
+            var result = await _weeklyPLanService.CreateWeeklyPlanAsync(model, createdBy);
 			return StatusCode(result.StatusCode , result);
 		}
 
@@ -66,6 +75,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id,[FromBody]UpdateWeeklyPlanRequestModel model) 
         {
             var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(id,model);
@@ -73,6 +83,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPut("update-full-info/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateFullInfo(Guid id, [FromBody]UpdateWeeklyPlanRequest request)
         {
             Guid convertId;
@@ -92,6 +103,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id) 
         {
             Guid convertId;

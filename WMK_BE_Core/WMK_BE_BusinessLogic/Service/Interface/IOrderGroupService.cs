@@ -14,9 +14,9 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
 		Task<ResponseObject<List<OrderGroupsResponse>>> GetAllAsync();
 		Task<ResponseObject<OrderGroupsResponse?>> GetOrderGroupByIdAsync(Guid orderGroupId);
-		Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model);
+		Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model, string assignedBy);
 		Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync(ClusterOrderGroupRequest model);
-		Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model);
+		Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model, string id);
 		Task<ResponseObject<OrderGroupsResponse>> DeleteOrderGroupAsync(IdOrderGroupRequest model);
 		Task<ResponseObject<OrderGroupsResponse>> ChangeStatusOrderGroupAsync(IdOrderGroupRequest model);
 

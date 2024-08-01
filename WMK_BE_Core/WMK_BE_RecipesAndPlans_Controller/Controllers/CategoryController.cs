@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -66,6 +67,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequestModel model)
         {
             var result = await _categoryService.CreateCategoryAsync(model);
@@ -73,6 +75,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
         [HttpPut("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id,[FromBody] UpdateCategoryRequestModel model)
         {
             var result = await _categoryService.UpdateCategoryAsync(id,model);
@@ -80,6 +83,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);

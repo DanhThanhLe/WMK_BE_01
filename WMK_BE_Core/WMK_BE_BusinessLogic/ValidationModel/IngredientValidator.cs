@@ -16,7 +16,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham ko de trong (g; kg; ml; l)");
             RuleFor(x => x.Price).NotEmpty().Must(p => p > 100).WithMessage("Gia khong de trong va phai lon hon 100 VND");
             //RuleFor(x => x.CreatedAt).NotEmpty().WithMessage("CreatedAt la ngay them moi san pham");
-            RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateddBy la ten nguoi dung da thao tac len san pham moi");
+            //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateddBy la ten nguoi dung da thao tac len san pham moi");
             //RuleFor(x => x.UpdatedAt).NotEmpty().WithMessage("UpdateddAt field must not empty");
             //RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("UpdatedBy must not empty");
         }
