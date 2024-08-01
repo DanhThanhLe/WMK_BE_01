@@ -76,7 +76,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
             builder.Services.AddScoped<IRedisService, RedisService>();
             builder.Services.AddHttpClient();
-
+            builder.Services.AddScoped<IRabitMQProducer, RabitMQProducer>();
+            builder.Services.AddHostedService<RabitMQConsumer>();
             //CORS
 
             builder.Services.AddCors(options =>
