@@ -16,6 +16,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public Guid Id { get; set; }
 		public int OrderCode { get; set; }
 		public string UserId { get; set; } = string.Empty;
+		public string OrderGroupId { get; set; } = string.Empty;
         //public string? StanderdWeeklyPlanId { get; set; }
         public string ReceiveName { get; set; }
         public string ReceivePhone { get; set; }

@@ -24,9 +24,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		//	get => string.IsNullOrEmpty(CoordinatesJson) ? Array.Empty<double>() : JsonSerializer.Deserialize<double[]>(CoordinatesJson) ?? Array.Empty<double>();
 		//	set => CoordinatesJson = JsonSerializer.Serialize(value);
 		//}
-		public BaseStatus Status { get; set; }
 		public DateTime AsignAt { get; set; }
 		public Guid AsignBy { get; set; }
+		public BaseStatus Status { get; set; }
 
 
 		public virtual User User { get; set; }

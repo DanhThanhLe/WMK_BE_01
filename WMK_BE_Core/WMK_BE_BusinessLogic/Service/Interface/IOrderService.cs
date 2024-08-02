@@ -19,6 +19,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model);
 		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id,UpdateOrderRequest model);
 		Task<ResponseObject<OrderResponse>> UpdateOrderByUserAsync(UpdateOrderByUserRequest model);
+		Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder, Guid idOrderGroup);
 		Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id);
 		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model);
 

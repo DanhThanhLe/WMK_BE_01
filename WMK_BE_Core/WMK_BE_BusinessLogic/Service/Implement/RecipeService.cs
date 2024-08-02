@@ -488,20 +488,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
-			var found = await _unitOfWork.RecipeRepository.GetByIdAsync(id.ToString());
-			if ( found == null )
+			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(id.ToString());
+			if ( recipeExist == null )
 			{
 				result.StatusCode = 404;
 				result.Message = "Not found recipe id " + id + "!";
 				return result;
 			}
-			found.ProcessStatus = recipe.ProcessStatus;
-			if ( recipe.Notice.IsNullOrEmpty() || recipe.Notice.Equals("string") )
+			if ( recipe.Notice.IsNullOrEmpty() )
 			{
-				found.Notice = "Not have";
+				recipeExist.Notice = "Not have";
 			}
-			found.Notice = recipe.Notice;
-			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(found);
+			_mapper.Map(recipe, recipeExist);
+			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
 				await _unitOfWork.CompleteAsync();

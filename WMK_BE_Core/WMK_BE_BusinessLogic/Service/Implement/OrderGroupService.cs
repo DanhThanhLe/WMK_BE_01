@@ -46,7 +46,22 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 200;
 				result.Message = "OrderGroup list";
-				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroupList);
+				var dataModel = _mapper.Map<List<OrderGroupsResponse>>(orderGroupList);
+				foreach(var odg in dataModel )
+				{
+					var userExist = await _unitOfWork.UserRepository.GetByIdAsync(odg.ShipperId.ToString());
+					if( userExist != null )
+					{
+						odg.ShipperUserName = userExist.UserName;
+					}
+					var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(odg.AsignBy.ToString());
+					if ( staffExist != null )
+					{
+						odg.AsignBy = staffExist.UserName;
+					}
+
+				}
+				result.Data = dataModel;
 				return result;
 			}
 			else

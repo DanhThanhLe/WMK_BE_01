@@ -26,6 +26,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return StatusCode(result.StatusCode , result);  
         }
 
+        [HttpGet("get-all-fill")]
+        public async Task<IActionResult> GetAllByWeekly([FromBody] GetAllRequest model)
+        {
+            var result = await _weeklyPLanService.GetAllAsync();
+            return StatusCode(result.StatusCode , result);  
+        }
+
         [HttpGet("get-by-customer-id/{id}")]
         public async Task<IActionResult> GetByCustomerId(string id)
         {

@@ -135,7 +135,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		[HttpPut("change-status/{id}")]
 		[Authorize]
-		public async Task<IActionResult> UpdateStatusRecipe(Guid id , [FromQuery] ChangeRecipeStatusRequest request)
+		public async Task<IActionResult> UpdateStatusRecipe(Guid id , [FromBody] ChangeRecipeStatusRequest request)
 		{
 			Guid recipeId;
 			if ( Guid.TryParse(id.ToString() , out recipeId) )

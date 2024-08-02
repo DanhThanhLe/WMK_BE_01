@@ -443,8 +443,35 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-        #endregion
+
+		#endregion
+		public async Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder , Guid idOrderGroup)
+		{
+			var result = new ResponseObject<OrderResponse>();  
+
+            //check order group exist
+            var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(idOrderGroup.ToString());
+
+            if ( orderGroupExist != null ) {
+                var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(idOrder.ToString());
+                if ( orderExist != null ) {
+                    orderExist.OrderGroupId = idOrderGroup;
+                    orderExist.OrderGroup = orderGroupExist;
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Message = "Change order group success";
+                    return result;
+                }
+            }
+
+            result.StatusCode = 404;
+            result.Message = "OrderGroup not exist!";
+            return result;
 
 
-    }
+
+		}
+
+
+	}
 }
