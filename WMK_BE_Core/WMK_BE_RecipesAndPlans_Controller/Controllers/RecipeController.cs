@@ -117,10 +117,16 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		[Authorize]
 		public async Task<IActionResult> DeleteById(string id)
 		{
-			Guid recipeId;
-			if ( Guid.TryParse(id , out recipeId) )
+			//get info user use
+			var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if ( user == null )
 			{
-				var result = await _recipeService.DeleteRecipeById(recipeId);
+				return Unauthorized(new { Message = "Invalid token, user ID not found" });
+			}
+			Guid recipeId, userId;
+			if ( Guid.TryParse(id , out recipeId) && Guid.TryParse(user, out userId))
+			{
+				var result = await _recipeService.DeleteRecipeById(userId ,recipeId);
 				return StatusCode(result.StatusCode , result);
 			}
 			else

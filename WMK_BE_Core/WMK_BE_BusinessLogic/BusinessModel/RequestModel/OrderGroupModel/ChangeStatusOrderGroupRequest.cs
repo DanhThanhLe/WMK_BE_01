@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderGroupModel
 {
-	public class IdOrderGroupRequest
+	public class ChangeStatusOrderGroupRequest
 	{
-        public Guid Id { get; set; }
-    }
+		public BaseStatus Status { get; set; }
+	}
 }

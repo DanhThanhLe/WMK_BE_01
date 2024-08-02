@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
+using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
 
@@ -26,10 +28,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return StatusCode(result.StatusCode , result);  
         }
 
-        [HttpGet("get-all-fill")]
-        public async Task<IActionResult> GetAllByWeekly([FromBody] GetAllRequest model)
+        [HttpGet("get-all-filter")]
+        public async Task<IActionResult> GetAllByWeekly([FromBody] GetAllRequest? model)
         {
-            var result = await _weeklyPLanService.GetAllAsync();
+            var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+            if(model != null )
+            {
+                result = await _weeklyPLanService.GetAllFilterAsync(model);
+            }
+            result = await _weeklyPLanService.GetAllAsync();
             return StatusCode(result.StatusCode , result);  
         }
 
@@ -86,6 +93,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         public async Task<IActionResult> Update(Guid id,[FromBody]UpdateWeeklyPlanRequestModel model) 
         {
             var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(id,model);
+            return StatusCode(result.StatusCode , result);
+        }
+
+        [HttpPut("change-status/{id}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatus(Guid id,[FromBody]ChangeStatusWeeklyPlanRequest model) 
+        {
+            var result = await _weeklyPLanService.ChangeStatusWeeklyPlanAsync(id, model);
             return StatusCode(result.StatusCode , result);
         }
 

@@ -79,7 +79,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (!validateResult.IsValid)//kiem tra request
             {
                 var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-                result.StatusCode = 500;
+                result.StatusCode = 400;
                 result.Message = string.Join(" - ", error);
                 return result;
             }
@@ -87,15 +87,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString());
             if (found == null)//ko co nghia la ko tim duoc category tuong ung -> bao loi
             {
-                result.StatusCode = 400;
+                result.StatusCode = 404;
                 result.Message = "Not found, say from UpdateCategory - IngredientCategoryService";
                 return result;
             }
 
             //detach entity if need
-            _unitOfWork.IngredientCategoryRepository.DetachEntity(found);
+            //_unitOfWork.IngredientCategoryRepository.DetachEntity(found);
 
-            found = _mapper.Map<IngredientCategory>(request);
+            //found = _mapper.Map<IngredientCategory>(request);
+            _mapper.Map(request, found);
             var updateResult = await _unitOfWork.IngredientCategoryRepository.UpdateAsync(found);
             if (updateResult)
             {
@@ -149,7 +150,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             {
                 //var foundList = ingredientList.Where(x => x.Name.Contains(name)).ToList();
                 List<IngredientCategory> foundList = currentList.Where(x => x.Name.ToLower().Contains(request.ToLower())).ToList();
-                if (foundList == null)
+                if (!foundList.Any())
                 {
                     result.StatusCode = 404;
                     result.Message = "Not found. No such ingredient category in collection contain keyword: " + request;

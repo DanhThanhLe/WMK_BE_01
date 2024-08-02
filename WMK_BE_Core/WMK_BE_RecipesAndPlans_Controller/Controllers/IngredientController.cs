@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using System.Security.Claims;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
+using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
 
@@ -20,9 +22,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpGet("get-all")]
-		public async Task<IActionResult> GetAll()
+		public async Task<IActionResult> GetAll([FromBody] string? name)
 		{
-			var result = await _ingredientService.GetIngredients();
+			var result = new ResponseObject<List<IngredientResponse>>();
+			if(name != null )
+			{
+				result = await _ingredientService.GetIngredientByName(name);
+			}
+			result = await _ingredientService.GetIngredients();
 			return StatusCode(result.StatusCode , result);
 		}
 

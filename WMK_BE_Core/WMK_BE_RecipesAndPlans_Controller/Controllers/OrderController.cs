@@ -92,5 +92,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.DeleteOrderAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
+		[HttpDelete("remove-ordergroup/{idOrder}")]
+		[Authorize]
+		public async Task<IActionResult> RemoveFromOrdergroup(Guid idOrder)
+		{
+			var result = await _orderService.RemoveOrderFormOrderGroupAsync(idOrder);
+			return StatusCode(result.StatusCode , result);
+		}
 	}
 }

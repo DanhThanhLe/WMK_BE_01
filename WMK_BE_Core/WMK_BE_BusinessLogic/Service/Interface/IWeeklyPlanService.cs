@@ -6,19 +6,21 @@ using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IWeeklyPlanService
 	{
 		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync();
+		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllFilterAsync(GetAllRequest model);
 		Task<ResponseObject<WeeklyPlanResponseModel?>> GetByIdAsync(Guid id);
 		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId);
         Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model, string createdBy);
 		Task<ResponseObject<WeeklyPlanResponseModel>> CreateForSutomer(CreateWeeklyPlanRequest request);
         Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(Guid id, UpdateWeeklyPlanRequestModel model);
 		Task<ResponseObject<WeeklyPlanResponseModel>> DeleteWeeklyPlanAsync(Guid id);
-		Task<ResponseObject<WeeklyPlanResponseModel>> ChangeStatusWeeklyPlanAsync(ChangeStatusWeeklyPlanRequestModel model);
+		Task<ResponseObject<WeeklyPlanResponseModel>> ChangeStatusWeeklyPlanAsync(Guid id, ChangeStatusWeeklyPlanRequest model);
 		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(Guid id,UpdateWeeklyPlanRequest request);
 
     }

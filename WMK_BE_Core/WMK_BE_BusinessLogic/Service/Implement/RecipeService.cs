@@ -499,7 +499,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				recipeExist.Notice = "Not have";
 			}
-			_mapper.Map(recipe, recipeExist);
+			_mapper.Map(recipe , recipeExist);
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
@@ -518,33 +518,54 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Delete
-		public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid request)
+		public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid userId , Guid request)
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var found = await _unitOfWork.RecipeRepository.GetByIdAsync(request.ToString());
-			if ( found == null )
+			if ( found != null )
 			{
-				result.StatusCode = 404;
-				result.Message = "Not found recipe!";
+				//check recipe exist in weekly plan - if have, just change status -> cancel
+				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
+				if ( userExist != null && userExist.Role == Role.Admin )
+				{
+					//delete
+					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(found.Id.ToString());
+					if ( deleteResult )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Delete recipe success";
+						return result;
+					}
+					result.StatusCode = 500;
+					result.Message = "Delete recipe unsuccess!";
+					return result;
+				}
+				if ( userExist != null && userExist.Id.ToString() == found.CreatedBy )
+				{
+					//change status
+					var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(found);
+					if( updateResult )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Just change recipe status success";
+						return result;
+					}
+					result.StatusCode = 500;
+					result.Message = "Just change recipe status unsuccess!";
+					return result;
+				}
+				//don't change anything
+				result.StatusCode = 402;
+				result.Message = "UnAuthrizator to delete!";
 				return result;
+
 			}
 
-
-			//check recipe exist in weekly plan - if have, just change status -> cancel
-			var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(request.ToString());
-			if ( deleteResult )
-			{
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "Success";
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 500;
-				result.Message = "Error at delete RECIPE";
-				return result;
-			}
+			result.StatusCode = 404;
+			result.Message = "Not found recipe!";
+			return result;
 		}
 		#endregion
 
@@ -766,7 +787,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 					//update RecipeNutrient có thể gọi hàm tự động update vô đây
 					var updateNutrientResult = await AutoUpdateNutrientByRecipe(recipeExist.Id);
-					if(updateNutrientResult == false )
+					if ( updateNutrientResult == false )
 					{
 						result.StatusCode = 500;
 						result.Message = "Faild to update nutrient!";

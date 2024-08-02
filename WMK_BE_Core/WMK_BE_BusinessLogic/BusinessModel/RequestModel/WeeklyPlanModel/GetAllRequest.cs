@@ -8,6 +8,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 {
 	public class GetAllRequest
 	{
-
-	}
+        public DateTime BeginDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
 }

@@ -53,12 +53,11 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             RuleFor(x => x.Id).NotEmpty().WithMessage("Id by is required!");
 		}
     }
-    public class ChangeStatusWeeklyPlanValidator : AbstractValidator<ChangeStatusWeeklyPlanRequestModel> 
+    public class ChangeStatusWeeklyPlanValidator : AbstractValidator<ChangeStatusWeeklyPlanRequest> 
 	{
         public ChangeStatusWeeklyPlanValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Id by is required!");
-            RuleFor(x => x.ProcessStatus).NotEmpty().WithMessage("Status is required!");
+            RuleFor(x => x.ProcessStatus).NotNull().WithMessage("Status is required!");
 		}
     }
 }

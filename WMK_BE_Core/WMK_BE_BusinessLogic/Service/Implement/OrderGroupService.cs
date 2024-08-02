@@ -47,10 +47,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.StatusCode = 200;
 				result.Message = "OrderGroup list";
 				var dataModel = _mapper.Map<List<OrderGroupsResponse>>(orderGroupList);
-				foreach(var odg in dataModel )
+				foreach ( var odg in dataModel )
 				{
 					var userExist = await _unitOfWork.UserRepository.GetByIdAsync(odg.ShipperId.ToString());
-					if( userExist != null )
+					if ( userExist != null )
 					{
 						odg.ShipperUserName = userExist.UserName;
 					}
@@ -80,17 +80,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 
 				string userName = null;
-                if (orderGroupExist.AsignBy.ToString() != null)
-                {
+				if ( orderGroupExist.AsignBy.ToString() != null )
+				{
 					userName = _unitOfWork.UserRepository.GetUserNameById(orderGroupExist.AsignBy);
-                }
-                var returnData = _mapper.Map<OrderGroupsResponse>(orderGroupExist);
+				}
+				var returnData = _mapper.Map<OrderGroupsResponse>(orderGroupExist);
 				if ( userName != null )
 				{
 					returnData.AsignBy = userName;
 				}
 
-                result.StatusCode = 200;
+				result.StatusCode = 200;
 				result.Message = "OrderGroup";
 				result.Data = returnData;
 				return result;
@@ -103,7 +103,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model, string assignedBy)
+		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model , string assignedBy)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
 			var validationResult = _createValidator.Validate(model);
@@ -130,7 +130,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			//check orderGroup exist shipper
 			var existOrderGroup = _unitOfWork.OrderGroupRepository.GetAll().FirstOrDefault(od => od.ShipperId == shipperExist.Id);
-			if(existOrderGroup != null )
+			if ( existOrderGroup != null )
 			{
 				result.StatusCode = 409;
 				result.Message = "Shipper have order group!";
@@ -151,7 +151,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			var orderGroupModel = _mapper.Map<OrderGroup>(model);
 			Guid idConvert;
-			Guid.TryParse(assignedBy, out idConvert);
+			Guid.TryParse(assignedBy , out idConvert);
 			orderGroupModel.AsignBy = idConvert;
 			orderGroupModel.AsignAt = DateTime.Now;
 			orderGroupModel.Status = BaseStatus.Available;
@@ -175,7 +175,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model, string id)
+		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model , string id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
 			var validationResult = _updateValidator.Validate(model);
@@ -229,10 +229,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 
-		public async Task<ResponseObject<OrderGroupsResponse>> DeleteOrderGroupAsync(IdOrderGroupRequest model)
+		public async Task<ResponseObject<OrderGroupsResponse>> DeleteOrderGroupAsync(Guid id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
-			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(model.Id.ToString());
+			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(id.ToString());
 			if ( orderGroupExist != null )
 			{
 				var orderGroupExistOrder = _unitOfWork.OrderGroupRepository.OrderGroupExistOrder(orderGroupExist);
@@ -257,7 +257,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				else
 				{
-					var deleteResult = await _unitOfWork.OrderGroupRepository.DeleteAsync(model.Id.ToString());
+					var deleteResult = await _unitOfWork.OrderGroupRepository.DeleteAsync(id.ToString());
 					if ( deleteResult )
 					{
 						await _unitOfWork.CompleteAsync();
@@ -281,21 +281,22 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		public async Task<ResponseObject<OrderGroupsResponse>> ChangeStatusOrderGroupAsync(IdOrderGroupRequest model)
+		public async Task<ResponseObject<OrderGroupsResponse>> ChangeStatusOrderGroupAsync(Guid id , ChangeStatusOrderGroupRequest model)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
-			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(model.Id.ToString());
-			if ( orderGroupExist != null && orderGroupExist.Status == BaseStatus.Available )
+			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(id.ToString());
+			if ( orderGroupExist != null )
 			{
-				switch ( orderGroupExist.Status )
-				{
-					case BaseStatus.Available:
-						orderGroupExist.Status = BaseStatus.UnAvailable;
-						break;
-					case BaseStatus.UnAvailable:
-						orderGroupExist.Status = BaseStatus.Available;
-						break;
-				}
+				//switch ( orderGroupExist.Status )
+				//{
+				//	case BaseStatus.Available:
+				//		orderGroupExist.Status = BaseStatus.UnAvailable;
+				//		break;
+				//	case BaseStatus.UnAvailable:
+				//		orderGroupExist.Status = BaseStatus.Available;
+				//		break;
+				//}
+				orderGroupExist.Status = model.Status;
 				var updateResult = await _unitOfWork.OrderGroupRepository.UpdateAsync(orderGroupExist);
 				if ( updateResult )
 				{
@@ -327,19 +328,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var list = new List<List<string>>();
 			var orderGroups = await _unitOfWork.OrderGroupRepository.GetAllAsync();
 			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
-			if ( orders != null && orderGroups != null)
+			if ( orders != null && orderGroups != null )
 			{
 				// Group addresses by nearest cluster
 				var orderProcess = orders.Where(o => o.Status == OrderStatus.Processing).ToList();
-				foreach(var order in orderProcess)
+				foreach ( var order in orderProcess )
 				{
-					double[] orderCoordinates = [order.Longitude,order.Latitude];
+					double[] orderCoordinates = [order.Longitude , order.Latitude];
 					OrderGroup nearestOrderGroup = new OrderGroup();
 					double nearestDistance = double.MaxValue;
 
-					foreach (var orderGroup in orderGroups)
+					foreach ( var orderGroup in orderGroups )
 					{
-						double[] orderGroupCoordinates = [orderGroup.Longitude, orderGroup.Latitude];
+						double[] orderGroupCoordinates = [orderGroup.Longitude , orderGroup.Latitude];
 						double distance = CalculateDistance(orderCoordinates , orderGroupCoordinates);
 						if ( distance < nearestDistance && distance <= model.radius )
 						{

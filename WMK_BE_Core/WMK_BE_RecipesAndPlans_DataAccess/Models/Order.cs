@@ -38,7 +38,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 		//reference
 		public virtual User User { get; set; }
-		public virtual OrderGroup OrderGroup { get; set; }
+		public virtual OrderGroup? OrderGroup { get; set; }
 		public virtual WeeklyPlan WeeklyPlan { get; set; }
 
 		//list
