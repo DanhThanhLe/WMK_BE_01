@@ -159,16 +159,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<IngredientNutrientResponse>();
 			try
 			{
-				//var validateResult = _fullIngredientNutrientValidator.Validate(request);
-				//if ( !validateResult.IsValid )
-				//{
-				//	var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-				//	result.StatusCode = 500;
-				//	result.Message = "Say from Create - IngredientNutrientService. " + string.Join(" - " , error);
-				//	return result;
-				//}
-				//else
-				//{
 				//kiem tra voi ingredient id xem
 				//+ co ton tai ingredient ko
 				//+ co ton tai nutrient nao chua, phong bi duplicate
@@ -191,57 +181,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.StatusCode = 200;
 				result.Message = "Update ingredient nutrient success!";
 				return result;
-
-				//var currentList = await _unitOfWork.IngredientNutrientRepository.GetAllAsync();
-				//var checkExist = currentList.FirstOrDefault(x => x.IngredientID == request.IngredientID);
-				//if ( checkIngredient != null && checkExist != null && !checkExist.Id.ToString().Equals(idIngredientNutrient.ToString()) )//co ingredient, co nutrient nhung khong phai cai dang update - bao loi. tranh truogn hop bi duplicate thong tin
-				//{
-				//	result.StatusCode = 500;
-				//	result.Message = "Wrong id for update nutrient info with ingredient Id: " + request.IngredientID + " Say from Update - IngredientNutrientService.";
-				//	return result;
-
-				//}
-				//else if ( checkIngredient != null && checkExist != null && checkExist.Id.ToString().Equals(idIngredientNutrient.ToString()) )//co ingredient, co nutrient va la dung cai dang update
-				//{
-				//	_unitOfWork.IngredientNutrientRepository.DetachEntity(checkExist);//detach khi can
-				//	_unitOfWork.IngredientRepository.DetachEntity(checkIngredient);//detach khi can
-				//	IngredientNutrient updateOne = _mapper.Map<IngredientNutrient>(request);
-				//	var updateResult = await _unitOfWork.IngredientNutrientRepository.UpdateAsync(updateOne);
-				//	if ( updateResult )
-				//	{
-				//		await _unitOfWork.CompleteAsync();
-				//		result.StatusCode = 200;
-				//		result.Message = "OK. Success for update nutrient info with ingredient Id: " + request.IngredientID;
-				//		_unitOfWork.IngredientNutrientRepository.DetachEntity(updateOne);
-				//		return result;
-				//	}
-				//	else
-				//	{
-				//		await _unitOfWork.CompleteAsync();
-				//		result.StatusCode = 500;
-				//		result.Message = " Failed to update nutrient info with ingredient Id: " + request.IngredientID + " Say from Update - IngredientNutrientService";
-				//		return result;
-				//	}
-				//}
-				//else if ( checkIngredient == null )//ko co ingredint
-				//{
-				//	result.StatusCode = 500;
-				//	result.Message = "Not found ingredient with Id: " + request.IngredientID + " Say from Update - IngredientNutrientService";
-				//	return result;
-				//}
-				//else if ( checkExist == null )//ko co nutrient info tuong ung
-				//{
-				//	result.StatusCode = 500;
-				//	result.Message = "not found nutrient info with ingredient Id: " + request.IngredientID + " Say from Update - IngredientNutrientService";
-				//	return result;
-				//}
-				//else//cac loi khac
-				//{
-				//	result.StatusCode = 500;
-				//	result.Message = "Some error may occured. Say from Update - IngredientNutrientService";
-				//	return result;
-				//}
-				//}
 			}
 			catch ( Exception ex )
 			{

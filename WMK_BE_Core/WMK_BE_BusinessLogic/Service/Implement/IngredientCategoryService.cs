@@ -182,7 +182,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _unitOfWork.IngredientCategoryRepository.DetachEntity(found);
             if (found == null)
             {
-                result.StatusCode = 500;
+                result.StatusCode = 404;
                 result.Message = "Not found with ID: " + request + ". Say from DeleteById - IngredientCategoryService";
                 return result;
             }

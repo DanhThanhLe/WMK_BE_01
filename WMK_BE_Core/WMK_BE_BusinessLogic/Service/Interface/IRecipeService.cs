@@ -32,7 +32,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         public Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId);
 
-        Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId);
+        Task<ResponseObject<List<RecipeNutrientResponse>>> UpdateRecipeByIngredient(Guid ingredientId);
 
         //public Task<ResponseObject<RecipeResponse>> FilterToMenu(MenuFilterRequest request);
 

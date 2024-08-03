@@ -654,80 +654,48 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region auto update
-		public async Task<ResponseObject<List<RecipeNutrientResponse>>> AutoUpdate(Guid IngredientId)
+		public async Task<ResponseObject<List<RecipeNutrientResponse>>> UpdateRecipeByIngredient(Guid ingredientId)
 		{
 			var result = new ResponseObject<List<RecipeNutrientResponse>>();
-			//lay thong tin cua tat ca recipe
-			//tu do lay thong tin cua recipeIngredient
-			//lay thong tin cua ingredient
-			//lay thong tin cua nutrient trong ingredient
-			//tinh lai thong tin do
-			//lenh update
-			//luu thong tin
-			var currentListRecipe = _unitOfWork.RecipeRepository.Get(x => x.RecipeIngredients.Any(x => x.IngredientId.ToString().ToLower().Equals(IngredientId.ToString().ToLower()))).ToList();
-			if ( currentListRecipe.Any() )
+			//ingredient exist
+			var ingredientExist = await _unitOfWork.IngredientRepository.GetByIdAsync(ingredientId.ToString());
+			if ( ingredientExist == null )
 			{
-				foreach ( var item in currentListRecipe )
+				result.StatusCode = 404;
+				result.Message = "Ingredient not exist!";
+				return result;
+			}
+			//find recipe by recipeIngredient
+			var recipeIngredients = _unitOfWork.RecipeIngredientRepository.Get(ri => ri.IngredientId == ingredientId).ToList();
+			if ( recipeIngredients != null )
+			{
+				foreach ( var recipeIngredient in recipeIngredients )
 				{
-					double updatePrice = 0;
-					RecipeNutrient nutrientInfor = _unitOfWork.RecipeNutrientRepository.Get(x => x.RecipeID.ToString().ToLower().Equals(item.Id.ToString().ToLower())).FirstOrDefault();
-					RecipeNutrient temp = new RecipeNutrient();
-					temp.RecipeID = item.Id;
-					if ( nutrientInfor != null && nutrientInfor.RecipeID.ToString() != null )
+					//find recipe
+					var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeIngredient.RecipeId.ToString());
+					if ( recipeExist != null )
 					{
-						temp.Id = nutrientInfor.Id;
-						foreach ( var ri in item.RecipeIngredients )
-						{
-							temp.Calories += ri.Ingredient.IngredientNutrient.Calories * ri.Amount;
-							temp.Fat += ri.Ingredient.IngredientNutrient.Fat * ri.Amount;
-							temp.SaturatedFat += ri.Ingredient.IngredientNutrient.SaturatedFat * ri.Amount;
-							temp.Sugar += ri.Ingredient.IngredientNutrient.Sugar * ri.Amount;
-							temp.Carbonhydrate += ri.Ingredient.IngredientNutrient.Carbonhydrate * ri.Amount;
-							temp.DietaryFiber += ri.Ingredient.IngredientNutrient.DietaryFiber * ri.Amount;
-							temp.Protein += ri.Ingredient.IngredientNutrient.Protein * ri.Amount;
-							temp.Sodium += ri.Ingredient.IngredientNutrient.Sodium * ri.Amount;
-							updatePrice += ri.Amount * ri.Ingredient.Price;
-						}
-						item.Price = updatePrice;
-						_unitOfWork.RecipeRepository.DetachEntity(item);
-						_unitOfWork.RecipeNutrientRepository.DetachEntity(nutrientInfor);
-						var updateRecipePrice = await _unitOfWork.RecipeRepository.UpdateAsync(item);
-						if ( updateRecipePrice )
-						{
-							await _unitOfWork.CompleteAsync();
-						}
-						else
-						{
-							result.Message = "Update price false";
-							return result;
-						}
-						_unitOfWork.RecipeNutrientRepository.DetachEntity(temp);
-						var updateResult = await _unitOfWork.RecipeNutrientRepository.UpdateAsync(temp);
-						if ( updateResult )
-						{
-							await _unitOfWork.CompleteAsync();
-						}
-						else
-						{
-							result.Message = "Update nutrient false";
-							return result;
-						}
-					}
-					else
-					{
-						result.Message = "Not found nutreint infor";
+						//update recipe ingredient
+						recipeExist.RecipeNutrient.Sodium += ingredientExist.IngredientNutrient.Sodium * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.Sugar += ingredientExist.IngredientNutrient.Sugar * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.DietaryFiber += ingredientExist.IngredientNutrient.DietaryFiber * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.Calories += ingredientExist.IngredientNutrient.Calories * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.SaturatedFat += ingredientExist.IngredientNutrient.SaturatedFat * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.Carbonhydrate += ingredientExist.IngredientNutrient.Carbonhydrate * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.Fat += ingredientExist.IngredientNutrient.Fat * recipeIngredient.Amount;
+						recipeExist.RecipeNutrient.Protein += ingredientExist.IngredientNutrient.Protein * recipeIngredient.Amount;
+						result.StatusCode = 200;
+						result.Message = "update recipe nutrient successfully.";
 						return result;
 					}
+					result.StatusCode = 404;
+					result.Message = "Recipe not exist!";
+					return result;
 				}
-				result.StatusCode = 200;
-				result.Message = "ok";
-				return result;
 			}
-			else
-			{
-				result.Message = "Not found preference recipe. Its ok";
-				return result;
-			}
+			result.StatusCode = 404;
+			result.Message = "Don't have recipe ingredient list!";
+			return result;
 		}
 
 		public async Task<bool> AutoUpdateNutrientByRecipe(Guid recipeId)
