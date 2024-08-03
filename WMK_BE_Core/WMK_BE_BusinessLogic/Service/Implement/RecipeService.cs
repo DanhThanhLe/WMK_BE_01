@@ -66,7 +66,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Get all
-		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes(string name="")
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes(string name = "")
 		{
 			var result = new ResponseObject<List<RecipeResponse>>();
 			var currentList = await GetAllToProcess();
@@ -312,7 +312,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(newRecipe.Id , recipe.Steps);
 
 				//create RecipeNutrient
-				var updateNutrientResult = await AutoUpdateNutrientByRecipe(newRecipe.Id);
+				var updateNutrientResult = await _recipeNutrientService.AutoUpdateNutrientByRecipe(newRecipe.Id);
 
 				if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
 					checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
@@ -674,30 +674,32 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					//find recipe
 					var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeIngredient.RecipeId.ToString());
-					if ( recipeExist != null )
+					if ( recipeExist != null && recipeExist.RecipeNutrient != null )
 					{
 						//delete nutrient cũ
 						var deleteRecipeNutrient = await _unitOfWork.RecipeNutrientRepository.DeleteAsync(recipeExist.RecipeNutrient.Id.ToString());
-						if ( deleteRecipeNutrient )
+						if ( !deleteRecipeNutrient )
 						{
-							//create lại recipe nutrient
-							var createRecipeNutrientModel = _mapper.Map<List<CreateRecipeNutrientRequest>>(recipeExist.RecipeNutrient);
-							var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id , createRecipeNutrientModel);
-							if(createRecipeNutrient != null )
-							{
-								//thành công
-								result.StatusCode = 200;
-								result.Message = "update recipe nutrient successfully";
-								return result;
-							}
+							result.StatusCode = 500;
+							result.Message = "delete old recipe nutrient unsuccessfully!";
+							return result;
 						}
-						result.StatusCode = 500;
-						result.Message = "delete old recipe nutrient unsuccessfully!";
+					}
+					else if ( recipeExist == null )
+					{
+						result.StatusCode = 404;
+						result.Message = "Recipe not exist!";
 						return result;
 					}
-					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
-					return result;
+					//create recipe nutrient
+					var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id);
+					if ( createRecipeNutrient != null )
+					{
+						//thành công
+						result.StatusCode = 200;
+						result.Message = "update recipe nutrient successfully";
+						return result;
+					}
 				}
 			}
 			result.StatusCode = 404;
@@ -705,32 +707,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
-		public async Task<bool> AutoUpdateNutrientByRecipe(Guid recipeId)
-		{
-			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-			if ( recipeExist == null )
-			{
-				return false;
-			}
-			//xử lý update nutrient của recipe theo từng ingredient
-			foreach ( var recipeIngredient in recipeExist.RecipeIngredients )
-			{
-				var ingredient = await _unitOfWork.IngredientRepository.GetByIdAsync(recipeIngredient.IngredientId.ToString());
-				if ( ingredient != null )
-				{
-					recipeExist.RecipeNutrient.Sodium += ingredient.IngredientNutrient.Sodium;
-					recipeExist.RecipeNutrient.Sugar += ingredient.IngredientNutrient.Sugar;
-					recipeExist.RecipeNutrient.DietaryFiber += ingredient.IngredientNutrient.DietaryFiber;
-					recipeExist.RecipeNutrient.Calories += ingredient.IngredientNutrient.Calories;
-					recipeExist.RecipeNutrient.SaturatedFat += ingredient.IngredientNutrient.SaturatedFat;
-					recipeExist.RecipeNutrient.Carbonhydrate += ingredient.IngredientNutrient.Carbonhydrate;
-					recipeExist.RecipeNutrient.Fat += ingredient.IngredientNutrient.Fat;
-					recipeExist.RecipeNutrient.Protein += ingredient.IngredientNutrient.Protein;
-				}
-
-			}
-			return true;
-		}
+		
 
 		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy , Guid idRecipe , CreateRecipeRequest recipe)
 		{
@@ -801,7 +778,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(recipeExist.Id , recipe.RecipeIngredientsList);
 
 					//update RecipeNutrient có thể gọi hàm tự động update vô đây
-					var updateNutrientResult = await AutoUpdateNutrientByRecipe(recipeExist.Id);
+					var updateNutrientResult = await _recipeNutrientService.AutoUpdateNutrientByRecipe(recipeExist.Id);
 					if ( updateNutrientResult == false )
 					{
 						result.StatusCode = 500;

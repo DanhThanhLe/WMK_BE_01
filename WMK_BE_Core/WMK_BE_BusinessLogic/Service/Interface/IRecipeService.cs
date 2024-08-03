@@ -49,5 +49,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         //public Task<ResponseObject<RecipeResponse>> GetIngredientAndAmountByRecipeId(int recipeId);
 
         //public Task<ResponseObject<RecipeResponse>> GetRecipeWithIngredientsList(List<int> ingredientsInputList);
-    }
+
+
+	}
 }
