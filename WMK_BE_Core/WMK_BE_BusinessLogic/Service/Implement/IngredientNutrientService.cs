@@ -177,7 +177,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Update ingredient nutrient faild!";
 					return result;
 				}
-				await _unitOfWork.CompleteAsync();
+				//await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Update ingredient nutrient success!";
 				return result;
@@ -199,13 +199,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var checkExist = await _unitOfWork.IngredientNutrientRepository.GetByIdAsync(request.ToString());
 			if ( checkExist == null )
 			{
-				result.StatusCode = 500;
-				result.Message = "Not found. Say from DeleteIngredientById - IngredientService";
+				result.StatusCode = 404;
+				result.Message = "Ingredient nutrient not exist!";
 				return result;
 			}
 			else
 			{
-				_unitOfWork.IngredientNutrientRepository.DetachEntity(checkExist);
 				var deleteResult = await _unitOfWork.IngredientNutrientRepository.DeleteAsync(request.ToString());
 				if ( deleteResult )
 				{

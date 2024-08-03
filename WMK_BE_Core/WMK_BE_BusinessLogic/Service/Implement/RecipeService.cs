@@ -676,17 +676,23 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeIngredient.RecipeId.ToString());
 					if ( recipeExist != null )
 					{
-						//update recipe ingredient
-						recipeExist.RecipeNutrient.Sodium += ingredientExist.IngredientNutrient.Sodium * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.Sugar += ingredientExist.IngredientNutrient.Sugar * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.DietaryFiber += ingredientExist.IngredientNutrient.DietaryFiber * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.Calories += ingredientExist.IngredientNutrient.Calories * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.SaturatedFat += ingredientExist.IngredientNutrient.SaturatedFat * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.Carbonhydrate += ingredientExist.IngredientNutrient.Carbonhydrate * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.Fat += ingredientExist.IngredientNutrient.Fat * recipeIngredient.Amount;
-						recipeExist.RecipeNutrient.Protein += ingredientExist.IngredientNutrient.Protein * recipeIngredient.Amount;
-						result.StatusCode = 200;
-						result.Message = "update recipe nutrient successfully.";
+						//delete nutrient cũ
+						var deleteRecipeNutrient = await _unitOfWork.RecipeNutrientRepository.DeleteAsync(recipeExist.RecipeNutrient.Id.ToString());
+						if ( deleteRecipeNutrient )
+						{
+							//create lại recipe nutrient
+							var createRecipeNutrientModel = _mapper.Map<List<CreateRecipeIngredientRequest>>(recipeExist.RecipeIngredients);
+							var createRecipeNutrient = await _recipeNutrientService.Create(recipeExist.Id , createRecipeNutrientModel);
+							if(createRecipeNutrient != null )
+							{
+								//thành công
+								result.StatusCode = 200;
+								result.Message = "update recipe nutrient successfully";
+								return result;
+							}
+						}
+						result.StatusCode = 500;
+						result.Message = "delete old recipe nutrient unsuccessfully!";
 						return result;
 					}
 					result.StatusCode = 404;
