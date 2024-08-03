@@ -346,7 +346,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel?>();
 			var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
-			if ( weeklyPlanExist != null && weeklyPlanExist.ProcessStatus == ProcessStatus.Approved )
+			if ( weeklyPlanExist != null )
 			{
 				var weeklyPlan = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
 				//gan ten cho creatdBy va approvedBy

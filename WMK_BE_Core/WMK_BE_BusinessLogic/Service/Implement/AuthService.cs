@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -161,6 +162,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		public string GenerateToken(User user)
 		{
+			// Tuần tự hóa đối tượng User thành chuỗi JSON
+			var userJson = JsonConvert.SerializeObject(user);
 			//create list claim
 			var authClaims = new List<Claim>
 				{
@@ -168,6 +171,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					//new Claim(ClaimTypes.Name, user.UserName.ToString()),
 					//new Claim(ClaimTypes.Email, user.Email.ToString()),
 					new Claim(ClaimTypes.Role, user.Role.ToString()),
+					new Claim("User", userJson),
 					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 				};
 			//check and add email into list Claim

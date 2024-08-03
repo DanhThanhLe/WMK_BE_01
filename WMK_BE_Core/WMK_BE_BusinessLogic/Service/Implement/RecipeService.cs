@@ -388,7 +388,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			await _unitOfWork.RecipeRepository.DeleteAsync(recipeId.ToString());
 			await _unitOfWork.CompleteAsync();
 		}
+		private async Task<bool> deleteRecipeFromWeeklyPlan(Guid recipeId , ProcessStatus status)
+		{
+			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
 
+			if ( recipeExist != null )
+			{
+				if ( status == ProcessStatus.Denied )
+				{
+					//Xóa khỏi wpl
+					var recipePlans = await _unitOfWork.RecipePlanRepository.GetAllAsync();
+					var recipePLansExist = recipePlans.Where(rp => rp.RecipeId == recipeId).ToList();
+					if ( recipePLansExist.Count > 0 )
+					{
+						foreach ( var recipePlan in recipePLansExist )
+						{
+							//delete recipePLan
+							var deleteResult = await _unitOfWork.RecipePlanRepository.GetByIdAsync(recipePlan.Id.ToString());
+							if ( deleteResult != null )
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+			return false;
+		}
 
 
 		#region Update (26/05/2024)
@@ -503,9 +529,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "Change status success";
+				//Nếu thay đổi status sang denied thì xóa recipe khỏi wpl
+				var deleteRecipeFromWPL = deleteRecipeFromWeeklyPlan(id , recipe.ProcessStatus);
+				if ( deleteRecipeFromWeeklyPlan != null )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Change status success";
+					return result;
+				}
+				result.StatusCode = 500;
+				result.Message = "Change status unsuccess! Delete recipe from weekly plan!";
 				return result;
 			}
 			else
@@ -544,12 +578,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( userExist != null && userExist.Id.ToString() == found.CreatedBy )
 				{
 					//change status
+					found.ProcessStatus = ProcessStatus.Denied;
 					var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(found);
-					if( updateResult )
+					if ( updateResult )
 					{
 						await _unitOfWork.CompleteAsync();
-						result.StatusCode = 200;
-						result.Message = "Just change recipe status success";
+						var deleteRecipeFromWPL = deleteRecipeFromWeeklyPlan(request , found.ProcessStatus);
+						if ( deleteRecipeFromWeeklyPlan != null )
+						{
+							result.StatusCode = 200;
+							result.Message = "Just change recipe status into denied success";
+							return result;
+						}
+						result.StatusCode = 500;
+						result.Message = "Delete recipe from wpl unsuccess!";
 						return result;
 					}
 					result.StatusCode = 500;
@@ -558,11 +600,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//don't change anything
 				result.StatusCode = 402;
-				result.Message = "UnAuthrizator to delete!";
+				result.Message = "UnAuthorizator to delete!";
 				return result;
-
 			}
-
 			result.StatusCode = 404;
 			result.Message = "Not found recipe!";
 			return result;
