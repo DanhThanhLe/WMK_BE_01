@@ -556,15 +556,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid userId , Guid request)
 		{
 			var result = new ResponseObject<RecipeResponse>();
-			var found = await _unitOfWork.RecipeRepository.GetByIdAsync(request.ToString());
-			if ( found != null )
+			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(request.ToString());
+			if ( recipeExist != null )
 			{
-				//check recipe exist in weekly plan - if have, just change status -> cancel
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
 				if ( userExist != null && userExist.Role == Role.Admin )
 				{
 					//delete
-					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(found.Id.ToString());
+					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());
 					if ( deleteResult )
 					{
 						await _unitOfWork.CompleteAsync();
@@ -576,17 +575,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Delete recipe unsuccess!";
 					return result;
 				}
-				if ( userExist != null && userExist.Id.ToString() == found.CreatedBy )
+				if ( userExist != null && userExist.Id.ToString() == recipeExist.CreatedBy )
 				{
 					//change status
-					found.ProcessStatus = ProcessStatus.Denied;
-					var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(found);
+					recipeExist.ProcessStatus = ProcessStatus.Cancel;
+					var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 					if ( updateResult )
 					{
 						await _unitOfWork.CompleteAsync();
-						var deleteRecipeFromWPL = deleteRecipeFromWeeklyPlan(request , found.ProcessStatus);
+						var deleteRecipeFromWPL = deleteRecipeFromWeeklyPlan(request , recipeExist.ProcessStatus);
 						if ( deleteRecipeFromWeeklyPlan != null )
 						{
+							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Just change recipe status into denied success";
 							return result;
