@@ -53,7 +53,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpGet("get-name/{name}")]
-		public async Task<IActionResult> GetByName(string name)
+		public async Task<IActionResult> GetByName(string name="")
 		{
 			var result = await _ingredientService.GetIngredientByName(name);
 			return StatusCode(result.StatusCode , result);

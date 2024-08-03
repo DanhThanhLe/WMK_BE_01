@@ -22,9 +22,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string name="")
         {
-            var result = await _weeklyPLanService.GetAllAsync();
+            var result = await _weeklyPLanService.GetAllAsync(name);
             return StatusCode(result.StatusCode , result);  
         }
 

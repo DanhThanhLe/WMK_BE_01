@@ -41,10 +41,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_orderDetailService = orderDetailService;
 		}
 		#region get all
-		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders()
+		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders(string name="")
 		{
 			var result = new ResponseObject<List<OrderResponse>>();
 			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+			orders = orders.Where(x=>x.ReceiveName.ToLower().RemoveDiacritics().Contains(name)).OrderByDescending(x => x.OrderDate).ToList();
 			if ( orders != null && orders.Count > 0 )
 			{
 				result.StatusCode = 200;
