@@ -258,8 +258,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !validateResult.IsValid )
 				{
 					var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-					result.StatusCode = 500;
-					result.Message = "Say from CreateRecipeAsync - RecipeService./n" + string.Join(" - /n" , error);
+					result.StatusCode = 400;
+					result.Message = "Error validate " + string.Join(" - /n" , error);
 					return result;
 				}
 				//mapper
@@ -272,7 +272,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
-					result.Message = "Duplicate name with ID " + checkDuplicateName.Id.ToString();
+					result.Message = "Duplicate name: " + checkDuplicateName.Name;
 					return result;
 				}
 
@@ -281,20 +281,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !createResult )
 				{
 					result.StatusCode = 500;
-					result.Message = "Create Recipe unsuccessfully! Say from CreateRecipeAsync - RecipeService.";
+					result.Message = "Create recipe unsucess!";
 					return result;
 				}
 				await _unitOfWork.CompleteAsync();
 
 				//bat dau tao cac thanh phan lien quan
-				//tạo giá cho recipe
-				var updatePrice = await UpdatePrice(newRecipe.Id);
-				if ( !updatePrice )
-				{
-					result.StatusCode = 500;
-					result.Message = "Update recipe price unsuccessfully";
-					return result;
-				}
+				
 				//create RecipeCategory
 				var checkCreateRecipeCategory = await _recipeCategoryService.Create(newRecipe.Id , recipe.CategoryIds);
 
@@ -323,7 +316,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				else//ko co loi va hoan thanh tao moi
 				{
-					await _unitOfWork.CompleteAsync();
+					//tạo giá cho recipe
+					var updatePrice = await UpdatePrice(newRecipe.Id);
+					if ( !updatePrice )
+					{
+						resetRecipe(newRecipe.Id);
+						result.StatusCode = 500;
+						result.Message = "Update recipe price unsuccessfully";
+						return result;
+					}
 					result.StatusCode = 200;
 					result.Message = "Create Recipe successfully.";
 					return result;
