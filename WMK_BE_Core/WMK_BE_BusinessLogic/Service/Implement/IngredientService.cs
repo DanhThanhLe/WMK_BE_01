@@ -466,14 +466,26 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							result.Message = updateNutrientResult.Message;
 							return result;
 						}
-						//update recipe info
-						var updateRecipeInfo = await _recipeService.UpdateRecipeByIngredient(ingredientExist.Id);
-						if ( updateRecipeInfo != null && updateRecipeInfo.StatusCode != 200 )
+						//gọi lại hàm để cập nhập các recipe có liên quan đến ingredient
+						var recipeIngredients = ingredientExist.RecipeIngredients.Where(ri => ri.IngredientId == ingredientExist.Id).ToList();
+						foreach ( var recipeIngredient in recipeIngredients )
 						{
-							result.StatusCode = updateRecipeInfo.StatusCode;
-							result.Message = updateRecipeInfo.Message;
-							return result;
+							var autoUpdateRecipe = await _recipeService.AutoUpdateRecipeAsync(recipeIngredient.RecipeId);
+							if ( !autoUpdateRecipe )
+							{
+								result.StatusCode = 500;
+								result.Message = "Auto update recipe unsuccess! Can't delete success";
+								return result;
+							}
 						}
+						////update recipe info
+						//var updateRecipeInfo = await _recipeService.UpdateRecipeByIngredient(ingredientExist.Id);
+						//if ( updateRecipeInfo != null && updateRecipeInfo.StatusCode != 200 )
+						//{
+						//	result.StatusCode = updateRecipeInfo.StatusCode;
+						//	result.Message = updateRecipeInfo.Message;
+						//	return result;
+						//}
 						var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(ingredientExist);
 						if ( updateResult )
 						{
