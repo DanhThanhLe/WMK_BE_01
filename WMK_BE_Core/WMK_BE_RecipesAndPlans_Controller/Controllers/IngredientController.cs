@@ -121,7 +121,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			Guid ingredientId;
 			if ( Guid.TryParse(id , out ingredientId) )
 			{
-				var result = await _ingredientService.DeleteIngredientById(ingredientId);
+				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+				if ( userId == null )
+				{
+					return Unauthorized(new { Message = "Invalid token, user ID not found" });
+				}
+				var result = await _ingredientService.DeleteIngredientById(ingredientId, userId.ToString());
 				return StatusCode(result.StatusCode , result);
 			}
 			else

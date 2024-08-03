@@ -762,7 +762,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 						else
 						{
-							result.StatusCode = 400;
+							result.StatusCode = 404;
 							result.Message = "Ingredient ID " + item.IngredientId + " not found.";
 							return result;
 						}
