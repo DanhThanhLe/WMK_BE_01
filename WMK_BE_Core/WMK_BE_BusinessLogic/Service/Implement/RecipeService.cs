@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using WMK_BE_BusinessLogic.BusinessModel.RequestModel.NutritionModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep;
@@ -311,21 +312,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(newRecipe.Id , recipe.Steps);
 
 				//create RecipeNutrient
-				var checkCreateRecipeNutrient = await _recipeNutrientService.Create(newRecipe.Id , recipe.RecipeIngredientsList);
+				var updateNutrientResult = await AutoUpdateNutrientByRecipe(newRecipe.Id);
 
 				if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
 					checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
 					|| checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
 					|| checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null
-					|| checkCreateRecipeNutrient.StatusCode != 200 || checkCreateRecipeNutrient.Data == null
+					|| updateNutrientResult == false
 					)
 				{
 					resetRecipe(newRecipe.Id);
 					result.StatusCode = 500;
 					result.Message = checkCreateRecipeCategory.Message
 						+ " | " + checkCreateRecipeIngredient.Message
-						+ " | " + checkCreateRecipeIngredient.Message
-						+ " | " + checkCreateRecipeNutrient.Message;
+						+ " | " + checkCreateRecipeIngredient.Message;
 					return result;
 				}
 				else//ko co loi va hoan thanh tao moi
@@ -681,8 +681,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( deleteRecipeNutrient )
 						{
 							//create lại recipe nutrient
-							var createRecipeNutrientModel = _mapper.Map<List<CreateRecipeIngredientRequest>>(recipeExist.RecipeIngredients);
-							var createRecipeNutrient = await _recipeNutrientService.Create(recipeExist.Id , createRecipeNutrientModel);
+							var createRecipeNutrientModel = _mapper.Map<List<CreateRecipeNutrientRequest>>(recipeExist.RecipeNutrient);
+							var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id , createRecipeNutrientModel);
 							if(createRecipeNutrient != null )
 							{
 								//thành công

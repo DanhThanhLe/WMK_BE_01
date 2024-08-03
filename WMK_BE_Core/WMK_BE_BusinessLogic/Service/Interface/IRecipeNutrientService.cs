@@ -12,6 +12,6 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
     public interface IRecipeNutrientService
     {
-        Task<ResponseObject<RecipeNutrient>> Create(Guid recipeId, List<CreateRecipeIngredientRequest> recipeIngredients);
+        Task<ResponseObject<RecipeNutrient>> CreateRecipeNutrientAsync(Guid recipeId, List<CreateRecipeNutrientRequest> recipeNutrient);
     }
 }
