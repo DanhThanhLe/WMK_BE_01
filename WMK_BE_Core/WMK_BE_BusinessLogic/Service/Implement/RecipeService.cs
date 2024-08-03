@@ -65,11 +65,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Get all
-		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes()
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes(string name="")
 		{
 			var result = new ResponseObject<List<RecipeResponse>>();
 			var currentList = await GetAllToProcess();
 			var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
+			responseList = responseList.Where(x => x.Name.RemoveDiacritics().ToLower().Contains(name.ToLower().RemoveDiacritics()));
 			if ( currentList != null && currentList.Count() > 0 )
 			{
 				result.StatusCode = 200;

@@ -183,11 +183,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion Get-recipe-list-by-category-id
 
 		#region Get-all
-		public async Task<ResponseObject<List<RecipeCategoryResponse>>> GetAll()
+		public async Task<ResponseObject<List<RecipeCategoryResponse>>> GetAll(string name="")
 		{
 			var result = new ResponseObject<List<RecipeCategoryResponse>>();
 			var list = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
-			if ( list == null || list.Count == 0 )
+            list = list.Where(x => x.Recipe.Name.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
+            if ( list == null || list.Count == 0 )
 			{
 				result.StatusCode = 400;
 				result.Message = "Not found. Empty list";

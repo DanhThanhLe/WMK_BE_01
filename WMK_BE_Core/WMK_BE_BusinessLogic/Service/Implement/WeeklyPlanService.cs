@@ -284,7 +284,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		#region get all
 
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync()
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name="")
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
@@ -300,8 +300,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
-			var returnList = weeklyPlans.ToList();
-			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
+			var returnList = weeklyPlans.Where(x => x.Title.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
+
+            if ( weeklyPlans != null && weeklyPlans.Count > 0 )
 			{
 				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
 				foreach ( var item in returnResult )

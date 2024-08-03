@@ -16,7 +16,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(string name="")
         {
             var result = await _recipeCategoryService.GetAll();
             return StatusCode(result.StatusCode , result);

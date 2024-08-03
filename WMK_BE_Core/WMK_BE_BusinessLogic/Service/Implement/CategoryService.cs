@@ -26,10 +26,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 
-		public async Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync()
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync(string name ="")
 		{
 			var result = new ResponseObject<List<CategoryResponseModel>>();
 			var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+			categories = categories.Where(x=>x.Name.RemoveDiacritics().ToLower().Contains(name.RemoveDiacritics().ToLower())).ToList();
 			if ( categories != null && categories.Count > 0 )
 			{
 				result.StatusCode = 200;

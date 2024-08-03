@@ -11,7 +11,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface ICategoryService
 	{
-		Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync();
+		Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync(string name ="");
 		Task<ResponseObject<CategoryResponseModel?>> GetByIdAsync(Guid id);
 		Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequestModel model);
 		Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestModel model);
