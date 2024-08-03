@@ -83,7 +83,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAllOrigins",
+                options.AddPolicy("WeMealKitCors",
                     policyBuilder => policyBuilder
                         .AllowAnyOrigin()
                         .AllowAnyMethod()
@@ -201,7 +201,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			app.UseSwagger();
 			app.UseSwaggerUI();
             //}
-            app.UseCors("AllowAllOrigins"); //cau hinh CORs
+            app.UseCors("WeMealKitCors"); //cau hinh CORs
             app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllers();
