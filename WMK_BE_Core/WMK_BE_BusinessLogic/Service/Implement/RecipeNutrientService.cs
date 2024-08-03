@@ -73,16 +73,45 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		public async Task<bool> AutoUpdateNutrientByRecipe(Guid recipeId)
 		{
+			// Lấy thông tin recipe theo Id
 			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
 			if ( recipeExist == null )
 			{
 				return false;
 			}
-			//xử lý update nutrient của recipe theo từng ingredient
+
+			// Nếu RecipeNutrient của recipe hiện tại là null, khởi tạo đối tượng RecipeNutrient mới
+			if ( recipeExist.RecipeNutrient == null )
+			{
+				recipeExist.RecipeNutrient = new RecipeNutrient
+				{
+					RecipeID = recipeId ,
+					Sodium = 0 ,
+					Sugar = 0 ,
+					DietaryFiber = 0 ,
+					Calories = 0 ,
+					SaturatedFat = 0 ,
+					Carbonhydrate = 0 ,
+					Fat = 0 ,
+					Protein = 0
+				};
+			}
+
+			// Khởi tạo giá trị ban đầu cho các thuộc tính của RecipeNutrient
+			recipeExist.RecipeNutrient.Sodium = 0;
+			recipeExist.RecipeNutrient.Sugar = 0;
+			recipeExist.RecipeNutrient.DietaryFiber = 0;
+			recipeExist.RecipeNutrient.Calories = 0;
+			recipeExist.RecipeNutrient.SaturatedFat = 0;
+			recipeExist.RecipeNutrient.Carbonhydrate = 0;
+			recipeExist.RecipeNutrient.Fat = 0;
+			recipeExist.RecipeNutrient.Protein = 0;
+
+			// Cập nhật nutrient của recipe theo từng ingredient
 			foreach ( var recipeIngredient in recipeExist.RecipeIngredients )
 			{
 				var ingredient = await _unitOfWork.IngredientRepository.GetByIdAsync(recipeIngredient.IngredientId.ToString());
-				if ( ingredient != null )
+				if ( ingredient != null && ingredient.IngredientNutrient != null )
 				{
 					recipeExist.RecipeNutrient.Sodium += ingredient.IngredientNutrient.Sodium;
 					recipeExist.RecipeNutrient.Sugar += ingredient.IngredientNutrient.Sugar;
@@ -94,8 +123,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					recipeExist.RecipeNutrient.Protein += ingredient.IngredientNutrient.Protein;
 				}
 			}
+
+			// Lưu thay đổi
 			await _unitOfWork.CompleteAsync();
 			return true;
 		}
+
 	}
 }

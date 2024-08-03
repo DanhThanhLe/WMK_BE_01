@@ -672,7 +672,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 
-		public async Task<bool> AutoUpdateRecipeAsync(Guid recipeId)
+		public async Task<bool> AutoUpdateRecipeAsync(Guid? recipeId)
 		{
 			//find recipe
 			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
@@ -696,7 +696,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return false;
 			}
 			var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id);
-			if ( createRecipeNutrient == null )
+			if ( createRecipeNutrient != null )
 			{
 				//thành công
 				await _unitOfWork.CompleteAsync();
