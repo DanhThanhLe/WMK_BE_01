@@ -275,21 +275,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Duplicate name with ID " + checkDuplicateName.Id.ToString();
 					return result;
 				}
-				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
-				foreach ( var item in recipe.RecipeIngredientsList )
-				{
-					var ingredientFound = await _unitOfWork.IngredientRepository.GetByIdAsync(item.IngredientId.ToString());
-					if ( ingredientFound != null )
-					{
-						newRecipe.Price += ingredientFound.Price * item.amount;
-					}
-					else
-					{
-						result.StatusCode = 400;
-						result.Message = "Ingredient ID " + item.IngredientId + " not found.";
-						return result;
-					}
-				}
+
 
 				var createResult = await _unitOfWork.RecipeRepository.CreateAsync(newRecipe);
 				if ( !createResult )
@@ -301,7 +287,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 
 				//bat dau tao cac thanh phan lien quan
-
+				//tạo giá cho recipe
+				var updatePrice = await UpdatePrice(newRecipe.Id);
+				if ( !updatePrice )
+				{
+					result.StatusCode = 500;
+					result.Message = "Update recipe price unsuccessfully";
+					return result;
+				}
 				//create RecipeCategory
 				var checkCreateRecipeCategory = await _recipeCategoryService.Create(newRecipe.Id , recipe.CategoryIds);
 
@@ -655,6 +648,62 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region auto update
+		//update price
+		private async Task<bool> UpdatePrice(Guid recipeId)
+		{
+			var recipeExist = _unitOfWork.RecipeRepository.Get(r => r.Id == recipeId).FirstOrDefault();
+			if ( recipeExist != null )
+			{
+				var recipeIngredients = _unitOfWork.RecipeIngredientRepository.Get(ri => ri.RecipeId == recipeExist.Id).ToList();
+				var tmpPrice = 0.0;
+				if ( recipeIngredients.Any() )
+				{
+					foreach ( var recipeIngredient in recipeIngredients )
+					{
+						tmpPrice += recipeIngredient.Ingredient.Price * recipeIngredient.Amount;
+					}
+				}
+				recipeExist.Price = tmpPrice;
+				await _unitOfWork.CompleteAsync();
+				return true;
+			}
+			return false;
+		}
+
+
+		public async Task<bool> AutoUpdateRecipeAsync(Guid recipeId)
+		{
+			//find recipe
+			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+			if ( recipeExist != null && recipeExist.RecipeNutrient != null )
+			{
+				//delete nutrient cũ
+				var deleteRecipeNutrient = await _unitOfWork.RecipeNutrientRepository.DeleteAsync(recipeExist.RecipeNutrient.Id.ToString());
+				if ( !deleteRecipeNutrient )
+				{
+					return false;
+				}
+			}
+			else if ( recipeExist == null )
+			{
+				return false;
+			}
+			//create recipe nutrient and update price
+			var updatePrice = await UpdatePrice(recipeExist.Id);
+			if ( !updatePrice )
+			{
+				return false;
+			}
+			var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id);
+			if ( createRecipeNutrient == null )
+			{
+				//thành công
+				await _unitOfWork.CompleteAsync();
+				return true;
+			}
+			return false;
+		}
+
 		public async Task<ResponseObject<List<RecipeNutrientResponse>>> UpdateRecipeByIngredient(Guid ingredientId)
 		{
 			var result = new ResponseObject<List<RecipeNutrientResponse>>();
@@ -664,6 +713,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Ingredient not exist!";
+				return result;
+			}
+			else if ( ingredientExist.Status == BaseStatus.UnAvailable )
+			{
+				result.StatusCode = 400;
+				result.Message = "Ingredient UnAvailable!";
 				return result;
 			}
 			//find recipe by recipeIngredient
@@ -691,7 +746,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						result.Message = "Recipe not exist!";
 						return result;
 					}
-					//create recipe nutrient
+					//create recipe nutrient and update price
+					var updatePrice = await UpdatePrice(recipeExist.Id);
+					if ( !updatePrice )
+					{
+						result.StatusCode = 500;
+						result.Message = "Update recipe price unsuccessfully";
+						return result;
+					}
 					var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id);
 					if ( createRecipeNutrient != null )
 					{
@@ -707,7 +769,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
-		
 
 		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy , Guid idRecipe , CreateRecipeRequest recipe)
 		{
@@ -729,22 +790,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
 				recipeExist.UpdatedBy = updatedBy;
 				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
-				if ( recipe.RecipeIngredientsList != null )
+				var updatePrice = await UpdatePrice(recipeExist.Id);
+				if ( !updatePrice )
 				{
-					foreach ( var item in recipe.RecipeIngredientsList )
-					{
-						var ingredientFound = await _unitOfWork.IngredientRepository.GetByIdAsync(item.IngredientId.ToString());
-						if ( ingredientFound != null )
-						{
-							recipeExist.Price += ingredientFound.Price * item.amount;
-						}
-						else
-						{
-							result.StatusCode = 404;
-							result.Message = "Ingredient ID " + item.IngredientId + " not found.";
-							return result;
-						}
-					}
+					result.StatusCode = 500;
+					result.Message = "Update recipe price unsuccessfully";
+					return result;
 				}
 
 				var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
@@ -867,6 +918,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		#endregion
 	}
 	public static class StringExtensions

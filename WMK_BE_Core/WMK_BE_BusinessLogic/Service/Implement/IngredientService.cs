@@ -144,6 +144,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Ingredient not exist!";
 				return result;
 			}
+			var recipeIngredient = ingredientExist.RecipeIngredients.First(ri => ri.IngredientId == ingredientExist.Id);
+			var recipeId = recipeIngredient.RecipeId;
 			//check user exist
 			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId);
 
@@ -155,9 +157,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var deleteResult = await _unitOfWork.IngredientRepository.DeleteAsync(id.ToString());
 					if ( deleteResult )
 					{
-						await _unitOfWork.CompleteAsync();
-						result.StatusCode = 200;
-						result.Message = "Admin delete ingredient success";
+						//gọi lại hàm để cập nhập recipe
+						var autoUpdateRecipe = await _recipeService.AutoUpdateRecipeAsync(recipeId);
+						if ( autoUpdateRecipe )
+						{
+							result.StatusCode = 200;
+							result.Message = "Admin delete ingredient success";
+						}
+						result.StatusCode = 500;
+						result.Message = "Auto update recipe unsuccess! Can't delete success";
 					}
 					else
 					{
@@ -174,12 +182,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						//just change status
 						ingredientExist.Status = BaseStatus.UnAvailable;
+						var updateRecipe = await _recipeService.UpdateRecipeByIngredient(id);
+
 						var updateIngredientResult = await _unitOfWork.IngredientRepository.UpdateAsync(ingredientExist);
 						if ( updateIngredientResult )
 						{
-							await _unitOfWork.CompleteAsync();
-							result.StatusCode = 200;
-							result.Message = "Just change ingredient status success";
+							//gọi lại hàm để cập nhập recipe
+							var autoUpdateRecipe = await _recipeService.AutoUpdateRecipeAsync(recipeId);
+							if ( autoUpdateRecipe )
+							{
+								result.StatusCode = 200;
+								result.Message = "Just change ingredient status success";
+							}
+							result.StatusCode = 500;
+							result.Message = "Auto update recipe unsuccess! Can't delete success";
 						}
 						else
 						{
@@ -193,9 +209,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						var deleteResult = await _unitOfWork.IngredientRepository.DeleteAsync(id.ToString());
 						if ( deleteResult )
 						{
-							await _unitOfWork.CompleteAsync();
-							result.StatusCode = 200;
-							result.Message = "Delete ingredient success";
+							//gọi lại hàm để cập nhập recipe
+							var autoUpdateRecipe = await _recipeService.AutoUpdateRecipeAsync(recipeId);
+							if ( autoUpdateRecipe )
+							{
+								result.StatusCode = 200;
+								result.Message = "Delete ingredient success";
+							}
+							result.StatusCode = 500;
+							result.Message = "Auto update recipe unsuccess! Can't delete success";
 						}
 						else
 						{
