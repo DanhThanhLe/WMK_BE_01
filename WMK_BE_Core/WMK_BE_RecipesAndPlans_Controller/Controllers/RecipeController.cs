@@ -6,6 +6,9 @@ using WMK_BE_BusinessLogic.Service.Interface;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using WMK_BE_BusinessLogic.ResponseObject;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
@@ -19,11 +22,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		{
 			_recipeService = recipeService;
 		}
-
+		#region Get
 		[HttpGet("get-all")]
-		public async Task<IActionResult> GetAll(string name ="")
+		public async Task<IActionResult> GetAll([FromQuery]GetAllRecipesRequest? model)
 		{
-			var result = await _recipeService.GetRecipes(name);
+			var result = await _recipeService.GetAllRecipesAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
 
@@ -46,32 +49,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			}
 		}
 
-		[HttpGet("get-by-category/{categoryId}")]
-		[Authorize]
-		public async Task<IActionResult> GetWithCategoryId(string categoryId)
-		{
-			Guid categoryIdConvert;
-			if ( Guid.TryParse(categoryId , out categoryIdConvert) )
-			{
-				var result = await _recipeService.GetListByCategoryId(categoryIdConvert);
-				return StatusCode(result.StatusCode , result);
-			}
-			else
-			{
-				return BadRequest(new
-				{
-					StatusCode = 400 ,
-					Message = "Invalid GUID format! Please provide a valid GUID!"
-				});
-			}
-		}
-
-		//[HttpGet("get-by-name/{name?}/{status?}")]//status true là tìm recipe cho đặt hàng, false là tìm để coi thôi
-		//public async Task<IActionResult> GetByRecipeName([FromRoute] string name = "", [FromRoute] bool status = true)
-		//{
-		//    var result = await _recipeService.GetRecipeByName(name, status);
-		//    return Ok(result);
-		//}
+		//
 		[HttpGet("get-by-name/{name?}/{status?}")]
 		public async Task<IActionResult> GetByRecipeName(
 		[SwaggerParameter("Name of the recipe" , Required = false)] string name = "" ,
@@ -81,10 +59,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			{
 				name = ""; // Đặt giá trị mặc định nếu không được cung cấp
 			}
-			var result = await _recipeService.GetRecipeByName(name , status);
+			var result = await _recipeService.GetRecipesByNameStatusAsync(name , status);
 			return StatusCode(result.StatusCode , result);
 		}
+		#endregion
 
+		#region Create
+		//
 		[HttpPost("create-new")]
 		[Authorize]
 		public async Task<IActionResult> Create([FromBody] CreateRecipeRequest model)
@@ -98,7 +79,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _recipeService.CreateRecipeAsync(createdBy , model);
 			return StatusCode(result.StatusCode , result);
 		}
+		#endregion
 
+		#region Update
+		//
 		[HttpPut("update/{id}")]
 		[Authorize]
 		public async Task<IActionResult> Update(Guid id , [FromBody] CreateRecipeRequest model)
@@ -112,7 +96,29 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _recipeService.UpdateRecipeAsync(updatedBy, id , model);
 			return StatusCode(result.StatusCode , result);
 		}
+		//
+		[HttpPut("change-status/{id}")]
+		[Authorize]
+		public async Task<IActionResult> UpdateStatusRecipe(Guid id , [FromBody] ChangeRecipeStatusRequest request)
+		{
+			Guid recipeId;
+			if ( Guid.TryParse(id.ToString() , out recipeId) )
+			{
+				var result = await _recipeService.ChangeStatus(id , request);
+				return StatusCode(result.StatusCode , result);
+			}
+			else
+			{
+				return BadRequest(new
+				{
+					StatusCode = 400 ,
+					Message = "Invalid GUID format! Please provide a valid GUID!"
+				});
+			}
+		}
 
+		#endregion
+		//
 		[HttpDelete("delete/{id}")]
 		[Authorize]
 		public async Task<IActionResult> DeleteById(string id)
@@ -139,25 +145,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			}
 		}
 
-		[HttpPut("change-status/{id}")]
-		[Authorize]
-		public async Task<IActionResult> UpdateStatusRecipe(Guid id , [FromBody] ChangeRecipeStatusRequest request)
-		{
-			Guid recipeId;
-			if ( Guid.TryParse(id.ToString() , out recipeId) )
-			{
-				var result = await _recipeService.ChangeStatus(id , request);
-				return StatusCode(result.StatusCode , result);
-			}
-			else
-			{
-				return BadRequest(new
-				{
-					StatusCode = 400 ,
-					Message = "Invalid GUID format! Please provide a valid GUID!"
-				});
-			}
-		}
+		
 
 	}
 }

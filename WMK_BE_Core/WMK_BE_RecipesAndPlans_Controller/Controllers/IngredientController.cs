@@ -21,44 +21,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			_ingredientService = ingredientService;
 		}
 
+		#region Get
+		//
 		[HttpGet("get-all")]
-		public async Task<IActionResult> GetAll([FromBody] string? name)
+		public async Task<IActionResult> GetAll([FromQuery] GetAllIngredientsRequest? model)
 		{
-			var result = new ResponseObject<List<IngredientResponse>>();
-			if(name != null )
-			{
-				result = await _ingredientService.GetIngredientByName(name);
-			}
-			result = await _ingredientService.GetIngredients();
+			var result = await _ingredientService.GetAllAync(model);
 			return StatusCode(result.StatusCode , result);
 		}
 
-		[HttpGet("get/{id}")]
-		public async Task<IActionResult> GetById(string id)
-		{
-			Guid ingredientId;
-			if ( Guid.TryParse(id , out ingredientId) )
-			{
-				var result = await _ingredientService.GetIngredientById(ingredientId);
-				return StatusCode(result.StatusCode , result);
-			}
-			else
-			{
-				return BadRequest(new
-				{
-					StatusCode = 400 ,
-					Message = "Invalid GUID format! Please provide a valid GUID!"
-				});
-			}
-		}
-
-		[HttpGet("get-name/{name}")]
-		public async Task<IActionResult> GetByName(string name="")
-		{
-			var result = await _ingredientService.GetIngredientByName(name);
-			return StatusCode(result.StatusCode , result);
-		}
-
+		#endregion
+		//
 		[HttpPost("create-new")]
 		[Authorize]
 		public async Task<IActionResult> CreateNew([FromBody] CreateIngredientRequest model)
@@ -72,7 +45,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientService.CreateIngredient(createdBy , model);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		#region Update
+		//
 		[HttpPut("update/{id}")]
 		[Authorize]
 		public async Task<IActionResult> Update(Guid id , CreateIngredientRequest model)
@@ -86,7 +60,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientService.UpdateIngredient(updatedBy , id , model);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[HttpPut("update-status/{id}")]
 		[Authorize]
 		public async Task<IActionResult> UpdateStatus(Guid id , [FromBody] UpdateStatusIngredientRequest model)
@@ -94,26 +68,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientService.ChangeStatus(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
-
-		//[HttpPut("remove-from-app")]
-		//public async Task<IActionResult> RemoveById(string id)//dung de chuyen status thanh Unavailable
-		//{
-		//    Guid ingredientId;
-		//    if (Guid.TryParse(id, out ingredientId))
-		//    {
-		//        var result = await _ingredientService.RemoveIngredientById(ingredientId);
-		//        return Ok(result);
-		//    }
-		//    else
-		//    {
-		//        return BadRequest(new
-		//        {
-		//            StatusCode = 400,
-		//            Message = "Invalid GUID format! Please provide a valid GUID!"
-		//        });
-		//    }
-		//}
-
+		#endregion
+		//
 		[HttpDelete("delete/{id}")]
 		[Authorize]
 		public async Task<IActionResult> DeleteById(string id)
@@ -126,7 +82,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				{
 					return Unauthorized(new { Message = "Invalid token, user ID not found" });
 				}
-				var result = await _ingredientService.DeleteIngredientById(ingredientId, userId.ToString());
+				var result = await _ingredientService.DeleteIngredientById(ingredientId , userId.ToString());
 				return StatusCode(result.StatusCode , result);
 			}
 			else

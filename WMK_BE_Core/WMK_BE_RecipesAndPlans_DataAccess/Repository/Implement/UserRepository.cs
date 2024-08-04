@@ -48,8 +48,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             // Sử dụng Find để tìm kiếm User theo Id (khóa chính)
             var user = _dbSet.Find(id);
 
-            // Nếu tìm thấy người dùng, trả về UserName, nếu không trả về null
-            return user?.UserName;
+			// Nếu tìm thấy người dùng, trả về UserName, nếu không trả về null
+			if ( user == null ) 
+			{
+				return "Not exist Username!";
+			}
+            return user.UserName;
 
         }
 

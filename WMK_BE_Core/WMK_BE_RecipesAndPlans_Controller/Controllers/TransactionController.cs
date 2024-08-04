@@ -12,34 +12,35 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 	{
 		private readonly ITransactionService _transactionService;
 
-        public TransactionController(ITransactionService transactionService)
-        {
-            _transactionService = transactionService;
-        }
-
-		[HttpPost("create_momo")]
-        [Authorize]
-        public async Task<IActionResult> CreateMomoPayment(OrderInfoRequest model)
+		public TransactionController(ITransactionService transactionService)
 		{
-			var result = await _transactionService.CreatePaymentAsync(model);
+			_transactionService = transactionService;
+		}
+
+		//[HttpPost("create_momo")]
+		//[Authorize]
+		//public async Task<IActionResult> CreateMomoPayment(OrderInfoRequest model)
+		//{
+		//	var result = await _transactionService.CreatePaymentAsync(model);
+		//	return StatusCode(result.StatusCode , result);
+		//}
+
+		[HttpGet("get-all")]
+		[Authorize]
+		public async Task<IActionResult> GetAllTransaction()
+		{
+			var result = await _transactionService.GetAllAsync();
 			return StatusCode(result.StatusCode , result);
 		}
 
-		[HttpGet("get-all")]
-        [Authorize]
-        public async Task<IActionResult> GetAllTransaction()
-		{
-			var result = await _transactionService.GetAllAsync();
-			return StatusCode(result.StatusCode , result);	
-		}
-
+		//
 		[HttpPost("create-new")]
-        [Authorize]
-        public async Task<IActionResult> UpdateTransactionListForOrder([FromBody] CreatePaymentRequest request)
+		[Authorize]
+		public async Task<IActionResult> UpdateTransactionListForOrder([FromBody] CreatePaymentRequest request)
 		{
 			var result = await _transactionService.CreateNewPaymentAsync(request);
-			return StatusCode(result.StatusCode, result);
+			return StatusCode(result.StatusCode , result);
 		}
 
-    }
+	}
 }

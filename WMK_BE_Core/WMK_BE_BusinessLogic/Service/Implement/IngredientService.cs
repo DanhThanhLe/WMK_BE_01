@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.IngredientNutrientModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientCategoryModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -278,19 +280,48 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
-		#region Get by name
-		public async Task<ResponseObject<List<IngredientResponse>>> GetIngredientByName(string name)
+
+		#region Get all
+		public async Task<ResponseObject<List<IngredientResponse>>> GetAllAync(GetAllIngredientsRequest? model)
+		{
+			var result = new ResponseObject<List<IngredientResponse>>();
+			var ingredients = new List<Ingredient>();
+			var ingredientsResponse = new List<IngredientResponse>();
+			if ( model != null && !model.Name.IsNullOrEmpty() )
+			{
+				var ingredientsByname = await GetIngredientsByNameAsync(model.Name);
+				if ( ingredientsByname != null && ingredientsByname.Data != null )
+				{
+					ingredientsResponse.AddRange(ingredientsByname.Data);
+				}
+			}
+			else
+			{
+				ingredients = await _unitOfWork.IngredientRepository.GetAllAsync();
+				ingredientsResponse = _mapper.Map<List<IngredientResponse>>(ingredients);
+			}
+			if ( !ingredientsResponse.Any() )
+			{
+				result.StatusCode = 404;
+				result.Message = "Not have any ingredient!";
+				return result;
+			}
+			result.StatusCode = 200;
+			result.Message = "Ingredient list get success (" + ingredientsResponse.Count + ")";
+			result.Data = ingredientsResponse;
+			return result;
+		}
+		public async Task<ResponseObject<List<IngredientResponse>>> GetIngredientsByNameAsync(string name)
 		{
 			var result = new ResponseObject<List<IngredientResponse>>();
 			var ingredientList = await _unitOfWork.IngredientRepository.GetAllAsync();
 			if ( ingredientList != null && ingredientList.Count() > 0 )
 			{
-				//var foundList = ingredientList.Where(x => x.Name.Contains(name)).ToList();
-				var foundList = ingredientList.Where(x => x.Name.ToLower().Contains(name.ToLower())).ToList();
+				var foundList = ingredientList.Where(x => x.Name.RemoveDiacritics().ToLower().Contains(name.RemoveDiacritics().ToLower())).ToList();
 				if ( foundList == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Not found. No such ingredient in collection contain keyword: " + name;
+					result.Message = "Not found. Name ingrediet: " + name;
 					return result;
 
 				}
@@ -334,52 +365,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			return result;
-		}
-		#endregion
-
-		#region Get all
-		public async Task<ResponseObject<List<IngredientResponse>>> GetIngredients()
-		{
-			var result = new ResponseObject<List<IngredientResponse>>();
-			var ingredients = await _unitOfWork.IngredientRepository.GetAllAsync();
-			var responseList = ingredients.ToList();
-			if ( responseList != null && responseList.Count() > 0 )
-			{
-				result.StatusCode = 200;
-				result.Message = "OK. Ingredients list";
-				var returnResult = _mapper.Map<List<IngredientResponse>>(responseList);
-				foreach ( var item in returnResult )
-				{
-					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
-					if ( item.UpdatedBy != null )
-					{
-						var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
-					}
-					if ( userCreate != null )
-					{
-						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
-					}
-				}
-				result.Data = returnResult;
-				#region old
-				//foreach ( var ingredientResponse in result.List )
-				//{
-				//	var ingredient = responseList.FirstOrDefault(i => i.Id == ingredientResponse.Id);
-				//	if ( ingredient != null )
-				//	{
-				//		ingredientResponse.IngredientNutrient = _mapper.Map<IngredientNutrientResponse>(ingredient.IngredientNutrient);
-				//                    ingredientResponse.IngredientCategory = _mapper.Map<IngredientCategoryResponse>(ingredient.IngredientCategory);
-				//                }
-				//}
-				#endregion
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 404;
-				result.Message = "Not found. Empty list or Data not found";
-				return result;
-			}
 		}
 		#endregion
 
@@ -470,6 +455,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						var recipeIngredients = ingredientExist.RecipeIngredients.Where(ri => ri.IngredientId == ingredientExist.Id).ToList();
 						foreach ( var recipeIngredient in recipeIngredients )
 						{
+							//update lại recipe nào có chứa ingredient
 							var autoUpdateRecipe = await _recipeService.AutoUpdateRecipeAsync(recipeIngredient.RecipeId);
 							if ( !autoUpdateRecipe )
 							{
@@ -478,14 +464,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								return result;
 							}
 						}
-						////update recipe info
-						//var updateRecipeInfo = await _recipeService.UpdateRecipeByIngredient(ingredientExist.Id);
-						//if ( updateRecipeInfo != null && updateRecipeInfo.StatusCode != 200 )
-						//{
-						//	result.StatusCode = updateRecipeInfo.StatusCode;
-						//	result.Message = updateRecipeInfo.Message;
-						//	return result;
-						//}
+						//update recipe info
+						var updateRecipeInfo = await _recipeService.UpdateRecipeByIngredient(ingredientExist.Id);
+						if ( updateRecipeInfo != null && updateRecipeInfo.StatusCode != 200 )
+						{
+							result.StatusCode = updateRecipeInfo.StatusCode;
+							result.Message = updateRecipeInfo.Message;
+							return result;
+						}
 						var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(ingredientExist);
 						if ( updateResult )
 						{

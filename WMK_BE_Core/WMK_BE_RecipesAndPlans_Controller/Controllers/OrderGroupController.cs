@@ -16,21 +16,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         {
             _orderGroupService = orderGroupService;
         }
-
+		//
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll()
 		{
 			var result = await _orderGroupService.GetAllAsync();
 			return StatusCode(result.StatusCode , result);
 		}
-
-		[HttpGet("get-id/{orderGroupId}")]
-		public async Task<IActionResult> GetById(Guid orderGroupId)
-		{
-			var result = await _orderGroupService.GetOrderGroupByIdAsync(orderGroupId);
-			return StatusCode(result.StatusCode , result);
-		}
-
+		//
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateOrderGroupRequest model)
 		{
@@ -43,7 +36,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var result = await _orderGroupService.CreateOrderGroupAsync(model, assignedBy);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[HttpPut("update/{id}")]
 		public async Task<IActionResult> Update([FromBody] UpdateOrderGroupRequest model, string id)
 		{
@@ -62,14 +55,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
                 });
             }
 		}
-		
+		//
 		[HttpDelete("delete/{id}")]
 		public async Task<IActionResult> Delete( Guid id)
 		{
 			var result = await _orderGroupService.DeleteOrderGroupAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[HttpPut("change-status/{id}")]
 		public async Task<IActionResult> ChangeStatus( Guid id, ChangeStatusOrderGroupRequest model)
 		{
@@ -77,7 +70,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-
+		//
 		[HttpPut("cluster")]
 		public async Task<IActionResult> Cluster([FromBody] ClusterOrderGroupRequest model)
 		{

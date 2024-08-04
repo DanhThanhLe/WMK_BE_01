@@ -66,44 +66,189 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Get all
-		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipes(string name = "")
+		public async Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(GetAllRecipesRequest? model)
 		{
 			var result = new ResponseObject<List<RecipeResponse>>();
-			var currentList = await GetAllToProcess();
-			var responseList = currentList.Where(x => x.ProcessStatus == ProcessStatus.Approved);
-			responseList = responseList.Where(x => x.Name.RemoveDiacritics().ToLower().Contains(name.ToLower().RemoveDiacritics()));
-			if ( currentList != null && currentList.Count() > 0 )
+			var recipes = new List<Recipe>();
+			var recipesResponse = new List<RecipeResponse>();
+			if ( model != null && (!model.Name.IsNullOrEmpty() 
+								|| model.Difficulty != null
+								|| !model.Description.IsNullOrEmpty()
+								|| model.ServingSize != null) )
 			{
-				result.StatusCode = 200;
-				result.Message = "OK. Recipe list " + currentList.Count();
-				var mapUser = _mapper.Map<List<RecipeResponse>>(currentList);
-				foreach ( var item in mapUser )
+				if ( !model.Name.IsNullOrEmpty() )
 				{
-					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy);
-					var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy);
-					var userAprove = await _unitOfWork.UserRepository.GetByIdAsync(item.ApprovedBy);
-					if ( userCreate != null )
+					var recipesByName = await GetRecipesByNameAsync(model.Name);
+					if ( recipesByName != null && recipesByName.Data != null )
 					{
-						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
-					}
-					if ( userUpdate != null )
-					{
-						item.UpdatedBy = userUpdate.FirstName + " " + userUpdate.LastName;
-					}
-					if ( userAprove != null )
-					{
-						item.ApprovedBy = userAprove.FirstName + " " + userAprove.LastName;
+						recipesResponse.AddRange(recipesByName.Data);
 					}
 				}
-				result.Data = mapUser;
-				return result;
+				if ( model.Difficulty != null )
+				{
+					var recipesByDiff = await GetRecipesByDifficultyAsync(model.Difficulty);
+					if ( recipesByDiff != null && recipesByDiff.Data != null )
+					{
+						recipesResponse.AddRange(recipesByDiff.Data);
+					}
+				}
+				if ( !model.Description.IsNullOrEmpty() )
+				{
+					var recipesByDescription = await GetRecipesByDescriptionAsync(model.Description);
+					if ( recipesByDescription != null && recipesByDescription.Data != null )
+					{
+						recipesResponse.AddRange(recipesByDescription.Data);
+					}
+				}
+				if ( model.ServingSize != null )
+				{
+					var recipesByServingSize = await GetRecipesByServingSizeAsync(model.ServingSize);
+					if ( recipesByServingSize != null && recipesByServingSize.Data != null )
+					{
+						recipesResponse.AddRange(recipesByServingSize.Data);
+					}
+				}
+				// Loại bỏ các phần tử trùng lặp dựa trên Id
+				recipesResponse = recipesResponse
+					.GroupBy(c => c.Id)
+					.Select(g => g.First())
+					.ToList();
 			}
 			else
 			{
-				result.StatusCode = 500;
-				result.Message = "Not found. Empty list or Data not found. Say from GetRecipes - RecipeService";
+				recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+				recipesResponse = _mapper.Map<List<RecipeResponse>>(recipes);
+			}
+			if ( !recipesResponse.Any() )
+			{
+				result.StatusCode = 404;
+				result.Message = "Not have Any recipe!";
 				return result;
 			}
+			var recipeResult = recipesResponse;
+			foreach ( var item in recipeResult )
+			{
+				Guid idConvert;
+				if ( item.CreatedBy != null )
+				{
+					Guid.TryParse(item.CreatedBy , out idConvert);
+					item.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				}
+				//tim ten cho approvedBy
+				if ( item.ApprovedBy != null )
+				{
+					Guid.TryParse(item.ApprovedBy , out idConvert);
+					item.ApprovedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				}
+				if ( item.UpdatedBy != null )
+				{
+					Guid.TryParse(item.UpdatedBy , out idConvert);
+					item.UpdatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				}
+			}
+			result.StatusCode = 200;
+			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
+			result.Data = recipeResult;
+			return result;
+
+		}
+
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByServingSizeAsync(int? servingSize)
+		{
+			var result = new ResponseObject<List<RecipeResponse>>();
+
+			var recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+			var foundList = recipes.Where(r => r.ServingSize == servingSize)
+											.ToList();
+			if ( foundList != null && foundList.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "List recipes by difficult";
+				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Not have list recipes by difficult!";
+			return result;
+		}
+
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByDescriptionAsync(string? description)
+		{
+			var result = new ResponseObject<List<RecipeResponse>>();
+
+			var recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+			var foundList = recipes.Where(r => !string.IsNullOrWhiteSpace(r.Description)
+											&& !string.IsNullOrWhiteSpace(description)
+											&& r.Description.ToLower().RemoveDiacritics()
+											.Contains(description.ToLower().RemoveDiacritics()))
+											.ToList();
+			if ( foundList != null && foundList.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "List recipes by difficult";
+				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Not have list recipes by difficult!";
+			return result;
+		}
+
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByDifficultyAsync(LevelOfDifficult? difficulty)
+		{
+			var result = new ResponseObject<List<RecipeResponse>>();
+
+			var recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+			var foundList = recipes.Where(r => r.Difficulty == difficulty).ToList();
+			if ( foundList != null && foundList.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "List recipes by difficult";
+				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Not have list recipes by difficult!";
+			return result;
+		}
+
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByNameAsync(string name)
+		{
+			var result = new ResponseObject<List<RecipeResponse>>();
+
+			var recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+			var foundList = recipes.Where(x => x.Name.RemoveDiacritics().ToLower().Contains(name.ToLower().RemoveDiacritics())).ToList();
+			if ( foundList != null && foundList.Any() )
+			{
+				//var returnList = _mapper.Map<List<RecipeResponse>>(recipes);
+				//foreach ( var item in returnList )
+				//{
+				//	Guid idConvert;
+				//	if ( item.CreatedBy != null )
+				//	{
+				//		Guid.TryParse(item.CreatedBy , out idConvert);
+				//		item.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				//	}
+				//	//tim ten cho approvedBy
+				//	if ( item.ApprovedBy != null )
+				//	{
+				//		Guid.TryParse(item.ApprovedBy , out idConvert);
+				//		item.ApprovedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				//	}
+				//	if ( item.UpdatedBy != null )
+				//	{
+				//		Guid.TryParse(item.UpdatedBy , out idConvert);
+				//		item.UpdatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				//	}
+				//}
+				result.StatusCode = 200;
+				result.Message = "Recipe list found by name";
+				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Recipe list not found by name: " + name;
+			return result;
 		}
 		#endregion
 
@@ -177,7 +322,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Search
-		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name = "" , bool status = true)//tim bang ten cua recipe lan cua ca category
+		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByNameStatusAsync(string name = "" , bool status = true)//tim bang ten cua recipe lan cua ca category
 		{
 			name.Trim();
 			name = name.RemoveDiacritics();
@@ -287,7 +432,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 
 				//bat dau tao cac thanh phan lien quan
-				
+
 				//create RecipeCategory
 				var checkCreateRecipeCategory = await _recipeCategoryService.Create(newRecipe.Id , recipe.CategoryIds);
 
@@ -919,6 +1064,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 
 		#endregion
 	}

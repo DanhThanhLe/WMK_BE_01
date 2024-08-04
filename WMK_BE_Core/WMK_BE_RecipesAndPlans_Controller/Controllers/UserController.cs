@@ -16,8 +16,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		{
 			_userService = userService;
 		}
+		#region Get
 
-		//[Authorize(Roles = "Admin,Manager,Staff")]
+		[Authorize(Roles = "Admin,Manager,Staff")]
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll()
 		{
@@ -35,50 +36,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return Unauthorized("Authorization header missing or invalid token");
 		}
 
-
-		[HttpGet("get-all-staff")]
-		public async Task<IActionResult> GetAllStaff()
-		{
-			var result = await _userService.GetAllStaffs();
-			return StatusCode(result.StatusCode , result);
-		}
-
-		[HttpGet("get-all-shipper")]
-		public async Task<IActionResult> GetAllShipper()
-		{
-			var result = await _userService.GetAllShippers();
-			return Ok(result);
-		}
-
-		//[Authorize]
-		[HttpGet("get-id/{id}")]
-		public async Task<IActionResult> GetId(string id)
-		{
-			Guid userId;
-			if ( Guid.TryParse(id , out userId) )
-			{
-				var result = await _userService.GetUserByIdAsync(userId);
-				return StatusCode(result.StatusCode , result);
-			}
-			else
-			{
-				return BadRequest(new
-				{
-					StatusCode = 400 ,
-					Message = "Invalid GUID format! Please provide a valid GUID!"
-				});
-			}
-		}
-
-
-		[Authorize]
-		[HttpGet("get-user/{emailOrUsername}")]
-		public async Task<IActionResult> GetUser(string emailOrUsername)
-		{
-			var result = await _userService.GetUserAsync(emailOrUsername);
-			return StatusCode(result.StatusCode , result);
-		}
-
 		//[Authorize]
 		[HttpGet("get-user-token/{token}")]
 		public async Task<IActionResult> GetUserByToken(string token)
@@ -87,7 +44,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-
+		#endregion
+		//
 		[Authorize(Roles = "Admin")]
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateUserRequest model)
@@ -95,7 +53,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _userService.CreateUserAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[Authorize]
 		[HttpPut("update/{id}")]
 		public async Task<IActionResult> Update(Guid id , [FromBody] UpdateUserRequest model)
@@ -103,7 +61,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _userService.UpdateUserAsync(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[Authorize(Roles = "Admin")]
 		[HttpDelete("delete/{id}")]
 		public async Task<IActionResult> Delete(Guid id)
@@ -112,7 +70,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-
+		//
 		[Authorize(Roles = "Admin")]
 		[HttpPut("change-role/{id}")]
 		public async Task<IActionResult> ChangeRole(Guid id , [FromBody] ChangeRoleUserRequest model)
@@ -121,7 +79,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-
+		//
 		[Authorize(Roles = "Admin")]
 		[HttpPut("change-status/{id}")]
 		public async Task<IActionResult> ChangeStatus(Guid id)
@@ -130,7 +88,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-
+		//
 		[Authorize(Roles = "Admin")]
 		[HttpPut("change-emailconfirm/{id}")]
 		public async Task<IActionResult> ChangeEmailConfirm(Guid id)

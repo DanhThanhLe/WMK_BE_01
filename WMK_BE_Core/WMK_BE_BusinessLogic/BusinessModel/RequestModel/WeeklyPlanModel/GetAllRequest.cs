@@ -8,7 +8,13 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 {
 	public class GetAllRequest
 	{
-        public DateTime BeginDate { get; set; }
-        public DateTime EndDate { get; set; }
-    }
+		public string? Name { get; set; }
+		public GetAllFilterDatimeRequest? DatetimeFilter { get; set; }
+	}
+	public class GetAllFilterDatimeRequest
+	{
+		public DateTime BeginDate { get; set; }
+		public DateTime EndDate { get; set; }
+
+	}
 }

@@ -7,7 +7,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel
 {
-	public class UpdateCategoryRequestModel
+	public class UpdateCategoryRequest
 	{
 		public string? Name { get; set; } = string.Empty;
 		public string? Description { get; set; } = string.Empty;

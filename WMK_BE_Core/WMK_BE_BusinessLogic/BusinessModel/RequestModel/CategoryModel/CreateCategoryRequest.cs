@@ -7,7 +7,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.CategoryModel
 {
-	public class CreateCategoryRequestModel
+	public class CreateCategoryRequest
 	{
         // { "Nation", "Classify", "Cooking Method", "Meal in day" };
         public string Type { get; set; } = string.Empty;

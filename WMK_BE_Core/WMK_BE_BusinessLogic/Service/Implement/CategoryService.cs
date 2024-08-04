@@ -12,6 +12,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using System.Net;
+using Microsoft.IdentityModel.Tokens;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -25,17 +26,46 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_mapper = mapper;
 		}
 
-
-		public async Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync(string name ="")
+		#region Get
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync(GetAllCategoriesRequest? model)
 		{
 			var result = new ResponseObject<List<CategoryResponseModel>>();
-			var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
-			categories = categories.Where(x=>x.Name.RemoveDiacritics().ToLower().Contains(name.RemoveDiacritics().ToLower())).ToList();
-			if ( categories != null && categories.Count > 0 )
+			var categories = new List<Category>();
+			var categoriesResponse = new List<CategoryResponseModel>();
+			if ( model != null && (!model.Name.IsNullOrEmpty() || !model.Type.IsNullOrEmpty()) )
+			{
+				if ( model != null && !model.Name.IsNullOrEmpty() )
+				{
+					var categoriesByName = await GetcategoriesByNameAsync(model.Name);
+					if ( categoriesByName != null && categoriesByName.Data != null )
+					{
+						categoriesResponse.AddRange(categoriesByName.Data);
+					}
+				}
+				if ( model != null && !model.Type.IsNullOrEmpty() )
+				{
+					var categoriesByType = await GetCategoriesByTypeAsync(model.Type);
+					if ( categoriesByType != null && categoriesByType.Data != null )
+					{
+						categoriesResponse.AddRange(categoriesByType.Data);
+					}
+				}
+				// Loại bỏ các phần tử trùng lặp dựa trên Id
+				categoriesResponse = categoriesResponse
+					.GroupBy(c => c.Id)
+					.Select(g => g.First())
+					.ToList();
+			}
+			else
+			{
+				categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+				categoriesResponse = _mapper.Map<List<CategoryResponseModel>>(categories);
+			}
+			if ( categoriesResponse != null && categoriesResponse.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "Categories";
-				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
+				result.Message = "Categories get success (" + categoriesResponse.Count + ")";
+				result.Data = categoriesResponse;
 				return result;
 			}
 			else
@@ -44,6 +74,50 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Don't have Categories!";
 				return result;
 			}
+		}
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetCategoriesByTypeAsync(string type)
+		{
+			var result = new ResponseObject<List<CategoryResponseModel>>();
+			//var checkMatchTypeResult = CheckMatchType(type);
+			//if ( !checkMatchTypeResult )
+			//{
+			//	result.StatusCode = 400;
+			//	result.Message = "Not match pre-set category types!";
+			//	return result;
+			//}
+			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
+			List<Category> foundList = new List<Category>();
+			foreach ( var item in currentList )
+			{
+				if ( item.Type.RemoveDiacritics().ToLower().Contains(type.RemoveDiacritics().ToLower())
+					&& item.Status == BaseStatus.Available )
+				{
+					foundList.Add(item);
+				}
+			}
+			result.StatusCode = 200;
+			result.Message = "List category with " + type + " type";
+			result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
+			return result;
+
+		}
+
+		public async Task<ResponseObject<List<CategoryResponseModel>>> GetcategoriesByNameAsync(string name)
+		{
+			var result = new ResponseObject<List<CategoryResponseModel>>();
+			var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+			categories = categories.Where(x => x.Name.RemoveDiacritics().ToLower().Contains(name.RemoveDiacritics().ToLower())).ToList();
+			if ( categories.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "List category with name contains " + name;
+				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Not found with category name: " + name;
+			return result;
+
 		}
 		public async Task<ResponseObject<CategoryResponseModel?>> GetByIdAsync(Guid id)
 		{
@@ -65,7 +139,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 
 		}
-		public async Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequestModel model)
+
+
+		#endregion
+		public async Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequest model)
 		{
 			var result = new ResponseObject<CategoryResponseModel>();
 			var newCategory = _mapper.Map<Category>(model);
@@ -102,7 +179,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id , UpdateCategoryRequestModel model)
+		public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id , UpdateCategoryRequest model)
 		{
 			var result = new ResponseObject<CategoryResponseModel>();
 
@@ -196,55 +273,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return false;
 		}
 
-		public async Task<ResponseObject<List<CategoryResponseModel>>> GetCategoryByType(string type)
-		{
-			var result = new ResponseObject<List<CategoryResponseModel>>();
-			var checkMatchTypeResult = CheckMatchType(type);
-			if ( !checkMatchTypeResult )
-			{
-				result.StatusCode = 400;
-				result.Message = "Not match pre-set category types!";
-				return result;
-			}
-			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-			List<Category> foundList = new List<Category>();
-			foreach ( var item in currentList )
-			{
-				if ( item.Type.ToLower().Equals(type.ToLower()) && item.Status == BaseStatus.Available )
-				{
-					foundList.Add(item);
-				}
-			}
-			result.StatusCode = 200;
-			result.Message = "List category with " + type + " type";
-			result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
-			return result;
-
-		}
-
-		public async Task<ResponseObject<List<CategoryResponseModel>>> GetcategoryByName(string name)
-		{
-			var result = new ResponseObject<List<CategoryResponseModel>>();
-			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-			List<Category> foundList = new List<Category>();
-			foreach ( var item in currentList )
-			{
-				if ( item.Name.ToLower().Contains(name.ToLower()) && item.Status == BaseStatus.Available )
-				{
-					foundList.Add(item);
-				}
-			}
-			if ( foundList.Count == 0 )
-			{
-				result.StatusCode = 400;
-				result.Message = "Not found with name contains " + name;
-				return result;
-			}
-			result.StatusCode = 200;
-			result.Message = "List category with name contains " + name;
-			result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
-			return result;
-		}
 
 		public async Task<ResponseObject<CategoryResponseModel>> ChangeCategoryAsync(Guid id , ChangeCategoryRequest model)
 		{

@@ -15,11 +15,12 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
     public interface IRecipeService
     {
-        public Task<ResponseObject<List<RecipeResponse>>> GetRecipes(string name ="");
+        public Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(GetAllRecipesRequest? model);
 
         public Task<ResponseObject<RecipeResponse>> GetRecipeById(string id);
 
-        public Task<ResponseObject<List<RecipeResponse>>> GetRecipeByName(string name, bool status);
+        public Task<ResponseObject<List<RecipeResponse>>> GetRecipesByNameStatusAsync(string name, bool status);
+        public Task<ResponseObject<List<RecipeResponse>>> GetRecipesByNameAsync(string name);
 
         public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(string createdBy,CreateRecipeRequest recipe);
         public Task<bool> AutoUpdateRecipeAsync(Guid? recipeId);

@@ -16,7 +16,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		{
 			_orderService = orderService;
 		}
-
+		#region Get
+		//
 		[HttpGet("get-all")]
 		//[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> GetAll(string name="")
@@ -24,7 +25,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.GetAllOrders(name);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[HttpGet("get-by-userid/{userId}")]
 		[Authorize]
 		public async Task<IActionResult> GetByUserId(string userId)
@@ -44,7 +45,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				});
 			}
 		}
-
+		//
 		[HttpGet("get-order/{id}")]
 		//[Authorize]
 		public async Task<IActionResult> GetById(Guid id)
@@ -52,39 +53,35 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.GetOrderByIdAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		#endregion
+		//
 		[HttpPost("create")]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
 		{
 			var result = await _orderService.CreateOrderAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
-
-		[HttpPut("update/{id}")]
-		//[Authorize(Roles = "Admin,Manager")]
-		public async Task<IActionResult> Update(string id , [FromBody] UpdateOrderRequest model)
-		{
-			var result = await _orderService.UpdateOrderAsync(id , model);
-			return StatusCode(result.StatusCode , result);
-		}
-
+		#region Update
+		//
 		[HttpPut("change-status/{id}")]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> ChangeStatus(Guid id , [FromQuery] ChangeStatusOrderRequest model)
 		{
 			var result = await _orderService.ChangeStatusOrderAsync(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[HttpPut("change-ordergroup/{idOrder}")]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> ChangeOrdergroup(Guid idOrder , [FromBody] Guid idOrderGroup)
 		{
 			var result = await _orderService.ChangeOrderGroupAsync(idOrder , idOrderGroup);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		#endregion
+		#region Delete
+		//
 		[HttpDelete("delete/{id}")]
 		[Authorize]
 		public async Task<IActionResult> Delete(Guid id)
@@ -92,6 +89,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.DeleteOrderAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
+		//
 		[HttpDelete("remove-ordergroup/{idOrder}")]
 		[Authorize]
 		public async Task<IActionResult> RemoveFromOrdergroup(Guid idOrder)
@@ -99,5 +97,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.RemoveOrderFormOrderGroupAsync(idOrder);
 			return StatusCode(result.StatusCode , result);
 		}
+		#endregion
+
 	}
 }

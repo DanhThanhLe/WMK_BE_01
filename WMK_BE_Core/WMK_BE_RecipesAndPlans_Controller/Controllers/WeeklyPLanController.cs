@@ -20,8 +20,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         {
             _weeklyPLanService = weeklyPlanService;
         }
-
-        [HttpGet("get-all")]
+		#region Get
+        //
+		[HttpGet("get-all")]
         public async Task<IActionResult> Get(string name="")
         {
             var result = await _weeklyPLanService.GetAllAsync(name);
@@ -36,10 +37,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             {
                 result = await _weeklyPLanService.GetAllFilterAsync(model);
             }
-            result = await _weeklyPLanService.GetAllAsync();
+            result = await _weeklyPLanService.GetAllWeeklyPLanAsync(null);
             return StatusCode(result.StatusCode , result);  
         }
-
+        //
         [HttpGet("get-by-customer-id/{id}")]
         public async Task<IActionResult> GetByCustomerId(string id)
         {
@@ -65,7 +66,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var result = await _weeklyPLanService.GetByIdAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
+		#endregion
 
+		#region Create
+        //
 		[HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> Create([FromBody]CreateWeeklyPlanRequest model) 
@@ -79,7 +83,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var result = await _weeklyPLanService.CreateWeeklyPlanAsync(model, createdBy);
 			return StatusCode(result.StatusCode , result);
 		}
-
+        //
 		[HttpPost("create-for-customer")]
         public async Task<IActionResult> CreateForUser([FromBody] CreateWeeklyPlanRequest model)
         {
@@ -87,7 +91,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return StatusCode(result.StatusCode , result);
 
 		}
+		#endregion
 
+
+		#region Update
+        //
 		[HttpPut("update/{id}")]
         [Authorize]
         public async Task<IActionResult> Update(Guid id,[FromBody]UpdateWeeklyPlanRequestModel model) 
@@ -103,7 +111,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var result = await _weeklyPLanService.ChangeStatusWeeklyPlanAsync(id, model);
             return StatusCode(result.StatusCode , result);
         }
-
+        //
         [HttpPut("update-full-info/{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateFullInfo(Guid id, [FromBody]UpdateWeeklyPlanRequest request)
@@ -123,8 +131,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
                 });
             }
         }
+		#endregion
 
-        [HttpDelete("delete/{id}")]
+        //
+		[HttpDelete("delete/{id}")]
         [Authorize]
         public async Task<IActionResult> Delete(Guid id) 
         {

@@ -11,14 +11,14 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface ICategoryService
 	{
-		Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync(string name ="");
+		Task<ResponseObject<List<CategoryResponseModel>>> GetAllAsync(GetAllCategoriesRequest? model);
 		Task<ResponseObject<CategoryResponseModel?>> GetByIdAsync(Guid id);
-		Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequestModel model);
-		Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestModel model);
+		Task<ResponseObject<List<CategoryResponseModel>>> GetCategoriesByTypeAsync(string type);
+		Task<ResponseObject<List<CategoryResponseModel>>> GetcategoriesByNameAsync(string name);
+		Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequest model);
+		Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id, UpdateCategoryRequest model);
 		Task<ResponseObject<CategoryResponseModel>> ChangeCategoryAsync(Guid id, ChangeCategoryRequest model);
 		Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(Guid id);
-		Task<ResponseObject<List<CategoryResponseModel>>> GetCategoryByType(string type);
-		Task<ResponseObject<List<CategoryResponseModel>>> GetcategoryByName(string name);
 
     }
 }

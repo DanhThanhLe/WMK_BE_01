@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -60,7 +61,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			////tìm ngày cuối tuần
 			//DateTime endOfWeek = startWeek.AddDays(6);
-				var filterList = await _unitOfWork.WeeklyPlanRepository.GetAllWeeklyPlanFilterAsync(model.BeginDate , model.EndDate);
+
+			if ( model.DatetimeFilter != null )
+			{
+				var filterList = await _unitOfWork.WeeklyPlanRepository.GetAllWeeklyPlanFilterAsync(model.DatetimeFilter.BeginDate , model.DatetimeFilter.EndDate);
 				if ( filterList.Any() )
 				{
 					var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(filterList);
@@ -85,9 +89,21 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Data = returnResult;
 					return result;
 				}
-				result.StatusCode = 404;
-				result.Message = "Don't have weekly pLan list";
-				return result;
+			}
+			else
+			{
+				var getAllByName = await GetAllWeeklyPLanAsync(model.Name);
+				if ( getAllByName != null )
+				{
+					result.StatusCode = 200;
+					result.Message = "Weekly pLan list by name: " + model.Name;
+					result.Data = getAllByName.Data;
+					return result;
+				}
+			}
+			result.StatusCode = 404;
+			result.Message = "Don't have weekly pLan list";
+			return result;
 		}
 
 		#region Create
@@ -115,7 +131,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 				if ( currentList.Count() > 0 )
 				{
-					WeeklyPlan foundDuplicate = currentList.Where(x => x.Title.Trim().Equals(model.Title.Trim())).FirstOrDefault();
+					var foundDuplicate = currentList.Where(x => x.Title.Trim().Equals(model.Title.Trim())).FirstOrDefault();
 					if ( foundDuplicate != null && (foundDuplicate.ProcessStatus == ProcessStatus.Processing || foundDuplicate.ProcessStatus == ProcessStatus.Approved) )
 					{
 						result.StatusCode = 400;
@@ -284,7 +300,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		#region get all
 
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name="")
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllWeeklyPLanAsync(string? name)
+		{
+			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+
+			var weeklyPLans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+			if ( name != null )
+			{
+				weeklyPLans = weeklyPLans.Where(wp => 
+				wp.Title.ToLower().Trim().Contains(name.ToLower().Trim())).ToList();
+			}
+			result.StatusCode = 200;
+			result.Message = "Success list weekly pLan: ";
+			result.Data = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPLans);
+			return result;
+
+
+		}
+
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
@@ -302,7 +336,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 			var returnList = weeklyPlans.Where(x => x.Title.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
 
-            if ( weeklyPlans != null && weeklyPlans.Count > 0 )
+			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
 			{
 				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
 				foreach ( var item in returnResult )
@@ -625,8 +659,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//tim thong tin cho tat ra recipePlan lien quan - ok
 				//xoa het thong tin - ok
 				//tao lai thong tin moi - ok
-				if ( request.recipeIds.Count > 200 )
+				if ( request.recipeIds != null && request.recipeIds.Count > 200 )
 				{
+					result.StatusCode = 400;
 					result.Message = "Vuot qua pham vi cho phep. dat toi da duoi 200 cong thuc";
 					return result;
 				}
@@ -642,17 +677,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						//bat dau thay doi thong tin cho week plan
 						_unitOfWork.WeeklyPlanRepository.DetachEntity(foundWeeklyPlan);
-						foundWeeklyPlan.BeginDate = request.BeginDate != null ? request.BeginDate : foundWeeklyPlan.BeginDate;
-						foundWeeklyPlan.EndDate = request.EndDate != null ? request.EndDate : foundWeeklyPlan.EndDate;
-						foundWeeklyPlan.Description = request.Description != null ? request.Description : foundWeeklyPlan.Description;
-						foundWeeklyPlan.UrlImage = request.UrlImage != null ? request.UrlImage : foundWeeklyPlan.UrlImage;
-						foundWeeklyPlan.Title = request.Title != null ? request.Title : foundWeeklyPlan.Title;
-						foundWeeklyPlan.Notice = request.Notice != null ? request.Notice : foundWeeklyPlan.Notice;
-						foundWeeklyPlan.ApprovedAt = request.ApprovedAt != null ? request.ApprovedAt : foundWeeklyPlan.ApprovedAt;
-						foundWeeklyPlan.ApprovedBy = request.ApprovedBy != null ? request.ApprovedBy : foundWeeklyPlan.ApprovedBy;
-						foundWeeklyPlan.UpdatedAt = request.UpdatedAt != null ? request.UpdatedAt : foundWeeklyPlan.UpdatedAt;
-						foundWeeklyPlan.UpdatedBy = request.UpdatedBy != null ? request.UpdatedBy : foundWeeklyPlan.UpdatedBy;
-						foundWeeklyPlan.ProcessStatus = (ProcessStatus)request.ProcessStatus != null ? (ProcessStatus)request.ProcessStatus : foundWeeklyPlan.ProcessStatus;
+						_mapper.Map(request , foundWeeklyPlan);
+						//foundWeeklyPlan.BeginDate = request.BeginDate;
+						//foundWeeklyPlan.EndDate = request.EndDate != null ? request.EndDate : foundWeeklyPlan.EndDate;
+						//foundWeeklyPlan.Description = request.Description != null ? request.Description : foundWeeklyPlan.Description;
+						//foundWeeklyPlan.UrlImage = request.UrlImage != null ? request.UrlImage : foundWeeklyPlan.UrlImage;
+						//foundWeeklyPlan.Title = request.Title != null ? request.Title : foundWeeklyPlan.Title;
+						//foundWeeklyPlan.Notice = request.Notice != null ? request.Notice : foundWeeklyPlan.Notice;
+						//foundWeeklyPlan.ApprovedAt = request.ApprovedAt != null ? request.ApprovedAt : foundWeeklyPlan.ApprovedAt;
+						//foundWeeklyPlan.ApprovedBy = request.ApprovedBy != null ? request.ApprovedBy : foundWeeklyPlan.ApprovedBy;
+						//foundWeeklyPlan.UpdatedAt = request.UpdatedAt != null ? request.UpdatedAt : foundWeeklyPlan.UpdatedAt;
+						//foundWeeklyPlan.UpdatedBy = request.UpdatedBy != null ? request.UpdatedBy : foundWeeklyPlan.UpdatedBy;
+						//foundWeeklyPlan.ProcessStatus = (ProcessStatus)request.ProcessStatus != null ? (ProcessStatus)request.ProcessStatus : foundWeeklyPlan.ProcessStatus;
 
 						var updateWeeklyPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(foundWeeklyPlan);
 						if ( request.recipeIds != null && request.recipeIds.Any() )//kiem tra neu thong tin cu the co dinh kem khong
