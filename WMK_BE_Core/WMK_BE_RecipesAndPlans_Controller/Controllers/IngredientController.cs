@@ -30,6 +30,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
+		[HttpGet("get/{id}")]
+		public async Task<IActionResult> GetById(Guid id)
+		{
+			var result = await _ingredientService.GetIngredientById(id);
+			return StatusCode(result.StatusCode , result);
+		}
+
 		#endregion
 		//
 		[HttpPost("create-new")]
