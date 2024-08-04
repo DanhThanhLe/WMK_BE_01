@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
@@ -41,17 +43,45 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_orderDetailService = orderDetailService;
 		}
 		#region get all
-		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrders(string name="")
+		public async Task<ResponseObject<List<OrderResponse>>> GetAllOrdersAsync(GetAllOrdersRequest? model)
 		{
 			var result = new ResponseObject<List<OrderResponse>>();
-			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
-			orders = orders.Where(x=>x.ReceiveName.ToLower().RemoveDiacritics().Contains(name)).OrderByDescending(x => x.OrderDate).ToList();
-			if ( orders != null && orders.Count > 0 )
+
+			var orders = new List<Order>();
+			var ordersResponse = new List<OrderResponse>();
+			if ( model != null && (!model.ReceiveName.IsNullOrEmpty() || !model.OrderCode.IsNullOrEmpty()) )
 			{
-				result.StatusCode = 200;
-				result.Message = "Order List";
-				var orderR = _mapper.Map<List<OrderResponse>>(orders);
-				foreach ( var item in orderR )
+				if ( !model.ReceiveName.IsNullOrEmpty() )
+				{
+					var ordersByReciveName = await GetOrdersByReciveName(model.ReceiveName);
+					if ( ordersByReciveName != null && ordersByReciveName.Data != null )
+					{
+						ordersResponse.AddRange(ordersByReciveName.Data);
+					}
+				}
+				if ( !model.OrderCode.IsNullOrEmpty() )
+				{
+					var ordersByOrderCode = await GetOrdersByOrderCode(model.OrderCode);
+					if ( ordersByOrderCode != null && ordersByOrderCode.Data != null )
+					{
+						ordersResponse.AddRange(ordersByOrderCode.Data);
+					}
+				}
+				// Loại bỏ các phần tử trùng lặp dựa trên Id
+				ordersResponse = ordersResponse
+					.GroupBy(c => c.Id)
+					.Select(g => g.First())
+					.ToList();
+			}
+			else
+			{
+				orders = await _unitOfWork.OrderRepository.GetAllAsync();
+				ordersResponse = _mapper.Map<List<OrderResponse>>(orders);
+			}
+			if ( ordersResponse != null && ordersResponse.Any() )
+			{
+
+				foreach ( var item in ordersResponse )
 				{
 					var user = await _unitOfWork.UserRepository.GetByIdAsync(item.UserId.ToString());
 					if ( user != null )
@@ -59,7 +89,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						item.UserId = user.FirstName + " " + user.LastName;
 					}
 				}
-				result.Data = orderR;
+				result.StatusCode = 200;
+				result.Message = "Get order list success (" + ordersResponse.Count() + ")";
+				result.Data = ordersResponse;
 				return result;
 			}
 			else
@@ -68,6 +100,45 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Don't have Order!";
 				return result;
 			}
+		}
+
+		public async Task<ResponseObject<List<OrderResponse>>> GetOrdersByReciveName(string reciveName)
+		{
+			var result = new ResponseObject<List<OrderResponse>>();
+
+			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+
+			orders = orders.Where(o => o.ReceiveName.ToLower().RemoveDiacritics().Contains(reciveName.ToLower().RemoveDiacritics())).ToList();
+			if ( orders != null && orders.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "Order list found by recive name success";
+				result.Data = _mapper.Map<List<OrderResponse>>(orders);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Order list not found by recive name: " + reciveName;
+			return result;
+
+		}
+		public async Task<ResponseObject<List<OrderResponse>>> GetOrdersByOrderCode(string orderCode)
+		{
+			var result = new ResponseObject<List<OrderResponse>>();
+
+			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+
+			orders = orders.Where(o => o.OrderCode.ToString().ToLower().RemoveDiacritics().Contains(orderCode.ToLower().RemoveDiacritics())).ToList();
+			if ( orders != null && orders.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "Order list found by orderCode success";
+				result.Data = _mapper.Map<List<OrderResponse>>(orders);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Order list not found by orderCode: " + orderCode;
+			return result;
+
 		}
 
 		#endregion

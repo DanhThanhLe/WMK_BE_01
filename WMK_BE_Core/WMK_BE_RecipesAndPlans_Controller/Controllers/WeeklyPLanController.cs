@@ -30,14 +30,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         }
 
         [HttpGet("get-all-filter")]
-        public async Task<IActionResult> GetAllByWeekly([FromBody] GetAllRequest? model)
+        public async Task<IActionResult> GetAllByWeekly([FromQuery] GetAllRequest? model)
         {
-            var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
-            if(model != null )
-            {
-                result = await _weeklyPLanService.GetAllFilterAsync(model);
-            }
-            result = await _weeklyPLanService.GetAllWeeklyPLanAsync(null);
+            var  result = await _weeklyPLanService.GetAllFilterAsync(model);
             return StatusCode(result.StatusCode , result);  
         }
         //

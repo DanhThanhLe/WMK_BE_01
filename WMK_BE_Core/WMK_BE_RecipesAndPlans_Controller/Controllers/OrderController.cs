@@ -19,10 +19,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#region Get
 		//
 		[HttpGet("get-all")]
-		//[Authorize(Roles = "Admin,Manager,Staff")]
-		public async Task<IActionResult> GetAll(string name="")
+		[Authorize(Roles = "Admin,Manager,Staff")]
+		public async Task<IActionResult> GetAll([FromQuery]GetAllOrdersRequest? model)
 		{
-			var result = await _orderService.GetAllOrders(name);
+			var result = await _orderService.GetAllOrdersAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
 		//

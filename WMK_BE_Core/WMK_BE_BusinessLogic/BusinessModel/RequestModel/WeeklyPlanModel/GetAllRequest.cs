@@ -8,7 +8,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 {
 	public class GetAllRequest
 	{
-		public string? Name { get; set; }
+		public string Title { get; set; } = "";
 		public GetAllFilterDatimeRequest? DatetimeFilter { get; set; }
 	}
 	public class GetAllFilterDatimeRequest

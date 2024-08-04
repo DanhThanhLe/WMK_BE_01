@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
@@ -48,8 +49,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_deleteValidator = new DeleteWeeklyPlanValidator();
 			_changeStatusValidator = new ChangeStatusWeeklyPlanValidator();
 		}
-
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllFilterAsync(GetAllRequest model)
+		#region Get
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllFilterAsync(GetAllRequest? model)
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
@@ -61,50 +62,108 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			////tìm ngày cuối tuần
 			//DateTime endOfWeek = startWeek.AddDays(6);
-
-			if ( model.DatetimeFilter != null )
+			var weeklyPlans = new List<WeeklyPlan>();
+			var weeklyPlanResponse = new List<WeeklyPlanResponseModel>();
+			if ( model != null && (!model.Title.IsNullOrEmpty() 
+									|| model.DatetimeFilter != null))
 			{
-				var filterList = await _unitOfWork.WeeklyPlanRepository.GetAllWeeklyPlanFilterAsync(model.DatetimeFilter.BeginDate , model.DatetimeFilter.EndDate);
-				if ( filterList.Any() )
+				if ( !model.Title.IsNullOrEmpty() )
 				{
-					var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(filterList);
-					foreach ( var item in returnResult )
+					var weeklyPLansByTitle = await GetWeeklyPlansByTitle(model.Title);
+					if ( weeklyPLansByTitle != null && weeklyPLansByTitle.Data != null )
 					{
-						var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
-						if ( item.UpdatedBy != null )
-						{
-							var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
-						}
-						if ( item.ApprovedBy != null )
-						{
-							var userApprove = await _unitOfWork.UserRepository.GetByIdAsync(item.ApprovedBy.ToString());
-						}
-						if ( userCreate != null )
-						{
-							item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
-						}
+						weeklyPlanResponse.AddRange(weeklyPLansByTitle.Data);
 					}
-					result.StatusCode = 200;
-					result.Message = "Success";
-					result.Data = returnResult;
-					return result;
 				}
+				if ( model.DatetimeFilter != null )
+				{
+					var weeklyPlansByDatetime = await GetWeeklyPlansByDatetime(model.DatetimeFilter.BeginDate , model.DatetimeFilter.EndDate);
+					if ( weeklyPlansByDatetime != null && weeklyPlansByDatetime.Data != null )
+					{
+						weeklyPlanResponse.AddRange(weeklyPlansByDatetime.Data);
+					}
+				}
+				// Loại bỏ các phần tử trùng lặp dựa trên Id
+				weeklyPlanResponse = weeklyPlanResponse
+					.GroupBy(c => c.Id)
+					.Select(g => g.First())
+					.ToList();
 			}
 			else
 			{
-				var getAllByName = await GetAllWeeklyPLanAsync(model.Name);
-				if ( getAllByName != null )
+				weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+				weeklyPlanResponse = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
+			}
+			if ( weeklyPlanResponse != null && weeklyPlanResponse.Any() )
+			{
+				foreach ( var item in weeklyPlanResponse )
 				{
-					result.StatusCode = 200;
-					result.Message = "Weekly pLan list by name: " + model.Name;
-					result.Data = getAllByName.Data;
-					return result;
+					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
+					if ( item.UpdatedBy != null )
+					{
+						var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
+					}
+					if ( item.ApprovedBy != null )
+					{
+						var userApprove = await _unitOfWork.UserRepository.GetByIdAsync(item.ApprovedBy.ToString());
+					}
+					if ( userCreate != null )
+					{
+						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
+					}
 				}
+				result.StatusCode = 200;
+				result.Message = "Get weekly plan success (" + weeklyPlanResponse.Count() + ")";
+				result.Data = weeklyPlanResponse;
+				return result;
 			}
 			result.StatusCode = 404;
 			result.Message = "Don't have weekly pLan list";
 			return result;
 		}
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetWeeklyPlansByTitle(string title)
+		{
+			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+			weeklyPlans = weeklyPlans.Where(wp => wp.Title.ToLower().RemoveDiacritics().Contains(title.ToLower().RemoveDiacritics())).ToList();
+			if ( weeklyPlans != null && weeklyPlans.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "List of weekly plans found by title";
+				result.Data = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "No weekly plans found with title!";
+			return result;
+		}
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetWeeklyPlansByDatetime(DateTime beginDate , DateTime endDate)
+		{
+			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+
+			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+
+			var filteredPlans = weeklyPlans
+				.Where(wp => wp.BeginDate >= beginDate && wp.EndDate <= endDate)
+				.ToList();
+
+			if ( filteredPlans.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "List of weekly plans found";
+				result.Data = _mapper.Map<List<WeeklyPlanResponseModel>>(filteredPlans);
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "No weekly plans found within the specified dates!";
+			}
+
+			return result;
+		}
+
+
+		#endregion
 
 		#region Create
 		public async Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model , string createdBy)
@@ -307,7 +366,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var weeklyPLans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 			if ( name != null )
 			{
-				weeklyPLans = weeklyPLans.Where(wp => 
+				weeklyPLans = weeklyPLans.Where(wp =>
 				wp.Title.ToLower().Trim().Contains(name.ToLower().Trim())).ToList();
 			}
 			result.StatusCode = 200;

@@ -6,7 +6,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IIngredientService
     {
-        public Task<ResponseObject<List<IngredientResponse>>> GetAllAync(GetAllIngredientsRequest? model);
+        public Task<ResponseObject<List<IngredientResponse>>> GetAllAync(string? userId, GetAllIngredientsRequest? model);
         public Task<ResponseObject<IngredientResponse>> GetIngredientById(Guid id);
         public Task<ResponseObject<List<IngredientResponse>>> GetIngredientsByNameAsync(string name);
         public Task<ResponseObject<IngredientResponse>> CreateIngredient(string createdBy,CreateIngredientRequest ingredient);

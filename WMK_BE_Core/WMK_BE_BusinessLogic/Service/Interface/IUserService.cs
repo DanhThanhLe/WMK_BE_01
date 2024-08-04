@@ -11,7 +11,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IUserService
 	{
-		Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader);
+		Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader, GetAllUsersRequest? model);
 		Task<ResponseObject<List<UsersResponse>>> GetAllStaffs();
 		Task<ResponseObject<List<UsersResponse>>> GetAllShippers();
 		Task<ResponseObject<UserResponse?>> GetUserByIdAsync(Guid id);

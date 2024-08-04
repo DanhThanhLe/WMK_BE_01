@@ -26,10 +26,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll([FromQuery] GetAllIngredientsRequest? model)
 		{
-			var result = await _ingredientService.GetAllAync(model);
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var result = await _ingredientService.GetAllAync(userId, model);
 			return StatusCode(result.StatusCode , result);
 		}
-
+		//
 		[HttpGet("get/{id}")]
 		public async Task<IActionResult> GetById(Guid id)
 		{

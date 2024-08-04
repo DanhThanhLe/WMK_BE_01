@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_changeRoleValidator = new ChangeRoleUserModelValidator();
 		}
 
-		public async Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader)
+		public async Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader , GetAllUsersRequest? model)
 		{
 			var result = new ResponseObject<List<UsersResponse>>();
 			try
@@ -61,12 +62,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
 						if ( user != null && user.Role == Role.Manager )
 						{
-							var userManager = _unitOfWork.UserRepository.GetAll().Where(u => u.Role == Role.Staff);
-							if ( userManager != null ) 
+							var userManager = _unitOfWork.UserRepository.GetAll().Where(u => u.Role == Role.Staff && u.Role == Role.Shipper);
+							if ( userManager != null )
 							{
 								var usersModel = _mapper.Map<List<UsersResponse>>(userManager);
 								result.StatusCode = 200;
-								result.Message = "Success";
+								result.Message = "Success all staff role (" + usersModel.Count() + ")";
 								result.Data = usersModel;
 								return result;
 							}
@@ -77,21 +78,38 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								return result;
 							}
 						}
-						var users = await _unitOfWork.UserRepository.GetAllAsync();
-						if ( users != null && users.Count() > 0 )
+						if ( user != null && user.Role == Role.Admin )
 						{
-							var usersModel = _mapper.Map<List<UsersResponse>>(users);
-							result.StatusCode = 200;
-							result.Message = "Success";
-							result.Data = usersModel;
-							return result;
+							var users = await _unitOfWork.UserRepository.GetAllAsync();
+							if ( model != null && !model.Sreach.IsNullOrEmpty() )
+							{
+								if ( !model.Sreach.IsNullOrEmpty() )
+								{
+									users = users.Where(u => u.UserName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) 
+														|| u.Email.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics())
+														|| u.FirstName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics())
+														|| u.LastName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()))
+														.ToList();
+								}
+							}
+							if ( users != null && users.Any() )
+							{
+								var usersModel = _mapper.Map<List<UsersResponse>>(users);
+								result.StatusCode = 200;
+								result.Message = "Get users success (" + users.Count() + ")" ;
+								result.Data = usersModel;
+								return result;
+							}
+							else
+							{
+								result.StatusCode = 404;
+								result.Message = "Don't have user!";
+								return result;
+							}
 						}
-						else
-						{
-							result.StatusCode = 404;
-							result.Message = "Don't have user!";
-							return result;
-						}
+						result.StatusCode = 400;
+						result.Message = "Don't have permission!";
+						return result;
 					}
 					else
 					{

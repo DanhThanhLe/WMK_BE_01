@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.NutritionModel;
@@ -66,12 +67,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Get all
-		public async Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(GetAllRecipesRequest? model)
+		public async Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(string? userId , GetAllRecipesRequest? model)
 		{
 			var result = new ResponseObject<List<RecipeResponse>>();
 			var recipes = new List<Recipe>();
 			var recipesResponse = new List<RecipeResponse>();
-			if ( model != null && (!model.Name.IsNullOrEmpty() 
+			if ( model != null && (!model.Name.IsNullOrEmpty()
 								|| model.Difficulty != null
 								|| !model.Description.IsNullOrEmpty()
 								|| model.ServingSize != null) )
@@ -125,8 +126,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Not have Any recipe!";
 				return result;
 			}
-			var recipeResult = recipesResponse;
-			foreach ( var item in recipeResult )
+			foreach ( var item in recipesResponse )
 			{
 				Guid idConvert;
 				if ( item.CreatedBy != null )
@@ -146,11 +146,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					item.UpdatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
 				}
 			}
+			//user exist by customer
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+			if ( userExist != null && userExist.Role == Role.Customer || userExist == null )
+			{
+				//chỉ hiển thị các recipes đã approve
+				recipesResponse = recipesResponse.Where(r => r.BaseStatus == BaseStatus.Available.ToString()).ToList();
+			}
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
-			result.Data = recipeResult;
+			result.Data = recipesResponse;
 			return result;
-
 		}
 
 		public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByServingSizeAsync(int? servingSize)
@@ -220,27 +226,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var foundList = recipes.Where(x => x.Name.RemoveDiacritics().ToLower().Contains(name.ToLower().RemoveDiacritics())).ToList();
 			if ( foundList != null && foundList.Any() )
 			{
-				//var returnList = _mapper.Map<List<RecipeResponse>>(recipes);
-				//foreach ( var item in returnList )
-				//{
-				//	Guid idConvert;
-				//	if ( item.CreatedBy != null )
-				//	{
-				//		Guid.TryParse(item.CreatedBy , out idConvert);
-				//		item.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				//	}
-				//	//tim ten cho approvedBy
-				//	if ( item.ApprovedBy != null )
-				//	{
-				//		Guid.TryParse(item.ApprovedBy , out idConvert);
-				//		item.ApprovedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				//	}
-				//	if ( item.UpdatedBy != null )
-				//	{
-				//		Guid.TryParse(item.UpdatedBy , out idConvert);
-				//		item.UpdatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				//	}
-				//}
 				result.StatusCode = 200;
 				result.Message = "Recipe list found by name";
 				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
@@ -412,6 +397,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				newRecipe.CreatedAt = DateTime.Now;
 				newRecipe.CreatedBy = createdBy;
 				newRecipe.Popularity = 0;
+				newRecipe.BaseStatus = BaseStatus.UnAvailable;
 				newRecipe.ProcessStatus = ProcessStatus.Processing;
 				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Equals(recipe.Name.ToLower()));
 				if ( checkDuplicateName != null )
@@ -666,6 +652,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				recipeExist.Notice = "Not have";
 			}
 			_mapper.Map(recipe , recipeExist);
+			if ( recipeExist.ProcessStatus == ProcessStatus.Processing
+				|| recipeExist.ProcessStatus == ProcessStatus.Denied
+				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
+			{
+				recipeExist.BaseStatus = BaseStatus.UnAvailable;
+			}
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
@@ -935,6 +927,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				recipeExist.UpdatedAt = DateTime.Now;
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
 				recipeExist.UpdatedBy = updatedBy;
+				if ( recipeExist.ProcessStatus == ProcessStatus.Processing
+				|| recipeExist.ProcessStatus == ProcessStatus.Denied
+				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
+				{
+					recipeExist.BaseStatus = BaseStatus.UnAvailable;
+				}
 				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
 				var updatePrice = await UpdatePrice(recipeExist.Id);
 				if ( !updatePrice )
@@ -1082,8 +1080,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					stringBuilder.Append(c);
 				}
 			}
-
-			return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+			var result = stringBuilder.ToString().Normalize(NormalizationForm.FormC).Trim();
+			// Loại bỏ dấu câu: , . / ?
+			result = Regex.Replace(result , @"[,.\/?@]" , "");
+			// Loại bỏ tất cả khoảng trắng
+			return result = Regex.Replace(result , @"\s+" , "");
 		}
 	}
 }

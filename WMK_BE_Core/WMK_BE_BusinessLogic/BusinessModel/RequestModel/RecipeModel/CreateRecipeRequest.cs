@@ -18,7 +18,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
 		public LevelOfDifficult Difficulty { get; set; }
 		public string? Description { get; set; } = string.Empty;
 		public string? Img { get; set; } = string.Empty;
-		//public string CreatedBy { get; set; } = string.Empty;
 
 		public List<Guid> CategoryIds { get; set; }
 		public List<CreateRecipeIngredientRequest> RecipeIngredientsList { get; set; }

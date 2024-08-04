@@ -12,7 +12,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IOrderService
 	{
-		Task<ResponseObject<List<OrderResponse>>> GetAllOrders(string name="");
+		Task<ResponseObject<List<OrderResponse>>> GetAllOrdersAsync(GetAllOrdersRequest? model);
 		Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId);
 
         Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id);

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,17 +38,36 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 
-		public async Task<ResponseObject<List<OrderGroupsResponse>>> GetAllAsync()
+		public async Task<ResponseObject<List<OrderGroupsResponse>>> GetAllAsync(GetALLOrderGroupsRequest? model)
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
-
-			var orderGroupList = await _unitOfWork.OrderGroupRepository.GetAllAsync();
-			if ( orderGroupList != null && orderGroupList.Count > 0 )
+			var orderGroups = new List<OrderGroup>();
+			var orderGroupsResponse = new List<OrderGroupsResponse>();
+			if ( model != null && !model.Location.IsNullOrEmpty() )
 			{
-				result.StatusCode = 200;
-				result.Message = "OrderGroup list";
-				var dataModel = _mapper.Map<List<OrderGroupsResponse>>(orderGroupList);
-				foreach ( var odg in dataModel )
+				if ( !model.Location.IsNullOrEmpty() )
+				{
+					var orderGroupsByLocation = await GetOrderGroupsByLocation(model.Location);
+					if ( orderGroupsByLocation != null && orderGroupsByLocation.Data != null )
+					{
+						orderGroupsResponse.AddRange(orderGroupsByLocation.Data);
+					}
+					// Loại bỏ các phần tử trùng lặp dựa trên Id
+					orderGroupsResponse = orderGroupsResponse
+						.GroupBy(c => c.Id)
+						.Select(g => g.First())
+						.ToList();
+				}
+			}
+			else
+			{
+				orderGroups = await _unitOfWork.OrderGroupRepository.GetAllAsync();
+				orderGroupsResponse = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+			}
+			if ( orderGroupsResponse != null && orderGroupsResponse.Any() )
+			{
+
+				foreach ( var odg in orderGroupsResponse )
 				{
 					var userExist = await _unitOfWork.UserRepository.GetByIdAsync(odg.ShipperId.ToString());
 					if ( userExist != null )
@@ -61,17 +81,31 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 
 				}
-				result.Data = dataModel;
+				result.StatusCode = 200;
+				result.Message = "OrderGroup list";
+				result.Data = orderGroupsResponse;
 				return result;
 			}
-			else
-			{
-				result.StatusCode = 404;
-				result.Message = "Dont have order group!";
-				return result;
-			}
+			result.StatusCode = 404;
+			result.Message = "Dont have order group!";
+			return result;
 		}
-
+		public async Task<ResponseObject<List<OrderGroupsResponse>>> GetOrderGroupsByLocation(string location)
+		{
+			var result = new ResponseObject<List<OrderGroupsResponse>>();
+			var orderGroups = await _unitOfWork.OrderGroupRepository.GetAllAsync();
+			orderGroups = orderGroups.Where(od => od.Location.ToLower().RemoveDiacritics().Contains(location.ToLower().RemoveDiacritics())).ToList();
+			if ( orderGroups != null && orderGroups.Any() )
+			{
+				result.StatusCode = 200;
+				result.Message = "Order group list by location success";
+				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+				return result;
+			}
+			result.StatusCode = 404;
+			result.Message = "Dont have order group!";
+			return result;
+		}
 		public async Task<ResponseObject<OrderGroupsResponse?>> GetOrderGroupByIdAsync(Guid orderGroupId)
 		{
 			var result = new ResponseObject<OrderGroupsResponse?>();

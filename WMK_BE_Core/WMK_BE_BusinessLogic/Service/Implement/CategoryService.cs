@@ -85,19 +85,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//	result.Message = "Not match pre-set category types!";
 			//	return result;
 			//}
-			var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-			List<Category> foundList = new List<Category>();
-			foreach ( var item in currentList )
+			var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+			categories = categories.Where(c => c.Type.ToLower().RemoveDiacritics().Contains(type.ToLower().RemoveDiacritics())).ToList();
+			if ( categories != null && categories.Any() )
 			{
-				if ( item.Type.RemoveDiacritics().ToLower().Contains(type.RemoveDiacritics().ToLower())
-					&& item.Status == BaseStatus.Available )
-				{
-					foundList.Add(item);
-				}
+				result.StatusCode = 200;
+				result.Message = "List category with success";
+				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
+				return result;
 			}
-			result.StatusCode = 200;
-			result.Message = "List category with " + type + " type";
-			result.Data = _mapper.Map<List<CategoryResponseModel>>(foundList);
+			result.StatusCode = 404;
+			result.Message = "Not have list category with type!";
 			return result;
 
 		}

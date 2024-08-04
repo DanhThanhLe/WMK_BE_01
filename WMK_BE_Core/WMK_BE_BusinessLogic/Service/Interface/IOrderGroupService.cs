@@ -12,7 +12,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface IOrderGroupService
 	{
 
-		Task<ResponseObject<List<OrderGroupsResponse>>> GetAllAsync();
+		Task<ResponseObject<List<OrderGroupsResponse>>> GetAllAsync(GetALLOrderGroupsRequest? model);
 		Task<ResponseObject<OrderGroupsResponse?>> GetOrderGroupByIdAsync(Guid orderGroupId);
 		Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model, string assignedBy);
 		Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync(ClusterOrderGroupRequest model);

@@ -15,7 +15,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
     public interface IRecipeService
     {
-        public Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(GetAllRecipesRequest? model);
+        public Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(string? userId, GetAllRecipesRequest? model);
 
         public Task<ResponseObject<RecipeResponse>> GetRecipeById(string id);
 

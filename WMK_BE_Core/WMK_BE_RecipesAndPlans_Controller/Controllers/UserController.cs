@@ -20,7 +20,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		[Authorize(Roles = "Admin,Manager,Staff")]
 		[HttpGet("get-all")]
-		public async Task<IActionResult> GetAll()
+		public async Task<IActionResult> GetAll([FromQuery]GetAllUsersRequest? model)
 		{
 			if ( Request.Headers.TryGetValue("Authorization" , out var tokenHeader) )
 			{
@@ -28,7 +28,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 				if ( !string.IsNullOrEmpty(token) )
 				{
-					var result = await _userService.GetAllUsers(token);
+					var result = await _userService.GetAllUsers(token, model);
 					return StatusCode(result.StatusCode , result);
 				}
 			}

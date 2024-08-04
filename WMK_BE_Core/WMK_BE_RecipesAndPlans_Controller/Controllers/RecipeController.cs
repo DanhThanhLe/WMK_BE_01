@@ -26,7 +26,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll([FromQuery]GetAllRecipesRequest? model)
 		{
-			var result = await _recipeService.GetAllRecipesAsync(model);
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var result = await _recipeService.GetAllRecipesAsync(userId, model);
 			return StatusCode(result.StatusCode , result);
 		}
 

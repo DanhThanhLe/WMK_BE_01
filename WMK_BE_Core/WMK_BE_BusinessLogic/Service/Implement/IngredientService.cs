@@ -282,7 +282,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Get all
-		public async Task<ResponseObject<List<IngredientResponse>>> GetAllAync(GetAllIngredientsRequest? model)
+		public async Task<ResponseObject<List<IngredientResponse>>> GetAllAync(string? userId , GetAllIngredientsRequest? model)
 		{
 			var result = new ResponseObject<List<IngredientResponse>>();
 			var ingredients = new List<Ingredient>();
@@ -305,6 +305,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.StatusCode = 404;
 				result.Message = "Not have any ingredient!";
 				return result;
+			}
+			//user exist by customer
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+			if ( userExist != null && userExist.Role == Role.Customer || userExist == null )
+			{
+				//chỉ hiển thị các recipes đã approve
+				ingredientsResponse = ingredientsResponse.Where(r => r.Status == BaseStatus.Available.ToString()).ToList();
 			}
 			result.StatusCode = 200;
 			result.Message = "Ingredient list get success (" + ingredientsResponse.Count + ")";
