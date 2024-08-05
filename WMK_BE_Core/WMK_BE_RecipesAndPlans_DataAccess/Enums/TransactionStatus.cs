@@ -13,7 +13,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 		PendingZaloPay = 2,
 		UNPAID = 3,
 		Cancel = 4,
-		Pending = 5//pending chung
+		Pending = 5,//pending chung,
+		RefundZaloPayPending = 7,
+		RefundZaloPayDone = 8,
 	}
 	public static class TransactionStatusHelper
 	{
