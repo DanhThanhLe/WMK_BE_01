@@ -611,6 +611,59 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 
 		}
+
+		public async Task<ResponseObject<List<OrderResponse>>> RemoveAllOrdersFromOrderGroupsAsync()
+		{
+			var result = new ResponseObject<List<OrderResponse>>();
+			var orderResponses = new List<OrderResponse>();
+
+			try
+			{
+				// Lấy tất cả các order có OrderGroupId không null
+				var ordersWithOrderGroups = await _unitOfWork.OrderRepository.GetAllAsync();
+				ordersWithOrderGroups = ordersWithOrderGroups.Where(o => o.OrderGroupId != null).ToList();
+
+				if ( ordersWithOrderGroups.Any() )
+				{
+					foreach ( var order in ordersWithOrderGroups )
+					{
+						order.OrderGroupId = null;
+						order.OrderGroup = null;
+						var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(order);
+
+						if ( updateResult )
+						{
+							orderResponses.Add(_mapper.Map<OrderResponse>(order));
+						}
+						else
+						{
+							result.StatusCode = 500;
+							result.Message = "An error occurred while updating orders.";
+							return result;
+						}
+					}
+
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Successfully removed all orders from their order groups.";
+					result.Data = orderResponses;
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 404;
+					result.Message = "No orders found with an order group.";
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = $"Error when processing: {ex.Message}";
+				return result;
+			}
+		}
+
 		#endregion
 
 

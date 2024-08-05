@@ -171,16 +171,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(assignedBy.ToString());
-			if ( staffExist != null && staffExist.Role != Role.Staff )
-			{
-				result.StatusCode = 403;
-				result.Message = "Not a staff!";
-				return result;
-			}
-			else if ( staffExist == null )
+			//if ( staffExist != null && staffExist.Role != Role.Staff )
+			//{
+			//	result.StatusCode = 403;
+			//	result.Message = "Not a staff!";
+			//	return result;
+			//}
+			//else 
+			if ( staffExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Staff not exist!";
+				result.Message = "User not exist!";
 				return result;
 			}
 			var orderGroupModel = _mapper.Map<OrderGroup>(model);
@@ -355,69 +356,95 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#region Cluster
+		//radius tính bằng radius
 		public async Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync(ClusterOrderGroupRequest model)
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
 
-			var list = new List<List<string>>();
 			var orderGroups = await _unitOfWork.OrderGroupRepository.GetAllAsync();
 			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+
 			if ( orders != null && orderGroups != null )
 			{
-				// Group addresses by nearest cluster
+				var shippers = await _unitOfWork.UserRepository.GetAllAsync();
+				var shipperIds = shippers.Select(s => s.Id).ToList();
+
 				var orderProcess = orders.Where(o => o.Status == OrderStatus.Processing).ToList();
+
+				foreach ( var orderGroup in orderGroups )
+				{
+					if ( !shipperIds.Contains(orderGroup.ShipperId) )
+					{
+						result.StatusCode = 400;
+						result.Message = "Invalid ShipperId.";
+						return result;
+					}
+
+					if ( orderGroup.Orders == null )
+					{
+						orderGroup.Orders = new List<Order>();
+					}
+				}
+
 				foreach ( var order in orderProcess )
 				{
-					double[] orderCoordinates = [order.Longitude , order.Latitude];
-					OrderGroup nearestOrderGroup = new OrderGroup();
-					double nearestDistance = double.MaxValue;
+					OrderGroup nearestOrderGroup = null;
+					double minDistance = double.MaxValue;
 
 					foreach ( var orderGroup in orderGroups )
 					{
-						double[] orderGroupCoordinates = [orderGroup.Longitude , orderGroup.Latitude];
-						double distance = CalculateDistance(orderCoordinates , orderGroupCoordinates);
-						if ( distance < nearestDistance && distance <= model.radius )
+						double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
+						double[] orderCoordinates = { order.Longitude , order.Latitude };
+						double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
+
+						if ( distance <= model.radius && distance < minDistance )
 						{
-							nearestDistance = distance;
 							nearestOrderGroup = orderGroup;
+							minDistance = distance;
 						}
 					}
+
 					if ( nearestOrderGroup != null )
 					{
-						if ( nearestOrderGroup.Orders == null )
-						{
-							nearestOrderGroup.Orders = new List<Order>();
-						}
 						nearestOrderGroup.Orders.Add(order);
 						order.OrderGroup = nearestOrderGroup;
 						order.OrderGroupId = nearestOrderGroup.Id;
 					}
 				}
+
 				await _unitOfWork.CompleteAsync();
+
 				result.StatusCode = 200;
-				result.Message = "Cluster successfully.";
+				result.Message = "Orders assigned to order groups successfully.";
 				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Order or order group not have!";
+				result.Message = "Order or order group not found!";
 				return result;
 			}
 		}
 
+
+
 		private static double CalculateDistance(double[] point1 , double[] point2)
 		{
-			var d1 = point1[0] * (Math.PI / 180.0);
-			var num1 = point1[1] * (Math.PI / 180.0);
-			var d2 = point2[0] * (Math.PI / 180.0);
-			var num2 = point2[1] * (Math.PI / 180.0) - num1;
-			var d3 = Math.Pow(Math.Sin((d2 - d1) / 2.0) , 2.0) +
-					 Math.Cos(d1) * Math.Cos(d2) * Math.Pow(Math.Sin(num2 / 2.0) , 2.0);
+			var lat1 = point1[0] * (Math.PI / 180.0);
+			var lon1 = point1[1] * (Math.PI / 180.0);
+			var lat2 = point2[0] * (Math.PI / 180.0);
+			var lon2 = point2[1] * (Math.PI / 180.0);
+			var dLat = lat2 - lat1;
+			var dLon = lon2 - lon1;
 
-			return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3) , Math.Sqrt(1.0 - d3))) / 1000.0; // return distance in kilometers
+			var a = Math.Pow(Math.Sin(dLat / 2.0) , 2.0) +
+					Math.Cos(lat1) * Math.Cos(lat2) * Math.Pow(Math.Sin(dLon / 2.0) , 2.0);
+			var c = 2.0 * Math.Atan2(Math.Sqrt(a) , Math.Sqrt(1.0 - a));
+
+			return 6371.0 * c; // return distance in kilometers
 		}
+
 		#endregion
 	}
 }

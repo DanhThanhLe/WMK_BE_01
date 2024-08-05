@@ -23,6 +23,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id);
 		Task<ResponseObject<OrderResponse>> RemoveOrderFormOrderGroupAsync(Guid idOrder);
 		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model);
+		Task<ResponseObject<List<OrderResponse>>> RemoveAllOrdersFromOrderGroupsAsync();
 
 	}
 }

@@ -49,52 +49,31 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<UsersResponse>>();
 			try
 			{
-				// read token
+				// Read token
 				var handler = new JwtSecurityTokenHandler();
 				var tokenString = handler.ReadToken(tokenHeader) as JwtSecurityToken;
 				if ( tokenString != null )
 				{
-					// get user id from token
+					// Get user id from token
 					var userIdClaim = tokenString.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
 					if ( userIdClaim != null )
 					{
 						var userId = userIdClaim.Value;
 						var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-						var usersModel = new List<UsersResponse>();
-
 						if ( user != null )
 						{
-							if ( user.Role == Role.Manager )
+							List<User> usersList;
+
+							if ( user.Role == Role.Manager || user.Role == Role.Staff )
 							{
-								var userManager = await _unitOfWork.UserRepository.GetAllAsync();
-								userManager = userManager.Where(u => u.Role == Role.Staff || u.Role == Role.Shipper).ToList();
-								if ( userManager.Any() )
-								{
-									usersModel = _mapper.Map<List<UsersResponse>>(userManager);
-									result.StatusCode = 200;
-									//result.Message = "Success all staff and shipper roles (" + usersModel.Count() + ")";
-								}
-								else
-								{
-									result.StatusCode = 404;
-									result.Message = "Don't have staff or shipper!";
-									return result;
-								}
+								// For Manager and Staff roles, fetch only Staff and Shipper
+								usersList = await _unitOfWork.UserRepository.GetAllAsync();
+								usersList = usersList.Where(u => u.Role == Role.Staff || u.Role == Role.Shipper).ToList();
 							}
 							else if ( user.Role == Role.Admin )
 							{
-								var users = await _unitOfWork.UserRepository.GetAllAsync();
-								if ( users.Any() )
-								{
-									usersModel = _mapper.Map<List<UsersResponse>>(users);
-									result.StatusCode = 200;
-								}
-								else
-								{
-									result.StatusCode = 404;
-									result.Message = "Don't have users!";
-									return result;
-								}
+								// For Admin role, fetch all users
+								usersList = await _unitOfWork.UserRepository.GetAllAsync();
 							}
 							else
 							{
@@ -103,8 +82,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								return result;
 							}
 
+							var usersModel = _mapper.Map<List<UsersResponse>>(usersList);
+
 							if ( model != null && !string.IsNullOrEmpty(model.Sreach) )
 							{
+								// Apply search filter
 								usersModel = usersModel.Where(u =>
 									u.UserName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) ||
 									u.Email.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) ||
@@ -112,38 +94,37 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 									u.LastName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics())
 								).ToList();
 							}
+
+							result.StatusCode = 200;
 							result.Message = "Get users success (" + usersModel.Count() + ")";
 							result.Data = usersModel;
-							return result;
 						}
 						else
 						{
 							result.StatusCode = 404;
 							result.Message = "User not found!";
-							return result;
 						}
 					}
 					else
 					{
 						result.StatusCode = 401;
 						result.Message = "Token does not have userId!";
-						return result;
 					}
 				}
 				else
 				{
 					result.StatusCode = 402;
 					result.Message = "Token is null!";
-					return result;
 				}
 			}
 			catch ( Exception ex )
 			{
 				result.StatusCode = 500;
 				result.Message = "Error when processing: " + ex.Message;
-				return result;
 			}
+			return result;
 		}
+
 
 		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername)
 		{
