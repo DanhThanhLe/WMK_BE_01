@@ -28,6 +28,7 @@ namespace WMK_BE_BusinessLogic.Mapper
 
             CreateMap<Recipe , UpdateRecipeRequest>().ReverseMap();
             CreateMap<Recipe , ChangeRecipeStatusRequest>().ReverseMap();
+            CreateMap<Recipe , ChangeRecipeBaseStatusRequest>().ReverseMap();
 
                 
             //CreateMap//chua co map cho request voi model nen ko tao đc fuck

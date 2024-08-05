@@ -32,7 +32,13 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public string? Notice { get; set; }
 
     }
+    
+    public class ChangeRecipeBaseStatusRequest
 
+	{
+		public BaseStatus BaseStatus { get; set; }
+
+    }
     public class IdRecipeRequest
     {
         public Guid Id { get; set; }
