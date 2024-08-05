@@ -187,7 +187,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			Guid idConvert;
 			Guid.TryParse(assignedBy , out idConvert);
 			orderGroupModel.AsignBy = idConvert;
-			orderGroupModel.AsignAt = DateTime.Now;
+			orderGroupModel.AsignAt = DateTime.UtcNow.AddHours(7);
 			orderGroupModel.Status = BaseStatus.Available;
 			orderGroupModel.User = shipperExist;
 			var createResult = await _unitOfWork.OrderGroupRepository.CreateAsync(orderGroupModel);

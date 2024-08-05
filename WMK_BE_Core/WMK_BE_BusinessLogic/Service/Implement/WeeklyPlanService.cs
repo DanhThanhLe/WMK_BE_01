@@ -56,7 +56,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
 			////ngày hiện tại
-			//DateTime today = DateTime.Now;
+			//DateTime today = DateTime.UtcNow.AddHours(7);
 
 			////tìm ngày đầu tuần 
 			//DateTime startWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
@@ -202,7 +202,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//create weekly plan
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
-				newWeeklyPlan.CreateAt = DateTime.Now;
+				newWeeklyPlan.CreateAt = DateTime.UtcNow.AddHours(7);
 				newWeeklyPlan.CreatedBy = createdBy;
 				int countMeal = 0;
 				//check size of recipe create by staff
@@ -290,9 +290,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				Guid idConvert;
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
-				if ( currentList.Count() > 0 )
+				if ( currentList!= null && currentList.Count() > 0 )
 				{
-					WeeklyPlan foundDuplicate = currentList.FirstOrDefault(x => x.Description.Trim().Equals(request.Title.Trim()));
+					var foundDuplicate = currentList.FirstOrDefault(x => x.Description.Trim().Equals(request.Title.Trim()));
 					if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
 					{
 						result.StatusCode = 400;
@@ -316,7 +316,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							return result;
 						}
 						WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);
-						newOne.CreateAt = DateTime.Now;
+						newOne.CreateAt = DateTime.UtcNow.AddHours(7);
 						var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newOne);
 						if ( createResult )
 						{
@@ -508,7 +508,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//bat dau thay doi thong tin cho week plan
 						_unitOfWork.WeeklyPlanRepository.DetachEntity(foundWeeklyPlan);
 						_mapper.Map(model , foundWeeklyPlan);
-						foundWeeklyPlan.UpdatedAt = DateTime.Now;
+						foundWeeklyPlan.UpdatedAt = DateTime.UtcNow.AddHours(7);
 						foundWeeklyPlan.UpdatedBy = updateBy;
 						foundWeeklyPlan.ProcessStatus = ProcessStatus.Processing;
 						var updateWeeklyPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(foundWeeklyPlan);
@@ -647,7 +647,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Change status
-		public async Task<ResponseObject<WeeklyPlanResponseModel>> ChangeStatusWeeklyPlanAsync(string userId , Guid id , ChangeStatusWeeklyPlanRequest model)
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> ChangeStatusWeeklyPlanAsync(string? userId , Guid id , ChangeStatusWeeklyPlanRequest model)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			var validateResult = _changeStatusValidator.Validate(model);

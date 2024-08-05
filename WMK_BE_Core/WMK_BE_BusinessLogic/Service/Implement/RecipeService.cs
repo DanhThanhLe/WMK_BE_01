@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,11 +18,13 @@ using WMK_BE_BusinessLogic.BusinessModel.RequestModel.RecipeStepModel.RecipeStep
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderGroupModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Interface;
 using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
+using WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -33,6 +36,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IRecipeIngredientService _recipeAmountService;
 		private readonly RecipeValidator _validator;
 		private readonly IMapper _mapper;
+		private readonly IRedisService _redisService;
 		private readonly RecipeChangeStatusValidator _recipeChangeStatusValidator;
 		private readonly IdRecipeValidator _idValidator;
 		private readonly IRecipeCategoryService _recipeCategoryService;
@@ -40,11 +44,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IRecipeNutrientService _recipeNutrientService;
 		private readonly IRecipeIngredientService _recipeIngredientService;
 		private readonly IUserService _userService;
-		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper , IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService , IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService , IRecipeStepService recipeStepService , IUserService userService)
+		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper 
+			, IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService 
+			, IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService 
+			, IRecipeStepService recipeStepService , IUserService userService, IRedisService redisService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
 			_mapper = mapper;
+			_redisService = redisService;
 			_validator = new RecipeValidator();
 			_recipeChangeStatusValidator = new RecipeChangeStatusValidator();
 			_idValidator = new IdRecipeValidator();
@@ -70,6 +78,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<List<RecipeResponse>>> GetAllRecipesAsync(string? userId , GetAllRecipesRequest? model)
 		{
 			var result = new ResponseObject<List<RecipeResponse>>();
+			////get from redis
+			//var redisKey = "RecipeList";
+			//var redisData = await _redisService.GetValueAsync<List<RecipeResponse>>(redisKey);
+			//if ( redisData != null && redisData.Count() > 0 )
+			//{
+			//	result.StatusCode = 200;
+			//	result.Message = "WeeklyPlan list: " + redisData.Count();
+			//	result.Data = redisData;
+			//	return result;
+			//}
 			var recipes = new List<Recipe>();
 			var recipesResponse = new List<RecipeResponse>();
 			if ( model != null && (!model.Name.IsNullOrEmpty()
@@ -148,7 +166,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			//user exist by customer
 			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-			if ( userExist != null && userExist.Role == Role.Customer || userExist == null )
+			if ( userExist != null && userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer || userExist == null )
 			{
 				//chỉ hiển thị các recipes đã approve
 				recipesResponse = recipesResponse.Where(r => r.BaseStatus == BaseStatus.Available.ToString()).ToList();
@@ -161,6 +179,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
 			result.Data = recipesResponse;
+			
+			//await _redisService.SetValueAsync(redisKey , recipesResponse , TimeSpan.FromDays(3));
 			return result;
 		}
 
@@ -367,7 +387,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 					}
 					result.StatusCode = 200;
-					result.Message = "Recipe list found by name";
+					result.Message = "Recipe list found by name (" + returnList.Count() +")";
 					result.Data = returnList;
 
 				}
@@ -406,7 +426,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
-				newRecipe.CreatedAt = DateTime.Now;
+				newRecipe.CreatedAt = DateTime.UtcNow.AddHours(7);
 				newRecipe.CreatedBy = createdBy;
 				newRecipe.Popularity = 0;
 				newRecipe.BaseStatus = BaseStatus.UnAvailable;
@@ -564,88 +584,88 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#region Update (26/05/2024)
-		public async Task<ResponseObject<RecipeResponse>> Update(RecipeRequest updateRecipe)
-		{
-			/*
-			tim recipe
-			lay du lieu goc
-			thay doi cho cac thong so
-			giu nguyen cho cac thong so bo trong
-			 */
-			var result = new ResponseObject<RecipeResponse>();
-			var foundRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(updateRecipe.Id.ToString());
-			if ( foundRecipe != null )
-			{
-				result.StatusCode = 400;
-				result.Message = "Not found recipe";
-				return result;
-			}
-			var currentList = await GetAllToProcess();
-			var duplicateName = currentList.FirstOrDefault(x => x.Name == updateRecipe.Name);
-			if ( duplicateName != null
-				&& duplicateName.Id != updateRecipe.Id
-				&& duplicateName.ProcessStatus == ProcessStatus.Processing )
-			{
-				result.StatusCode = 400;
-				result.Message = "Recipe with name: " + updateRecipe.Name + " is already existed";
-				return result;
-			}
-			if ( updateRecipe.Name != null )
-			{
-				foundRecipe.Name = updateRecipe.Name;
-			}
-			if ( updateRecipe.ServingSize != null )
-			{
-				foundRecipe.ServingSize = updateRecipe.ServingSize;
-			}
-			if ( updateRecipe.Difficulty != null )
-			{
-				foundRecipe.Difficulty = updateRecipe.Difficulty;
-			}
-			if ( updateRecipe.Description != null )
-			{
-				foundRecipe.Description = updateRecipe.Description;
-			}
-			if ( updateRecipe.ImageLink != null )
-			{
-				foundRecipe.Img = updateRecipe.ImageLink;
-			}
-			if ( updateRecipe.Price != null )
-			{
-				foundRecipe.Price = updateRecipe.Price;
-			}
-			if ( updateRecipe.ApprovedBy != null )
-			{
-				foundRecipe.ApprovedBy = updateRecipe.ApprovedBy;
-			}
-			if ( updateRecipe.ApprovedAt != null )
-			{
-				foundRecipe.ApprovedAt = updateRecipe.ApprovedAt;
-			}
-			if ( updateRecipe.UpdatedBy != null )
-			{
-				foundRecipe.UpdatedBy = updateRecipe.UpdatedBy;
-			}
-			foundRecipe.UpdatedAt = DateTime.Now;
-			if ( updateRecipe.Popularity != null )
-			{
-				foundRecipe.Popularity = updateRecipe.Popularity;
-			}
-			if ( updateRecipe.ProcessStatus != null )
-			{
-				foundRecipe.ProcessStatus = updateRecipe.ProcessStatus;
-			}
-			var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(foundRecipe);
-			if ( !updateResult )
-			{
-				result.StatusCode = 500;
-				result.Message = "Error when updating recipe in recipe service using updateAsync";
-				return result;
-			}
-			result.StatusCode = 500;
-			result.Message = "Update recipe id " + updateRecipe.Id + " done";
-			return result;
-		}
+		//public async Task<ResponseObject<RecipeResponse>> Update(RecipeRequest updateRecipe)
+		//{
+		//	/*
+		//	tim recipe
+		//	lay du lieu goc
+		//	thay doi cho cac thong so
+		//	giu nguyen cho cac thong so bo trong
+		//	 */
+		//	var result = new ResponseObject<RecipeResponse>();
+		//	var foundRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(updateRecipe.Id.ToString());
+		//	if ( foundRecipe != null )
+		//	{
+		//		result.StatusCode = 400;
+		//		result.Message = "Not found recipe";
+		//		return result;
+		//	}
+		//	var currentList = await GetAllToProcess();
+		//	var duplicateName = currentList.FirstOrDefault(x => x.Name == updateRecipe.Name);
+		//	if ( duplicateName != null
+		//		&& duplicateName.Id != updateRecipe.Id
+		//		&& duplicateName.ProcessStatus == ProcessStatus.Processing )
+		//	{
+		//		result.StatusCode = 400;
+		//		result.Message = "Recipe with name: " + updateRecipe.Name + " is already existed";
+		//		return result;
+		//	}
+		//	if ( updateRecipe.Name != null )
+		//	{
+		//		foundRecipe.Name = updateRecipe.Name;
+		//	}
+		//	if ( updateRecipe.ServingSize != null )
+		//	{
+		//		foundRecipe.ServingSize = updateRecipe.ServingSize;
+		//	}
+		//	if ( updateRecipe.Difficulty != null )
+		//	{
+		//		foundRecipe.Difficulty = updateRecipe.Difficulty;
+		//	}
+		//	if ( updateRecipe.Description != null )
+		//	{
+		//		foundRecipe.Description = updateRecipe.Description;
+		//	}
+		//	if ( updateRecipe.ImageLink != null )
+		//	{
+		//		foundRecipe.Img = updateRecipe.ImageLink;
+		//	}
+		//	if ( updateRecipe.Price != null )
+		//	{
+		//		foundRecipe.Price = updateRecipe.Price;
+		//	}
+		//	if ( updateRecipe.ApprovedBy != null )
+		//	{
+		//		foundRecipe.ApprovedBy = updateRecipe.ApprovedBy;
+		//	}
+		//	if ( updateRecipe.ApprovedAt != null )
+		//	{
+		//		foundRecipe.ApprovedAt = updateRecipe.ApprovedAt;
+		//	}
+		//	if ( updateRecipe.UpdatedBy != null )
+		//	{
+		//		foundRecipe.UpdatedBy = updateRecipe.UpdatedBy;
+		//	}
+		//	foundRecipe.UpdatedAt = DateTime.UtcNow.AddHours(7);
+		//	if ( updateRecipe.Popularity != null )
+		//	{
+		//		foundRecipe.Popularity = updateRecipe.Popularity;
+		//	}
+		//	if ( updateRecipe.ProcessStatus != null )
+		//	{
+		//		foundRecipe.ProcessStatus = updateRecipe.ProcessStatus;
+		//	}
+		//	var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(foundRecipe);
+		//	if ( !updateResult )
+		//	{
+		//		result.StatusCode = 500;
+		//		result.Message = "Error when updating recipe in recipe service using updateAsync";
+		//		return result;
+		//	}
+		//	result.StatusCode = 500;
+		//	result.Message = "Update recipe id " + updateRecipe.Id + " done";
+		//	return result;
+		//}
 		#endregion
 
 		#region Change status -- just manager use
@@ -765,7 +785,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist != null )
 			{
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
-				if ( userExist != null && userExist.Role == Role.Admin )
+				if ( userExist != null && userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin )
 				{
 					//delete
 					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());
@@ -1004,7 +1024,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				_mapper.Map(recipe , recipeExist);
-				recipeExist.UpdatedAt = DateTime.Now;
+				recipeExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
 				recipeExist.UpdatedBy = updatedBy;
 				if ( recipeExist.ProcessStatus == ProcessStatus.Processing

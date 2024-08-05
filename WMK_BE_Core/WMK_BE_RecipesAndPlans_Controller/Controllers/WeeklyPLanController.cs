@@ -130,7 +130,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeStatus(Guid id , [FromBody] ChangeStatusWeeklyPlanRequest model)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var result = await _weeklyPLanService.ChangeStatusWeeklyPlanAsync(userId, id , model);
+			var result = await _weeklyPLanService.ChangeStatusWeeklyPlanAsync(userId , id , model);
 			return StatusCode(result.StatusCode , result);
 		}
 

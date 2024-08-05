@@ -15,7 +15,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("Create by is required!");
 			RuleFor(x => x.BeginDate)
 				.NotEmpty()
-				.Must(beginDate => beginDate >= DateTime.Now)
+				.Must(beginDate => beginDate >= DateTime.UtcNow.AddHours(7))
 				.WithMessage("Begin date must not be in past");
 			RuleFor(x => x.EndDate)
 			.NotEmpty().WithMessage("EndDate is required!")
@@ -40,7 +40,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//RuleFor(x => x.Id).NotEmpty().WithMessage("Id by is required!");
 			RuleFor(x => x.BeginDate)
 				.NotEmpty()
-				.Must(beginDate => beginDate >= DateTime.Now)
+				.Must(beginDate => beginDate >= DateTime.UtcNow.AddHours(7))
 				.WithMessage("Begin date must not be in past");
 			RuleFor(x => x.EndDate)
 			.NotEmpty().WithMessage("EndDate is required!")
