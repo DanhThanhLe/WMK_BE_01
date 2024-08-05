@@ -49,72 +49,84 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<UsersResponse>>();
 			try
 			{
-				//read token
+				// read token
 				var handler = new JwtSecurityTokenHandler();
 				var tokenString = handler.ReadToken(tokenHeader) as JwtSecurityToken;
 				if ( tokenString != null )
 				{
-					//get user id from token
+					// get user id from token
 					var userIdClaim = tokenString.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
 					if ( userIdClaim != null )
 					{
 						var userId = userIdClaim.Value;
 						var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-						if ( user != null && user.Role == Role.Manager )
+						var usersModel = new List<UsersResponse>();
+
+						if ( user != null )
 						{
-							var userManager = _unitOfWork.UserRepository.GetAll().Where(u => u.Role == Role.Staff && u.Role == Role.Shipper);
-							if ( userManager != null )
+							if ( user.Role == Role.Manager )
 							{
-								var usersModel = _mapper.Map<List<UsersResponse>>(userManager);
-								result.StatusCode = 200;
-								result.Message = "Success all staff role (" + usersModel.Count() + ")";
-								result.Data = usersModel;
-								return result;
-							}
-							else
-							{
-								result.StatusCode = 404;
-								result.Message = "Don't have staff!";
-								return result;
-							}
-						}
-						if ( user != null && user.Role == Role.Admin )
-						{
-							var users = await _unitOfWork.UserRepository.GetAllAsync();
-							if ( model != null && !model.Sreach.IsNullOrEmpty() )
-							{
-								if ( !model.Sreach.IsNullOrEmpty() )
+								var userManager = await _unitOfWork.UserRepository.GetAllAsync();
+								userManager = userManager.Where(u => u.Role == Role.Staff || u.Role == Role.Shipper).ToList();
+								if ( userManager.Any() )
 								{
-									users = users.Where(u => u.UserName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) 
-														|| u.Email.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics())
-														|| u.FirstName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics())
-														|| u.LastName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()))
-														.ToList();
+									usersModel = _mapper.Map<List<UsersResponse>>(userManager);
+									result.StatusCode = 200;
+									//result.Message = "Success all staff and shipper roles (" + usersModel.Count() + ")";
+								}
+								else
+								{
+									result.StatusCode = 404;
+									result.Message = "Don't have staff or shipper!";
+									return result;
 								}
 							}
-							if ( users != null && users.Any() )
+							else if ( user.Role == Role.Admin )
 							{
-								var usersModel = _mapper.Map<List<UsersResponse>>(users);
-								result.StatusCode = 200;
-								result.Message = "Get users success (" + users.Count() + ")" ;
-								result.Data = usersModel;
-								return result;
+								var users = await _unitOfWork.UserRepository.GetAllAsync();
+								if ( users.Any() )
+								{
+									usersModel = _mapper.Map<List<UsersResponse>>(users);
+									result.StatusCode = 200;
+								}
+								else
+								{
+									result.StatusCode = 404;
+									result.Message = "Don't have users!";
+									return result;
+								}
 							}
 							else
 							{
-								result.StatusCode = 404;
-								result.Message = "Don't have user!";
+								result.StatusCode = 403;
+								result.Message = "Don't have permission!";
 								return result;
 							}
+
+							if ( model != null && !string.IsNullOrEmpty(model.Sreach) )
+							{
+								usersModel = usersModel.Where(u =>
+									u.UserName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) ||
+									u.Email.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) ||
+									u.FirstName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics()) ||
+									u.LastName.ToLower().RemoveDiacritics().Contains(model.Sreach.ToLower().RemoveDiacritics())
+								).ToList();
+							}
+							result.Message = "Get users success (" + usersModel.Count() + ")";
+							result.Data = usersModel;
+							return result;
 						}
-						result.StatusCode = 400;
-						result.Message = "Don't have permission!";
-						return result;
+						else
+						{
+							result.StatusCode = 404;
+							result.Message = "User not found!";
+							return result;
+						}
 					}
 					else
 					{
 						result.StatusCode = 401;
-						result.Message = "Token not have userId!";
+						result.Message = "Token does not have userId!";
 						return result;
 					}
 				}
@@ -131,8 +143,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Error when processing: " + ex.Message;
 				return result;
 			}
-
 		}
+
 		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername)
 		{
 			var result = new ResponseObject<UserResponse?>();
