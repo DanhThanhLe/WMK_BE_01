@@ -75,11 +75,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeIngredients.Any() )
 				{
 					await _unitOfWork.RecipeIngredientRepository.AddRangeAsync(recipeIngredients);
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Create recipe ingredient successfully.";
+					result.Data = recipeIngredients;
+					return result;
 				}
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "Create recipe amount successfully.";
-				result.Data = recipeIngredients;
+				result.StatusCode = 500;
+				result.Message = "Create recipe ingredient unsuccessful.";
 				return result;
 			}
 			catch ( Exception ex )
@@ -108,7 +111,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					.Where(rc => rc.RecipeId == recipeId);
 				if ( recipeIngredients == null || !recipeIngredients.Any() )
 				{
-					result.StatusCode = 404;
+					result.StatusCode = 200;
 					result.Message = "No recipeIngredients found for the given Recipe.";
 					return result;
 				}

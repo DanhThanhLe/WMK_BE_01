@@ -18,6 +18,7 @@ namespace WMK_BE_BusinessLogic.Mapper
                 //.ForMember(dest => dest.Status, otp => otp.MapFrom(src => src.Status.ToString()));
             CreateMap<Category, CreateCategoryRequest>().ReverseMap();
             CreateMap<Category, CategoryResponseInRecipeCategory>().ReverseMap();
+            CreateMap<Category, UpdateCategoryRequest>().ReverseMap();
         }
     }
 }

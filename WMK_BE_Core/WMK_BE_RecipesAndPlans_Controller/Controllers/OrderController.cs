@@ -47,13 +47,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		//
 		[HttpGet("get-order/{id}")]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> GetById(Guid id)
 		{
 			var result = await _orderService.GetOrderByIdAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
+		#region Create
 		//
 		[HttpPost("create")]
 		[Authorize]
@@ -62,6 +63,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.CreateOrderAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
+		#endregion
 		#region Update
 		//
 		[HttpPut("change-status/{id}")]

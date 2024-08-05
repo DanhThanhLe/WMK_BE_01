@@ -154,7 +154,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( foundList.Count() == 0 )
 				{
 					result.StatusCode = 500;
-					result.Message = "Empty";
+					result.Message = "Don't have order by this user!";
 					return result;
 				}
 
@@ -199,100 +199,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		#endregion
-
-		#region delete
-		public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id)
-		{
-			var result = new ResponseObject<OrderResponse>();
-
-			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
-			if ( orderExist != null )
-			{
-				var userExist = await _unitOfWork.OrderRepository.GetUserExistInOrderAsync(orderExist.Id , orderExist.UserId);
-				if ( userExist )
-				{
-					//change order status
-					orderExist.Status = OrderStatus.Canceled;
-					var orderUpdate = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
-					if ( orderUpdate )
-					{
-						await _unitOfWork.CompleteAsync();
-						result.StatusCode = 200;
-						result.Message = "Change status order (" + orderExist.Id + ") into canceled success.";
-						return result;
-					}
-					else
-					{
-						result.StatusCode = 500;
-						result.Message = "Fail to change status went delete order!";
-						return result;
-					}
-				}
-				else
-				{
-					var orderDelete = await _unitOfWork.OrderRepository.DeleteAsync(orderExist.Id.ToString());
-					if ( orderDelete )
-					{
-						await _unitOfWork.CompleteAsync();
-						result.StatusCode = 200;
-						result.Message = "Delete order success.";
-						result.Data = _mapper.Map<OrderResponse>(orderExist);
-						return result;
-					}
-					else
-					{
-						result.StatusCode = 500;
-						result.Message = "Delete order unsucces!";
-						return result;
-					}
-				}
-			}
-			result.StatusCode = 404;
-			result.Message = "Order not exist!";
-			return result;
-		}
-
-		#endregion
-
-		#region change status
-		public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id , ChangeStatusOrderRequest model)
-		{
-			var result = new ResponseObject<OrderResponse>();
-
-			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
-			if ( orderExist != null )
-			{
-				orderExist.Status = model.Status;
-				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
-				if ( updateResult )
-				{
-
-					//await _unitOfWork.CompleteAsync();
-					////change status transaction
-					//foreach (var zaloPay in orderExist.Transactions)
-					//{
-					//    zaloPay.Status = TransactionStatus.PAID;
-					//    zaloPay.TransactionDate = DateTime.Now;
-					//}
-					await _unitOfWork.CompleteAsync();
-					result.StatusCode = 200;
-					result.Message = "Change order status into " + orderExist.Status + " success.";
-					//result.Data = _mapper.Map<OrderResponse>(orderExist);
-					return result;
-				}
-				else
-				{
-					result.StatusCode = 500;
-					result.Message = "Fail to update order!";
-					return result;
-				}
-			}
-			result.StatusCode = 404;
-			result.Message = "Order not exist!";
-			return result;
-
-		}
 		#endregion
 
 		#region create
@@ -472,7 +378,99 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+		public async Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder , Guid idOrderGroup)
+		{
+			var result = new ResponseObject<OrderResponse>();
 
+			//check order group exist
+			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(idOrderGroup.ToString());
+
+			if ( orderGroupExist != null )
+			{
+				var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(idOrder.ToString());
+				if ( orderExist != null )
+				{
+					orderExist.OrderGroupId = idOrderGroup;
+					orderExist.OrderGroup = orderGroupExist;
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Change order group success";
+					return result;
+				}
+			}
+
+			result.StatusCode = 404;
+			result.Message = "OrderGroup not exist!";
+			return result;
+		}
+		public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id , ChangeStatusOrderRequest model)
+		{
+			var result = new ResponseObject<OrderResponse>();
+
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
+			if ( orderExist != null )
+			{
+				//nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
+				if ( model.Status == OrderStatus.Refund)
+				{
+					//chưa paid thì không được đổi qua refun
+					foreach ( var transaction in orderExist.Transactions )
+					{
+						if ( transaction.Status != TransactionStatus.PAID )
+						{
+							result.StatusCode = 400;
+							result.Message = "Payment not successful can't refun!";
+							return result;
+						}
+					}
+				}
+				if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund )
+				{
+					//chỉ được đổi qua refun nếu transaction paid
+					foreach ( var transaction in orderExist.Transactions )
+					{
+						if ( transaction.Status != TransactionStatus.PAID )
+						{
+							result.StatusCode = 400;
+							result.Message = "Order is cancel can't change status!";
+							return result;
+						}
+					}
+				}
+				//map
+				orderExist.Status = model.Status;
+				if ( orderExist.Status == OrderStatus.Shipping )
+				{
+					//cập nhập lại transaction đã thanh toán rồi
+					foreach ( var transaction in orderExist.Transactions )
+					{
+						if ( transaction.Status != TransactionStatus.Cancel )
+						{
+							transaction.Status = TransactionStatus.PAID;
+						}
+					}
+				}
+				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+				if ( updateResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Change order status into " + orderExist.Status + " success.";
+					result.Data = _mapper.Map<OrderResponse>(orderExist);
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 500;
+					result.Message = "Fail to update order!";
+					return result;
+				}
+			}
+			result.StatusCode = 404;
+			result.Message = "Order not exist!";
+			return result;
+
+		}
 		#endregion
 
 		#region update order by user ...?
@@ -517,35 +515,58 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#endregion
-		public async Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder , Guid idOrderGroup)
+
+		#region delete
+		public async Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id)
 		{
 			var result = new ResponseObject<OrderResponse>();
 
-			//check order group exist
-			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(idOrderGroup.ToString());
-
-			if ( orderGroupExist != null )
+			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
+			if ( orderExist != null )
 			{
-				var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(idOrder.ToString());
-				if ( orderExist != null )
+				var userExist = await _unitOfWork.OrderRepository.GetUserExistInOrderAsync(orderExist.Id , orderExist.UserId);
+				if ( userExist )
 				{
-					orderExist.OrderGroupId = idOrderGroup;
-					orderExist.OrderGroup = orderGroupExist;
-					await _unitOfWork.CompleteAsync();
-					result.StatusCode = 200;
-					result.Message = "Change order group success";
-					return result;
+					//change order status
+					orderExist.Status = OrderStatus.Canceled;
+					var orderUpdate = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+					if ( orderUpdate )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Change status order (" + orderExist.Id + ") into canceled success.";
+						return result;
+					}
+					else
+					{
+						result.StatusCode = 500;
+						result.Message = "Fail to change status went delete order!";
+						return result;
+					}
+				}
+				else
+				{
+					var orderDelete = await _unitOfWork.OrderRepository.DeleteAsync(orderExist.Id.ToString());
+					if ( orderDelete )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Delete order success.";
+						result.Data = _mapper.Map<OrderResponse>(orderExist);
+						return result;
+					}
+					else
+					{
+						result.StatusCode = 500;
+						result.Message = "Delete order unsucces!";
+						return result;
+					}
 				}
 			}
-
 			result.StatusCode = 404;
-			result.Message = "OrderGroup not exist!";
+			result.Message = "Order not exist!";
 			return result;
-
-
-
 		}
-
 		public async Task<ResponseObject<OrderResponse>> RemoveOrderFormOrderGroupAsync(Guid idOrder)
 		{
 			var result = new ResponseObject<OrderResponse>();
@@ -572,5 +593,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 
 		}
+		#endregion
+
+
 	}
 }

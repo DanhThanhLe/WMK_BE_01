@@ -200,9 +200,9 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			//{
 			app.UseSwagger();
 			app.UseSwaggerUI();
-            //}
-            app.UseCors("WeMealKitCors"); //cau hinh CORs
-            app.UseAuthentication();
+			//}
+			app.UseCors("WeMealKitCors");
+			app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllers();
 

@@ -399,14 +399,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				newRecipe.Popularity = 0;
 				newRecipe.BaseStatus = BaseStatus.UnAvailable;
 				newRecipe.ProcessStatus = ProcessStatus.Processing;
-				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Equals(recipe.Name.ToLower()));
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()));
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
 					result.Message = "Duplicate name: " + checkDuplicateName.Name;
 					return result;
 				}
-
 
 				var createResult = await _unitOfWork.RecipeRepository.CreateAsync(newRecipe);
 				if ( !createResult )
@@ -421,28 +420,29 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 				//create RecipeCategory
 				var checkCreateRecipeCategory = await _recipeCategoryService.Create(newRecipe.Id , recipe.CategoryIds);
-
+				if ( checkCreateRecipeCategory.StatusCode != 200 && checkCreateRecipeCategory.Data == null )
+				{
+					await resetRecipe(newRecipe.Id);
+					result.StatusCode = 500;
+					result.Message = checkCreateRecipeCategory.Message;
+					return result;
+				}
 				//create RecipeIngredient
 				var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(newRecipe.Id , recipe.RecipeIngredientsList);
-
+				if ( checkCreateRecipeIngredient.StatusCode != 200 && checkCreateRecipeIngredient.Data == null )
+				{
+					await resetRecipe(newRecipe.Id);
+					result.StatusCode = 500;
+					result.Message = checkCreateRecipeIngredient.Message;
+					return result;
+				}
 				//create RecipeStep
 				var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(newRecipe.Id , recipe.Steps);
-
-				//create RecipeNutrient
-				var updateNutrientResult = await _recipeNutrientService.AutoUpdateNutrientByRecipe(newRecipe.Id);
-
-				if (//1 trong 3 cai ko tao dc thi xoa thong tin hien hanh cua recipe moi dang tao
-					checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
-					|| checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
-					|| checkCreateRecipeStep.StatusCode != 200 || checkCreateRecipeStep.Data == null
-					|| updateNutrientResult == false
-					)
+				if ( checkCreateRecipeStep.StatusCode != 200 && checkCreateRecipeStep.Data == null )
 				{
-					resetRecipe(newRecipe.Id);
+					await resetRecipe(newRecipe.Id);
 					result.StatusCode = 500;
-					result.Message = checkCreateRecipeCategory.Message
-						+ " | " + checkCreateRecipeIngredient.Message
-						+ " | " + checkCreateRecipeIngredient.Message;
+					result.Message = checkCreateRecipeStep.Message;
 					return result;
 				}
 				else//ko co loi va hoan thanh tao moi
@@ -451,13 +451,23 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var updatePrice = await UpdatePrice(newRecipe.Id);
 					if ( !updatePrice )
 					{
-						resetRecipe(newRecipe.Id);
+						await resetRecipe(newRecipe.Id);
 						result.StatusCode = 500;
-						result.Message = "Update recipe price unsuccessfully";
+						result.Message = "Update recipe price unsuccessfully"!;
+						return result;
+					}
+					//create RecipeNutrient
+					var updateNutrientResult = await _recipeNutrientService.AutoUpdateNutrientByRecipe(newRecipe.Id);
+					if ( !updateNutrientResult )
+					{
+						await resetRecipe(newRecipe.Id);
+						result.StatusCode = 500;
+						result.Message = "Update recipe nutrient unsuccessfully!";
 						return result;
 					}
 					result.StatusCode = 200;
 					result.Message = "Create Recipe successfully.";
+					result.Data = _mapper.Map<RecipeResponse>(newRecipe);
 					return result;
 				}
 				#region old
@@ -509,10 +519,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 		//reset Recipe
-		private async void resetRecipe(Guid recipeId)
+		private async Task<bool> resetRecipe(Guid recipeId)
 		{
-			await _unitOfWork.RecipeRepository.DeleteAsync(recipeId.ToString());
-			await _unitOfWork.CompleteAsync();
+			var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+			if ( recipe != null )
+			{
+				await _unitOfWork.RecipeRepository.DeleteAsync(recipe.Id.ToString());
+				await _unitOfWork.CompleteAsync();
+				return true;
+			}
+			return false;
 		}
 		private async Task<bool> deleteRecipeFromWeeklyPlan(Guid recipeId , ProcessStatus status)
 		{

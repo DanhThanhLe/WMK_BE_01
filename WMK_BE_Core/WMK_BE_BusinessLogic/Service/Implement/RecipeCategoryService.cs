@@ -42,7 +42,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Recipe not exist! Say from Create - RecipeCategoryService";
+				result.Message = "Recipe not exist to create recipe category!";
 				return result;
 			}
 
@@ -62,12 +62,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var foundByRecipe = currentList.Where(x => x.RecipeId == recipeId);
 			if ( foundByRecipe.Count() >= categoryTypeList.Count() )//gio thi kiem tra coi recipe do đa co category chua
 			{
+				//trường hợp đã có recipe category
 				result.StatusCode = 400;
-				result.Message = "This recipe already have enough categories. Say from Create - RecipeCategoryService";
+				result.Message = "Recipe already have enough categories!";
 				return result;
 			}
 
-			//phan nay co ve khong can
+			//tạo recipe category
 
 			List<RecipeCategory>? returnList = new List<RecipeCategory>();
 			foreach ( var categoryId in categoryIdList )//toi day coi nhu data dau vao da nhap ok, co the tien hanh add recipeCategory
@@ -76,7 +77,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( categoryExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Category (" + categoryId + ") not exist! Say from Create - RecipeCategoryService";
+					result.Message = "Category (" + categoryId + ") not exist!";
 					return result;
 				}
 				RecipeCategory newRecipeCategory = new RecipeCategory();
@@ -88,8 +89,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !createResult )//cho nay tra ve luon thong tin cu the type nao bi tao loi
 				{
 					result.StatusCode = 500;
-					result.Message = "Create new recipe category unsuccessfully! Say from Create - RecipeCategoryService";
-					result.Data = null;
+					result.Message = "Create new recipe category unsuccessfully!";
 					return result;
 				}
 				await _unitOfWork.CompleteAsync();
@@ -252,7 +252,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					.Where(rc => rc.RecipeId == recipeId);
 				if ( recipeCategories == null || !recipeCategories.Any() )
 				{
-					result.StatusCode = 404;
+					result.StatusCode = 200;
 					result.Message = "No RecipeCategories found for the given Recipe.";
 					return result;
 				}

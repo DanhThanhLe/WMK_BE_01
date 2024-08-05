@@ -43,7 +43,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#endregion
 		//
 		[HttpPost("create")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> Create([FromBody] CreateCategoryRequest model)
 		{
 			var result = await _categoryService.CreateCategoryAsync(model);
@@ -52,7 +52,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#region Update
 		//
 		[HttpPut("update/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> Update(Guid id , [FromBody] UpdateCategoryRequest model)
 		{
 			var result = await _categoryService.UpdateCategoryAsync(id , model);
@@ -60,16 +60,16 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		//
 		[HttpPut("change-status/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> ChangeStatus(Guid id , ChangeCategoryRequest model)
 		{
-			var result = await _categoryService.ChangeCategoryAsync(id , model);
+			var result = await _categoryService.ChangeCategoryStatusAsync(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
 		//
 		[HttpDelete("delete/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var result = await _categoryService.DeleteCategoryAsync(id);

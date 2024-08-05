@@ -127,6 +127,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 				return null;
 			}
 		}
+
+
+
+
 		public override IQueryable<Recipe> Get(Expression<Func<Recipe , bool>> expression)
 		{
 			return _dbSet
@@ -141,5 +145,30 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 				.Include(r => r.RecipeNutrient)
 				.Include(r => r.RecipeSteps);
 		}
+
+		//public override async Task<bool> DeleteAsync(string id)
+		//{
+		//	try
+		//	{
+		//		// Tìm kiếm recipe cùng với các thực thể liên quan
+		//		var recipe = await _dbSet.FindAsync(id);
+
+		//		if ( recipe != null )
+		//		{
+		//			// Xóa recipe
+		//			_dbSet.Remove(recipe);
+		//			return true;
+		//		}
+
+		//		return false; // Không tìm thấy recipe với id đã cho
+		//	}
+		//	catch ( Exception ex )
+		//	{
+		//		// Xử lý ngoại lệ và ghi log nếu cần
+		//		// Có thể sử dụng một công cụ logging như Serilog hoặc NLog để ghi log chi tiết ngoại lệ
+		//		throw new Exception("Error deleting recipe" , ex);
+		//	}
+		//}
+
 	}
 }
