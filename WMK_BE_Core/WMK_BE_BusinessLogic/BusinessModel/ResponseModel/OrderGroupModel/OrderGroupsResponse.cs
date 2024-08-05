@@ -15,7 +15,9 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderGroupModel
 		public Guid ShipperId { get; set; }
 		public string ShipperUserName { get; set; } = string.Empty;
 		public string Location { get; set; } = string.Empty;
-        public DateTime AsignAt { get; set; }
+		public double Longitude { get; set; }//kinh dộ
+		public double Latitude { get; set; }//vĩ độ
+		public DateTime AsignAt { get; set; }
 		public string AsignBy { get; set; } = string.Empty;
 		public BaseStatus Status { get; set; }
 
