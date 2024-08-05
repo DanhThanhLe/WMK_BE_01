@@ -392,7 +392,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 
-			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+			var weeklyPlans =  _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
 			var returnList = weeklyPlans.Where(x => x.Title.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
 
 			if ( weeklyPlans != null && weeklyPlans.Count > 0 )

@@ -439,23 +439,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//map
 				orderExist.Status = model.Status;
-				if ( orderExist.Status == OrderStatus.Shipping )
-				{
-					//nếu là cod thì không cần check transaction paid
-					//cập nhập lại transaction đã thanh toán rồi
-					foreach ( var transaction in orderExist.Transactions )
-					{
-						if ( transaction.Type != TransactionType.COD )
-						{
-							if ( transaction.Status != TransactionStatus.Cancel )
-							{
-								transaction.Status = TransactionStatus.PAID;
-							}
-						}
-					}
-				}
+				//if ( orderExist.Status == OrderStatus.Shipping )
+				//{
+				//	//nếu là cod thì đổi lại transaction paid
+				//	//cập nhập lại transaction đã thanh toán rồi
+				//	foreach ( var transaction in orderExist.Transactions )
+				//	{
+						
+				//		if ( transaction.Type != TransactionType.COD )
+				//		{
+				//			if ( transaction.Status != TransactionStatus.Cancel )
+				//			{
+				//				transaction.Status = TransactionStatus.PAID;
+				//			}
+				//		}
+				//	}
+				//}
 				//nếu order thành công -> status chuyển sang shipped hoặc delivered thì sẽ tăng pop của recipe lên
-				if ( orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered )
+				if ( model.Status == OrderStatus.Shipped )
 				{
 					//tăng  pop trong từng recipe
 					foreach ( var orderDetail in orderExist.OrderDetails )
