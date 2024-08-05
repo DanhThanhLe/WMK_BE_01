@@ -153,11 +153,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//chỉ hiển thị các recipes đã approve
 				recipesResponse = recipesResponse.Where(r => r.BaseStatus == BaseStatus.Available.ToString()).ToList();
 			}
-			//nếu user là staff thì chỉ hiển thị các recipe của nó
-			if ( userExist != null && userExist.Role == Role.Staff )
-			{
-				recipesResponse = recipesResponse.Where(r => r.CreatedBy.Equals(userExist.Id)).ToList();
-			}
+			////nếu user là staff thì chỉ hiển thị các recipe của nó
+			//if ( userExist != null && userExist.Role == Role.Staff )
+			//{
+			//	recipesResponse = recipesResponse.Where(r => r.CreatedBy.Equals(userExist.Id)).ToList();
+			//}
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
 			result.Data = recipesResponse;
@@ -1020,7 +1020,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !updateResult )
 				{
 					result.StatusCode = 500;
-					result.Message = "Update Recipe unsuccessfully! Say from CreateRecipeAsync - RecipeService.";
+					result.Message = "Update Recipe unsuccessfully!";
 					return result;
 				}
 				await _unitOfWork.CompleteAsync();
