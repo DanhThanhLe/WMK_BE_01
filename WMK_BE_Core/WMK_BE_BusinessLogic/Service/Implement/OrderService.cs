@@ -411,7 +411,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( orderExist != null )
 			{
 				//nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
-				if ( model.Status == OrderStatus.Refund)
+				if ( model.Status == OrderStatus.Refund )
 				{
 					//chưa paid thì không được đổi qua refun
 					foreach ( var transaction in orderExist.Transactions )
@@ -441,12 +441,29 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				orderExist.Status = model.Status;
 				if ( orderExist.Status == OrderStatus.Shipping )
 				{
+					//nếu là cod thì không cần check transaction paid
 					//cập nhập lại transaction đã thanh toán rồi
 					foreach ( var transaction in orderExist.Transactions )
 					{
-						if ( transaction.Status != TransactionStatus.Cancel )
+						if ( transaction.Type != TransactionType.COD )
 						{
-							transaction.Status = TransactionStatus.PAID;
+							if ( transaction.Status != TransactionStatus.Cancel )
+							{
+								transaction.Status = TransactionStatus.PAID;
+							}
+						}
+					}
+				}
+				//nếu order thành công -> status chuyển sang shipped hoặc delivered thì sẽ tăng pop của recipe lên
+				if ( orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered )
+				{
+					//tăng  pop trong từng recipe
+					foreach ( var orderDetail in orderExist.OrderDetails )
+					{
+						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(orderDetail.RecipeId.ToString());
+						if ( recipeExist != null )
+						{
+							recipeExist.Popularity++;
 						}
 					}
 				}

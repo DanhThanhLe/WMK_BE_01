@@ -153,6 +153,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//chỉ hiển thị các recipes đã approve
 				recipesResponse = recipesResponse.Where(r => r.BaseStatus == BaseStatus.Available.ToString()).ToList();
 			}
+			//nếu user là staff thì chỉ hiển thị các recipe của nó
+			if ( userExist != null && userExist.Role == Role.Staff )
+			{
+				recipesResponse = recipesResponse.Where(r => r.CreatedBy.Equals(userExist.Id)).ToList();
+			}
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
 			result.Data = recipesResponse;
@@ -678,7 +683,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( changeResult )
 			{
 				//Nếu thay đổi status sang denied thì xóa recipe khỏi wpl
-				if ( recipeExist.ProcessStatus == ProcessStatus.Denied )
+				if ( recipeExist.ProcessStatus == ProcessStatus.Denied && recipeExist.RecipePlans != null )
 				{
 					var deleteWp = await deleteRecipeFromWeeklyPlan(recipeExist.Id , recipe.ProcessStatus , null);
 					if ( !deleteWp )
@@ -725,7 +730,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( changeResult )
 			{
 				//Nếu thay đổi status sang unavailable thì xóa recipe khỏi wpl
-				if ( recipeExist.BaseStatus == BaseStatus.UnAvailable )
+				if ( recipeExist.BaseStatus == BaseStatus.UnAvailable && recipeExist.RecipePlans != null )
 				{
 					var deleteWp = await deleteRecipeFromWeeklyPlan(recipeExist.Id , recipeExist.ProcessStatus , recipe.BaseStatus);
 					if ( !deleteWp )
@@ -733,7 +738,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						result.StatusCode = 500;
 						result.Message = "Change status unsuccess! Delete recipe from weekly plan!";
 						return result;
-						
+
 					}
 				}
 				await _unitOfWork.CompleteAsync();
