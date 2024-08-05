@@ -57,13 +57,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		//
-		[HttpGet("remove-all-ordergroup")]
-		[Authorize]
-		public async Task<IActionResult> RemoveFromOrdergroup()
-		{
-			var result = await _orderService.RemoveAllOrdersFromOrderGroupsAsync();
-			return StatusCode(result.StatusCode , result);
-		}
+
 		#endregion
 		#region Create
 		//
@@ -108,6 +102,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> RemoveFromOrdergroup(Guid idOrder)
 		{
 			var result = await _orderService.RemoveOrderFormOrderGroupAsync(idOrder);
+			return StatusCode(result.StatusCode , result);
+		}
+		[HttpDelete("reset-all-ordergroup")]
+		[Authorize]
+		public async Task<IActionResult> RemoveFromOrdergroup()
+		{
+			var result = await _orderService.RemoveAllOrdersFromOrderGroupsAsync();
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
