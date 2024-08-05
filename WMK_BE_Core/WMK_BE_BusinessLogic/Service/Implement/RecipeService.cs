@@ -397,13 +397,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Error validate " + string.Join(" - /n" , error);
 					return result;
 				}
-				//mapper
-				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
-				newRecipe.CreatedAt = DateTime.Now;
-				newRecipe.CreatedBy = createdBy;
-				newRecipe.Popularity = 0;
-				newRecipe.BaseStatus = BaseStatus.UnAvailable;
-				newRecipe.ProcessStatus = ProcessStatus.Processing;
 				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()));
 				if ( checkDuplicateName != null )
 				{
@@ -411,7 +404,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Duplicate name: " + checkDuplicateName.Name;
 					return result;
 				}
-
+				//mapper
+				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
+				newRecipe.CreatedAt = DateTime.Now;
+				newRecipe.CreatedBy = createdBy;
+				newRecipe.Popularity = 0;
+				newRecipe.BaseStatus = BaseStatus.UnAvailable;
+				newRecipe.ProcessStatus = ProcessStatus.Processing;
 				var createResult = await _unitOfWork.RecipeRepository.CreateAsync(newRecipe);
 				if ( !createResult )
 				{
@@ -994,6 +993,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					result.StatusCode = 404;
 					result.Message = "Recipe not exist!";
+					return result;
+				}
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()));
+				if ( checkDuplicateName != null )
+				{
+					result.StatusCode = 400;
+					result.Message = "Duplicate name: " + checkDuplicateName.Name;
 					return result;
 				}
 				//mapper
