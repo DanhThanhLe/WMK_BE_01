@@ -183,7 +183,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//check user exist 
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(createdBy);
-				if ( userExist == null || userExist.Role != WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Staff )
+				if ( userExist == null )
 				{
 					result.StatusCode = 404;
 					result.Message = "User not exist or not have access!";
