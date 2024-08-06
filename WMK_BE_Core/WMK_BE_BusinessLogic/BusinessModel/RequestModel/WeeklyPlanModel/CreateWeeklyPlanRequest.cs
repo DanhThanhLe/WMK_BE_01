@@ -31,7 +31,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
 	public class RecipeWeeklyPlanCreate
 	{
 		public Guid recipeId { get; set; }
-		public int Quantity { get; set; } = 1;
+		public int Quantity { get; set; }
         public DayInWeek DayInWeek { get; set; }
         public MealInDay MealInDay { get; set; }
 
