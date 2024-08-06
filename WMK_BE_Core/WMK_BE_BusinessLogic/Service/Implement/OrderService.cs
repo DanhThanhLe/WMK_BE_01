@@ -259,29 +259,29 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.OrderCode = randomOrderCode;
 			//newOrder.TotalPrice = model.TotalPrice * 1000;
-			newOrder.OrderDate = DateTime.Now;
-			switch ( DateTime.Now.DayOfWeek )
+			newOrder.OrderDate = DateTime.UtcNow.AddHours(7);
+			switch ( DateTime.UtcNow.AddHours(7).DayOfWeek )
 			{
 				case DayOfWeek.Monday:
-					newOrder.ShipDate = DateTime.Now.AddDays(6);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(6);
 					break;
 				case DayOfWeek.Tuesday:
-					newOrder.ShipDate = DateTime.Now.AddDays(5);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(5);
 					break;
 				case DayOfWeek.Wednesday:
-					newOrder.ShipDate = DateTime.Now.AddDays(4);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(4);
 					break;
 				case DayOfWeek.Thursday:
-					newOrder.ShipDate = DateTime.Now.AddDays(3);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(3);
 					break;
 				case DayOfWeek.Friday:
-					newOrder.ShipDate = DateTime.Now.AddDays(2);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(2);
 					break;
 				case DayOfWeek.Saturday:
-					newOrder.ShipDate = DateTime.Now.AddDays(8);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(8);
 					break;
 				case DayOfWeek.Sunday:
-					newOrder.ShipDate = DateTime.Now.AddDays(7);
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(7);
 					break;
 			}
 			newOrder.Status = OrderStatus.Processing;
@@ -411,7 +411,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( orderExist != null )
 			{
 				//nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
-				if ( model.Status == OrderStatus.Refund)
+				if ( model.Status == OrderStatus.Refund )
 				{
 					//chưa paid thì không được đổi qua refun
 					foreach ( var transaction in orderExist.Transactions )
@@ -439,14 +439,32 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//map
 				orderExist.Status = model.Status;
-				if ( orderExist.Status == OrderStatus.Shipping )
+				//if ( orderExist.Status == OrderStatus.Shipping )
+				//{
+				//	//nếu là cod thì đổi lại transaction paid
+				//	//cập nhập lại transaction đã thanh toán rồi
+				//	foreach ( var transaction in orderExist.Transactions )
+				//	{
+						
+				//		if ( transaction.Type != TransactionType.COD )
+				//		{
+				//			if ( transaction.Status != TransactionStatus.Cancel )
+				//			{
+				//				transaction.Status = TransactionStatus.PAID;
+				//			}
+				//		}
+				//	}
+				//}
+				//nếu order thành công -> status chuyển sang shipped hoặc delivered thì sẽ tăng pop của recipe lên
+				if ( model.Status == OrderStatus.Shipped )
 				{
-					//cập nhập lại transaction đã thanh toán rồi
-					foreach ( var transaction in orderExist.Transactions )
+					//tăng  pop trong từng recipe
+					foreach ( var orderDetail in orderExist.OrderDetails )
 					{
-						if ( transaction.Status != TransactionStatus.Cancel )
+						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(orderDetail.RecipeId.ToString());
+						if ( recipeExist != null )
 						{
-							transaction.Status = TransactionStatus.PAID;
+							recipeExist.Popularity++;
 						}
 					}
 				}
@@ -593,6 +611,59 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 
 		}
+
+		public async Task<ResponseObject<List<OrderResponse>>> RemoveAllOrdersFromOrderGroupsAsync()
+		{
+			var result = new ResponseObject<List<OrderResponse>>();
+			var orderResponses = new List<OrderResponse>();
+
+			try
+			{
+				// Lấy tất cả các order có OrderGroupId không null
+				var ordersWithOrderGroups = await _unitOfWork.OrderRepository.GetAllAsync();
+				ordersWithOrderGroups = ordersWithOrderGroups.Where(o => o.OrderGroupId != null).ToList();
+
+				if ( ordersWithOrderGroups.Any() )
+				{
+					foreach ( var order in ordersWithOrderGroups )
+					{
+						order.OrderGroupId = null;
+						order.OrderGroup = null;
+						var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(order);
+
+						if ( updateResult )
+						{
+							orderResponses.Add(_mapper.Map<OrderResponse>(order));
+						}
+						else
+						{
+							result.StatusCode = 500;
+							result.Message = "An error occurred while updating orders.";
+							return result;
+						}
+					}
+
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Successfully removed all orders from their order groups.";
+					result.Data = orderResponses;
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 404;
+					result.Message = "No orders found with an order group.";
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = $"Error when processing: {ex.Message}";
+				return result;
+			}
+		}
+
 		#endregion
 
 

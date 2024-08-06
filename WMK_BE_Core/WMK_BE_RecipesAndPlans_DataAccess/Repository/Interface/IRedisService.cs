@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 {
-    public interface IRedisService
-    {
-         Task<bool> SetValueAsync<T>(string key, T value,TimeSpan timeOut);
-    Task<T> GetValueAsync<T>(string key);
-        //clear cache
-        Task<bool> RemoveAsync(string key);
+	public interface IRedisService
+	{
+		Task<bool> SetValueAsync<T>(string key , T value , TimeSpan timeOut);
+		Task<T> GetValueAsync<T>(string key);
+		//clear cache
+		Task<bool> RemoveAsync(string key);
 
-    }
+	}
 }

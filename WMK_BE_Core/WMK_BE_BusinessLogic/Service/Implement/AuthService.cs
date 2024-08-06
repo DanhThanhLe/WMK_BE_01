@@ -185,8 +185,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					issuer: _configuration["JWT:ValidIssuer"] ,
 					audience: _configuration["JWT:ValidAudience"] ,
 					claims: authClaims ,
-					expires: DateTime.Now.AddDays(7),
-					signingCredentials: new SigningCredentials(authKey , SecurityAlgorithms.HmacSha256Signature)
+					expires: DateTime.UtcNow.AddHours(7).AddDays(7),
+					signingCredentials: new SigningCredentials(authKey , SecurityAlgorithms.HmacSha512Signature)
 				);
 
 				//string JWT
