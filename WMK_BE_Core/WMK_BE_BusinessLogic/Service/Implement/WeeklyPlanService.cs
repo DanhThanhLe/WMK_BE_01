@@ -56,7 +56,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
 			////ngày hiện tại
-			//DateTime today = DateTime.UtcNow.AddHours(7);
+			//DateTime today = DateTime.UtcNow;
 
 			////tìm ngày đầu tuần 
 			//DateTime startWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
@@ -202,7 +202,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//create weekly plan
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
-				newWeeklyPlan.CreateAt = DateTime.UtcNow.AddHours(7);
+				newWeeklyPlan.CreateAt = DateTime.UtcNow;
 				newWeeklyPlan.CreatedBy = createdBy;
 				int countMeal = 0;
 				//check size of recipe create by staff
@@ -316,7 +316,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							return result;
 						}
 						WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);
-						newOne.CreateAt = DateTime.UtcNow.AddHours(7);
+						newOne.CreateAt = DateTime.UtcNow;
 						var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newOne);
 						if ( createResult )
 						{
@@ -508,7 +508,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//bat dau thay doi thong tin cho week plan
 						_unitOfWork.WeeklyPlanRepository.DetachEntity(foundWeeklyPlan);
 						_mapper.Map(model , foundWeeklyPlan);
-						foundWeeklyPlan.UpdatedAt = DateTime.UtcNow.AddHours(7);
+						foundWeeklyPlan.UpdatedAt = DateTime.UtcNow;
 						foundWeeklyPlan.UpdatedBy = updateBy;
 						foundWeeklyPlan.ProcessStatus = ProcessStatus.Processing;
 						var updateWeeklyPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(foundWeeklyPlan);

@@ -426,7 +426,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
-				newRecipe.CreatedAt = DateTime.UtcNow.AddHours(7);
+				newRecipe.CreatedAt = DateTime.UtcNow;
 				newRecipe.CreatedBy = createdBy;
 				newRecipe.Popularity = 0;
 				newRecipe.BaseStatus = BaseStatus.UnAvailable;
@@ -646,7 +646,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		//	{
 		//		foundRecipe.UpdatedBy = updateRecipe.UpdatedBy;
 		//	}
-		//	foundRecipe.UpdatedAt = DateTime.UtcNow.AddHours(7);
+		//	foundRecipe.UpdatedAt = DateTime.UtcNow;
 		//	if ( updateRecipe.Popularity != null )
 		//	{
 		//		foundRecipe.Popularity = updateRecipe.Popularity;
@@ -1024,7 +1024,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				_mapper.Map(recipe , recipeExist);
-				recipeExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
+				recipeExist.UpdatedAt = DateTime.UtcNow;
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
 				recipeExist.UpdatedBy = updatedBy;
 				if ( recipeExist.ProcessStatus == ProcessStatus.Processing

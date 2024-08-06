@@ -259,29 +259,29 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.OrderCode = randomOrderCode;
 			//newOrder.TotalPrice = model.TotalPrice * 1000;
-			newOrder.OrderDate = DateTime.UtcNow.AddHours(7);
-			switch ( DateTime.UtcNow.AddHours(7).DayOfWeek )
+			newOrder.OrderDate = DateTime.UtcNow;
+			switch ( DateTime.UtcNow.DayOfWeek )
 			{
 				case DayOfWeek.Monday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(6);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(6);
 					break;
 				case DayOfWeek.Tuesday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(5);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(5);
 					break;
 				case DayOfWeek.Wednesday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(4);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(4);
 					break;
 				case DayOfWeek.Thursday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(3);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(3);
 					break;
 				case DayOfWeek.Friday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(2);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(2);
 					break;
 				case DayOfWeek.Saturday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(8);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(8);
 					break;
 				case DayOfWeek.Sunday:
-					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(7);
+					newOrder.ShipDate = DateTime.UtcNow.AddDays(7);
 					break;
 			}
 			newOrder.Status = OrderStatus.Processing;
