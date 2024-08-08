@@ -44,6 +44,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 
 		//refund
+		[HttpPost("refund-zalopay")]
+		[Authorize]
+		public async Task<IActionResult> RefundZaloPay([FromBody] CreatePaymentRequest request)
+		{
+			var result = await _transactionService.CreateNewPaymentAsync(request);
+			return StatusCode(result.StatusCode , result);
+		}
 
 	}
 }

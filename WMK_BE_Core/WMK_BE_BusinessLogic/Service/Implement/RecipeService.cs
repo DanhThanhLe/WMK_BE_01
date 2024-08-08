@@ -1015,7 +1015,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Recipe not exist!";
 					return result;
 				}
-				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()));
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()) 
+																		&& x.CreatedBy.Equals(recipeExist.CreatedBy));
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
