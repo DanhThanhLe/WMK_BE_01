@@ -239,7 +239,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
                 newTransaction.TransactionDate = DateTime.UtcNow;
                 newTransaction.Type = request.TransactionType;
-                newTransaction.Status = request.Status == null ? TransactionStatus.Pending : (TransactionStatus)request.Status;
+                newTransaction.Status = request.Status == null ? TransactionStatus.PendingCOD : (TransactionStatus)request.Status;
 
                 //newTransaction.Status = (TransactionStatus)request.Status;
                 var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);

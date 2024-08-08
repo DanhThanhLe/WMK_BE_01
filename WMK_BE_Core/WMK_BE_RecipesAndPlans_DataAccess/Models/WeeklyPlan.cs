@@ -15,8 +15,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public DateTime BeginDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? BeginDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string? Description { set; get; }
         public string? UrlImage { get; set; }
         public string Title { get; set; } = string.Empty;

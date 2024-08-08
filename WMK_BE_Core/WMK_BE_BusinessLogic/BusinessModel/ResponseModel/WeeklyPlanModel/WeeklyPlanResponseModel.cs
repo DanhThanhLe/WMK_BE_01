@@ -13,8 +13,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
 	public class WeeklyPlanResponseModel
 	{
 		public Guid Id { get; set; }
-		public DateTime BeginDate { get; set; }
-		public DateTime EndDate { get; set; }
+		public DateTime? BeginDate { get; set; }
+		public DateTime? EndDate { get; set; }
         public string? UrlImage { get; set; }
         public string? Title { get; set; }
         public string? Description { set; get; } = string.Empty;

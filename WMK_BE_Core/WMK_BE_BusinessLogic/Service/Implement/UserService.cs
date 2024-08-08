@@ -125,7 +125,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
-
 		public async Task<ResponseObject<UserResponse?>> GetUserAsync(string emailOrUsername)
 		{
 			var result = new ResponseObject<UserResponse?>();

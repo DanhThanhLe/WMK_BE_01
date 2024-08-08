@@ -37,6 +37,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		//
 		[HttpGet("get-by-customer-id/{id}")]
+		[Authorize]
 		public async Task<IActionResult> GetByCustomerId(string id)
 		{
 			Guid convertId;
@@ -66,7 +67,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#region Create
 		//
 		[HttpPost("create")]
-		[Authorize]
+		[Authorize(Roles = "Staff,Manager,Admin")]
 		public async Task<IActionResult> Create([FromBody] CreateWeeklyPlanRequest model)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -80,6 +81,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		//
 		[HttpPost("create-for-customer")]
+		[Authorize]
 		public async Task<IActionResult> CreateForUser([FromBody] CreateWeeklyPlanForCustomerRequest model)
 		{
 			var result = await _weeklyPLanService.CreateForSutomer(model);
@@ -91,16 +93,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#region Update
 		//
 		[HttpPut("update/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Staff,Manager,Admin")]
 		public async Task<IActionResult> Update(Guid id , [FromBody] UpdateWeeklyPlanRequestModel model)
 		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if ( userId == null )
-			{
-				return Unauthorized(new { Message = "Invalid token, user ID not found" });
-			}
-			string updateBy = userId.ToString();
-			var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(updateBy , id , model);
+			var result = await _weeklyPLanService.UpdateWeeklyPlanAsync(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
 		//
@@ -136,7 +132,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		//
 		[HttpDelete("delete/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Staff,Manager,Admin")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			Guid convertId;

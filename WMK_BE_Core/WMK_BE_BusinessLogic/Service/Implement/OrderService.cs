@@ -411,7 +411,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( orderExist != null )
 			{
 				//nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
-				if ( model.Status == OrderStatus.Refund )
+				if ( model.Status == OrderStatus.Refunded )
 				{
 					//chưa paid thì không được đổi qua refun
 					foreach ( var transaction in orderExist.Transactions )
@@ -424,7 +424,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 					}
 				}
-				if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund )
+				if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refunded )
 				{
 					//chỉ được đổi qua refun nếu transaction paid
 					foreach ( var transaction in orderExist.Transactions )
