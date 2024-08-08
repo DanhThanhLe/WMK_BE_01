@@ -269,6 +269,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//bat dau tao recipePlan -> dung nhu ham Create ben tren. ke qua nhan ve loi thi xoa weekPlan vua tao va bao loi
 
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
+			Guid idTo = new Guid();
 			try//bat moi loi bat ngo va chu co message cu the 
 			{
 				if ( request.ProcessStatus != null && request.ProcessStatus != ProcessStatus.Customer )//kiem tra processStatus
@@ -284,14 +285,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "User not exist or not have access!";
 					return result;
 				}
-				Guid idConvert;
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 				if ( currentList != null && currentList.Count() > 0 )
 				{
-					var foundDuplicate = currentList.FirstOrDefault(x => x.Description.Trim().Equals(request.Title.Trim()));
+					var foundDuplicate = currentList.FirstOrDefault(x => x.Title.Trim().Equals(request.Title.Trim()));
 					if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
 					{
-						result.StatusCode = 400;
+						result.StatusCode = 404;
 						result.Message = "Weekly plan Title already existed";
 						return result;
 					}
@@ -317,6 +317,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( createResult )
 						{
 							await _unitOfWork.CompleteAsync();
+							idTo = newOne.Id;
 							var createRecipePlanResult = await _recipePlanService.CreateRecipePlanAsync(newOne.Id , request.recipeIds);
 							if ( createRecipePlanResult.StatusCode == 200 && createRecipePlanResult.Data != null )
 							{
@@ -347,6 +348,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			catch ( Exception ex )
 			{
+				await _unitOfWork.WeeklyPlanRepository.DeleteAsync(idTo.ToString()); //xoa thong tin vi ko tao dc
 				result.StatusCode = 500;
 				result.Message = ex.Message;
 				return result;

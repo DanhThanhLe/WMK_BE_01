@@ -9,13 +9,13 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 	public enum TransactionStatus
 	{
 		PAID = 0,
-		PendingCOD = 1,//pending chung,
-		PendingMomo = 2,
-		PendingZaloPay = 3,
-		RefundZaloPayPending = 4,
-		RefundZaloPayDone = 5,
-		UNPAID = 6,
-		Cancel = 7,
+		PendingMomo = 1,
+		PendingZaloPay = 2,
+		UNPAID = 3,
+		Cancel = 4,
+		Pending = 5,//pending chung,
+		RefundZaloPayPending = 7,
+		RefundZaloPayDone = 8,
 	}
 	public static class TransactionStatusHelper
 	{

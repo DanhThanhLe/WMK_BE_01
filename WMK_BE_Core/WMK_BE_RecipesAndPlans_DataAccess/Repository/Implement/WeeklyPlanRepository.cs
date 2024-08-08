@@ -21,7 +21,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 
 		public override Task<List<WeeklyPlan>> GetAllAsync()
 		{
-			return _dbSet.AsNoTracking()
+			return _dbSet
 				.Include(wp => wp.RecipePLans)
 					.ThenInclude(rp => rp.Recipe)
 						.ThenInclude(r => r.RecipeCategories)
@@ -53,7 +53,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 				{
 					return null;
 				}
-				var entity = await _dbSet.AsNoTracking()
+				var entity = await _dbSet
 					.Include(wp => wp.RecipePLans)
 						.ThenInclude(rp => rp.Recipe)
 							.ThenInclude(r => r.RecipeIngredients)//lay toi RecipeIngredient
