@@ -410,33 +410,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
 			if ( orderExist != null )
 			{
-				//nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
-				if ( model.Status == OrderStatus.Refund )
-				{
-					//chưa paid thì không được đổi qua refun
-					foreach ( var transaction in orderExist.Transactions )
-					{
-						if ( transaction.Status != TransactionStatus.PAID )
-						{
-							result.StatusCode = 400;
-							result.Message = "Payment not successful can't refun!";
-							return result;
-						}
-					}
-				}
-				if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund )
-				{
-					//chỉ được đổi qua refun nếu transaction paid
-					foreach ( var transaction in orderExist.Transactions )
-					{
-						if ( transaction.Status != TransactionStatus.PAID )
-						{
-							result.StatusCode = 400;
-							result.Message = "Order is cancel can't change status!";
-							return result;
-						}
-					}
-				}
+				////nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
+				//if ( model.Status == OrderStatus.Refund )
+				//{
+				//	//chưa paid thì không được đổi qua refun
+				//	foreach ( var transaction in orderExist.Transactions )
+				//	{
+				//		if ( transaction.Status != TransactionStatus.PAID )
+				//		{
+				//			result.StatusCode = 400;
+				//			result.Message = "Payment not successful can't refun!";
+				//			return result;
+				//		}
+				//	}
+				//}
+				//if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund )
+				//{
+				//	//chỉ được đổi qua refun nếu transaction paid
+				//	foreach ( var transaction in orderExist.Transactions )
+				//	{
+				//		if ( transaction.Status != TransactionStatus.PAID )
+				//		{
+				//			result.StatusCode = 400;
+				//			result.Message = "Order is cancel can't change status!";
+				//			return result;
+				//		}
+				//	}
+				//}
 				//map
 				orderExist.Status = model.Status;
 				//if ( orderExist.Status == OrderStatus.Shipping )
@@ -455,7 +455,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//		}
 				//	}
 				//}
-				//nếu order thành công -> status chuyển sang shipped hoặc delivered thì sẽ tăng pop của recipe lên
+				//nếu order thành công -> status chuyển sang shipped (do shipper nhấn) thì sẽ tăng pop của recipe lên
 				if ( model.Status == OrderStatus.Shipped )
 				{
 					//tăng  pop trong từng recipe

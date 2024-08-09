@@ -305,14 +305,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						var jsonResponse = await response.Content.ReadAsStringAsync();
 						var refundResponse = JsonConvert.DeserializeObject<RefundZaloPayResponse>(jsonResponse);
-
+						//tạm thời chưa đăng ký tài khoản bussiness nên nhận đc response từ zalopay thì sẽ cho là thành công
 						if ( refundResponse != null )
 						{
 							// Create a new transaction for the refund
 							var refundTrans = new CreatePaymentRequest
 							{
 								Amount = transExist.Amount ,
-								Notice = refundResponse.ReturnMessage + ": " + refundResponse.SubReturnMessage ,
+								//Notice = refundResponse.ReturnMessage + ": " + refundResponse.SubReturnMessage ,
 								Status = TransactionStatus.RefundZaloPayDone,
 								OrderId = request.IdOrder ,
 								TransactionDate = DateTime.UtcNow ,
@@ -330,12 +330,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								if ( orderExist != null )
 								{
 									orderExist.Status = OrderStatus.Refund;
+									newTrans.Order = orderExist;
+									orderExist.Transactions.Add(newTrans);
 									await _unitOfWork.CompleteAsync();
 								}
 
 								result.StatusCode = 200;
 								result.Message = "Refund successful";
-								result.Data = _mapper.Map<RefundZaloPayResponse>(refundTrans);
+								result.Data = _mapper.Map<RefundZaloPayResponse>(refundResponse);
 								return result;
 							}
 							else
