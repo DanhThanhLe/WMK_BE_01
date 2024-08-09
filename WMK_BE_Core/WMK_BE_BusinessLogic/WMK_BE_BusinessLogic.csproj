@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="Service\Implement\RecipeService.cs~RFad3f333.TMP" />
+    <None Remove="Service\Implement\TransactionService.cs~RF2fba7a5b.TMP" />
     <None Remove="Service\Interface\IIngredientCategoryService.cs~RF1a0b8773.TMP" />
   </ItemGroup>
 

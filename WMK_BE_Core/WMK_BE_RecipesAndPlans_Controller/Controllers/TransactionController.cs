@@ -35,7 +35,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		//
 		[HttpPost("create-new")]
-		[Authorize]
+		//[Authorize]
 		public async Task<IActionResult> UpdateTransactionListForOrder([FromBody] CreatePaymentRequest request)
 		{
 			var result = await _transactionService.CreateNewPaymentAsync(request);
@@ -45,10 +45,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		//refund
 		[HttpPost("refund-zalopay")]
-		[Authorize]
-		public async Task<IActionResult> RefundZaloPay([FromBody] CreatePaymentRequest request)
+		//[Authorize]
+		public async Task<IActionResult> RefundZaloPay([FromBody] RefundZaloPayRequest request)
 		{
-			var result = await _transactionService.CreateNewPaymentAsync(request);
+			var result = await _transactionService.RefundTransactionAsync(request);
 			return StatusCode(result.StatusCode , result);
 		}
 

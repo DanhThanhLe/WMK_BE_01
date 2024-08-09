@@ -191,6 +191,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
             builder.Services.AddScoped<IRecipeIngredientOrderDetailService, RecipeIngredientOrderDetailService>();
             builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.Configure<ZaloPaySettings>(builder.Configuration.GetSection("ZaloPayAPI"));
 
             var app = builder.Build();
 

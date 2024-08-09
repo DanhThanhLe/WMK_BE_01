@@ -15,7 +15,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 		UnShipped = 4,
 		Refund = 5,
 		Canceled = 6,
-		PendingRefund = 7
 	}
 	public static class OrderStatusHelper
 	{

@@ -785,7 +785,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist != null )
 			{
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
-				if ( userExist != null && userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin )
+				//chỉ admin và manager mới được xóa luôn
+				if ( userExist != null && (userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin 
+										|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Manager ))
 				{
 					//delete
 					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());
@@ -1015,8 +1017,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Recipe not exist!";
 					return result;
 				}
-				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()) 
-																		&& x.CreatedBy.Equals(recipeExist.CreatedBy));
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim())
+																		&& x.Id != recipeExist.Id);
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
@@ -1025,9 +1027,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				_mapper.Map(recipe , recipeExist);
-				recipeExist.UpdatedAt = DateTime.UtcNow;
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
-				recipeExist.UpdatedBy = updatedBy;
 				if ( recipeExist.ProcessStatus == ProcessStatus.Processing
 				|| recipeExist.ProcessStatus == ProcessStatus.Denied
 				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
