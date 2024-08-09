@@ -152,17 +152,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					Guid.TryParse(item.CreatedBy , out idConvert);
 					item.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
 				}
-				//tim ten cho approvedBy
-				if ( item.ApprovedBy != null )
-				{
-					Guid.TryParse(item.ApprovedBy , out idConvert);
-					item.ApprovedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				}
-				if ( item.UpdatedBy != null )
-				{
-					Guid.TryParse(item.UpdatedBy , out idConvert);
-					item.UpdatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				}
 			}
 			//user exist by customer
 			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId);
@@ -178,7 +167,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//}
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
-			result.Data = recipesResponse;
+			result.Data = recipesResponse.OrderBy(o => o.Name).ToList();
 			
 			//await _redisService.SetValueAsync(redisKey , recipesResponse , TimeSpan.FromDays(3));
 			return result;
@@ -374,16 +363,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( userName != null )
 						{
 							item.CreatedBy = userName;
-						}
-						//tim ten cho approvedBy
-						if ( item.ApprovedBy != null )
-						{
-							Guid.TryParse(item.ApprovedBy , out idConvert);
-							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-						}
-						if ( userName != null )
-						{
-							item.ApprovedBy = userName;
 						}
 					}
 					result.StatusCode = 200;

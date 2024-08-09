@@ -83,7 +83,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				result.StatusCode = 200;
 				result.Message = "OrderGroup list";
-				result.Data = orderGroupsResponse;
+				result.Data = orderGroupsResponse.OrderBy(og => og.Location).ToList();
 				return result;
 			}
 			result.StatusCode = 404;

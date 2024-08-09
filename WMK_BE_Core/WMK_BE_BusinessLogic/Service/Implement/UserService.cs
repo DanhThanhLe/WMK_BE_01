@@ -97,7 +97,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 							result.StatusCode = 200;
 							result.Message = "Get users success (" + usersModel.Count() + ")";
-							result.Data = usersModel;
+							result.Data = usersModel.OrderBy(u => u.Email).ToList();
 						}
 						else
 						{

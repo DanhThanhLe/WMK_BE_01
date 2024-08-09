@@ -113,7 +113,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				result.StatusCode = 200;
 				result.Message = "Get weekly plan success (" + weeklyPlanResponse.Count() + ")";
-				result.Data = weeklyPlanResponse;
+				result.Data = weeklyPlanResponse.OrderBy(wp => wp.ProcessStatus).ToList();
 				return result;
 			}
 			result.StatusCode = 404;
@@ -400,14 +400,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				foreach ( var item in returnResult )
 				{
 					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
-					if ( item.UpdatedBy != null )
-					{
-						var userUpdate = await _unitOfWork.UserRepository.GetByIdAsync(item.UpdatedBy.ToString());
-					}
-					if ( item.ApprovedBy != null )
-					{
-						var userApprove = await _unitOfWork.UserRepository.GetByIdAsync(item.ApprovedBy.ToString());
-					}
 					if ( userCreate != null )
 					{
 						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
@@ -686,16 +678,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( userName != null )
 						{
 							item.CreatedBy = userName;
-						}
-						//tim ten cho approvedBy
-						if ( item.ApprovedBy != null )
-						{
-							Guid.TryParse(item.ApprovedBy , out idConvert);
-							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-						}
-						if ( userName != null )
-						{
-							item.ApprovedBy = userName;
 						}
 					}
 					result.StatusCode = 200;

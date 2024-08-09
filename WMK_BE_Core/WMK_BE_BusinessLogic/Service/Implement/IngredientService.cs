@@ -315,7 +315,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			result.StatusCode = 200;
 			result.Message = "Ingredient list get success (" + ingredientsResponse.Count + ")";
-			result.Data = ingredientsResponse;
+			result.Data = ingredientsResponse.OrderBy(i => i.Name).ToList();
 			return result;
 		}
 		public async Task<ResponseObject<List<IngredientResponse>>> GetIngredientsByNameAsync(string name)
@@ -348,16 +348,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( userName != null )
 						{
 							item.CreatedBy = userName;
-						}
-						//tim ten cho approvedBy
-						if ( item.UpdatedBy != null )
-						{
-							Guid.TryParse(item.UpdatedBy , out idConvert);
-							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-						}
-						if ( userName != null )
-						{
-							item.UpdatedBy = userName;
 						}
 					}
 					result.StatusCode = 200;

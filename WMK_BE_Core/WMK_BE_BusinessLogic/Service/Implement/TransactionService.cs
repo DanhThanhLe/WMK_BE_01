@@ -333,6 +333,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 								result.StatusCode = 200;
 								result.Message = "Refund successful";
+								result.Data = _mapper.Map<RefundZaloPayResponse>(refundTrans);
 								return result;
 							}
 							else

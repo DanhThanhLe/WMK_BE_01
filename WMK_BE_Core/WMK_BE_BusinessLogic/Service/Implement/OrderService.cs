@@ -91,7 +91,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				result.StatusCode = 200;
 				result.Message = "Get order list success (" + ordersResponse.Count() + ")";
-				result.Data = ordersResponse;
+				result.Data = ordersResponse.OrderBy(o => o.OrderDate).ToList();
 				return result;
 			}
 			else

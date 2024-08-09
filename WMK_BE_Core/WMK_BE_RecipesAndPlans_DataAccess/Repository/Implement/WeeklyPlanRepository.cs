@@ -19,30 +19,26 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 
 
 
-		public override Task<List<WeeklyPlan>> GetAllAsync()
+		public override async Task<List<WeeklyPlan>> GetAllAsync()
 		{
-			return _dbSet
-				.Include(wp => wp.RecipePLans)
-					.ThenInclude(rp => rp.Recipe)
-						.ThenInclude(r => r.RecipeCategories)
-					.ThenInclude(rc => rc.Category) // Include Category through RecipeCategory
-				.Include(wp => wp.RecipePLans)
-					.ThenInclude(rp => rp.Recipe)
-						.ThenInclude(r => r.RecipeIngredients)
-							.ThenInclude(ri => ri.Ingredient)
-								.ThenInclude(i => i.IngredientNutrient)
-				.Include(wp => wp.RecipePLans)
-					.ThenInclude(rp => rp.Recipe)
-						.ThenInclude(r => r.RecipeIngredients)
-							.ThenInclude(ri => ri.Ingredient)
-								.ThenInclude(i => i.IngredientCategory)
-				.Include(wp => wp.RecipePLans)
-					.ThenInclude(rp => rp.Recipe)
-						.ThenInclude(r => r.RecipeNutrient)
-				.Include(wp => wp.RecipePLans)
-					.ThenInclude(rp => rp.Recipe)
-						.ThenInclude(r => r.RecipeSteps)
-				.ToListAsync();
+			IQueryable<WeeklyPlan> query = _dbSet;
+			query = query
+			.Include(wp => wp.RecipePLans)
+				.ThenInclude(rp => rp.Recipe)
+					.ThenInclude(r => r.RecipeCategories)
+						.ThenInclude(rc => rc.Category)
+			.Include(wp => wp.RecipePLans)
+				.ThenInclude(rp => rp.Recipe)
+					.ThenInclude(r => r.RecipeIngredients)
+						.ThenInclude(ri => ri.Ingredient)
+							.ThenInclude(i => i.IngredientNutrient)
+			.Include(wp => wp.RecipePLans)
+				.ThenInclude(rp => rp.Recipe)
+					.ThenInclude(r => r.RecipeNutrient)
+			.Include(wp => wp.RecipePLans)
+				.ThenInclude(rp => rp.Recipe)
+					.ThenInclude(r => r.RecipeSteps);
+			return await query.ToListAsync();
 		}
 		public override async Task<WeeklyPlan?> GetByIdAsync(string id)
 		{

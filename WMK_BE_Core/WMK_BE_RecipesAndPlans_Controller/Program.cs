@@ -35,7 +35,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			//Add DBContext
 			builder.Services.AddDbContext<WeMealKitContext>(ops =>
 			{
-				ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect") ,
+				ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect"),
 					b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
 			}, ServiceLifetime.Transient);
 
