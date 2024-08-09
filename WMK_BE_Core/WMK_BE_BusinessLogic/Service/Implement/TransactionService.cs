@@ -274,7 +274,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<RefundZaloPayResponse>();
 
 			// Check if the transaction exists and if its status is pending
-			var transExist =  _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction.ToString()).FirstOrDefault();
+			var transExist = _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction.ToString()).FirstOrDefault();
 			if ( transExist != null && transExist.Status == TransactionStatus.RefundZaloPayPending )
 			{
 				// Generate current timestamp
@@ -313,7 +313,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							{
 								Amount = transExist.Amount ,
 								//Notice = refundResponse.ReturnMessage + ": " + refundResponse.SubReturnMessage ,
-								Status = TransactionStatus.RefundZaloPayDone,
+								Status = TransactionStatus.RefundZaloPayDone ,
 								OrderId = request.IdOrder ,
 								TransactionDate = DateTime.UtcNow ,
 								TransactionType = TransactionType.ZaloPay ,
@@ -327,17 +327,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							{
 								// Change order status to refunded
 								var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(request.IdOrder.ToString());
-								if ( orderExist != null )
+								if ( orderExist != null && orderExist.Status == OrderStatus.Canceled )
 								{
 									orderExist.Status = OrderStatus.Refund;
 									newTrans.Order = orderExist;
 									orderExist.Transactions.Add(newTrans);
 									await _unitOfWork.CompleteAsync();
+									result.StatusCode = 200;
+									result.Message = "Refund successful";
+									result.Data = _mapper.Map<RefundZaloPayResponse>(refundResponse);
+									return result;
 								}
-
-								result.StatusCode = 200;
-								result.Message = "Refund successful";
-								result.Data = _mapper.Map<RefundZaloPayResponse>(refundResponse);
+								result.StatusCode = 400;
+								result.Message = "Refund unsuccessful! Order not in cancel status!";
 								return result;
 							}
 							else
