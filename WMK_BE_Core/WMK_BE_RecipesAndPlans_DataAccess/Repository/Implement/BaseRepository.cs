@@ -49,20 +49,33 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		{
 			try
 			{
-				Guid guidId;
-				if ( !Guid.TryParse(id , out guidId) )
+				// Nếu id là null hoặc trống, trả về null
+				if ( string.IsNullOrEmpty(id) )
 				{
 					return null;
 				}
-				var entity = await _dbSet.FindAsync(guidId);
-				return entity;
+
+				Guid guidId;
+				if ( Guid.TryParse(id , out guidId) )
+				{
+					// Nếu id là Guid, tìm kiếm theo Guid
+					var entity = await _dbSet.FindAsync(guidId);
+					return entity;
+				}
+				else
+				{
+					// Nếu id không phải Guid, tìm kiếm theo string
+					var entity = await _dbSet.FindAsync(id);
+					return entity;
+				}
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine($"Error occurred in GetAsync: {ex}");
+				Console.WriteLine($"Error occurred in GetByIdAsync: {ex}");
 				return null;
 			}
 		}
+
 		public virtual async Task<bool> CreateAsync(T entity)
 		{
 			try

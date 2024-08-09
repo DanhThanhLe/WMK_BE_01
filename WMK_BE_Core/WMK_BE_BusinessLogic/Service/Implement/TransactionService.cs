@@ -17,6 +17,7 @@ using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.TransactionModel;
 using System.Data;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -273,8 +274,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<RefundZaloPayResponse>();
 
 			// Check if the transaction exists and if its status is pending
-			var transExist = await _unitOfWork.TransactionRepository.GetByIdAsync(request.IdTransaction.ToString());
-			if ( transExist != null && transExist.Status == TransactionStatus.PendingZaloPay )
+			var transExist =  _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction.ToString()).FirstOrDefault();
+			if ( transExist != null && transExist.Status == TransactionStatus.RefundZaloPayPending )
 			{
 				// Generate current timestamp
 				var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
@@ -287,7 +288,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var param = new Dictionary<string , string>
 								{
 									{ "app_id", _zaloPayOptions.Value.AppId },
-									{ "m_refund_id", request.MRefundId },
+									{ "m_refund_id", Guid.NewGuid().ToString("N") },//N là bỏ dấu -
 									{ "zp_trans_id", request.ZpTransId },
 									{ "amount", transExist.Amount.ToString() },
 									{ "description", request.Description },
@@ -305,7 +306,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						var jsonResponse = await response.Content.ReadAsStringAsync();
 						var refundResponse = JsonConvert.DeserializeObject<RefundZaloPayResponse>(jsonResponse);
 
-						if ( refundResponse != null && refundResponse.ReturnCode == 1 )
+						if ( refundResponse != null )
 						{
 							// Create a new transaction for the refund
 							var refundTrans = new CreatePaymentRequest
@@ -315,7 +316,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								Status = TransactionStatus.RefundZaloPayDone,
 								OrderId = request.IdOrder ,
 								TransactionDate = DateTime.UtcNow ,
-								TransactionType = request.TransactionType ,
+								TransactionType = TransactionType.ZaloPay ,
 							};
 
 							var newTrans = _mapper.Map<Transaction>(refundTrans);

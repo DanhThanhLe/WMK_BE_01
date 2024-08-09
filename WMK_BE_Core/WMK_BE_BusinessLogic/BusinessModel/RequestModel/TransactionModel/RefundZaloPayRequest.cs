@@ -11,8 +11,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.TransactionModel
 	{
         public Guid IdOrder { get; set; }
         public Guid IdTransaction { get; set; }
-        public TransactionType TransactionType { get; set; }
-        public string MRefundId { get; set; }
+        //public TransactionType TransactionType { get; set; }
+        //public string MRefundId { get; set; }
 		public string ZpTransId { get; set; }
 		public string Description { get; set; }
 
