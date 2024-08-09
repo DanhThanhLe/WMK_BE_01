@@ -320,6 +320,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							};
 
 							var newTrans = _mapper.Map<Transaction>(refundTrans);
+							newTrans.Id = Guid.NewGuid().ToString();
 							var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTrans);
 
 							if ( createResult )
