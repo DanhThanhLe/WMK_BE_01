@@ -159,11 +159,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 
 				//tren moblie chi can get trans moi nhat
-				foreach ( var item in foundList )
-				{
-					if ( item.Transactions != null && item.Transactions.Count > 1 )
-						item.Transactions = item.Transactions.OrderByDescending(x => x.TransactionDate).Take(1).ToList();
-				}
+				//foreach ( var item in foundList )
+				//{
+				//	if ( item.Transaction != null && item.Transaction.Count > 1 )
+				//		item.Transaction = item.Transaction.OrderByDescending(x => x.TransactionDate).Take(1).ToList();
+				//}
 				result.StatusCode = 200;
 				result.Message = "Ok, list order " + foundList.Count();
 				var returnList = _mapper.Map<List<OrderResponse>>(foundList);
@@ -445,7 +445,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//	//cập nhập lại transaction đã thanh toán rồi
 				//	foreach ( var transaction in orderExist.Transactions )
 				//	{
-						
+
 				//		if ( transaction.Type != TransactionType.COD )
 				//		{
 				//			if ( transaction.Status != TransactionStatus.Cancel )

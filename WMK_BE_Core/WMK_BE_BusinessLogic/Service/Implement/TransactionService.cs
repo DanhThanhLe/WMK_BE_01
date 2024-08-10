@@ -159,7 +159,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
 				newTransaction.TransactionDate = DateTime.UtcNow;
 				newTransaction.Type = TransactionType.ZaloPay;
-				newTransaction.Status = TransactionStatus.PendingZaloPay;
+				newTransaction.Status = TransactionStatus.Pending;
 				var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
 				if ( !createResult )
 				{
@@ -322,7 +322,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							var newTrans = _mapper.Map<Transaction>(refundTrans);
 							newTrans.Id = Guid.NewGuid().ToString();
 							var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTrans);
-
 							if ( createResult )
 							{
 								// Change order status to refunded
@@ -331,7 +330,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								{
 									orderExist.Status = OrderStatus.Refund;
 									newTrans.Order = orderExist;
-									orderExist.Transactions.Add(newTrans);
+									orderExist.Transaction = newTrans;
 									await _unitOfWork.CompleteAsync();
 									result.StatusCode = 200;
 									result.Message = "Refund successful";

@@ -675,7 +675,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				|| recipeExist.ProcessStatus == ProcessStatus.Denied
 				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
 			{
-				recipeExist.BaseStatus = BaseStatus.UnAvailable;
+				recipeExist.BaseStatus = BaseStatus.Available;
 			}
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
