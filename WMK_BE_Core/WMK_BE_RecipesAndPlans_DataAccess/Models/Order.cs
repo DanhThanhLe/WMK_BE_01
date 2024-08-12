@@ -24,7 +24,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
         public int OrderCode { get; set; }
         public string? Note { get; set; }
-        public string? message { get; set; }
+        public string? Message { get; set; }
 		public string Address { get; set; } = string.Empty;
 		public string? Img { get; set; }
 		public DateTime ShipDate { get; set; }
@@ -41,11 +41,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public virtual User User { get; set; }
 		public virtual OrderGroup? OrderGroup { get; set; }
 		public virtual WeeklyPlan WeeklyPlan { get; set; }
-		public virtual Transaction Transaction { get; set; }
+		public virtual Transaction? Transaction { get; set; }
 
 		//list
 		public List<Feedback> FeedBacks { get; set; }
-		public List<OrderDetail> OrderDetails { get; set; }
+		public virtual List<OrderDetail> OrderDetails { get; set; }
 
         public Order()
         {

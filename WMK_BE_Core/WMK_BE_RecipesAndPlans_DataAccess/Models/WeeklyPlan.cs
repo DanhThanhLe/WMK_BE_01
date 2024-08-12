@@ -30,7 +30,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public ProcessStatus ProcessStatus { get; set; }
 
         //reference
-        public List<Order> Orders { get; set; }
+        public virtual List<Order> Orders { get; set; }
 
         public virtual List<RecipePLan> RecipePLans { get; set; }
 

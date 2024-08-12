@@ -80,7 +80,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		{
 			try
 			{
-				_dbSet.Attach(entity);
 				await _dbSet.AddAsync(entity);
 				return true;
 			}
@@ -94,7 +93,6 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 		{
 			try
 			{
-				_dbSet.Attach(entity);
 				_dbSet.Update(entity);
 				return Task.FromResult(true);
 			}

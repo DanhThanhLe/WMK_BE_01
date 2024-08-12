@@ -211,6 +211,8 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			using ( var scope = app.Services.CreateScope() )
 			{
 				var context = scope.ServiceProvider.GetRequiredService<WeMealKitContext>();
+				// Apply any pending migrations
+				context.Database.Migrate();
 				context.SeedData();
 			}
 			app.Run();

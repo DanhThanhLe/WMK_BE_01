@@ -202,8 +202,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
 				newWeeklyPlan.CreateAt = DateTime.UtcNow;
 				newWeeklyPlan.CreatedBy = createdBy;
-				//check size of recipe
-				if ( model.recipeIds.Count < 21 || model.recipeIds.Count > 200 )
+				//check limit of plan
+				var limitNumber = 0;
+				foreach(var recipe in model.recipeIds )
+				{
+					limitNumber += recipe.Quantity;
+				}
+				if ( limitNumber < 21 || limitNumber > 200 )
 				{
 					result.StatusCode = 400;
 					result.Message = "Must be 21 - 200 portion for each week";

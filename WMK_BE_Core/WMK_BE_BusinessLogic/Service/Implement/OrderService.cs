@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -239,26 +240,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn. Nhiều nhất 200 phần/món";
 				return result;
 			}
-			//Tinh so luong trong recipeList
-
-			//tao order code
-			Random random = new Random();
-			int minValue = 10000000;
-			int maxValue = 99999999;
-			Order checkOrderCode = new Order();
-			int randomOrderCode = 0;
-			//do//check toi khi nao order code ko trung thi thoi
-			//{
-			randomOrderCode = random.Next(minValue , maxValue + 1);
-			//checkOrderCode = _unitOfWork.OrderRepository.Get(x => x.OrderCode == randomOrderCode).FirstOrDefault();
-			//} while (checkOrderCode.Id.ToString() != null);
-			//tao order code
-			_unitOfWork.OrderRepository.DetachEntity(checkOrderCode);
-
-			//chua tinh duoc total price (dự kiến tính bằng cách nhân quantity với price của từng sản phẩm trong listRecipe nếu là custom hoặc là lấy giá của weeklyPlan nếu là formal
+			// Tạo mã đơn hàng duy nhất
+			var randomOrderCode = await GenerateUniqueOrderCodeAsync();
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.OrderCode = randomOrderCode;
-			//newOrder.TotalPrice = model.TotalPrice * 1000;
 			newOrder.OrderDate = DateTime.UtcNow;
 			switch ( DateTime.UtcNow.DayOfWeek )
 			{
@@ -285,7 +270,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					break;
 			}
 			newOrder.Status = OrderStatus.Processing;
-
 			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 			if ( createResult )//bat dau add cac recipeId thanh cac OrderDetail thong qua RecipeList
 			{
@@ -312,7 +296,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							result.Data = newOrder.Id;
 							return result;
 						}
-						if ( createTransactionResult.StatusCode != 200 )//code cu la (createTransaction != null)
+						if ( createTransactionResult != null && createTransactionResult.StatusCode != 200 )//code cu la (createTransaction != null)
 						{
 							// Delete the order if transaction creation fails
 							await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
@@ -331,10 +315,28 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 			result.StatusCode = 500;
-			result.Message = "OK. Create order not success";
+			result.Message = "Create order not success!";
 			return result;
 		}
+		// Hàm để tạo mã đơn hàng ngẫu nhiên và đảm bảo tính duy nhất
+		private async Task<int> GenerateUniqueOrderCodeAsync()
+		{
+			Random random = new Random();
+			int minValue = 10000000;
+			int maxValue = 99999999;
+			int randomOrderCode;
+			bool isUnique;
 
+			do
+			{
+				randomOrderCode = random.Next(minValue , maxValue + 1);
+				// Kiểm tra xem mã đơn hàng đã tồn tại trong cơ sở dữ liệu chưa
+				isUnique = !await _unitOfWork.OrderRepository.Get(x => x.OrderCode == randomOrderCode).AnyAsync();
+			}
+			while ( !isUnique ); // Lặp lại cho đến khi tìm thấy mã đơn hàng duy nhất
+
+			return randomOrderCode;
+		}
 		#endregion
 
 		#region update order
