@@ -207,6 +207,12 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			app.UseAuthorization();
 			app.MapControllers();
 
+
+			using ( var scope = app.Services.CreateScope() )
+			{
+				var context = scope.ServiceProvider.GetRequiredService<WeMealKitContext>();
+				context.SeedData();
+			}
 			app.Run();
 		}
 	}

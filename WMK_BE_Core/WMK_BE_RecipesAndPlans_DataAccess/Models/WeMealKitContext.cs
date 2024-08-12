@@ -36,7 +36,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		{
 			base.OnModelCreating(modelBuilder);
 
-			SeedData();
+			//SeedData();
 		}
 		public void SeedData()
 		{
