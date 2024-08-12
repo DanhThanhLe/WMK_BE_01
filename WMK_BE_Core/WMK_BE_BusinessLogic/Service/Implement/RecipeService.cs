@@ -980,12 +980,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//thành công
 						result.StatusCode = 200;
 						result.Message = "update recipe nutrient successfully";
-						return result;
 					}
 				}
 			}
-			result.StatusCode = 404;
-			result.Message = "Don't have recipe ingredient list!";
+			//trường hợp này có thể ingredient không có trong recipe nên vẫn trả về true
+			result.StatusCode = 200;
 			return result;
 		}
 
