@@ -142,6 +142,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Not have Any recipe!";
+				result.Data = [];
 				return result;
 			}
 			foreach ( var item in recipesResponse )
