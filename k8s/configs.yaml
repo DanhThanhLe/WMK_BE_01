@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: wemealkit
-        image: daikmasa/wemealkit:9b78145
+        image: daikmasa/wemealkit:5952ffb
         ports:
         - containerPort: 8080
         imagePullPolicy: Always  # Set imagePullPolicy to Always to ensure Kubernetes always pulls the latest image
