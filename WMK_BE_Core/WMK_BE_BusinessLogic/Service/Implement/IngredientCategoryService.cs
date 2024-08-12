@@ -140,15 +140,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			//check co ton tai trong db khong
 			var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString()); //tim trung ten
-			var checkDuplicateName = _unitOfWork.IngredientCategoryRepository.Get(x => x.Name.Trim().ToLower().Equals(request.Name.Trim().ToLower())).FirstOrDefault();
-			if ( checkDuplicateName != null )
-			{
-				result.StatusCode = 500;
-				result.Message = "Name category have exist!";
-				return result;
-			}
 			if ( found != null )
 			{
+				var checkDuplicateName = _unitOfWork.IngredientCategoryRepository.Get(x => x.Name.Trim().ToLower().Equals(request.Name.Trim().ToLower())
+																						&& x.Id != found.Id).FirstOrDefault();
+				if ( checkDuplicateName != null )
+				{
+					result.StatusCode = 500;
+					result.Message = "Name category have exist!";
+					return result;
+				}
 				//detach entity if need
 				//_unitOfWork.IngredientCategoryRepository.DetachEntity(found);
 
@@ -236,7 +237,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//check exist
 			var ingredientCategoryExist = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString());
 
-			if ( ingredientCategoryExist != null && request.Status == BaseStatus.Available)
+			if ( ingredientCategoryExist != null && request.Status == BaseStatus.Available )
 			{
 				ingredientCategoryExist.Status = request.Status;
 				var changeStatusResult = await _unitOfWork.IngredientCategoryRepository.UpdateAsync(ingredientCategoryExist);
