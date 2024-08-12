@@ -156,7 +156,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				var newTransaction = _mapper.Map<Transaction>(model);
-				newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
+				newTransaction.Id = Guid.NewGuid();//code nay de tao moi id cho transaction - luu y khi sua code
 				newTransaction.TransactionDate = DateTime.UtcNow;
 				newTransaction.Type = TransactionType.ZaloPay;
 				newTransaction.Status = TransactionStatus.Pending;
@@ -240,7 +240,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				var newTransaction = _mapper.Map<Transaction>(request);
-				newTransaction.Id = Guid.NewGuid().ToString();//code nay de tao moi id cho transaction - luu y khi sua code
+				newTransaction.Id = Guid.NewGuid();//code nay de tao moi id cho transaction - luu y khi sua code
 				newTransaction.TransactionDate = DateTime.UtcNow;
 				newTransaction.Type = request.TransactionType;
 				newTransaction.Status = request.Status == null ? TransactionStatus.Pending : (TransactionStatus)request.Status;
@@ -274,7 +274,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<RefundZaloPayResponse>();
 
 			// Check if the transaction exists and if its status is pending
-			var transExist = _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction.ToString()).FirstOrDefault();
+			var transExist = _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction).FirstOrDefault();
 			if ( transExist != null && transExist.Status == TransactionStatus.RefundZaloPayPending )
 			{
 				// Generate current timestamp
@@ -320,7 +320,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							};
 
 							var newTrans = _mapper.Map<Transaction>(refundTrans);
-							newTrans.Id = Guid.NewGuid().ToString();
+							newTrans.Id = Guid.NewGuid();
 							var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTrans);
 							if ( createResult )
 							{

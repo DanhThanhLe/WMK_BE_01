@@ -85,6 +85,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
+			var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
+			if ( duplicateName != null && duplicateName.Status == BaseStatus.Available )
+			{
+				result.StatusCode = 400;
+				result.Message = "Name ingredient existed!";
+				return result;
+			}
 			var checkIngredientCategory = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(ingredient.IngredientCategoryId.ToString());
 			if ( checkIngredientCategory == null )
 			{

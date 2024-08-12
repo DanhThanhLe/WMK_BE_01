@@ -219,12 +219,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
 				if ( !createResult )
 				{
+					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
+					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 500;
 					result.Message = "Create weekly plan unsuccessfully!";
 					return result;
 				}
 				await _unitOfWork.CompleteAsync();
-				_unitOfWork.WeeklyPlanRepository.DetachEntity(newWeeklyPlan);
+				//_unitOfWork.WeeklyPlanRepository.DetachEntity(newWeeklyPlan);
 				//create list recipePlan
 				var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(newWeeklyPlan.Id , model.recipeIds);
 				if ( createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null )
@@ -240,8 +242,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						result.Data = _mapper.Map<WeeklyPlanResponseModel>(newWeeklyPlan);
 						return result;
 					}
+					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
+					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 500;
-					result.Message = "Sign recipe plan with weekly plan unsuccess!";
+					result.Message = "Create weekly plan unsuccess!";
 					return result;
 				}
 				else

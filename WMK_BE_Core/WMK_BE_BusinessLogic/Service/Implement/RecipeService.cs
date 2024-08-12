@@ -404,6 +404,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Duplicate name: " + checkDuplicateName.Name;
 					return result;
 				}
+				//check serving size phải 1-10 người
+				if(recipe.ServingSize < 1 || recipe.ServingSize > 10 )
+				{
+					result.StatusCode = 400;
+					result.Message = "Serving size must be 1 - 10 people";
+					return result;
+				}
 				//mapper
 				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
 				newRecipe.CreatedAt = DateTime.UtcNow;

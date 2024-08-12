@@ -14,7 +14,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 	public class Transaction
 	{
 		[Key]
-		public string Id { get; set; }
+		public Guid Id { get; set; }
 		public Guid OrderId { get; set; }
 		public TransactionType Type { get; set; } //refield
 

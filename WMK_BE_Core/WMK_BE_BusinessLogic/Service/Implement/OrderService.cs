@@ -293,7 +293,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							//newOrder.Transactions.Add(createTransaction.Data);
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
-							result.Message = "OK. Create order success";
+							result.Message = "Create order success";
 							result.Data = newOrder.Id;
 							return result;
 						}
@@ -315,6 +315,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 			}
+			await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
+			await _unitOfWork.CompleteAsync();
 			result.StatusCode = 500;
 			result.Message = "Create order not success!";
 			return result;
