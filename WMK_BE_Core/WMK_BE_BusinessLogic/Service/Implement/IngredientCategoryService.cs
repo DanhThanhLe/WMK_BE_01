@@ -237,7 +237,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//check exist
 			var ingredientCategoryExist = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString());
 
-			if ( ingredientCategoryExist != null && request.Status == BaseStatus.Available )
+			if ( ingredientCategoryExist != null )
 			{
 				ingredientCategoryExist.Status = request.Status;
 				var changeStatusResult = await _unitOfWork.IngredientCategoryRepository.UpdateAsync(ingredientCategoryExist);
