@@ -119,7 +119,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Error at create. Say from CreateNew - IngredientCategoryService";
+				result.Message = "Create ingredient category unsuccess!";
 				return result;
 			}
 		}
@@ -140,7 +140,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			//check co ton tai trong db khong
 			var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString()); //tim trung ten
-			if ( found != null && found.Status == BaseStatus.Available && found.Name.Trim().ToLower().Equals(request.Name?.Trim().ToLower()) )
+			var checkDuplicateName = _unitOfWork.IngredientCategoryRepository.Get(x => x.Name.Trim().ToLower().Equals(request.Name.Trim().ToLower())).FirstOrDefault();
+			if ( checkDuplicateName != null )
 			{
 				result.StatusCode = 500;
 				result.Message = "Name category have exist!";
@@ -158,7 +159,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Update ID " + id + " success.";
+					result.Message = "Update ingredient category success.";
 					return result;
 				}
 				else

@@ -208,7 +208,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				//check trung ten
 				var currentList = await _unitOfWork.CategoryRepository.GetAllAsync();
-				var checkDuplicateNameResult = currentList.FirstOrDefault(x => x.Name.Trim() == model.Name.Trim() && x.Type.Trim() == model.Type.Trim());
+				var checkDuplicateNameResult = currentList.FirstOrDefault(x => x.Name.Trim().ToLower() == model.Name.Trim().ToLower() && x.Type.Trim() == model.Type.Trim());
 				if ( checkDuplicateNameResult != null )
 				{
 					result.StatusCode = 400;
