@@ -304,6 +304,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Not have any ingredient!";
+				result.Data = [];
 				return result;
 			}
 			//user exist by customer

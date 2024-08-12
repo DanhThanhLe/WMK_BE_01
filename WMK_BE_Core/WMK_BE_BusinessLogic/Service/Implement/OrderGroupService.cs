@@ -88,6 +88,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			result.StatusCode = 404;
 			result.Message = "Dont have order group!";
+			result.Data = orderGroupsResponse ?? [];
 			return result;
 		}
 		public async Task<ResponseObject<List<OrderGroupsResponse>>> GetOrderGroupsByLocation(string location)

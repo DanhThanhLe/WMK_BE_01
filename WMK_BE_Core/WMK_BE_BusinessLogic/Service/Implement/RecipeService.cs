@@ -167,7 +167,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//}
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
-			result.Data = recipesResponse.OrderBy(o => o.Name).ToList();
+			result.Data = recipesResponse.OrderBy(o => o.Name).ToList() ?? [];
 			
 			//await _redisService.SetValueAsync(redisKey , recipesResponse , TimeSpan.FromDays(3));
 			return result;

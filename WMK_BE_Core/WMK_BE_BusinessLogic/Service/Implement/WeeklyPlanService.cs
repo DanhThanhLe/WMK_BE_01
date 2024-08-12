@@ -118,6 +118,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			result.StatusCode = 404;
 			result.Message = "Don't have weekly pLan list";
+			result.Data = [];
 			return result;
 		}
 		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetWeeklyPlansByTitle(string title)

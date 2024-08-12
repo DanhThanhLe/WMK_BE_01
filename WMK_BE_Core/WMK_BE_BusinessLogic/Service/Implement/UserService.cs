@@ -103,6 +103,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						{
 							result.StatusCode = 404;
 							result.Message = "User not found!";
+							result.Data = [];
 						}
 					}
 					else

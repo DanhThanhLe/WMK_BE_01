@@ -73,6 +73,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Don't have Categories!";
+				result.Data = [];
 				return result;
 			}
 		}

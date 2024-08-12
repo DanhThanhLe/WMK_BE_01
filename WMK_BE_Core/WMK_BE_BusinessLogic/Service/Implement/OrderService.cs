@@ -99,6 +99,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Don't have Order!";
+				result.Data = [];
 				return result;
 			}
 		}

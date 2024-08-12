@@ -69,7 +69,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 					Email = "staff01@gmail.com" ,
 					UserName = "staff" ,
 					PasswordHash = GetSignature256("Staff123@") ,
-					FirstName = "Staff01" ,
+					FirstName = "Staff" ,
 					LastName = "No 1" ,
 					Gender = Gender.Male ,
 					Phone = "" ,
@@ -89,11 +89,31 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 					Email = "manager01@gmail.com" ,
 					UserName = "manager" ,
 					PasswordHash = GetSignature256("Manager123@") ,
-					FirstName = "Manager01" ,
+					FirstName = "Manager" ,
 					LastName = "No 1" ,
 					Gender = Gender.Male ,
 					Phone = "" ,
 					Role = Role.Manager ,
+					AccessFailedCount = 0 ,
+					Status = BaseStatus.Available ,
+					EmailConfirm = EmailConfirm.Confirm ,
+				});
+			}
+
+			// Check if the shipper user already exists
+			if ( !Users.Any(u => u.Email == "shipper01@gmail.com") )
+			{
+				Users.Add(new User
+				{
+					Id = Guid.NewGuid() ,
+					Email = "shipper01@gmail.com" ,
+					UserName = "shipper" ,
+					PasswordHash = GetSignature256("Shipper123@") ,
+					FirstName = "Shipper" ,
+					LastName = "No 1" ,
+					Gender = Gender.Male ,
+					Phone = "" ,
+					Role = Role.Shipper ,
 					AccessFailedCount = 0 ,
 					Status = BaseStatus.Available ,
 					EmailConfirm = EmailConfirm.Confirm ,

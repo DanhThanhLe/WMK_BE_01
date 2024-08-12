@@ -54,7 +54,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			result.StatusCode = 200;
 			result.Message = "Ingredient category list get success (" + ingredientCategoriesResponse.Count + ")";
-			result.Data = ingredientCategoriesResponse;
+			result.Data = ingredientCategoriesResponse ?? [];
 			return result;
 		}
 		public async Task<ResponseObject<List<IngredientCategoryResponse>>> GetByNameAsync(string name)
