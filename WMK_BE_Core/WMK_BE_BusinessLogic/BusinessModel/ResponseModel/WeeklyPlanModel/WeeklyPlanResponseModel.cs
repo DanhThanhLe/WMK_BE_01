@@ -20,6 +20,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel
         public string? Description { set; get; } = string.Empty;
 		public DateTime CreateAt { get; set; }
 		public string CreatedBy { get; set; } = string.Empty;
+		public string BaseStatus { get; set; } = string.Empty;
 		public string ProcessStatus { get; set; } = string.Empty;
 		public List<RecipePlanResponseInWeeklyPlan> RecipePLans { get; set; }
 

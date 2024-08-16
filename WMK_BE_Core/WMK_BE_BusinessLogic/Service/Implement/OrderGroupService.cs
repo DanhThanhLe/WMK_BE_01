@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Accord.MachineLearning;
+using Accord.Math.Distances;
+using AutoMapper;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -15,6 +17,7 @@ using WMK_BE_BusinessLogic.ValidationModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 using WMK_BE_RecipesAndPlans_DataAccess.Models;
 using WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface;
+using static Accord.MachineLearning.KMeansClusterCollection;
 
 namespace WMK_BE_BusinessLogic.Service.Implement
 {
@@ -137,7 +140,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model , string assignedBy)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -210,7 +212,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model , string id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -222,6 +223,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
+
 			//check new shipper
 			var shipperExist = await _unitOfWork.UserRepository.GetByIdAsync(model.ShipperId.ToString());
 			if ( shipperExist != null && shipperExist.Role != Role.Shipper )
@@ -239,11 +241,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(id.ToString());
 			if ( orderGroupExist != null )
 			{
-				var orderGroup = _mapper.Map(orderGroupExist , model);
+
+				//xóa đi shipper cũ 
+				var oldShipper = await _unitOfWork.UserRepository.GetByIdAsync(orderGroupExist.ShipperId.ToString());
+				if ( oldShipper != null )
+				{
+					oldShipper.OrderGroup = null;
+				}
+				var orderGroup = _mapper.Map(model , orderGroupExist);
 				var updateResult = await _unitOfWork.OrderGroupRepository.UpdateAsync(orderGroupExist);
 				if ( updateResult )
 				{
+					orderGroupExist.Status = BaseStatus.Available;
 					orderGroupExist.User = shipperExist;
+					shipperExist.OrderGroup = orderGroupExist;
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Update order group successfully.";
@@ -264,7 +275,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 
 		}
-
 		public async Task<ResponseObject<OrderGroupsResponse>> DeleteOrderGroupAsync(Guid id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -316,7 +326,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
 		public async Task<ResponseObject<OrderGroupsResponse>> ChangeStatusOrderGroupAsync(Guid id , ChangeStatusOrderGroupRequest model)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -357,78 +366,154 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#region Cluster
-		//radius tính bằng radius
 		public async Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync(ClusterOrderGroupRequest model)
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
+			//lấy các order có status đang là processing ra để gom cụm
+			//xác định số K để dùng thuật toán k-means - sử dụng số lượng order group đã có vì mỗi khi tạo order roup thì đã gán cho 1 shipper
+			//gán các điểm(order) vào mỗi cụm 
 
-			var orderGroups = await _unitOfWork.OrderGroupRepository.GetAllAsync();
-			var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+			//lấy ra các order có status đang processing
+			var orders = _unitOfWork.OrderRepository.Get(x => x.Status == OrderStatus.Processing).ToList();
+			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
 
-			if ( orders != null && orderGroups != null )
+			//gọi kmeans
+			var kmeans = new KMeans(orderGroups.Count , new SquareEuclidean());//SquareEuclidean được sử dụng để chỉ rằng chúng ta muốn tính
+																			   //khoảng cách bình phương giữa các điểm trong quá trình gom cụm
+
+			//lấy các cặp kinh độ, vĩ độ từ orders
+			var coordinates = orders.Select(o => new double[] { o.Longitude , o.Latitude }).ToArray();//trả về 1 mảng double[]
+			var clusters = kmeans.Learn(coordinates);
+
+			//lấy ra tâm cụm
+			var centroids = clusters.Centroids;
+
+			// Tạo một mảng để lưu chỉ số cụm của mỗi đơn hàng
+			var orderClusterIndices = new int[orders.Count];
+
+			// Xác định chỉ số cụm cho mỗi đơn hàng
+			for ( int i = 0; i < orders.Count; i++ )
 			{
-				var shippers = await _unitOfWork.UserRepository.GetAllAsync();
-				var shipperIds = shippers.Select(s => s.Id).ToList();
+				var order = orders[i];
+				var point = new double[] { order.Longitude , order.Latitude };
+				orderClusterIndices[i] = GetClosestCentroidIndex(point , centroids);
+			}
 
-				var orderProcess = orders.Where(o => o.Status == OrderStatus.Processing).ToList();
+			// Gán các đơn hàng vào OrderGroup dựa trên chỉ số cụm
+			foreach ( var orderGroup in orderGroups )
+			{
+				var clusterIndex = orderGroups.IndexOf(orderGroup);
+				var groupedOrders = orders.Where((o , index) => orderClusterIndices[index] == clusterIndex).ToList();
 
-				foreach ( var orderGroup in orderGroups )
-				{
-					if ( !shipperIds.Contains(orderGroup.ShipperId) )
-					{
-						result.StatusCode = 400;
-						result.Message = "Invalid ShipperId.";
-						return result;
-					}
-
-					if ( orderGroup.Orders == null )
-					{
-						orderGroup.Orders = new List<Order>();
-					}
-				}
-
-				foreach ( var order in orderProcess )
-				{
-					OrderGroup nearestOrderGroup = null;
-					double minDistance = double.MaxValue;
-
-					foreach ( var orderGroup in orderGroups )
-					{
-						double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
-						double[] orderCoordinates = { order.Longitude , order.Latitude };
-						double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
-
-						if ( distance <= model.radius && distance < minDistance )
-						{
-							nearestOrderGroup = orderGroup;
-							minDistance = distance;
-						}
-					}
-
-					if ( nearestOrderGroup != null )
-					{
-						nearestOrderGroup.Orders.Add(order);
-						order.OrderGroup = nearestOrderGroup;
-						order.OrderGroupId = nearestOrderGroup.Id;
-					}
-				}
-
+				// Cập nhật Orders cho OrderGroup hiện tại
+				orderGroup.Orders = groupedOrders;
+			}
+			// Cập nhật các OrderGroup vào cơ sở dữ liệu
+			var clusterResult = await _unitOfWork.OrderGroupRepository.UpdateRangeAsync(orderGroups);
+			if ( clusterResult )
+			{
 				await _unitOfWork.CompleteAsync();
-
 				result.StatusCode = 200;
 				result.Message = "Orders assigned to order groups successfully.";
 				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
 				return result;
 			}
-			else
-			{
-				result.StatusCode = 404;
-				result.Message = "Order or order group not found!";
-				return result;
-			}
+			result.StatusCode = 400;
+			result.Message = "Orders assigned to order groups unsuccessfully!";
+			return result;
+
+			//if ( orders != null && orderGroups != null )
+			//{
+			//	var shippers = await _unitOfWork.UserRepository.GetAllAsync();
+			//	var shipperIds = shippers.Select(s => s.Id).ToList();
+
+			//	var orderProcess = orders.Where(o => o.Status == OrderStatus.Processing).ToList();
+
+			//	foreach ( var orderGroup in orderGroups )
+			//	{
+			//		if ( !shipperIds.Contains(orderGroup.ShipperId) )
+			//		{
+			//			result.StatusCode = 400;
+			//			result.Message = "Invalid ShipperId.";
+			//			return result;
+			//		}
+
+			//		if ( orderGroup.Orders == null )
+			//		{
+			//			orderGroup.Orders = new List<Order>();
+			//		}
+			//	}
+
+			//	foreach ( var order in orderProcess )
+			//	{
+			//		OrderGroup nearestOrderGroup = null;
+			//		double minDistance = double.MaxValue;
+
+			//		foreach ( var orderGroup in orderGroups )
+			//		{
+			//			double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
+			//			double[] orderCoordinates = { order.Longitude , order.Latitude };
+			//			double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
+
+			//			if ( distance <= model.radius && distance < minDistance )
+			//			{
+			//				nearestOrderGroup = orderGroup;
+			//				minDistance = distance;
+			//			}
+			//		}
+
+			//		if ( nearestOrderGroup != null )
+			//		{
+			//			nearestOrderGroup.Orders.Add(order);
+			//			order.OrderGroup = nearestOrderGroup;
+			//			order.OrderGroupId = nearestOrderGroup.Id;
+			//		}
+			//	}
+
+			//	await _unitOfWork.CompleteAsync();
+
+			//	result.StatusCode = 200;
+			//	result.Message = "Orders assigned to order groups successfully.";
+			//	result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+			//	return result;
+			//}
+			//else
+			//{
+			//	result.StatusCode = 404;
+			//	result.Message = "Order or order group not found!";
+			//	return result;
+			//}
 		}
 
+		// Hàm để lấy chỉ số của tâm cụm gần nhất
+		private int GetClosestCentroidIndex(double[] point , double[][] centroids)
+		{
+			int closestIndex = -1;
+			double minDistance = double.MaxValue;
 
+			for ( int i = 0; i < centroids.Length; i++ )
+			{
+				var distance = CalculateEuclideanDistance(point , centroids[i]);
+				if ( distance < minDistance )
+				{
+					minDistance = distance;
+					closestIndex = i;
+				}
+			}
+
+			return closestIndex;
+		}
+
+		// Hàm tính khoảng cách Euclidean giữa hai điểm
+		private double CalculateEuclideanDistance(double[] point1 , double[] point2)
+		{
+			double sum = 0;
+			for ( int i = 0; i < point1.Length; i++ )
+			{
+				sum += Math.Pow(point1[i] - point2[i] , 2);
+			}
+			return Math.Sqrt(sum);
+		}
 
 		private static double CalculateDistance(double[] point1 , double[] point2)
 		{

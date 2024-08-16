@@ -395,6 +395,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(idOrder.ToString());
 				if ( orderExist != null )
 				{
+					//nếu order đang được shipper giao thì không được đổi order group khác 
+					if ( orderExist.Status == OrderStatus.Shipping )
+					{
+						result.StatusCode = 400;
+						result.Message = "Orders being delivered cannot be changed!";
+						return result;
+					}
 					orderExist.OrderGroupId = idOrderGroup;
 					orderExist.OrderGroup = orderGroupExist;
 					await _unitOfWork.CompleteAsync();
@@ -415,52 +422,34 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
 			if ( orderExist != null )
 			{
-				////nếu change qua refun thì kiểm tra xem trạng thái transaction đã paid chưa
-				//if ( model.Status == OrderStatus.Refund )
-				//{
-				//	//chưa paid thì không được đổi qua refun
-				//	foreach ( var transaction in orderExist.Transactions )
-				//	{
-				//		if ( transaction.Status != TransactionStatus.PAID )
-				//		{
-				//			result.StatusCode = 400;
-				//			result.Message = "Payment not successful can't refun!";
-				//			return result;
-				//		}
-				//	}
-				//}
-				//if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund )
-				//{
-				//	//chỉ được đổi qua refun nếu transaction paid
-				//	foreach ( var transaction in orderExist.Transactions )
-				//	{
-				//		if ( transaction.Status != TransactionStatus.PAID )
-				//		{
-				//			result.StatusCode = 400;
-				//			result.Message = "Order is cancel can't change status!";
-				//			return result;
-				//		}
-				//	}
-				//}
-				//map
-				orderExist.Status = model.Status;
-				//if ( orderExist.Status == OrderStatus.Shipping )
-				//{
-				//	//nếu là cod thì đổi lại transaction paid
-				//	//cập nhập lại transaction đã thanh toán rồi
-				//	foreach ( var transaction in orderExist.Transactions )
-				//	{
+				if ( orderExist.Status == OrderStatus.Shipping && model.Status == OrderStatus.UnShipped )
+				{
+					//xóa order khỏi odgroup và cho staff duyệt lại
 
-				//		if ( transaction.Type != TransactionType.COD )
-				//		{
-				//			if ( transaction.Status != TransactionStatus.Cancel )
-				//			{
-				//				transaction.Status = TransactionStatus.PAID;
-				//			}
-				//		}
-				//	}
-				//}
+				}
+				//nếu ở shipped hoặc delivered thì không thể cancel
+				if ( (orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered) && model.Status == OrderStatus.Canceled )
+				{
+					result.StatusCode = 400;
+					result.Message = "Cann't change order status into " + model.Status + " because order has been delivered.";
+					return result;
+				}
+				//nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
+				if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null )
+				{
+					//check transaction
+					var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
+					if ( transactionExist != null && transactionExist.Status == TransactionStatus.PAID )
+					{
+						transactionExist.Status = TransactionStatus.RefundZaloPayDone;
+					}
+					result.StatusCode = 400;
+					result.Message = "Cann't change order status into " + model.Status + " because order not paid.";
+					return result;
+				}
+				orderExist.Status = model.Status;
 				//nếu order thành công -> status chuyển sang shipped (do shipper nhấn) thì sẽ tăng pop của recipe lên
+				//xóa khỏi odgroup
 				if ( model.Status == OrderStatus.Shipped )
 				{
 					//tăng  pop trong từng recipe
@@ -472,6 +461,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							recipeExist.Popularity++;
 						}
 					}
+					//xóa khỏi odg
+					if ( orderExist.OrderGroup != null )
+					{
+						var odGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(orderExist.OrderGroup.Id.ToString());
+						if ( odGroupExist != null )
+						{
+							odGroupExist.Orders.Remove(orderExist);
+							orderExist.OrderGroup = null;
+							orderExist.OrderGroupId = null;
+						}
+					}
 				}
 				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
 				if ( updateResult )
@@ -479,7 +479,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Change order status into " + orderExist.Status + " success.";
-					result.Data = _mapper.Map<OrderResponse>(orderExist);
+					var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+					var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+					if ( customer != null ) {
+						mapOrderResponse.UserId = customer.Email;
+					}
+					result.Data = mapOrderResponse;
 					return result;
 				}
 				else

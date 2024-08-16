@@ -23,8 +23,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public Guid? StanderdWeeklyPlanId { get; set; }
 
         public int OrderCode { get; set; }
-        public string? Note { get; set; }
-        public string? Message { get; set; }
+        public string? Note { get; set; }// lưu thông tin cần chú ý của đơn hàng
+        public string? Message { get; set; }// thông báo của user hệ thống
 		public string Address { get; set; } = string.Empty;
 		public string? Img { get; set; }
 		public DateTime ShipDate { get; set; }

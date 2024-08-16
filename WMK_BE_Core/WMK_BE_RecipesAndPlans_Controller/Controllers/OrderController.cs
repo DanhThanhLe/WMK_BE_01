@@ -15,9 +15,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 	public class OrderController : ControllerBase
 	{
 		private readonly IOrderService _orderService;
-		public OrderController(IOrderService orderService)
+		private readonly ISendMailService _sendMailService;
+
+		public OrderController(IOrderService orderService, ISendMailService sendMailService)
 		{
 			_orderService = orderService;
+			_sendMailService = sendMailService;
 		}
 		#region Get
 		//
@@ -76,6 +79,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeStatus(Guid id , [FromQuery] ChangeStatusOrderRequest model)
 		{
 			var result = await _orderService.ChangeStatusOrderAsync(id , model);
+			//mỗi lần thay đổi sẻ gửi mail về cho customer
+			if(result.Data != null && result.Data.UserId != null)
+			{
+				_sendMailService.SendMail(result.Data.UserId , "Order status information on WeMealKit" , "Your order on WemealKit with code ("
+										+ result.Data.OrderCode + ") has been update to (" 
+										+ result.Data.Status +").");
+			}
 			return StatusCode(result.StatusCode , result);
 		}
 		//

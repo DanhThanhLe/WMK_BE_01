@@ -27,6 +27,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string? ApprovedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
+        public BaseStatus BaseStatus { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
 
         //reference

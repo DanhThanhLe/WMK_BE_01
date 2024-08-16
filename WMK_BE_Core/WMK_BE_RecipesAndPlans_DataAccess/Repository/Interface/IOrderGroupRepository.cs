@@ -10,5 +10,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 	public interface IOrderGroupRepository : IBaseRepository<OrderGroup>
 	{
 		bool OrderGroupExistOrder(OrderGroup orderGroup);
+
+		Task<bool> UpdateRangeAsync(List<OrderGroup> orderGroups);
+
 	}
 }

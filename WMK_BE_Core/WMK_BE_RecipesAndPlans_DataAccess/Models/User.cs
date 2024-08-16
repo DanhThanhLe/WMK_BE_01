@@ -27,7 +27,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public BaseStatus Status { get; set; }
 
 
-        public virtual OrderGroup OrderGroup { get; set; }
+        public virtual OrderGroup? OrderGroup { get; set; }
 
         //list
         public List<Order> Orders { get; set; }

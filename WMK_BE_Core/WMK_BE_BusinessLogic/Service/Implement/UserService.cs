@@ -43,7 +43,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_idUserValidator = new IdUserModelValidator();
 			_changeRoleValidator = new ChangeRoleUserModelValidator();
 		}
-
+		#region Get
 		public async Task<ResponseObject<List<UsersResponse>>> GetAllUsers(string tokenHeader , GetAllUsersRequest? model)
 		{
 			var result = new ResponseObject<List<UsersResponse>>();
@@ -272,6 +272,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+		#endregion
+
 		public async Task<ResponseObject<BaseUserResponse>> CreateUserAsync(CreateUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -319,7 +321,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Created user (" + newUser.Email + ") successfully with password (" + defaultPassword + ").";
-				//result.Data = new CreateUserModelResponse { Id = newUser.Id, UserName = newUser.UserName };
+				result.Data = _mapper.Map<BaseUserResponse>(newUser);
 				return result;
 			}
 			else
@@ -399,7 +401,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Updated user (" + userExist.Email + ") successfully.";
-				result.Data = new BaseUserResponse { Id = userExist.Id , Email = userExist.Email };
+				result.Data = _mapper.Map<BaseUserResponse>(userExist);
 				return result;
 			}
 			else
@@ -459,6 +461,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
+		#region Change
 		public async Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(Guid idUser , ChangeRoleUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -493,6 +496,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Changed role for user (" + userExist.UserName + ") to " + model.NewRole + " successfully.";
+				result.Data = _mapper.Map<BaseUserResponse>(userExist);
 				return result;
 			}
 			else
@@ -513,15 +517,28 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "User not found!";
 				return result;
 			}
+			
 			if ( userExist.Status == BaseStatus.Available )
 			{
 				userExist.Status = BaseStatus.UnAvailable;
 				var updateResult = await _unitOfWork.UserRepository.UpdateAsync(userExist);
 				if ( updateResult )
 				{
+					//nếu là shipper thì thông báo cho shipper đó và shipper đó sẽ bị xóa khỏi order group
+					if ( userExist.Role == Role.Shipper )
+					{
+						userExist.OrderGroup = null;
+						var orderGroupExist = _unitOfWork.OrderGroupRepository.Get(og => og.ShipperId == userExist.Id).FirstOrDefault();
+						if ( orderGroupExist != null )
+						{
+							//chỉ tắt orderGroup đi để có trường hợp đối chiếu lại 
+							orderGroupExist.Status = BaseStatus.UnAvailable;
+						}
+					}
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Changed User (" + userExist.UserName + ") with status (" + userExist.Status + ") successfully.";
+					result.Data = _mapper.Map<BaseUserResponse>(userExist);
 					return result;
 				}
 				else
@@ -540,6 +557,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Changed User (" + userExist.UserName + ") with status (" + userExist.Status + ") successfully.";
+					result.Data = _mapper.Map<BaseUserResponse>(userExist);
 					return result;
 				}
 				else
@@ -572,6 +590,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Changed User (" + userExist.UserName + ") with confirm email successfully.";
+					result.Data = _mapper.Map<BaseUserResponse>(userExist);
 					return result;
 				}
 				else
@@ -590,6 +609,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Changed User (" + userExist.UserName + ") with not confirm email successfully.";
+					result.Data = _mapper.Map<BaseUserResponse>(userExist);
 					return result;
 				}
 				else
@@ -600,6 +620,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
+		#endregion
 
 	}
 }

@@ -203,9 +203,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
 				newWeeklyPlan.CreateAt = DateTime.UtcNow;
 				newWeeklyPlan.CreatedBy = createdBy;
+				newWeeklyPlan.BaseStatus = BaseStatus.UnAvailable;
 				//check limit of plan
 				var limitNumber = 0;
-				foreach(var recipe in model.recipeIds )
+				foreach ( var recipe in model.recipeIds )
 				{
 					limitNumber += recipe.Quantity;
 				}
@@ -505,7 +506,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					_mapper.Map(model , foundWeeklyPlan);
 					foundWeeklyPlan.ProcessStatus = ProcessStatus.Processing;//chuyển sang thì duyệt lại nếu là admin hoặc manager
 																			 //thì tự duyệt còn staff thì phải qua manager duyệt 
-
+					foundWeeklyPlan.BaseStatus = BaseStatus.UnAvailable;
 					//trường hợp check xem nếu cùng bữa ăn thì không được trùng recipe 
 					//tìm xem recipe plan có trước đó và xóa đi
 					var relatedRecipePlans = _unitOfWork.RecipePlanRepository.Get(x => x.StandardWeeklyPlanId.ToString().ToLower()
@@ -637,8 +638,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Not have permission!";
 				return result;
 			}
-
 			weeklyPlanExist.Notice = model.Notice;
+			//nếu đổi processStatus sang denied thì base sẽ đổi sang unavailable
+			if ( model.ProcessStatus == ProcessStatus.Denied )
+			{
+				weeklyPlanExist.BaseStatus = BaseStatus.UnAvailable;
+			}
+			if(model.ProcessStatus == ProcessStatus.Approved )
+			{
+				weeklyPlanExist.BaseStatus = BaseStatus.Available;
+			}
 			weeklyPlanExist.ProcessStatus = model.ProcessStatus;
 			var changeResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(weeklyPlanExist);
 			if ( changeResult )

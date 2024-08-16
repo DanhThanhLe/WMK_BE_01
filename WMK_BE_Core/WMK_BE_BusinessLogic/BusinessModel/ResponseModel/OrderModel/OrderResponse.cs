@@ -18,8 +18,8 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public string UserId { get; set; } = string.Empty;
 		public string OrderGroupId { get; set; } = string.Empty;
 		//public string? StanderdWeeklyPlanId { get; set; }
-		public string ReceiveName { get; set; }
-		public string ReceivePhone { get; set; }
+		public string ReceiveName { get; set; } = string.Empty;
+		public string ReceivePhone { get; set; } = string.Empty;
 		public string Note { get; set; } = string.Empty;
 		public string? Message { get; set; }
 		public string Address { get; set; } = string.Empty;

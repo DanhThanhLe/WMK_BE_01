@@ -308,45 +308,39 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//tạm thời chưa đăng ký tài khoản bussiness nên nhận đc response từ zalopay thì sẽ cho là thành công
 						if ( refundResponse != null )
 						{
-							// Create a new transaction for the refund
-							var refundTrans = new CreatePaymentRequest
-							{
-								Amount = transExist.Amount ,
-								//Notice = refundResponse.ReturnMessage + ": " + refundResponse.SubReturnMessage ,
-								Status = TransactionStatus.RefundZaloPayDone ,
-								OrderId = request.IdOrder ,
-								TransactionDate = DateTime.UtcNow ,
-								TransactionType = TransactionType.ZaloPay ,
-							};
-
-							var newTrans = _mapper.Map<Transaction>(refundTrans);
-							newTrans.Id = Guid.NewGuid();
-							var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTrans);
-							if ( createResult )
+							//update transaction status -> paid
+							transExist.Status = TransactionStatus.RefundZaloPayDone;
+							var updateResult = await _unitOfWork.TransactionRepository.UpdateAsync(transExist);
+							if ( updateResult )
 							{
 								// Change order status to refunded
 								var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(request.IdOrder.ToString());
 								if ( orderExist != null && orderExist.Status == OrderStatus.Canceled )
 								{
 									orderExist.Status = OrderStatus.Refund;
-									newTrans.Order = orderExist;
-									orderExist.Transaction = newTrans;
+									transExist.Order = orderExist;
+									transExist.Notice = "Refund zalo pay success";
+									orderExist.Transaction = transExist;
 									await _unitOfWork.CompleteAsync();
 									result.StatusCode = 200;
 									result.Message = "Refund successful";
-									result.Data = _mapper.Map<RefundZaloPayResponse>(refundResponse);
+									var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+									if ( customer != null )
+									{
+										refundResponse.EmailCustomer = customer.Email;
+									}
+									refundResponse.OrderCode = orderExist.OrderCode.ToString();
+									result.Data = refundResponse;
 									return result;
 								}
 								result.StatusCode = 400;
 								result.Message = "Refund unsuccessful! Order not in cancel status!";
 								return result;
+
 							}
-							else
-							{
-								result.StatusCode = 400;
-								result.Message = "Refund failed! Couldn't create new transaction.";
-								return result;
-							}
+							result.StatusCode = 404;
+							result.Message = "Refund failed!Not have transaction.";
+							return result;
 						}
 						else
 						{
