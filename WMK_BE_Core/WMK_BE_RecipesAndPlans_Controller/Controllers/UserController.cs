@@ -111,7 +111,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			{
 				//gửi mail cho user đó về tình hình
 				_sendMailService.SendMail(result.Data.Email , "Lock Account" , "Your account on WemealKit with role (" 
-										+ result.Data.Role +") has been locked! Please contact the administrator for assistance.");
+										+ result.Data.Role +") has been changed to ("
+										+ result.Data.Status + ")! Please contact the administrator for assistance.");
 			}
 			return StatusCode(result.StatusCode , result);
 		}
