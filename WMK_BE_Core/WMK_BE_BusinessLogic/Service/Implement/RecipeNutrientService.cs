@@ -113,14 +113,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				var ingredient = await _unitOfWork.IngredientRepository.GetByIdAsync(recipeIngredient.IngredientId.ToString());
 				if ( ingredient != null && ingredient.IngredientNutrient != null )
 				{
-					recipeExist.RecipeNutrient.Sodium += ingredient.IngredientNutrient.Sodium;
-					recipeExist.RecipeNutrient.Sugar += ingredient.IngredientNutrient.Sugar;
-					recipeExist.RecipeNutrient.DietaryFiber += ingredient.IngredientNutrient.DietaryFiber;
-					recipeExist.RecipeNutrient.Calories += ingredient.IngredientNutrient.Calories;
-					recipeExist.RecipeNutrient.SaturatedFat += ingredient.IngredientNutrient.SaturatedFat;
-					recipeExist.RecipeNutrient.Carbonhydrate += ingredient.IngredientNutrient.Carbonhydrate;
-					recipeExist.RecipeNutrient.Fat += ingredient.IngredientNutrient.Fat;
-					recipeExist.RecipeNutrient.Protein += ingredient.IngredientNutrient.Protein;
+					recipeExist.RecipeNutrient.Sodium += ingredient.IngredientNutrient.Sodium * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.Sugar += ingredient.IngredientNutrient.Sugar * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.DietaryFiber += ingredient.IngredientNutrient.DietaryFiber * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.Calories += ingredient.IngredientNutrient.Calories * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.SaturatedFat += ingredient.IngredientNutrient.SaturatedFat * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.Carbonhydrate += ingredient.IngredientNutrient.Carbonhydrate * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.Fat += ingredient.IngredientNutrient.Fat * recipeIngredient.Amount;
+					recipeExist.RecipeNutrient.Protein += ingredient.IngredientNutrient.Protein * recipeIngredient.Amount;
 				}
 			}
 

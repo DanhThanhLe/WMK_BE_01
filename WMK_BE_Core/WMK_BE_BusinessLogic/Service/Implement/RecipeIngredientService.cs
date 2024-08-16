@@ -61,17 +61,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					newRecipeIngredient.Recipe = recipeExist;
 					newRecipeIngredient.Ingredient = ingredientEixst;
 					recipeIngredients.Add(newRecipeIngredient);
-					//var createResult = await _unitOfWork.RecipeIngredientRepository.CreateAsync(newRecipeIngredient);
-					//if (!createResult)
-					//{
-					//    result.StatusCode = 500;
-					//    result.Message = "Create new recipeIngredient unsuccessfully! Say from CreateRecipeIngredientAsync - RecipeIngredientService";
-					//    result.Data = null;
-					//    return result;
-					//}
 				}
-
-
 				if ( recipeIngredients.Any() )
 				{
 					await _unitOfWork.RecipeIngredientRepository.AddRangeAsync(recipeIngredients);

@@ -988,7 +988,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
-
 		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy , Guid idRecipe , CreateRecipeRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
@@ -1020,6 +1019,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					recipeExist.BaseStatus = BaseStatus.UnAvailable;
 				}
+				await _unitOfWork.CompleteAsync();
 				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
 				var updatePrice = await UpdatePrice(recipeExist.Id);
 				if ( !updatePrice )
@@ -1028,15 +1028,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Update recipe price unsuccessfully";
 					return result;
 				}
-
-				var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
-				if ( !updateResult )
-				{
-					result.StatusCode = 500;
-					result.Message = "Update Recipe unsuccessfully!";
-					return result;
-				}
-				await _unitOfWork.CompleteAsync();
 				//xóa các thành phần liên quan (RecipeCategory,RecipeIngredient)
 				var checkDeleteRecipeCategory = await _recipeCategoryService.DeleteByRcipe(recipeExist.Id);
 				var checkDeleteRecipeIngredient = await _recipeIngredientService.DeleteRecipeIngredientByRecipeAsync(recipeExist.Id);
@@ -1052,7 +1043,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 
 				//bat dau update cac thanh phan lien quan
-
 				//create RecipeCategory, RecipeIngredient
 				if ( recipe.CategoryIds != null && recipe.RecipeIngredientsList != null )
 				{
