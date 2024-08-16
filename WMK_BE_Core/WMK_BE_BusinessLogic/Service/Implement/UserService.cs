@@ -539,6 +539,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						{
 							//chỉ tắt orderGroup đi để có trường hợp đối chiếu lại 
 							orderGroupExist.Status = BaseStatus.UnAvailable;
+							orderGroupExist.ShipperId = null;
 						}
 					}
 					await _unitOfWork.CompleteAsync();
