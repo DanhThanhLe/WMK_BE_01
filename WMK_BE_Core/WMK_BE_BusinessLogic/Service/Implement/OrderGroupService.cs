@@ -366,7 +366,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#region Cluster
-		public async Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync(ClusterOrderGroupRequest model)
+		public async Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync()
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
 			//lấy các order có status đang là processing ra để gom cụm

@@ -10,6 +10,6 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderGroupModel
 	{
 		//public List<double[]> addresses { get; set; }
 		//public List<double[]> locations { get; set; }
-		public double radius { get; set; }
+		//public double radius { get; set; }
 	}
 }

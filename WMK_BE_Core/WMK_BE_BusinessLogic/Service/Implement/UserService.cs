@@ -64,11 +64,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						{
 							List<User> usersList;
 
-							if ( user.Role == Role.Manager || user.Role == Role.Staff )
+							if ( user.Role == Role.Manager )
 							{
 								// For Manager and Staff roles, fetch only Staff and Shipper
 								usersList = await _unitOfWork.UserRepository.GetAllAsync();
-								usersList = usersList.Where(u => u.Role == Role.Staff || u.Role == Role.Shipper).ToList();
+								usersList = usersList.Where(u => u.Role == Role.Staff || u.Role == Role.Shipper || u.Role == Role.Customer).ToList();
+							}
+							else if ( user.Role == Role.Staff )
+							{
+								// For Manager and Staff roles, fetch only Staff and Shipper
+								usersList = await _unitOfWork.UserRepository.GetAllAsync();
+								usersList = usersList.Where(u => u.Role == Role.Customer || u.Role == Role.Shipper).ToList();
 							}
 							else if ( user.Role == Role.Admin )
 							{
@@ -517,7 +523,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "User not found!";
 				return result;
 			}
-			
+
 			if ( userExist.Status == BaseStatus.Available )
 			{
 				userExist.Status = BaseStatus.UnAvailable;
