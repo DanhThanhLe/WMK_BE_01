@@ -50,7 +50,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_deleteValidator = new DeleteWeeklyPlanValidator();
 			_changeStatusValidator = new ChangeStatusWeeklyPlanValidator();
 		}
-		#region Get
+		#region Get All for Administrator
 		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllFilterAsync(GetAllRequest? model)
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
@@ -164,7 +164,142 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#endregion
+	
+		#region get all for customer
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
+		{
+			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
+			//get from redis
+			var redisKey = "WeeklyPlanList";
+			var redisData = await _redisService.GetValueAsync<List<WeeklyPlanResponseModel>>(redisKey);
+			if ( redisData != null && redisData.Count > 0 )
+			{
+				result.StatusCode = 200;
+				result.Message = "WeeklyPlan list: " + redisData.Count();
+				result.Data = redisData;
+				return result;
+			}
+
+			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved
+																	&& x.BaseStatus == BaseStatus.Available).ToList();
+			var returnList = weeklyPlans.Where(x => x.Title.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
+
+			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
+			{
+				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
+				foreach ( var item in returnResult )
+				{
+					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
+					if ( userCreate != null )
+					{
+						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
+					}
+				}
+				result.StatusCode = 200;
+				result.Message = "WeeklyPlan list: " + returnResult.Count();
+				result.Data = returnResult;
+
+				//set cache to redis
+				await _redisService.SetValueAsync(redisKey , returnResult , TimeSpan.FromDays(3));
+
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Not have plan!";
+				return result;
+			}
+		}
+
+
+		#endregion
+
+		#region get week plan list with user id
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId)
+		{
+			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+			try
+			{
+				//tìm list đc tạo bởi ng dùng và nó chưa bị cancel (process status còn là customer)
+				var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower())
+																		&& x.ProcessStatus == ProcessStatus.Customer).ToList();
+				if ( foundList.Count() == 0 ) //ko tim dc
+				{
+					result.StatusCode = 500;
+					result.Message = "Not found with user id";
+					return result;
+				}
+				else //co thong tin
+				{
+					var returnList = _mapper.Map<List<WeeklyPlanResponseModel>>(foundList);
+					//gan ten cho creatdBy va approvedBy
+					foreach ( var item in returnList )
+					{
+						string userName = null;
+						Guid idConvert;
+						//tim ten cho CreatedBy
+						if ( item.CreatedBy != null )
+						{
+							Guid.TryParse(item.CreatedBy , out idConvert);
+							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+						}
+						if ( userName != null )
+						{
+							item.CreatedBy = userName;
+						}
+					}
+					result.StatusCode = 200;
+					result.Message = "Ok";
+					result.Data = returnList;
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+				return result;
+			}
+		}
+		#endregion
+
+		#region get by id
+
+		public async Task<ResponseObject<WeeklyPlanResponseModel?>> GetByIdAsync(Guid id)
+		{
+			var result = new ResponseObject<WeeklyPlanResponseModel?>();
+			var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
+			if ( weeklyPlanExist != null )
+			{
+				var weeklyPlan = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
+				Guid idConvert;
+				if ( weeklyPlan.CreatedBy != null )
+				{
+					Guid.TryParse(weeklyPlan.CreatedBy , out idConvert);
+					weeklyPlan.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				}
+				else
+				{
+					weeklyPlan.CreatedBy = "UserName not found!";
+				}
+				result.StatusCode = 200;
+				result.Message = "Get weekly plan success";
+				result.Data = weeklyPlan;
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 404;
+				result.Message = "Weekly plan not exist!";
+				return result;
+			}
+		}
+
+
+		#endregion
+		
 		#region Create
 		public async Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model , string createdBy)
 		{
@@ -303,7 +438,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
 					{
 						result.StatusCode = 404;
-						result.Message = "Weekly plan Title already existed";
+						result.Message = "Weekly plan Title already existed!";
 						return result;
 					}
 					else
@@ -365,110 +500,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-		#endregion
-
-		#region get all
-
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllWeeklyPLanAsync(string? name)
-		{
-			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
-
-			var weeklyPLans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
-			if ( name != null )
-			{
-				weeklyPLans = weeklyPLans.Where(wp =>
-				wp.Title.ToLower().Trim().Contains(name.ToLower().Trim())).ToList();
-			}
-			result.StatusCode = 200;
-			result.Message = "Success list weekly pLan: ";
-			result.Data = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPLans);
-			return result;
-
-
-		}
-
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
-		{
-			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
-
-			//get from redis
-			var redisKey = "WeeklyPlanList";
-			var redisData = await _redisService.GetValueAsync<List<WeeklyPlanResponseModel>>(redisKey);
-			if ( redisData != null && redisData.Count > 0 )
-			{
-				result.StatusCode = 200;
-				result.Message = "WeeklyPlan list: " + redisData.Count();
-				result.Data = redisData;
-				return result;
-			}
-
-			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
-			var returnList = weeklyPlans.Where(x => x.Title.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
-
-			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
-			{
-				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
-				foreach ( var item in returnResult )
-				{
-					var userCreate = await _unitOfWork.UserRepository.GetByIdAsync(item.CreatedBy.ToString());
-					if ( userCreate != null )
-					{
-						item.CreatedBy = userCreate.FirstName + " " + userCreate.LastName;
-					}
-				}
-				result.StatusCode = 200;
-				result.Message = "WeeklyPlan list: " + returnResult.Count();
-				result.Data = returnResult;
-
-				//set cache to redis
-				await _redisService.SetValueAsync(redisKey , returnResult , TimeSpan.FromDays(3));
-
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 404;
-				result.Message = "Not have plan!";
-				return result;
-			}
-		}
-
-
-		#endregion
-
-		#region get by id
-
-		public async Task<ResponseObject<WeeklyPlanResponseModel?>> GetByIdAsync(Guid id)
-		{
-			var result = new ResponseObject<WeeklyPlanResponseModel?>();
-			var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
-			if ( weeklyPlanExist != null )
-			{
-				var weeklyPlan = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
-				Guid idConvert;
-				if ( weeklyPlan.CreatedBy != null )
-				{
-					Guid.TryParse(weeklyPlan.CreatedBy , out idConvert);
-					weeklyPlan.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				}
-				else
-				{
-					weeklyPlan.CreatedBy = "UserName not found!";
-				}
-				result.StatusCode = 200;
-				result.Message = "Get weekly plan success";
-				result.Data = weeklyPlan;
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 404;
-				result.Message = "Weekly plan not exist!";
-				return result;
-			}
-		}
-
-
 		#endregion
 
 		#region update
@@ -644,7 +675,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				weeklyPlanExist.BaseStatus = BaseStatus.UnAvailable;
 			}
-			if(model.ProcessStatus == ProcessStatus.Approved )
+			if ( model.ProcessStatus == ProcessStatus.Approved )
 			{
 				weeklyPlanExist.BaseStatus = BaseStatus.Available;
 			}
@@ -661,55 +692,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 500;
 				result.Message = "Change status weekly plan to(" + weeklyPlanExist.ProcessStatus + ") unsuccessfully!";
-				return result;
-			}
-		}
-		#endregion
-
-		#region get week plan list with user id
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId)
-		{
-			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
-			try
-			{
-				//tìm list đc tạo bởi ng dùng và nó chưa bị cancel (process status còn là customer)
-				var foundList = _unitOfWork.WeeklyPlanRepository.Get(x => x.CreatedBy.ToLower().Equals(customerId.ToString().ToLower()) && x.ProcessStatus == ProcessStatus.Customer).ToList();
-				if ( foundList.Count() == 0 ) //ko tim dc
-				{
-					result.StatusCode = 500;
-					result.Message = "Not found with user id";
-					return result;
-				}
-				else //co thong tin
-				{
-					var returnList = _mapper.Map<List<WeeklyPlanResponseModel>>(foundList);
-					//gan ten cho creatdBy va approvedBy
-					foreach ( var item in returnList )
-					{
-						string userName = null;
-						Guid idConvert;
-						//tim ten cho CreatedBy
-						if ( item.CreatedBy != null )
-						{
-							Guid.TryParse(item.CreatedBy , out idConvert);
-							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-						}
-						if ( userName != null )
-						{
-							item.CreatedBy = userName;
-						}
-					}
-					result.StatusCode = 200;
-					result.Message = "Ok";
-					result.Data = returnList;
-					return result;
-				}
-				//}
-			}
-			catch ( Exception ex )
-			{
-				result.StatusCode = 500;
-				result.Message = ex.Message;
 				return result;
 			}
 		}

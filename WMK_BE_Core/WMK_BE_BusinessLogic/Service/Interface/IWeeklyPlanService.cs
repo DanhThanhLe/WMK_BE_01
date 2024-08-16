@@ -14,9 +14,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	{
 		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "");
 		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllFilterAsync(GetAllRequest? model);
-		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllWeeklyPLanAsync(string? name);
-		Task<ResponseObject<WeeklyPlanResponseModel?>> GetByIdAsync(Guid id);
 		Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId);
+		Task<ResponseObject<WeeklyPlanResponseModel?>> GetByIdAsync(Guid id);
 		Task<ResponseObject<WeeklyPlanResponseModel>> CreateWeeklyPlanAsync(CreateWeeklyPlanRequest model , string createdBy);
 		Task<ResponseObject<WeeklyPlanResponseModel>> CreateForSutomer(CreateWeeklyPlanForCustomerRequest request);
 		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateWeeklyPlanAsync(Guid id , UpdateWeeklyPlanRequestModel model);
