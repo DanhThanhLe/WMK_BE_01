@@ -56,7 +56,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
 			////ngày hiện tại
-			//DateTime today = DateTime.UtcNow;
+			//DateTime today = DateTime.UtcNow.AddHours(7);
 
 			////tìm ngày đầu tuần 
 			//DateTime startWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
@@ -201,7 +201,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//create weekly plan
 				var newWeeklyPlan = _mapper.Map<WeeklyPlan>(model);
-				newWeeklyPlan.CreateAt = DateTime.UtcNow;
+				newWeeklyPlan.CreateAt = DateTime.UtcNow.AddHours(7);
 				newWeeklyPlan.CreatedBy = createdBy;
 				newWeeklyPlan.BaseStatus = BaseStatus.UnAvailable;
 				//check limit of plan
@@ -323,7 +323,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							return result;
 						}
 						WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);
-						newOne.CreateAt = DateTime.UtcNow;
+						newOne.CreateAt = DateTime.UtcNow.AddHours(7);
 						var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newOne);
 						if ( createResult )
 						{

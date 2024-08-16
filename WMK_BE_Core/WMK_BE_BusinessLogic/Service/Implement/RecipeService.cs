@@ -413,7 +413,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				Recipe newRecipe = _mapper.Map<Recipe>(recipe);
-				newRecipe.CreatedAt = DateTime.UtcNow;
+				newRecipe.CreatedAt = DateTime.UtcNow.AddHours(7);
 				newRecipe.CreatedBy = createdBy;
 				newRecipe.Popularity = 0;
 				newRecipe.BaseStatus = BaseStatus.UnAvailable;
@@ -633,7 +633,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		//	{
 		//		foundRecipe.UpdatedBy = updateRecipe.UpdatedBy;
 		//	}
-		//	foundRecipe.UpdatedAt = DateTime.UtcNow;
+		//	foundRecipe.UpdatedAt = DateTime.UtcNow.AddHours(7);
 		//	if ( updateRecipe.Popularity != null )
 		//	{
 		//		foundRecipe.Popularity = updateRecipe.Popularity;

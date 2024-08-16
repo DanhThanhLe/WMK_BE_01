@@ -108,7 +108,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			Ingredient newIngredient = _mapper.Map<Ingredient>(ingredient);
 			newIngredient.CreatedBy = createdBy;
-			newIngredient.CreatedAt = DateTime.UtcNow;
+			newIngredient.CreatedAt = DateTime.UtcNow.AddHours(7);
 			newIngredient.IngredientCategory = checkIngredientCategory;
 			var createResult = await _unitOfWork.IngredientRepository.CreateAsync(newIngredient);
 			if ( createResult )
@@ -446,7 +446,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						var updateNutrient = _mapper.Map<IngredientNutrientRequest>(ingredient.NutrientInfo);
 						_mapper.Map(ingredient , ingredientExist);
-						ingredientExist.UpdatedAt = DateTime.UtcNow;
+						ingredientExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
 						ingredientExist.UpdatedBy = updateBy;
 						//update ingredient nutrient
 						var updateNutrientResult = await _ingredientNutrientService.Update(ingredientExist.IngredientNutrient.Id , updateNutrient);//truyen id cua nutrient va model de update

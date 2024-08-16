@@ -19,7 +19,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required!");
 			//RuleFor(x => x.TotalPrice).NotEmpty().WithMessage("TotalPrice is required!");
 			//RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
-			//.Must(shipDate => shipDate > DateTime.UtcNow)
+			//.Must(shipDate => shipDate > DateTime.UtcNow.AddHours(7))
 			//.WithMessage("ShipDate must be after the current date.");
 			RuleFor(x => x.RecipeList).NotNull().WithMessage("The list cannot be null.")
 			.NotEmpty().WithMessage("The list cannot be empty.");
@@ -38,7 +38,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
 			//	.Must(_expendValidator.BeValidGuid).WithMessage("Id invalid fortmat GUID!");
 			RuleFor(x => x.ShipDate).NotEmpty().WithMessage("ShipDate is required!")
-				.Must(shipDate => shipDate > DateTime.UtcNow)
+				.Must(shipDate => shipDate > DateTime.UtcNow.AddHours(7))
 				.WithMessage("ShipDate must be after the current date.");
 			RuleFor(x => x.TotalPrice).GreaterThan(0).WithMessage("TotalPrice must be greater than 0!");
 			RuleFor(x => x.Latitude).NotEmpty().WithMessage("Latitude is required!");

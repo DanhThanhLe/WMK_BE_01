@@ -157,7 +157,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				var newTransaction = _mapper.Map<Transaction>(model);
 				newTransaction.Id = Guid.NewGuid();//code nay de tao moi id cho transaction - luu y khi sua code
-				newTransaction.TransactionDate = DateTime.UtcNow;
+				newTransaction.TransactionDate = DateTime.UtcNow.AddHours(7);
 				newTransaction.Type = TransactionType.ZaloPay;
 				newTransaction.Status = TransactionStatus.Pending;
 				var createResult = await _unitOfWork.TransactionRepository.CreateAsync(newTransaction);
@@ -241,7 +241,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				var newTransaction = _mapper.Map<Transaction>(request);
 				newTransaction.Id = Guid.NewGuid();//code nay de tao moi id cho transaction - luu y khi sua code
-				newTransaction.TransactionDate = DateTime.UtcNow;
+				newTransaction.TransactionDate = DateTime.UtcNow.AddHours(7).AddHours(7);
 				newTransaction.Type = request.TransactionType;
 				newTransaction.Status = request.Status == null ? TransactionStatus.Pending : (TransactionStatus)request.Status;
 
