@@ -31,7 +31,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						//check xem có trùng ngày và buổi mà cùng món hay không
 						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipePlan.recipeId.ToString());
-						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved )
+						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved && recipeExist.BaseStatus == BaseStatus.Available)
 						{
 							var newRecipePlan = new RecipePLan
 							{
@@ -50,7 +50,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						else
 						{
 							result.StatusCode = 404;
-							result.Message = "Create recipe plan with ID (" + recipePlan.recipeId + ") not exist or not available!";
+							result.Message = "Create recipe plan with recipe name (" + recipeExist?.Name + ") not exist or not available!";
 							return result;
 						}
 					}

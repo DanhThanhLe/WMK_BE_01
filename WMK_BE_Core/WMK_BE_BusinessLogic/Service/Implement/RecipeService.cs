@@ -44,10 +44,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IRecipeNutrientService _recipeNutrientService;
 		private readonly IRecipeIngredientService _recipeIngredientService;
 		private readonly IUserService _userService;
-		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper 
-			, IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService 
-			, IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService 
-			, IRecipeStepService recipeStepService , IUserService userService, IRedisService redisService)
+		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper
+			, IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService
+			, IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService
+			, IRecipeStepService recipeStepService , IUserService userService , IRedisService redisService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
@@ -169,7 +169,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
 			result.Data = recipesResponse.OrderBy(o => o.Name).ToList() ?? [];
-			
+
 			//await _redisService.SetValueAsync(redisKey , recipesResponse , TimeSpan.FromDays(3));
 			return result;
 		}
@@ -367,7 +367,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 					}
 					result.StatusCode = 200;
-					result.Message = "Recipe list found by name (" + returnList.Count() +")";
+					result.Message = "Recipe list found by name (" + returnList.Count() + ")";
 					result.Data = returnList;
 
 				}
@@ -405,7 +405,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				//check serving size phải 1-10 người
-				if(recipe.ServingSize < 1 || recipe.ServingSize > 10 )
+				if ( recipe.ServingSize < 1 || recipe.ServingSize > 10 )
 				{
 					result.StatusCode = 400;
 					result.Message = "Serving size must be 1 - 10 people";
@@ -678,13 +678,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				recipeExist.Notice = "Not have";
 			}
-			_mapper.Map(recipe , recipeExist);
-			if ( recipeExist.ProcessStatus == ProcessStatus.Processing
-				|| recipeExist.ProcessStatus == ProcessStatus.Denied
-				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
+			if ( (recipeExist.ProcessStatus == ProcessStatus.Processing && recipe.ProcessStatus == ProcessStatus.Denied)
+				|| recipe.ProcessStatus == ProcessStatus.Denied
+				|| recipe.ProcessStatus == ProcessStatus.Cancel )
 			{
 				recipeExist.BaseStatus = BaseStatus.UnAvailable;
 			}
+			if ( (recipeExist.ProcessStatus == ProcessStatus.Processing && recipe.ProcessStatus == ProcessStatus.Approved) )
+			{
+				recipeExist.BaseStatus = BaseStatus.Available;
+			}
+			_mapper.Map(recipe , recipeExist);
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
@@ -773,8 +777,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
 				//chỉ admin và manager mới được xóa luôn
-				if ( userExist != null && (userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin 
-										|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Manager ))
+				if ( userExist != null && (userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin
+										|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Manager) )
 				{
 					//delete
 					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());

@@ -50,7 +50,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		#endregion
 		//
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = "Admin,Manager")]
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateUserRequest model)
 		{
@@ -110,7 +110,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			if(result.Data != null)
 			{
 				//gửi mail cho user đó về tình hình
-				_sendMailService.SendMail(result.Data.Email , "Lock Account" , "Your account on WemealKit with role (" 
+				_sendMailService.SendMail(result.Data.Email , "Account status" , "Your account on WemealKit with role (" 
 										+ result.Data.Role +") has been changed to ("
 										+ result.Data.Status + ")! Please contact the administrator for assistance.");
 			}

@@ -13,7 +13,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 	{
 		public Guid Id { get; set; }
 		[ForeignKey(nameof(User))]
-		public Guid ShipperId { get; set; }
+		public Guid? ShipperId { get; set; }
 
 		public string Location { get; set; } = string.Empty;
 		public double Longitude { get; set; }//kinh dộ

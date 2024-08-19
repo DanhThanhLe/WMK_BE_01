@@ -174,13 +174,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(assignedBy.ToString());
-			//if ( staffExist != null && staffExist.Role != Role.Staff )
-			//{
-			//	result.StatusCode = 403;
-			//	result.Message = "Not a staff!";
-			//	return result;
-			//}
-			//else 
 			if ( staffExist == null )
 			{
 				result.StatusCode = 404;
