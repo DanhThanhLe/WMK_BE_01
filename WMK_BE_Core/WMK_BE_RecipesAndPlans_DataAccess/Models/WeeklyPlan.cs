@@ -15,8 +15,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public DateTime BeginDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? BeginDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string? Description { set; get; }
         public string? UrlImage { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -27,10 +27,11 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
         public string? ApprovedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; } = string.Empty;
+        public BaseStatus BaseStatus { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
 
         //reference
-        public List<Order> Orders { get; set; }
+        public virtual List<Order> Orders { get; set; }
 
         public virtual List<RecipePLan> RecipePLans { get; set; }
 

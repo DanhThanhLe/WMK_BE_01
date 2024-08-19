@@ -17,10 +17,11 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public int OrderCode { get; set; }
 		public string UserId { get; set; } = string.Empty;
 		public string OrderGroupId { get; set; } = string.Empty;
-        //public string? StanderdWeeklyPlanId { get; set; }
-        public string ReceiveName { get; set; }
-        public string ReceivePhone { get; set; }
-        public string Note { get; set; } = string.Empty;
+		//public string? StanderdWeeklyPlanId { get; set; }
+		public string ReceiveName { get; set; } = string.Empty;
+		public string ReceivePhone { get; set; } = string.Empty;
+		public string Note { get; set; } = string.Empty;
+		public string? Message { get; set; }
 		public string Address { get; set; } = string.Empty;
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
@@ -31,10 +32,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public string Status { get; set; } = string.Empty;
 		public WeeklyPlanResponseModel weeklyPlan { get; set; }
 		public List<TransactionResponse> Transactions { get; set; }
-        //order detail
-        public List<OrderDetailResponse> OrderDetails { get; set; }
+		//order detail
+		public List<OrderDetailResponse> OrderDetails { get; set; }
 
-    }
+	}
 
 	public class OrderResponseId
 	{

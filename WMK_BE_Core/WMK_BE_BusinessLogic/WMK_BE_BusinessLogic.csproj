@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <None Remove="Service\Implement\RecipeService.cs~RFad3f333.TMP" />
+    <None Remove="Service\Implement\TransactionService.cs~RF2fba7a5b.TMP" />
+    <None Remove="Service\Implement\TransactionService.cs~RF38da9227.TMP" />
     <None Remove="Service\Interface\IIngredientCategoryService.cs~RF1a0b8773.TMP" />
   </ItemGroup>
 
@@ -16,6 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Accord" Version="3.8.0" />
+    <PackageReference Include="Accord.MachineLearning" Version="3.8.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Diacritics" Version="3.3.29" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />

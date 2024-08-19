@@ -85,6 +85,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = string.Join(" - " , error);
 				return result;
 			}
+			var duplicateName = currentList.FirstOrDefault(i => i.Name == ingredient.Name);//check trung ten voi ingrdient available
+			if ( duplicateName != null && duplicateName.Status == BaseStatus.Available )
+			{
+				result.StatusCode = 400;
+				result.Message = "Name ingredient existed!";
+				return result;
+			}
 			var checkIngredientCategory = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(ingredient.IngredientCategoryId.ToString());
 			if ( checkIngredientCategory == null )
 			{
@@ -304,6 +311,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Not have any ingredient!";
+				result.Data = [];
 				return result;
 			}
 			//user exist by customer
@@ -315,7 +323,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			result.StatusCode = 200;
 			result.Message = "Ingredient list get success (" + ingredientsResponse.Count + ")";
-			result.Data = ingredientsResponse;
+			result.Data = ingredientsResponse.OrderBy(i => i.Name).ToList();
 			return result;
 		}
 		public async Task<ResponseObject<List<IngredientResponse>>> GetIngredientsByNameAsync(string name)
@@ -348,16 +356,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( userName != null )
 						{
 							item.CreatedBy = userName;
-						}
-						//tim ten cho approvedBy
-						if ( item.UpdatedBy != null )
-						{
-							Guid.TryParse(item.UpdatedBy , out idConvert);
-							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-						}
-						if ( userName != null )
-						{
-							item.UpdatedBy = userName;
 						}
 					}
 					result.StatusCode = 200;

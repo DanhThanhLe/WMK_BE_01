@@ -13,12 +13,12 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 	{
 		public Guid Id { get; set; }
 		[ForeignKey(nameof(User))]
-		public Guid ShipperId { get; set; }
+		public Guid? ShipperId { get; set; }
 
 		public string Location { get; set; } = string.Empty;
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
-											//[NotMapped]
+		//[NotMapped]
 		//public double[] Coordinates
 		//{
 		//	get => string.IsNullOrEmpty(CoordinatesJson) ? Array.Empty<double>() : JsonSerializer.Deserialize<double[]>(CoordinatesJson) ?? Array.Empty<double>();
@@ -31,7 +31,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 
 		public virtual User User { get; set; }
 
-		public List<Order> Orders { get; set; }
+		public virtual List<Order> Orders { get; set; }
 
 		public OrderGroup()
 		{

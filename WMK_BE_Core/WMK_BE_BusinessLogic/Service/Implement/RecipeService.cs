@@ -44,10 +44,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IRecipeNutrientService _recipeNutrientService;
 		private readonly IRecipeIngredientService _recipeIngredientService;
 		private readonly IUserService _userService;
-		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper 
-			, IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService 
-			, IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService 
-			, IRecipeStepService recipeStepService , IUserService userService, IRedisService redisService)
+		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper
+			, IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService
+			, IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService
+			, IRecipeStepService recipeStepService , IUserService userService , IRedisService redisService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
@@ -142,6 +142,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 404;
 				result.Message = "Not have Any recipe!";
+				result.Data = [];
 				return result;
 			}
 			foreach ( var item in recipesResponse )
@@ -151,17 +152,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					Guid.TryParse(item.CreatedBy , out idConvert);
 					item.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				}
-				//tim ten cho approvedBy
-				if ( item.ApprovedBy != null )
-				{
-					Guid.TryParse(item.ApprovedBy , out idConvert);
-					item.ApprovedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				}
-				if ( item.UpdatedBy != null )
-				{
-					Guid.TryParse(item.UpdatedBy , out idConvert);
-					item.UpdatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
 				}
 			}
 			//user exist by customer
@@ -178,8 +168,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//}
 			result.StatusCode = 200;
 			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
-			result.Data = recipesResponse;
-			
+			result.Data = recipesResponse.OrderBy(o => o.Name).ToList() ?? [];
+
 			//await _redisService.SetValueAsync(redisKey , recipesResponse , TimeSpan.FromDays(3));
 			return result;
 		}
@@ -375,19 +365,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						{
 							item.CreatedBy = userName;
 						}
-						//tim ten cho approvedBy
-						if ( item.ApprovedBy != null )
-						{
-							Guid.TryParse(item.ApprovedBy , out idConvert);
-							userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-						}
-						if ( userName != null )
-						{
-							item.ApprovedBy = userName;
-						}
 					}
 					result.StatusCode = 200;
-					result.Message = "Recipe list found by name (" + returnList.Count() +")";
+					result.Message = "Recipe list found by name (" + returnList.Count() + ")";
 					result.Data = returnList;
 
 				}
@@ -422,6 +402,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					result.StatusCode = 400;
 					result.Message = "Duplicate name: " + checkDuplicateName.Name;
+					return result;
+				}
+				//check serving size phải 1-10 người
+				if ( recipe.ServingSize < 1 || recipe.ServingSize > 10 )
+				{
+					result.StatusCode = 400;
+					result.Message = "Serving size must be 1 - 10 people";
 					return result;
 				}
 				//mapper
@@ -691,13 +678,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				recipeExist.Notice = "Not have";
 			}
-			_mapper.Map(recipe , recipeExist);
-			if ( recipeExist.ProcessStatus == ProcessStatus.Processing
-				|| recipeExist.ProcessStatus == ProcessStatus.Denied
-				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
+			if ( (recipeExist.ProcessStatus == ProcessStatus.Processing && recipe.ProcessStatus == ProcessStatus.Denied)
+				|| recipe.ProcessStatus == ProcessStatus.Denied
+				|| recipe.ProcessStatus == ProcessStatus.Cancel )
 			{
 				recipeExist.BaseStatus = BaseStatus.UnAvailable;
 			}
+			if ( (recipeExist.ProcessStatus == ProcessStatus.Processing && recipe.ProcessStatus == ProcessStatus.Approved) )
+			{
+				recipeExist.BaseStatus = BaseStatus.Available;
+			}
+			_mapper.Map(recipe , recipeExist);
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
@@ -785,7 +776,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist != null )
 			{
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
-				if ( userExist != null && userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin )
+				//chỉ admin và manager mới được xóa luôn
+				if ( userExist != null && (userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin
+										|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Manager) )
 				{
 					//delete
 					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());
@@ -991,15 +984,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						//thành công
 						result.StatusCode = 200;
 						result.Message = "update recipe nutrient successfully";
-						return result;
 					}
 				}
 			}
-			result.StatusCode = 404;
-			result.Message = "Don't have recipe ingredient list!";
+			//trường hợp này có thể ingredient không có trong recipe nên vẫn trả về true
+			result.StatusCode = 200;
 			return result;
 		}
-
 
 		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy , Guid idRecipe , CreateRecipeRequest recipe)
 		{
@@ -1015,7 +1006,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Recipe not exist!";
 					return result;
 				}
-				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim()));
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim())
+																		&& x.Id != recipeExist.Id);
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
@@ -1024,15 +1016,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				//mapper
 				_mapper.Map(recipe , recipeExist);
-				recipeExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
 				recipeExist.ProcessStatus = ProcessStatus.Processing;
-				recipeExist.UpdatedBy = updatedBy;
 				if ( recipeExist.ProcessStatus == ProcessStatus.Processing
 				|| recipeExist.ProcessStatus == ProcessStatus.Denied
 				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
 				{
 					recipeExist.BaseStatus = BaseStatus.UnAvailable;
 				}
+				await _unitOfWork.CompleteAsync();
 				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
 				var updatePrice = await UpdatePrice(recipeExist.Id);
 				if ( !updatePrice )
@@ -1041,15 +1032,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Update recipe price unsuccessfully";
 					return result;
 				}
-
-				var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
-				if ( !updateResult )
-				{
-					result.StatusCode = 500;
-					result.Message = "Update Recipe unsuccessfully!";
-					return result;
-				}
-				await _unitOfWork.CompleteAsync();
 				//xóa các thành phần liên quan (RecipeCategory,RecipeIngredient)
 				var checkDeleteRecipeCategory = await _recipeCategoryService.DeleteByRcipe(recipeExist.Id);
 				var checkDeleteRecipeIngredient = await _recipeIngredientService.DeleteRecipeIngredientByRecipeAsync(recipeExist.Id);
@@ -1065,7 +1047,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 
 				//bat dau update cac thanh phan lien quan
-
 				//create RecipeCategory, RecipeIngredient
 				if ( recipe.CategoryIds != null && recipe.RecipeIngredientsList != null )
 				{
@@ -1149,7 +1130,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 					}
 				}
-
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Message = "Update Recipe successfully.";

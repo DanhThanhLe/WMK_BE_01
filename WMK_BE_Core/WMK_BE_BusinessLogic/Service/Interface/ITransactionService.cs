@@ -12,11 +12,12 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface ITransactionService
 	{
-		Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model);
+		//Task<ResponseObject<MomoCreatePaymentRequest>> CreatePaymentAsync(OrderInfoRequest model);
 		Task<ResponseObject<TransactionResponse>> CreateNewPaymentAsync(CreatePaymentRequest request);
 
         Task<ResponseObject<Transaction>> CreatePaymentZaloPayAsync(ZaloPayCreatePaymentRequest model);
 		Task<ResponseObject<Transaction>> UpdatePaymentZaloPayAsync(ZaloPayUpdatePaymentRequest model);
+		Task<ResponseObject<RefundZaloPayResponse>> RefundTransactionAsync(RefundZaloPayRequest request);
 		Task<ResponseObject<List<TransactionResponse>>> GetAllAsync();
 
 	}

@@ -80,9 +80,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		//
 		[HttpPut("cluster")]
-		public async Task<IActionResult> Cluster([FromBody] ClusterOrderGroupRequest model)
+		public async Task<IActionResult> Cluster()
 		{
-			var result = await _orderGroupService.OrderGroupClusterAsync(model);
+			var result = await _orderGroupService.OrderGroupClusterAsync();
 			return StatusCode(result.StatusCode , result);
 		}
 	}

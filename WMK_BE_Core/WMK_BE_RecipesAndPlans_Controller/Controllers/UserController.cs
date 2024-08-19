@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.UserModel;
 using WMK_BE_BusinessLogic.Service.Interface;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
@@ -12,9 +13,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
-		public UserController(IUserService userService)
+		private readonly ISendMailService _sendMailService;
+
+		public UserController(IUserService userService, ISendMailService sendMailService)
 		{
 			_userService = userService;
+			_sendMailService = sendMailService;
 		}
 		#region Get
 
@@ -46,11 +50,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 
 		#endregion
 		//
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = "Admin,Manager")]
 		[HttpPost("create")]
 		public async Task<IActionResult> Create([FromBody] CreateUserRequest model)
 		{
 			var result = await _userService.CreateUserAsync(model);
+			if ( result.Data != null )
+			{
+				//gửi mail cho user đó về tình hình
+				_sendMailService.SendMail(result.Data.Email , "Create Account on WeMealKit" , "Your account on WemealKit with role ("
+										+ result.Data.Role + ") has been created! Please contact the administrator for assistance.");
+			}
 			return StatusCode(result.StatusCode , result);
 		}
 		//
@@ -67,6 +77,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var result = await _userService.DeleteUserAsync(id);
+			if ( result.Data != null )
+			{
+				//gửi mail cho user đó về tình hình
+				_sendMailService.SendMail(result.Data.Email , "Remove Account" , "Your account on WemealKit with role ("
+										+ result.Data.Role + ") has been removed! Please contact the administrator for assistance.");
+			}
 			return StatusCode(result.StatusCode , result);
 		}
 
@@ -76,6 +92,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeRole(Guid id , [FromBody] ChangeRoleUserRequest model)
 		{
 			var result = await _userService.ChangeRoleAsync(id , model);
+			if ( result.Data != null )
+			{
+				//gửi mail cho user đó về tình hình
+				_sendMailService.SendMail(result.Data.Email , "Change role" , "Your account on WemealKit with role ("
+										+ result.Data.Role + ") has been changed! Please contact the administrator for assistance.");
+			}
 			return StatusCode(result.StatusCode , result);
 		}
 
@@ -85,6 +107,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		public async Task<IActionResult> ChangeStatus(Guid id)
 		{
 			var result = await _userService.ChangeStatusAsync(id);
+			if(result.Data != null)
+			{
+				//gửi mail cho user đó về tình hình
+				_sendMailService.SendMail(result.Data.Email , "Account status" , "Your account on WemealKit with role (" 
+										+ result.Data.Role +") has been changed to ("
+										+ result.Data.Status + ")! Please contact the administrator for assistance.");
+			}
 			return StatusCode(result.StatusCode , result);
 		}
 

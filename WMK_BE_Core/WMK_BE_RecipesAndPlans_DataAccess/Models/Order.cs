@@ -23,7 +23,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public Guid? StanderdWeeklyPlanId { get; set; }
 
         public int OrderCode { get; set; }
-        public string? Note { get; set; }
+        public string? Note { get; set; }// lưu thông tin cần chú ý của đơn hàng
+        public string? Message { get; set; }// thông báo của user hệ thống
 		public string Address { get; set; } = string.Empty;
 		public string? Img { get; set; }
 		public DateTime ShipDate { get; set; }
@@ -31,20 +32,20 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public double TotalPrice { get; set; }
 		public double Longitude { get; set; }//kinh dộ
 		public double Latitude { get; set; }//vĩ độ
-		public OrderStatus Status { get; set; }
 		public string ReceiveName { get; set; }
 		public string ReceivePhone { get; set; }
+		public OrderStatus Status { get; set; }
 
 
 		//reference
 		public virtual User User { get; set; }
 		public virtual OrderGroup? OrderGroup { get; set; }
 		public virtual WeeklyPlan WeeklyPlan { get; set; }
+		public virtual Transaction? Transaction { get; set; }
 
 		//list
 		public List<Feedback> FeedBacks { get; set; }
-		public List<OrderDetail> OrderDetails { get; set; }
-		public List<Transaction> Transactions { get; set; }// cho cọc trước
+		public virtual List<OrderDetail> OrderDetails { get; set; }
 
         public Order()
         {

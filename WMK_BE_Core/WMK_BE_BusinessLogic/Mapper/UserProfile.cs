@@ -17,6 +17,7 @@ namespace WMK_BE_BusinessLogic.Mapper
             CreateMap<User , UserResponse>().ReverseMap();
             CreateMap<User , UsersResponse>().ReverseMap();
             CreateMap<User , CreateUserRequest>().ReverseMap();
+            CreateMap<User , BaseUserResponse>().ReverseMap();
         }
     }
 }

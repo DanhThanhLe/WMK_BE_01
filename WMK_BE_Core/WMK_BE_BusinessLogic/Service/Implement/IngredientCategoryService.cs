@@ -54,7 +54,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			result.StatusCode = 200;
 			result.Message = "Ingredient category list get success (" + ingredientCategoriesResponse.Count + ")";
-			result.Data = ingredientCategoriesResponse;
+			result.Data = ingredientCategoriesResponse ?? [];
 			return result;
 		}
 		public async Task<ResponseObject<List<IngredientCategoryResponse>>> GetByNameAsync(string name)
@@ -104,7 +104,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( found != null && found.Status.ToString().Equals("Available") )
 			{
 				result.StatusCode = 500;
-				result.Message = "Existed with ID: " + found.Id;
+				result.Message = "Duplicate name category!";
 				return result;
 			}
 			IngredientCategory newOne = _mapper.Map<IngredientCategory>(request);
@@ -119,7 +119,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Error at create. Say from CreateNew - IngredientCategoryService";
+				result.Message = "Create ingredient category unsuccess!";
 				return result;
 			}
 		}
@@ -139,49 +139,58 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check co ton tai trong db khong
-			var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString());
-			if ( found == null )//ko co nghia la ko tim duoc category tuong ung -> bao loi
+			var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(id.ToString()); //tim trung ten
+			if ( found != null )
 			{
-				result.StatusCode = 404;
-				result.Message = "Not found, say from UpdateCategory - IngredientCategoryService";
-				return result;
-			}
+				var checkDuplicateName = _unitOfWork.IngredientCategoryRepository.Get(x => x.Name.Trim().ToLower().Equals(request.Name.Trim().ToLower())
+																						&& x.Id != found.Id).FirstOrDefault();
+				if ( checkDuplicateName != null )
+				{
+					result.StatusCode = 500;
+					result.Message = "Name category have exist!";
+					return result;
+				}
+				//detach entity if need
+				//_unitOfWork.IngredientCategoryRepository.DetachEntity(found);
 
-			//detach entity if need
-			//_unitOfWork.IngredientCategoryRepository.DetachEntity(found);
-
-			//found = _mapper.Map<IngredientCategory>(request);
-			_mapper.Map(request , found);
-			var updateResult = await _unitOfWork.IngredientCategoryRepository.UpdateAsync(found);
-			if ( updateResult )
-			{
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "Update ID " + id + " success.";
-				return result;
+				//found = _mapper.Map<IngredientCategory>(request);
+				_mapper.Map(request , found);
+				var updateResult = await _unitOfWork.IngredientCategoryRepository.UpdateAsync(found);
+				if ( updateResult )
+				{
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Update ingredient category success.";
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 500;
+					result.Message = "Update failed, say from UpdateCategory - IngredientCategoryService";
+					result.Data = _mapper.Map<IngredientCategoryResponse>(found);
+					return result;
+				}
 			}
 			else
 			{
-				result.StatusCode = 500;
-				result.Message = "Update failed, say from UpdateCategory - IngredientCategoryService";
-				result.Data = _mapper.Map<IngredientCategoryResponse>(found);
+				await DeleteById(id);
+				result.StatusCode = 404;
+				result.Message = "Not found ingredient category!";
 				return result;
 			}
 		}
 		#endregion
 
-		
-
 		#region Delete by id (xoa luon khoi db)
 		public async Task<ResponseObject<IngredientCategoryResponse>> DeleteById(Guid request)
 		{
 			var result = new ResponseObject<IngredientCategoryResponse>();
-			IngredientCategory found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(request.ToString());
-			_unitOfWork.IngredientCategoryRepository.DetachEntity(found);
+			var found = await _unitOfWork.IngredientCategoryRepository.GetByIdAsync(request.ToString());
+			//_unitOfWork.IngredientCategoryRepository.DetachEntity(found);
 			if ( found == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found with ID: " + request + ". Say from DeleteById - IngredientCategoryService";
+				result.Message = "Not found ingredient category!";
 				return result;
 			}
 			var deleteResult = await _unitOfWork.IngredientCategoryRepository.DeleteAsync(request.ToString());
@@ -189,13 +198,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Ok, Delete ingredient category Id: " + request + " success";
+				result.Message = "Delete ingredient category success";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Delete failed with ID: " + request + ". Say from DeleteById - IngredientCategoryService";
+				result.Message = "Delete ingredient category failed!";
 				return result;
 			}
 		}
@@ -219,6 +228,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#endregion
+
+		#region Change status
 		public async Task<ResponseObject<IngredientCategoryResponse>> ChangeStatusIngredientCategoryAsync(Guid id , ChangeStatusIngredientCategoryRequest request)
 		{
 			var result = new ResponseObject<IngredientCategoryResponse>();
@@ -238,12 +249,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				result.StatusCode = 500;
-				result.Message = "Update ingredient category unsuccess";
+				result.Message = "Update ingredient category unsuccess!";
 				return result;
 			}
 			result.StatusCode = 404;
 			result.Message = "Ingredient category not exist!";
 			return result;
 		}
+		#endregion
 	}
 }

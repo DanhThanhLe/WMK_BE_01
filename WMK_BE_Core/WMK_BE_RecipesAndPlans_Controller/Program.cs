@@ -1,4 +1,4 @@
-
+﻿
 using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -191,6 +191,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
             builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
             builder.Services.AddScoped<IRecipeIngredientOrderDetailService, RecipeIngredientOrderDetailService>();
             builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.Configure<ZaloPaySettings>(builder.Configuration.GetSection("ZaloPayAPI"));
 
             var app = builder.Build();
 
@@ -206,6 +207,14 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			app.UseAuthorization();
 			app.MapControllers();
 
+
+			using ( var scope = app.Services.CreateScope() )
+			{
+				var context = scope.ServiceProvider.GetRequiredService<WeMealKitContext>();
+				// Apply any pending migrations
+				context.Database.Migrate();
+				context.SeedData();
+			}
 			app.Run();
 		}
 	}

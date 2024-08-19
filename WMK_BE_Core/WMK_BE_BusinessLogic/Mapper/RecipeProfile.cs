@@ -12,29 +12,25 @@ using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_BusinessLogic.Mapper
 {
-    public class RecipeProfile : Profile
-    {
-        public RecipeProfile()
-        {
-            CreateMap<Recipe, CreateRecipeRequest>().ReverseMap();
-            CreateMap<Recipe, RecipeResponse>()
-                //.ForMember(dest => dest.RecipeCategories, opt => opt.MapFrom(src => src.RecipeCategories.Select(rc => new RecipeCategoryResponse
-                //{
-                //    CategoryId = rc.Category.Id,
-                //    Type = rc.Category.Type,
-                //    Name = rc.Category.Name  // Mapping tên Category
-                //}).ToList()))
-                .ReverseMap();
+	public class RecipeProfile : Profile
+	{
+		public RecipeProfile()
+		{
+			CreateMap<Recipe , CreateRecipeRequest>()
+			.ForMember(dest => dest.RecipeIngredientsList, opt => opt.MapFrom(src => src.RecipeIngredients))
+			.ReverseMap();
+			// Ánh xạ từ CreateRecipeIngredientRequest sang RecipeIngredient
+			CreateMap<CreateRecipeIngredientRequest , RecipeIngredient>()
+				.ForMember(dest => dest.IngredientId , opt => opt.MapFrom(src => src.IngredientId))
+				.ForMember(dest => dest.Amount , opt => opt.MapFrom(src => src.amount))
+				.ReverseMap();
+			CreateMap<Recipe , UpdateRecipeRequest>().ReverseMap();
+			CreateMap<Recipe , ChangeRecipeStatusRequest>().ReverseMap();
+			CreateMap<Recipe , RecipeResponse>().ReverseMap();
+			CreateMap<Recipe , ChangeRecipeBaseStatusRequest>().ReverseMap();
 
-            CreateMap<Recipe , UpdateRecipeRequest>().ReverseMap();
-            CreateMap<Recipe , ChangeRecipeStatusRequest>().ReverseMap();
-            CreateMap<Recipe , ChangeRecipeBaseStatusRequest>().ReverseMap();
 
-                
-            //CreateMap//chua co map cho request voi model nen ko tao đc fuck
-        }
-    }
+			//CreateMap//chua co map cho request voi model nen ko tao đc fuck
+		}
+	}
 }
-                //.ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.RecipeCategories.Select(rc => rc.Id)))
-                //.ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.RecipeAmounts))
-                //.ForMember(dest => dest.Nutrition, opt => opt.MapFrom(src => src.Nutrition))

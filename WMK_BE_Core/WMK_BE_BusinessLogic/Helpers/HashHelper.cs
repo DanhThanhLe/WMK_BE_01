@@ -39,6 +39,15 @@ namespace WMK_BE_BusinessLogic.Helpers
 
 			return BitConverter.ToString(hashBytes).Replace("-" , "").ToLower();
 		}
+		public static string CreateHMACSHA256Signature(string data , string key)
+		{
+			using ( var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key)) )
+			{
+				var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+				return BitConverter.ToString(hash).Replace("-" , "").ToLower();
+			}
+		}
+
 		public static bool VerifyHash(string text , string hash)
 		{
 			// Hash the input text and compare it to the provided hash.

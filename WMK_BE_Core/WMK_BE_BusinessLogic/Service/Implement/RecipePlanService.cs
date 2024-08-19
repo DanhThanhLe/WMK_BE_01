@@ -24,30 +24,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				//check weeklyPlan have exist
 				var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(weeklyPlanId.ToString());
-				if ( weeklyPlanExist != null && (weeklyPlanExist.ProcessStatus == ProcessStatus.Processing || weeklyPlanExist.ProcessStatus == ProcessStatus.Customer) )//ko phai status la processing hoac la cua customer thi ko cho tao
+				if ( weeklyPlanExist != null && (weeklyPlanExist.ProcessStatus == ProcessStatus.Processing
+												|| weeklyPlanExist.ProcessStatus == ProcessStatus.Customer) )
 				{
-					foreach ( var recipe in recipeIds )
+					foreach ( var recipePlan in recipeIds )
 					{
-						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipe.recipeId.ToString());
-						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved )
+						//check xem có trùng ngày và buổi mà cùng món hay không
+						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipePlan.recipeId.ToString());
+						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved && recipeExist.BaseStatus == BaseStatus.Available)
 						{
-							var recipePlan = new RecipePLan
+							var newRecipePlan = new RecipePLan
 							{
 								StandardWeeklyPlanId = weeklyPlanId ,
+								WeeklyPlan = weeklyPlanExist ,
 								RecipeId = recipeExist.Id ,
 								Recipe = recipeExist ,
-								WeeklyPlan = weeklyPlanExist ,
-								Quantity = recipe.Quantity ,
-								Price = recipeExist.Price * recipe.Quantity ,
-								DayInWeek = recipe.DayInWeek ,
-								MealInDay = recipe.MealInDay ,
+								Quantity = recipePlan.Quantity ,
+								Price = recipeExist.Price * recipePlan.Quantity ,
+								DayInWeek = recipePlan.DayInWeek ,
+								MealInDay = recipePlan.MealInDay ,
 							};
-							recipePlans.Add(recipePlan);
+							recipePlans.Add(newRecipePlan);
+							AddOrUpdateRecipePlan(recipePlans , newRecipePlan);
 						}
 						else
 						{
-							result.StatusCode = 400;
-							result.Message = "Recipe with ID (" + recipe.recipeId + ") not found!";
+							result.StatusCode = 404;
+							result.Message = "Create recipe plan with recipe name (" + recipeExist?.Name + ") not exist or not available!";
 							return result;
 						}
 					}
@@ -55,15 +58,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( recipePlans.Any() )
 					{
 						await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);
-						//add list recipe plan into DB
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
 						result.Message = "Create recipe plan successfully.";
 						result.Data = recipePlans;
 						return result;
 					}
-					result.StatusCode = 400;
-					result.Message = "Create recipe plan unsuccessfully.";
+					result.StatusCode = 404;
+					result.Message = "Don't have recipe plan to create!";
 					return result;
 				}
 				else //trg hop khac
@@ -76,8 +78,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			catch ( Exception ex )
 			{
 				result.StatusCode = 500;
-				result.Message = ex.Message;
+				result.Message = "Error into create recipe plan: " + ex.Message;
 				return result;
+			}
+		}
+		private void AddOrUpdateRecipePlan(List<RecipePLan> recipePlans , RecipePLan newRecipePlan)
+		{
+			var existingRecipePlan = recipePlans.FirstOrDefault(rp =>
+				rp.DayInWeek == newRecipePlan.DayInWeek &&
+				rp.MealInDay == newRecipePlan.MealInDay &&
+				rp.RecipeId == newRecipePlan.RecipeId);
+
+			if ( existingRecipePlan != null )
+			{
+				// Nếu đã tồn tại, tăng số lượng lên
+				existingRecipePlan.Quantity += newRecipePlan.Quantity;
+				existingRecipePlan.Price += newRecipePlan.Price; // Cập nhật giá tổng cộng
+			}
+			else
+			{
+				// Nếu không tồn tại, thêm mới vào danh sách
+				recipePlans.Add(newRecipePlan);
 			}
 		}
 
