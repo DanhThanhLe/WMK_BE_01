@@ -467,6 +467,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							var createRecipePlanResult = await _recipePlanService.CreateRecipePlanAsync(newOne.Id , request.recipeIds);
 							if ( createRecipePlanResult.StatusCode == 200 && createRecipePlanResult.Data != null )
 							{
+								await _unitOfWork.CompleteAsync();
 								result.StatusCode = 200;
 								result.Message = "OK";
 								return result;
