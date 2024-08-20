@@ -61,7 +61,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         if (!createResult)
                         {
                             result.StatusCode = 500;
-                            result.Message = "Error at CreateCustomPlanAsync - CustomPlanService ";
+                            result.Message = "Recipe with name (" + checkRecipe.Name + ") not available!";
                             return result;
                         }
                         //bat dau tao thong tin recipeIngredient trong orderDetail

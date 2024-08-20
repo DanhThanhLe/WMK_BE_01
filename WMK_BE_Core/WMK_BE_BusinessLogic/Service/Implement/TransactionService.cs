@@ -255,6 +255,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				else
 				{
+					orderExist.Transaction = newTransaction;
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Data = _mapper.Map<TransactionResponse>(newTransaction);
@@ -368,9 +369,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 
-		public Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
+		public async Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
 		{
-			throw new NotImplementedException();
+			var result = new ResponseObject<List<TransactionResponse>>();
+			var trans = await _unitOfWork.TransactionRepository.GetAllAsync();
+			if ( trans != null )
+			{
+				result.StatusCode = 200;
+				result.Message = "List transactions.";
+				result.Data = _mapper.Map<List<TransactionResponse>>(trans);
+				return result;
+			}
+			result.StatusCode = 400;
+			result.Message = "Not have transaction!";
+			return result;
 		}
 
 		#endregion
