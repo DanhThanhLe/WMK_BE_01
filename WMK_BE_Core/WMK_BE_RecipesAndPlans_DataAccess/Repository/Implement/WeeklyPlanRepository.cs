@@ -133,5 +133,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 							.ThenInclude(ri => ri.Ingredient)
 				.ToListAsync();
 		}
+
+		public void RemoveRange(IEnumerable<WeeklyPlan> weeklyPlans)
+		{
+			_dbSet.RemoveRange(weeklyPlans);
+		}
 	}
 }

@@ -549,18 +549,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( status == ProcessStatus.Denied || baseStatus != null )
 				{
 					//Xóa khỏi wpl
-					var recipePlans = await _unitOfWork.RecipePlanRepository.GetAllAsync();
-					var recipePLansExist = recipePlans.Where(rp => rp.RecipeId == recipeId).ToList();
+					var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
 					if ( recipePLansExist.Count > 0 )
 					{
 						foreach ( var recipePlan in recipePLansExist )
 						{
 							//delete recipePLan
-							var deleteResult = await _unitOfWork.RecipePlanRepository.DeleteAsync(recipePlan.Id.ToString());
-							if ( deleteResult )
-							{
-								await _unitOfWork.CompleteAsync();
-							}
+							_unitOfWork.RecipePlanRepository.RemoveRange(recipePLansExist);
+							await _unitOfWork.CompleteAsync();
 						}
 						return true;
 					}
@@ -656,7 +652,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Change status -- just manager use
-		public async Task<ResponseObject<RecipeResponse>> ChangeStatus(Guid id , ChangeRecipeStatusRequest recipe)
+		public async Task<ResponseObject<RecipeResponse>> ChangeStatusProcessAsync(Guid id , ChangeRecipeStatusRequest recipe)
 		{
 			var result = new ResponseObject<RecipeResponse>();
 			var validateResult = _recipeChangeStatusValidator.Validate(recipe);
@@ -683,6 +679,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				|| recipe.ProcessStatus == ProcessStatus.Cancel )
 			{
 				recipeExist.BaseStatus = BaseStatus.UnAvailable;
+				await ChangeBaseStatus(id , new ChangeRecipeBaseStatusRequest { BaseStatus = BaseStatus.UnAvailable });
 			}
 			if ( (recipeExist.ProcessStatus == ProcessStatus.Processing && recipe.ProcessStatus == ProcessStatus.Approved) )
 			{
@@ -735,11 +732,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Not found recipe id " + id + "!";
 				return result;
 			}
+			////nếu đổi qua unavailable thì xóa khỏi wp
+			//if ( recipe.BaseStatus == BaseStatus.UnAvailable )
+			//{
+			//	var recipePlansRemove = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeExist.Id).ToList();
+			//	_unitOfWork.RecipePlanRepository.RemoveRange(recipePlansRemove);
+			//	await _unitOfWork.CompleteAsync();
+			//}
 			_mapper.Map(recipe , recipeExist);
 			var changeResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
 			if ( changeResult )
 			{
-				//Nếu thay đổi status sang unavailable thì xóa recipe khỏi wpl
+				//Nếu thay đổi status sang unavailable thì đổi trạng thái wp sang unavailable
 				if ( recipeExist.BaseStatus == BaseStatus.UnAvailable && recipeExist.RecipePlans != null )
 				{
 					var deleteWp = await deleteRecipeFromWeeklyPlan(recipeExist.Id , recipeExist.ProcessStatus , recipe.BaseStatus);
@@ -749,6 +753,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						result.Message = "Change status unsuccess! Delete recipe from weekly plan!";
 						return result;
 
+					}
+					var weeklyPlansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeExist.Id)
+						.Select(rp => rp.WeeklyPlan) // Chọn WeeklyPlan từ RecipePlan
+						.Distinct() // Loại bỏ các WeeklyPlan trùng lặp
+						.ToList();
+					foreach ( var weeklyPlan in weeklyPlansExist )
+					{
+						if ( weeklyPlan.ProcessStatus != ProcessStatus.Processing )
+						{
+							weeklyPlan.BaseStatus = BaseStatus.UnAvailable;
+						}
 					}
 				}
 				await _unitOfWork.CompleteAsync();

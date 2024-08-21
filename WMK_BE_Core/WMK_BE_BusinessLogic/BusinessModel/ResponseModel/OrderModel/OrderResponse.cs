@@ -31,7 +31,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public double TotalPrice { get; set; }
 		public string Status { get; set; } = string.Empty;
 		public WeeklyPlanResponseModel weeklyPlan { get; set; }
-		public List<TransactionResponse> Transactions { get; set; }
+		public TransactionResponse Transaction { get; set; }
 		//order detail
 		public List<OrderDetailResponse> OrderDetails { get; set; }
 

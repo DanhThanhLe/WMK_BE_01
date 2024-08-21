@@ -10,6 +10,7 @@ using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.IngredientModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.Recipe;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.RecipeNutrientModel;
 using WMK_BE_BusinessLogic.ResponseObject;
+using WMK_BE_RecipesAndPlans_DataAccess.Enums;
 
 namespace WMK_BE_BusinessLogic.Service.Interface
 {
@@ -23,30 +24,13 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         public Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(string createdBy,CreateRecipeRequest recipe);
         public Task<bool> AutoUpdateRecipeAsync(Guid? recipeId);
         public Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy, Guid idRecipe, CreateRecipeRequest recipe);
-        public Task<ResponseObject<RecipeResponse>> ChangeBaseStatus(Guid id , ChangeRecipeBaseStatusRequest recipe);
         public Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid userId, Guid request);//xoa khoi db
-        public Task<ResponseObject<RecipeResponse>> ChangeStatus(Guid id, ChangeRecipeStatusRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> ChangeStatusProcessAsync(Guid id, ChangeRecipeStatusRequest recipe);
+        public Task<ResponseObject<RecipeResponse>> ChangeBaseStatus(Guid id , ChangeRecipeBaseStatusRequest recipe);
 
         public Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId);
 
         Task<ResponseObject<List<RecipeNutrientResponse>>> UpdateRecipeByIngredient(Guid ingredientId);
-
-        //public Task<ResponseObject<RecipeResponse>> FilterToMenu(MenuFilterRequest request);
-
-        //public Task<ResponseObject<RecipeResponse>> GetRecipesByEquipmentId(int equipmentId);
-
-        //public Task<ResponseObject<RecipeResponse>> GetRecipesByHealthConditionId(int healthConditionId);
-
-        //public Task<ResponseObject<RecipeResponse>> GetRecipesByCookingHobbyId(int cookingHobbyId);
-
-        ////public Task<ResponseObject<RecipeResponse>> GetRecipesWithListAndMeal(List<Recipe> list, string meal);
-
-        //public Task<ResponseObject<RecipeResponse>> GetRecipesWithMeal(string meal);
-
-        //public Task<ResponseObject<RecipeResponse>> GetIngredientAndAmountByRecipeId(int recipeId);
-
-        //public Task<ResponseObject<RecipeResponse>> GetRecipeWithIngredientsList(List<int> ingredientsInputList);
-
 
 	}
 }

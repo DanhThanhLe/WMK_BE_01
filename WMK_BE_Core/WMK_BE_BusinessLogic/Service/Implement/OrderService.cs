@@ -290,7 +290,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						var createTransactionResult = await _transactionService.CreateNewPaymentAsync(newPaymentRequest);
 						if ( createTransactionResult != null && createTransactionResult.StatusCode == 200 && createTransactionResult.Data != null )
 						{
-							//newOrder.Transactions.Add(createTransaction.Data);
+							//newOrder.Transaction = _mapper.Map<Transaction>(createTransactionResult.Data);
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Create order success";
@@ -481,7 +481,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Change order status into " + orderExist.Status + " success.";
 					var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
 					var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
-					if ( customer != null ) {
+					if ( customer != null )
+					{
 						mapOrderResponse.UserId = customer.Email;
 					}
 					result.Data = mapOrderResponse;

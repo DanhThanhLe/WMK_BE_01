@@ -105,7 +105,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			Guid recipeId;
 			if ( Guid.TryParse(id.ToString() , out recipeId) )
 			{
-				var result = await _recipeService.ChangeStatus(id , request);
+				var result = await _recipeService.ChangeStatusProcessAsync(id , request);
 				return StatusCode(result.StatusCode , result);
 			}
 			else

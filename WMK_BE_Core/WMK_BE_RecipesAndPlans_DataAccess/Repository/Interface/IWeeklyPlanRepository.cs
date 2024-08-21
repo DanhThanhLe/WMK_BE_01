@@ -11,5 +11,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Interface
 	{
 		Task<bool> RecipeExistInWeeklyPlanAsync(Guid weeklyPlanId);
 		Task<List<WeeklyPlan>> GetAllWeeklyPlanFilterAsync(DateTime startOfWeek , DateTime enOfWeek);
+		void RemoveRange(IEnumerable<WeeklyPlan> weeklyPlans);
+
 	}
 }
