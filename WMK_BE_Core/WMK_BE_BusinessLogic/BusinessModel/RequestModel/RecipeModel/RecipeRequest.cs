@@ -16,10 +16,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         public LevelOfDifficult Difficulty { get; set; }
         public string? Description { get; set; }
         public string? ImageLink { get; set; }
-        public DateTime? ApprovedAt { get; set; }
-        public string? ApprovedBy { get; set; } = string.Empty;
-        public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; } = string.Empty;
+        //public DateTime? ApprovedAt { get; set; }
+        //public string? ApprovedBy { get; set; } = string.Empty;
+        //public DateTime? UpdatedAt { get; set; }
+        //public string? UpdatedBy { get; set; } = string.Empty;
         public int Popularity { get; set; }
         public double Price { get; set; } = 10000;
         public ProcessStatus ProcessStatus { get; set; }
@@ -30,14 +30,12 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.Recipe
         //public Guid Id { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
         public string? Notice { get; set; }
-
     }
     
     public class ChangeRecipeBaseStatusRequest
 
 	{
 		public BaseStatus BaseStatus { get; set; }
-
     }
     public class IdRecipeRequest
     {

@@ -17,10 +17,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.WeeklyPlanModel
         public string? Title { get; set; } = string.Empty;
         public string? Description { set; get; } = string.Empty;
         public string? Notice { get; set; } = string.Empty;
-        public DateTime? ApprovedAt { get; set; }
-        public string? ApprovedBy { get; set; } = string.Empty;
-        public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; } = string.Empty;
+        //public DateTime? ApprovedAt { get; set; }
+        //public string? ApprovedBy { get; set; } = string.Empty;
+        //public DateTime? UpdatedAt { get; set; }
+        //public string? UpdatedBy { get; set; } = string.Empty;
         public ProcessStatus? ProcessStatus { get; set; }
         public List<RecipeWeeklyPlanCreate>? recipeIds { get; set; }
     }

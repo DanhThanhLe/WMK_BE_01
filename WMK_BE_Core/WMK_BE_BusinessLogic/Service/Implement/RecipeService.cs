@@ -295,16 +295,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					recipe.CreatedBy = userName;
 				}
-				//tim ten cho approvedBy
-				if ( recipe.ApprovedBy != null )
-				{
-					Guid.TryParse(recipe.ApprovedBy , out idConvert);
-					userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
-				}
-				if ( userName != null )
-				{
-					recipe.ApprovedBy = userName;
-				}
+				////tim ten cho approvedBy
+				//if ( recipe.ApprovedBy != null )
+				//{
+				//	Guid.TryParse(recipe.ApprovedBy , out idConvert);
+				//	userName = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+				//}
+				//if ( userName != null )
+				//{
+				//	recipe.ApprovedBy = userName;
+				//}
 				RecipeResponse response = _mapper.Map<RecipeResponse>(recipe);
 				result.StatusCode = 200;
 				result.Message = "Recipe with Id " + id + ":";
