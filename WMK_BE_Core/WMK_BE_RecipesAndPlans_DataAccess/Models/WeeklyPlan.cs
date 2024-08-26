@@ -23,10 +23,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public string? Notice { get; set; }
 		public DateTime CreateAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
-        public DateTime? ApprovedAt { get; set; }
-        public string? ApprovedBy { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public string? UpdatedBy { get; set; } = string.Empty;
+        //public DateTime? ApprovedAt { get; set; }
+        //public string? ApprovedBy { get; set; }
+        //public DateTime? UpdatedAt { get; set; }
+        //public string? UpdatedBy { get; set; } = string.Empty;
         public BaseStatus BaseStatus { get; set; }
         public ProcessStatus ProcessStatus { get; set; }
 

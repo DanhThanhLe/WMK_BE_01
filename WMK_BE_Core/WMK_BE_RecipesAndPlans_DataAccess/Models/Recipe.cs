@@ -25,10 +25,10 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public int Popularity { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; } = string.Empty;
-		public DateTime? ApprovedAt { get; set; }
-		public string? ApprovedBy { get; set; } = string.Empty;
-		public DateTime? UpdatedAt { get; set; }
-		public string? UpdatedBy { get; set; } = string.Empty;
+		//public DateTime? ApprovedAt { get; set; }
+		//public string? ApprovedBy { get; set; } = string.Empty;
+		//public DateTime? UpdatedAt { get; set; }
+		//public string? UpdatedBy { get; set; } = string.Empty;
 		public ProcessStatus ProcessStatus { get; set; }
 		public BaseStatus BaseStatus { get; set; }
 
@@ -38,8 +38,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public virtual List<RecipeCategory> RecipeCategories { get; set; }
 		public virtual List<RecipeStep> RecipeSteps { get; set; }
 		public virtual RecipeNutrient RecipeNutrient { get; set; }
-		public List<RecipePLan> RecipePlans { get; set; }//quan he 1 - nhieu (recipe - recipePlan)
-														 //public virtual List<CustomPlan> CustomPlans { get; set; }//quan he 1 nhieu (recipe - customPlan)    
+		public List<RecipePLan> RecipePlans { get; set; }
 
 		public Recipe()
 		{ }
