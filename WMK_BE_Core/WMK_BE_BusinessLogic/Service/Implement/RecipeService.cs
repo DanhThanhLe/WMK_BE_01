@@ -438,15 +438,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = checkCreateRecipeCategory.Message;
 					return result;
 				}
-				//create RecipeIngredient
-				var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(newRecipe.Id , recipe.RecipeIngredientsList);
-				if ( checkCreateRecipeIngredient.StatusCode != 200 && checkCreateRecipeIngredient.Data == null )
-				{
-					await resetRecipe(newRecipe.Id);
-					result.StatusCode = 500;
-					result.Message = checkCreateRecipeIngredient.Message;
-					return result;
-				}
+
+				////create RecipeIngredient
+				//var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(newRecipe.Id , recipe.RecipeIngredientsList);
+				//if ( checkCreateRecipeIngredient.StatusCode != 200 && checkCreateRecipeIngredient.Data == null )
+				//{
+				//	await resetRecipe(newRecipe.Id);
+				//	result.StatusCode = 500;
+				//	result.Message = checkCreateRecipeIngredient.Message;
+				//	return result;
+				//}
+
 				//create RecipeStep
 				var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(newRecipe.Id , recipe.Steps);
 				if ( checkCreateRecipeStep.StatusCode != 200 && checkCreateRecipeStep.Data == null )
