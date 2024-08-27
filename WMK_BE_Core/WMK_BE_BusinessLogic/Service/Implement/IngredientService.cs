@@ -287,7 +287,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
-
 		#region Get all
 		public async Task<ResponseObject<List<IngredientResponse>>> GetAllAync(string? userId , GetAllIngredientsRequest? model)
 		{
@@ -446,8 +445,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						var updateNutrient = _mapper.Map<IngredientNutrientRequest>(ingredient.NutrientInfo);
 						_mapper.Map(ingredient , ingredientExist);
-						ingredientExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
-						ingredientExist.UpdatedBy = updateBy;
+						//ingredientExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
+						//ingredientExist.UpdatedBy = updateBy;
 						//update ingredient nutrient
 						var updateNutrientResult = await _ingredientNutrientService.Update(ingredientExist.IngredientNutrient.Id , updateNutrient);//truyen id cua nutrient va model de update
 						if ( updateNutrientResult != null && updateNutrientResult.StatusCode != 200 )
@@ -500,7 +499,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = ex.Message;
 				return result;
 			}
-
 		}
 		#endregion
 	}
