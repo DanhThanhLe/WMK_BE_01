@@ -517,15 +517,28 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = string.Join(" - " , error);
 					return result;
 				}
-				//trường hợp recipe ko nằm trong quy định từ 21 - 200 món
-				if ( model.recipeIds != null && model.recipeIds.Count > 200 && model.recipeIds.Count < 21 )
+				//phan nay kiem tra danh sach recipe co du khong (21 toi 200 recipe | so luong portion (phan an cho ca weekplan tu 21 toi 200 phan an)) - Danh
+                var limitNumber = 0;
+                foreach (var recipe in model.recipeIds)
+                {
+                    limitNumber += recipe.Quantity;
+                }
+                if (limitNumber < 21 || limitNumber > 200)
+                {
+                    result.StatusCode = 400;
+                    result.Message = "Must be 21 - 200 portion (sum of quantity) for each week";
+                    return result;
+                }
+                //trường hợp recipe ko nằm trong quy định từ 21 - 200 món
+                if (model.recipeIds.Count > 200 || model.recipeIds.Count < 21)//can sua lai cho nay vi dang lam ra truong hop luon dung
 				{
 					result.StatusCode = 400;
-					result.Message = "Must be 21 - 200 portion for each week";
+					result.Message = "Must be 21 - 200 recipe for each week";
 					return result;
 				}
-				else
-				{
+                //phan nay kiem tra danh sach recipe co du khong (21 toi 200 recipe | so luong portion (phan an cho ca weekplan tu 21 toi 200 phan an)) - Danh
+                else
+                {
 					var foundWeeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
 					if ( foundWeeklyPlan == null )
 					{
@@ -535,48 +548,58 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 					//bat dau thay doi thong tin cho week plan
 					_unitOfWork.WeeklyPlanRepository.DetachEntity(foundWeeklyPlan);
-					_mapper.Map(model , foundWeeklyPlan);
+					_mapper.Map(model ,foundWeeklyPlan);
 					foundWeeklyPlan.ProcessStatus = ProcessStatus.Processing;//chuyển sang thì duyệt lại nếu là admin hoặc manager
 																			 //thì tự duyệt còn staff thì phải qua manager duyệt 
 					foundWeeklyPlan.BaseStatus = BaseStatus.UnAvailable;
-					//trường hợp check xem nếu cùng bữa ăn thì không được trùng recipe 
-					//tìm xem recipe plan có trước đó và xóa đi
-					var relatedRecipePlans = _unitOfWork.RecipePlanRepository.Get(x => x.StandardWeeklyPlanId.ToString().ToLower()
-																						.Equals(id.ToString().ToLower())).ToList();
-					if ( relatedRecipePlans != null && relatedRecipePlans.Any() )
+                    var updateWeekPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(foundWeeklyPlan);
+					if (updateWeekPlanResult)
 					{
-						_unitOfWork.RecipePlanRepository.RemoveRange(relatedRecipePlans);
-						await _unitOfWork.CompleteAsync();
+                        //tìm xem recipe plan có trước đó và xóa đi
+                        var relatedRecipePlans = _unitOfWork.RecipePlanRepository.Get(x => x.StandardWeeklyPlanId.ToString().ToLower()
+                                                                                            .Equals(id.ToString().ToLower())).ToList();
+                        if (relatedRecipePlans != null && relatedRecipePlans.Any())
+                        {
+                            _unitOfWork.RecipePlanRepository.RemoveRange(relatedRecipePlans);
+                            await _unitOfWork.CompleteAsync();
+                        }
+                        else
+                        {
+                            result.StatusCode = 500;
+                            result.Message = "Weekplan not have any recipe. Tin nhan cu la: Remove recipe plan faild!";
+                            return result;
+                        }
+                        if (model.recipeIds != null && model.recipeIds.Any())
+                        {
+                            var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(id, model.recipeIds);
+                            //cap nhat thong tin cho weekplan - Danh
+                            if (createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null)
+                            {
+                                await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
+                                result.StatusCode = 200;
+                                result.Message = "Update Weekly plan successfully.";
+                                return result;
+                            }
+                            else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
+                            {
+                                result.StatusCode = 500;
+                                result.Message = createRecipePlansResult.Message + " Update weekplan fail";
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.StatusCode = 404;
+                            result.Message = "Recipe can't not empty! Please input recipe!!";
+                            return result;
+                        }
 					}
 					else
 					{
-						result.StatusCode = 500;
-						result.Message = "Remove recipe plan faild!";
-						return result;
-					}
-					if ( model.recipeIds != null && model.recipeIds.Any() )
-					{
-						var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(id , model.recipeIds);
-						if ( createRecipePlansResult.StatusCode == 200 && createRecipePlansResult.Data != null )
-						{
-							await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
-							result.StatusCode = 200;
-							result.Message = "Update Weekly plan successfully.";
-							return result;
-						}
-						else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
-						{
-							result.StatusCode = createRecipePlansResult.StatusCode;
-							result.Message = createRecipePlansResult.Message;
-							return result;
-						}
-					}
-					else
-					{
-						result.StatusCode = 404;
-						result.Message = "Recipe can't not empty! Please input recipe!!";
-						return result;
-					}
+                        result.StatusCode = 500;
+                        result.Message = "Update basic info fail";
+                        return result;
+                    }
 				}
 			}
 			catch ( Exception ex )
