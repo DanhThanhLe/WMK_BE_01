@@ -44,13 +44,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								DayInWeek = recipePlan.DayInWeek ,
 								MealInDay = recipePlan.MealInDay ,
 							};
-							recipePlans.Add(newRecipePlan);
+							//recipePlans.Add(newRecipePlan); //ko add tu do nua, dung ham ben duoi de kiem tra trung lap va add moi, them thong tin - Danh
 							AddOrUpdateRecipePlan(recipePlans , newRecipePlan);
 						}
 						else
 						{
 							result.StatusCode = 404;
-							result.Message = "Create recipe plan with recipe name (" + recipeExist?.Name + ") not exist or not available!";
+							result.Message = "Create recipe plan with recipe name (" + recipeExist?.Name + ") not exist, not approved or not available!";
 							return result;
 						}
 					}
@@ -58,7 +58,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( recipePlans.Any() )
 					{
 						await _unitOfWork.RecipePlanRepository.AddRangeAsync(recipePlans);
-						await _unitOfWork.CompleteAsync();
+						//await _unitOfWork.CompleteAsync(); //ko goi o day vi con can xac nhan ket qua thanh cong cua cac buoc khac - Danh
 						result.StatusCode = 200;
 						result.Message = "Create recipe plan successfully.";
 						result.Data = recipePlans;
