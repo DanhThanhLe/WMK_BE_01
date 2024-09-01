@@ -550,7 +550,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
 			if ( recipeExist != null )
 			{
-				if ( processStatusExist == ProcessStatus.Denied )
+				if ( processStatusExist == ProcessStatus.Denied || baseStatusChange != null && baseStatusChange == BaseStatus.UnAvailable )
 				{
 					//Xóa khỏi wpl
 					var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
@@ -562,23 +562,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							_unitOfWork.RecipePlanRepository.RemoveRange(recipePLansExist);
 							await _unitOfWork.CompleteAsync();
 						}
-						return true;
 					}
-				}
-				if ( baseStatusChange != null && baseStatusChange == BaseStatus.UnAvailable )
-				{
-					//Xóa khỏi wpl
-					var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
-					if ( recipePLansExist.Count > 0 )
-					{
-						foreach ( var recipePlan in recipePLansExist )
-						{
-							//delete recipePLan
-							_unitOfWork.RecipePlanRepository.RemoveRange(recipePLansExist);
-							await _unitOfWork.CompleteAsync();
-						}
-						return true;
-					}
+					return true;
 				}
 			}
 			return false;
