@@ -719,6 +719,37 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> ChangeBaseStatusWeeklyPlanAsync(Guid id , ChangeBaseStatusWeeklyPlanRequest model)
+		{
+			var result = new ResponseObject<WeeklyPlanResponseModel>();
+
+			var weeklyPlanExist = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
+			if ( weeklyPlanExist == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "WeeklyPLan not exist!";
+				return result;
+			}
+			if ( weeklyPlanExist.ProcessStatus == ProcessStatus.Processing )
+			{
+				result.StatusCode = 400;
+				result.Message = "WeeklyPLan is pending handle! Please try again later.";
+				return result;
+			}
+			weeklyPlanExist.BaseStatus = model.BaseStatus;
+			var updateWeeklyPlanResult = await _unitOfWork.WeeklyPlanRepository.UpdateAsync(weeklyPlanExist);
+			if ( updateWeeklyPlanResult )
+			{
+				result.StatusCode = 200;
+				result.Message = "Change status success!";
+				//result.Data = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
+				return result;
+			}
+			result.StatusCode = 500;
+			result.Message = "Faild to change weekly plan status!";
+			return result;
+
+		}
 		#endregion
 
 		#region update - full info
@@ -820,6 +851,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		#endregion
 	}
 }

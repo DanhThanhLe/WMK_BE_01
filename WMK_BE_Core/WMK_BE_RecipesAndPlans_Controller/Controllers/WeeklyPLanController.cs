@@ -129,6 +129,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _weeklyPLanService.ChangeStatusWeeklyPlanAsync(userId , id , model);
 			return StatusCode(result.StatusCode , result);
 		}
+		[HttpPut("change-base-status/{id}")]
+		[Authorize]
+		public async Task<IActionResult> ChangeBaseStatus(Guid id , [FromBody] ChangeBaseStatusWeeklyPlanRequest model)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var result = await _weeklyPLanService.ChangeBaseStatusWeeklyPlanAsync(id , model);
+			return StatusCode(result.StatusCode , result);
+		}
 
 		//
 		[HttpDelete("delete/{id}")]
