@@ -170,16 +170,16 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
-			//get from redis
-			var redisKey = "WeeklyPlanList";
-			var redisData = await _redisService.GetValueAsync<List<WeeklyPlanResponseModel>>(redisKey);
-			if ( redisData != null && redisData.Count > 0 )
-			{
-				result.StatusCode = 200;
-				result.Message = "WeeklyPlan list: " + redisData.Count();
-				result.Data = redisData;
-				return result;
-			}
+			////get from redis
+			//var redisKey = "WeeklyPlanList";
+			//var redisData = await _redisService.GetValueAsync<List<WeeklyPlanResponseModel>>(redisKey);
+			//if ( redisData != null && redisData.Count > 0 )
+			//{
+			//	result.StatusCode = 200;
+			//	result.Message = "WeeklyPlan list: " + redisData.Count();
+			//	result.Data = redisData;
+			//	return result;
+			//}
 
 			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved
 																	&& x.BaseStatus == BaseStatus.Available).ToList();
@@ -200,8 +200,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "WeeklyPlan list: " + returnResult.Count();
 				result.Data = returnResult;
 
-				//set cache to redis
-				await _redisService.SetValueAsync(redisKey , returnResult , TimeSpan.FromDays(3));
+				////set cache to redis
+				//await _redisService.SetValueAsync(redisKey , returnResult , TimeSpan.FromDays(3));
 
 				return result;
 			}
