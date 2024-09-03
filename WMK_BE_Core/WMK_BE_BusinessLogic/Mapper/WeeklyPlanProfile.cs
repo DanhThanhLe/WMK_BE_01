@@ -19,7 +19,6 @@ namespace WMK_BE_BusinessLogic.Mapper
             CreateMap<WeeklyPlan, UpdateWeeklyPlanRequestModel>().ReverseMap();
             CreateMap<WeeklyPlan, UpdateWeeklyPlanRequest>().ReverseMap();
             CreateMap<WeeklyPlan, CreateWeeklyPlanForCustomerRequest>().ReverseMap();
-            CreateMap<WeeklyPlan, Chang>().ReverseMap();
         }
     }
 }
