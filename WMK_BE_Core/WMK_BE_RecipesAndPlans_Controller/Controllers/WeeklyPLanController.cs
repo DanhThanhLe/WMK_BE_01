@@ -22,14 +22,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		#region Get
 		//
-		[HttpGet("get-all")]
+		[HttpGet("get-all")]//danh cho mobile
 		public async Task<IActionResult> Get(string name = "")
 		{
 			var result = await _weeklyPLanService.GetAllAsync(name);
 			return StatusCode(result.StatusCode , result);
 		}
 
-		[HttpGet("get-all-filter")]
+		[HttpGet("get-all-filter")] //danh cho web
 		public async Task<IActionResult> GetAllByWeekly([FromQuery] GetAllRequest? model)
 		{
 			var result = await _weeklyPLanService.GetAllFilterAsync(model);
@@ -127,6 +127,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var result = await _weeklyPLanService.ChangeStatusWeeklyPlanAsync(userId , id , model);
+			return StatusCode(result.StatusCode , result);
+		}
+		[HttpPut("change-base-status/{id}")]
+		[Authorize]
+		public async Task<IActionResult> ChangeBaseStatus(Guid id , [FromBody] ChangeBaseStatusWeeklyPlanRequest model)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var result = await _weeklyPLanService.ChangeBaseStatusWeeklyPlanAsync(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
 

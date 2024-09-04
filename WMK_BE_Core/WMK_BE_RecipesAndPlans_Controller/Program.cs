@@ -31,20 +31,20 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Configuration.AddJsonFile("appsettings.json");
-			
+
 			//Add DBContext
 			builder.Services.AddDbContext<WeMealKitContext>(ops =>
 			{
 				ops.UseSqlServer(builder.Configuration.GetConnectionString("DBConnect") ,
 					b => b.MigrationsAssembly("WMK_BE_RecipesAndPlans_Controller"));
-			}, ServiceLifetime.Transient);
+			} , ServiceLifetime.Transient);
 
-            //add swagger
-            //I want get date time of this file to show version of API 
-            var fileInfo = new FileInfo("WMK_BE_RecipesAndPlans_Controller.dll");
-            var version = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
+			//add swagger
+			//I want get date time of this file to show version of API 
+			var fileInfo = new FileInfo("WMK_BE_RecipesAndPlans_Controller.dll");
+			var version = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
 
-            builder.Services.AddSwaggerGen(c =>
+			builder.Services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1" , new OpenApiInfo { Title = "WeMealKit" , Version = "v1" , Description = version });
 				c.AddSecurityDefinition("Bearer" , new OpenApiSecurityScheme
@@ -70,29 +70,29 @@ namespace WMK_BE_RecipesAndPlans_Controller
 						new string[]{ }
 					}
 				});
-                c.EnableAnnotations();
-            });
+				c.EnableAnnotations();
+			});
 
-            //Redis
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
-            builder.Services.AddScoped<IRedisService, RedisService>();
-            builder.Services.AddHttpClient();
-            builder.Services.AddScoped<IRabitMQProducer, RabitMQProducer>();
-            builder.Services.AddHostedService<RabitMQConsumer>();
-            //CORS
+			//Redis
+			builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
+			builder.Services.AddScoped<IRedisService , RedisService>();
+			builder.Services.AddHttpClient();
+			builder.Services.AddScoped<IRabitMQProducer , RabitMQProducer>();
+			builder.Services.AddHostedService<RabitMQConsumer>();
+			//CORS
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("WeMealKitCors",
-                    policyBuilder => policyBuilder
-                        .AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
-            });
+			builder.Services.AddCors(options =>
+			{
+				options.AddPolicy("WeMealKitCors" ,
+					policyBuilder => policyBuilder
+						.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader());
+			});
 
 
-            //JWT
-            builder.Services.AddAuthentication(op =>
+			//JWT
+			builder.Services.AddAuthentication(op =>
 			{
 				op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				op.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -159,16 +159,16 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(OrderGroupProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeIngredientProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeNutrientProfile));
-            builder.Services.AddAutoMapper(typeof(IngredientCategoryProfile));
+			builder.Services.AddAutoMapper(typeof(IngredientCategoryProfile));
 			builder.Services.AddAutoMapper(typeof(IngredientNutrientProfile));
 			builder.Services.AddAutoMapper(typeof(IngredientProfile));
 			builder.Services.AddAutoMapper(typeof(RecipePlanProfile));
-            builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
+			builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeIngredientOrderDetailProfile));
 			builder.Services.AddAutoMapper(typeof(TransactionProfile));
 
-            //scope
-            builder.Services.AddScoped<DbContext , WeMealKitContext>();
+			//scope
+			builder.Services.AddScoped<DbContext , WeMealKitContext>();
 			builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 			builder.Services.AddScoped<IAuthService , AuthService>();
 			builder.Services.AddScoped<ISendMailService , SendMailService>();
@@ -182,18 +182,18 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipePlanService , RecipePlanService>();
 			builder.Services.AddScoped<IRecipeIngredientService , RecipeIngredientService>();
 			builder.Services.AddScoped<IRecipeCategoryService , RecipeCategoryService>();
-			builder.Services.AddScoped<IRecipeNutrientService, RecipeNutrientService>();
+			builder.Services.AddScoped<IRecipeNutrientService , RecipeNutrientService>();
 			builder.Services.AddScoped<IIngredientService , IngredientService>();
-            builder.Services.AddScoped<IIngredientCategoryService, IngredientCategoryService>();
-            builder.Services.AddScoped<IIngredientNutrientService, IngredientNutrientService>();
+			builder.Services.AddScoped<IIngredientCategoryService , IngredientCategoryService>();
+			builder.Services.AddScoped<IIngredientNutrientService , IngredientNutrientService>();
 			builder.Services.AddScoped<IOrderGroupService , OrderGroupService>();
 			builder.Services.AddScoped<ITransactionService , TransactionService>();
-            builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
-            builder.Services.AddScoped<IRecipeIngredientOrderDetailService, RecipeIngredientOrderDetailService>();
-            builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.Configure<ZaloPaySettings>(builder.Configuration.GetSection("ZaloPayAPI"));
+			builder.Services.AddScoped<IOrderDetailService , OrderDetailService>();
+			builder.Services.AddScoped<IRecipeIngredientOrderDetailService , RecipeIngredientOrderDetailService>();
+			builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
+			builder.Services.Configure<ZaloPaySettings>(builder.Configuration.GetSection("ZaloPayAPI"));
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			//long.nguyen mo swagger for production
@@ -212,7 +212,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			{
 				var context = scope.ServiceProvider.GetRequiredService<WeMealKitContext>();
 				// Apply any pending migrations
-				context.Database.Migrate();
+				//context.Database.Migrate();
 				context.SeedData();
 			}
 			app.Run();
