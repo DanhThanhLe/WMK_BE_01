@@ -51,9 +51,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_changeStatusValidator = new ChangeStatusWeeklyPlanValidator();
 		}
 		#region Get All for Administrator
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllFilterAsync(GetAllRequest? model)
+		public async Task<ResponseObject<List<WeeklyPlanResponseModelForWeb>>> GetAllFilterAsync(GetAllRequest? model)
 		{
-			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+			var result = new ResponseObject<List<WeeklyPlanResponseModelForWeb>>();
 
 			////ngày hiện tại
 			//DateTime today = DateTime.UtcNow.AddHours(7);
@@ -64,7 +64,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			////tìm ngày cuối tuần
 			//DateTime endOfWeek = startWeek.AddDays(6);
 			var weeklyPlans = new List<WeeklyPlan>();
-			var weeklyPlanResponse = new List<WeeklyPlanResponseModel>();
+			var weeklyPlanResponse = new List<WeeklyPlanResponseModelForWeb>();
 			if ( model != null && (!model.Title.IsNullOrEmpty()
 									|| (model.BeginDate != null)
 										&& model.EndDate != null) )
@@ -94,7 +94,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
-				weeklyPlanResponse = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
+				weeklyPlanResponse = _mapper.Map<List<WeeklyPlanResponseModelForWeb>>(weeklyPlans);
 			}
 			if ( weeklyPlanResponse != null && weeklyPlanResponse.Any() )
 			{
@@ -121,25 +121,26 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Data = [];
 			return result;
 		}
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetWeeklyPlansByTitle(string title)
+        #region mini search
+        public async Task<ResponseObject<List<WeeklyPlanResponseModelForWeb>>> GetWeeklyPlansByTitle(string title)
 		{
-			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+			var result = new ResponseObject<List<WeeklyPlanResponseModelForWeb>>();
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 			weeklyPlans = weeklyPlans.Where(wp => wp.Title.ToLower().RemoveDiacritics().Contains(title.ToLower().RemoveDiacritics())).ToList();
 			if ( weeklyPlans != null && weeklyPlans.Any() )
 			{
 				result.StatusCode = 200;
 				result.Message = "List of weekly plans found by title";
-				result.Data = _mapper.Map<List<WeeklyPlanResponseModel>>(weeklyPlans);
+				result.Data = _mapper.Map<List<WeeklyPlanResponseModelForWeb>>(weeklyPlans);
 				return result;
 			}
 			result.StatusCode = 404;
 			result.Message = "No weekly plans found with title!";
 			return result;
 		}
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetWeeklyPlansByDatetime(DateTime? beginDate , DateTime? endDate)
+		public async Task<ResponseObject<List<WeeklyPlanResponseModelForWeb>>> GetWeeklyPlansByDatetime(DateTime? beginDate , DateTime? endDate)
 		{
-			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
+			var result = new ResponseObject<List<WeeklyPlanResponseModelForWeb>>();
 
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
 
@@ -151,7 +152,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				result.StatusCode = 200;
 				result.Message = "List of weekly plans found";
-				result.Data = _mapper.Map<List<WeeklyPlanResponseModel>>(filteredPlans);
+				result.Data = _mapper.Map<List<WeeklyPlanResponseModelForWeb>>(filteredPlans);
 			}
 			else
 			{
@@ -161,12 +162,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return result;
 		}
+        #endregion mini search
 
+        #endregion
 
-		#endregion
-
-		#region get all for customer
-		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
+        #region get all for customer
+        public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 

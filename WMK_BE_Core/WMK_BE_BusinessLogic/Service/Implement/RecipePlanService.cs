@@ -29,7 +29,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					foreach ( var recipePlan in recipeIds )
 					{
-						//check xem có trùng ngày và buổi mà cùng món hay không
+						
 						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipePlan.recipeId.ToString());
 						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved && recipeExist.BaseStatus == BaseStatus.Available)
 						{
