@@ -22,14 +22,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 		#region Get
 		//
-		[HttpGet("get-all")]
+		[HttpGet("get-all")]//danh cho mobile
 		public async Task<IActionResult> Get(string name = "")
 		{
 			var result = await _weeklyPLanService.GetAllAsync(name);
 			return StatusCode(result.StatusCode , result);
 		}
 
-		[HttpGet("get-all-filter")]
+		[HttpGet("get-all-filter")] //danh cho web
 		public async Task<IActionResult> GetAllByWeekly([FromQuery] GetAllRequest? model)
 		{
 			var result = await _weeklyPLanService.GetAllFilterAsync(model);

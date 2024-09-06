@@ -14,7 +14,9 @@ namespace WMK_BE_BusinessLogic.Mapper
 	{
         public WeeklyPlanProfile()
         {
-            CreateMap<WeeklyPlan, WeeklyPlanResponseModel>().ForMember(dest => dest.RecipePLans, opt => opt.MapFrom(src => src.RecipePLans)).ReverseMap();
+            CreateMap<WeeklyPlan, WeeklyPlanResponseModel>().ForMember(dest => dest.RecipePLans, opt => opt.MapFrom(src => src.RecipePLans)).ReverseMap();//cho mobile
+            CreateMap<WeeklyPlan, WeeklyPlanResponseModelForWeb>().ForMember(dest => dest.RecipePLans, opt => opt.MapFrom(src => src.RecipePLans)).ReverseMap();//cho web
+            
             CreateMap<WeeklyPlan, CreateWeeklyPlanRequest>().ReverseMap();
             CreateMap<WeeklyPlan, UpdateWeeklyPlanRequestModel>().ReverseMap();
             CreateMap<WeeklyPlan, UpdateWeeklyPlanRequest>().ReverseMap();
