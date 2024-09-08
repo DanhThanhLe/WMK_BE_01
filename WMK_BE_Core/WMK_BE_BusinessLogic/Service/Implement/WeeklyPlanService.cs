@@ -181,12 +181,35 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//	result.Data = redisData;
 			//	return result;
 			//}
+			var listsearch = name.Split(",");
 
 			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved
 																	&& x.BaseStatus == BaseStatus.Available).ToList();
-			var returnList = weeklyPlans.Where(x => x.Title.ToLower().RemoveDiacritics().Contains(name.ToLower().RemoveDiacritics())).ToList();
+			var listTemp = new List<WeeklyPlan>();
+			if (name.IsNullOrEmpty())
+			{
+				listTemp = weeklyPlans;
+			}	
+			foreach ( var item in listsearch)
+            {
+				foreach (var weeklyPlan in weeklyPlans)
+				{
+					var recipePlans = weeklyPlan.RecipePLans;
+					foreach (var recipePlan in recipePlans)
+					{
+						var recipe = recipePlan.Recipe;
+						if (recipe.RecipeCategories.Select(x => x.Category.Name).Contains(item))
+						{
+							listTemp.Add(weeklyPlan);
+						}
 
-			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
+					}
+				}
+            }
+
+			var returnList = listTemp.Distinct();
+
+            if ( weeklyPlans != null && weeklyPlans.Count > 0 )
 			{
 				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
 				foreach ( var item in returnResult )
