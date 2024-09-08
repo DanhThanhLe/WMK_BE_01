@@ -93,7 +93,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             if (model != null && (!model.Name.IsNullOrEmpty()
                                 || model.Difficulty != null
                                 || !model.Description.IsNullOrEmpty()
-                                || model.ServingSize != null))
+                                || model.ServingSize != null
+                                || model.CookingTime >0))
             {
                 if (!model.Name.IsNullOrEmpty())
                 {
@@ -125,6 +126,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     if (recipesByServingSize != null && recipesByServingSize.Data != null)
                     {
                         recipesResponse.AddRange(recipesByServingSize.Data);
+                    }
+                }
+                if(model.CookingTime > 0)
+                {
+                    var recipesByCookingTime = await GetRecipesByCookingTimeAsync(model.CookingTime);
+                    if (recipesByCookingTime != null && recipesByCookingTime.Data != null)
+                    {
+                        recipesResponse.AddRange(recipesByCookingTime.Data);
                     }
                 }
                 // Loại bỏ các phần tử trùng lặp dựa trên Id
@@ -248,6 +257,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             }
             result.StatusCode = 404;
             result.Message = "Recipe list not found by name: " + name;
+            return result;
+        }
+
+        public async Task<ResponseObject<List<RecipeResponse>>> GetRecipesByCookingTimeAsync(int? cookingTime) //lay tren duoi 5' so voi thoi gian nau an yeu cau
+        {
+            var result = new ResponseObject<List<RecipeResponse>>();
+
+            var recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+            var foundList = recipes.Where(r => (r.CookingTime >= cookingTime - 5) && (r.CookingTime <= cookingTime + 5)).ToList();
+            if (foundList != null && foundList.Any())
+            {
+                result.StatusCode = 200;
+                result.Message = "List recipe have cooking time close to "+cookingTime+" minute(s)";
+                result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
+                return result;
+            }
+            result.StatusCode = 404;
+            result.Message = "Not have list recipes cookingTime";
             return result;
         }
         #endregion
@@ -1159,6 +1186,72 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         }
 
 
+        #endregion
+
+        #region filter
+        public async Task<ResponseObject<List<RecipeResponse>>> Filter(string? userId, GetAllRecipesRequest? model)
+        {
+            var result = new ResponseObject<List<RecipeResponse>>();
+            var recipes = new List<Recipe>();
+            var recipesResponse = new List<RecipeResponse>();
+            recipes = await _unitOfWork.RecipeRepository.GetAllAsync();
+            if (model != null)
+            {
+                if (!model.Name.IsNullOrEmpty())
+                {
+                    recipes = recipes.Where(r => r.Name.Contains(model.Name)).ToList();
+                }
+
+                if (model.ServingSize.HasValue)
+                {
+                    recipes = recipes.Where(r => r.ServingSize == model.ServingSize.Value).ToList();
+                }
+
+                if (model.CookingTime.HasValue)
+                {
+                    recipes = recipes.Where(r => r.CookingTime >= model.CookingTime - 5 && r.CookingTime <= model.CookingTime + 5).ToList();
+                }
+
+                if (model.Difficulty.HasValue)
+                {
+                    recipes = recipes.Where(r => r.Difficulty == model.Difficulty).ToList();
+                }
+
+                if (!model.Description.IsNullOrEmpty())
+                {
+                    recipes = recipes.Where(r => r.Description.Contains(model.Description)).ToList();
+                }
+            }
+            recipesResponse = _mapper.Map<List<RecipeResponse>>(recipes);//luon co recipe tra ve
+            if (!recipesResponse.Any())
+            {
+                result.StatusCode = 404;
+                result.Message = "Not have Any recipe!";
+                result.Data = [];
+                return result;
+            }
+            foreach (var item in recipesResponse)
+            {
+                Guid idConvert;
+                if (item.CreatedBy != null)
+                {
+                    Guid.TryParse(item.CreatedBy, out idConvert);
+                    item.CreatedBy = _unitOfWork.UserRepository.GetUserNameById(idConvert);
+                }
+            }
+            //user exist by customer
+            var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (userExist != null && userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer || userExist == null)
+            {
+                //chỉ hiển thị các recipes đã approve
+                recipesResponse = recipesResponse.Where(r => r.BaseStatus == BaseStatus.Available.ToString() && r.ProcessStatus == ProcessStatus.Approved.ToString()).ToList(); //.ProcessStatus == ProcessStatus.Approved && x.BaseStatus == BaseStatus.Available    
+            }
+            result.StatusCode = 200;
+            result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
+            result.Data = recipesResponse.OrderBy(o => o.Name).ToList() ?? [];
+
+            return result;
+        }
         #endregion
     }
     public static class StringExtensions

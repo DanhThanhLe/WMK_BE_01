@@ -166,7 +166,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			}
 		}
 
-		
-
-	}
+		[HttpGet("filter")]
+		[Authorize]
+        public async Task<IActionResult> Filter([FromQuery] GetAllRecipesRequest? model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _recipeService.Filter(userId, model);
+            return StatusCode(result.StatusCode, result);
+        }
+    }
 }
