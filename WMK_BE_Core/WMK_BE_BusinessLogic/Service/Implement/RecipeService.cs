@@ -44,10 +44,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IRecipeNutrientService _recipeNutrientService;
         private readonly IRecipeIngredientService _recipeIngredientService;
         private readonly IUserService _userService;
+        private readonly IWeeklyPlanService _weeklyPlanService;
         public RecipeService(IUnitOfWork unitOfWork, IMapper mapper
             , IRecipeIngredientService recipeAmountService, IRecipeCategoryService recipeCategoryService
             , IRecipeNutrientService recipeNutrientService, IRecipeIngredientService recipeIngredientService
-            , IRecipeStepService recipeStepService, IUserService userService, IRedisService redisService)
+            , IRecipeStepService recipeStepService, IUserService userService, IRedisService redisService, IWeeklyPlanService weeklyPlanService)
         {
             _unitOfWork = unitOfWork;
             _recipeAmountService = recipeAmountService;
@@ -61,6 +62,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             _recipeIngredientService = recipeIngredientService;
             _recipeStepService = recipeStepService;
             _userService = userService;
+            _weeklyPlanService = weeklyPlanService;
         }
 
         private async Task<List<Recipe>> GetAllToProcess()
@@ -643,6 +645,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         result.Message = "Delete recipe form weeklyplan unsuccess";
                         return result;
                     }
+                    await _weeklyPlanService.ChangeStatusOnRecipeUpdate(recipeExist.Id);
                 }
                 await _unitOfWork.CompleteAsync();
                 result.StatusCode = 200;
@@ -722,8 +725,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-
-
         #endregion
 
         #region Delete
@@ -1100,7 +1101,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 return result;
             }
         }
-
 
         #endregion
 

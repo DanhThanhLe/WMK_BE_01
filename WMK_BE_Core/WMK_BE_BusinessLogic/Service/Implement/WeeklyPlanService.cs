@@ -854,5 +854,35 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#endregion
+
+		public async Task ChangeStatusOnRecipeUpdate(Guid recipeId)//hàm này sẽ chuyển base status của tất cả các weekplan có liên quan tới id recipe đưa vào thành unavailable 
+		{
+            //tim tat ca cac recipeplan co recipe lien quan\
+            //tim tat ca cac weekplan co lien qua toi recipeplan 
+            //loai bo trung lap
+            //loai bo weekplan cua customer
+			var result = new ResponseObject<WeeklyPlanResponseModel>();
+            var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
+                //var weekPlanIds = recipePLansExist.Select(rp => rp.StandardWeeklyPlanId).Distinct().ToList();
+                var weekPlanList = new List<WeeklyPlan>();//list id weekplan
+				recipePLansExist = recipePLansExist.GroupBy(rp => rp.Id).Select(g => g.First()).ToList();//loai bo trung lap
+				foreach(var rp in recipePLansExist)//bat dau lay thong tin cac weekplan
+				{
+					var wp = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(rp.StandardWeeklyPlanId.ToString());
+                    if (wp != null && wp.ProcessStatus != ProcessStatus.Customer)
+					{
+						weekPlanList.Add(wp);
+					}
+				}
+				if(weekPlanList.Count > 0)//list id vua loc xong co thong tin
+				{
+					foreach(var wp in weekPlanList)
+					{
+						//lay weekplan 
+						wp.BaseStatus = BaseStatus.UnAvailable;
+					}
+					await _unitOfWork.CompleteAsync();
+                }
+        }
 	}
 }
