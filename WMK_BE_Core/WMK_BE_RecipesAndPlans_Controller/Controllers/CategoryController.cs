@@ -19,7 +19,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#region Get
 		//
 		[HttpGet("get-all")]
-		[Authorize]
 		public async Task<IActionResult> Get([FromQuery] GetAllCategoriesRequest? model)
 		{
 			var result = await _categoryService.GetAllAsync(model);
