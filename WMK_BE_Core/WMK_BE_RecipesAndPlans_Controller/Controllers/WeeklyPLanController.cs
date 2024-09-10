@@ -166,5 +166,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				});
 			}
 		}
+
+		//[HttpPut("test")]
+		//public async Task<IActionResult> UpdateStatusOnRecipe([FromQuery] Guid recipeId)
+		//{
+		//	await _weeklyPLanService.ChangeStatusOnRecipeUpdate(recipeId);
+		//	return StatusCode(200);
+		//}
 	}
 }

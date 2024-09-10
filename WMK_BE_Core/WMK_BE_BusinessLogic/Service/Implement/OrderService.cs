@@ -31,7 +31,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly UpdateOrderModelValidator _updateOrderValidator;
 		private readonly UpdateOrderByUserModelValidator _updateOrderByUserValidator;
 		private readonly IOrderDetailService _orderDetailService;
-
 		#endregion
 		public OrderService(IUnitOfWork unitOfWork , IMapper mapper , IOrderDetailService orderDetailService , ITransactionService transactionService)
 		{

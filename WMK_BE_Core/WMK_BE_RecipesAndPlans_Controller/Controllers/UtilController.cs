@@ -26,9 +26,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         [HttpPost("UploadFile")]
         public async Task<ActionResult> PostFile( FileUploadRequest model)
         {
-         
-
-
             var fileName = model.File.FileName;
             
             var tempDir = Path.Combine(Directory.GetCurrentDirectory(), "tempfiles");
@@ -62,8 +59,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
                     }
                 
             }
-
-            
 
             //using (var client = new WebClient())
             //{
@@ -161,9 +156,4 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             return cipherText;
         }
     }
-
-
-
-
-
 }

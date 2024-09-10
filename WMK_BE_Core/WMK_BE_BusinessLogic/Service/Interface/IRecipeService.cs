@@ -31,6 +31,8 @@ namespace WMK_BE_BusinessLogic.Service.Interface
         public Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId);
 
         Task<ResponseObject<List<RecipeNutrientResponse>>> UpdateRecipeByIngredient(Guid ingredientId);
+        public Task<ResponseObject<List<RecipeResponse>>> Filter(string? userId, GetAllRecipesRequest? model);
 
-	}
+
+    }
 }

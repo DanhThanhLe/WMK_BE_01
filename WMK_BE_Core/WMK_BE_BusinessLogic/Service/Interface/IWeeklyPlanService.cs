@@ -25,6 +25,6 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<WeeklyPlanResponseModel>> UpdateFullInfo(Guid id , UpdateWeeklyPlanRequest request);
 		Task<ResponseObject<WeeklyPlanResponseModel>> OnOffOrderAsync(bool status);
 
-	}
+    }
 }
 
