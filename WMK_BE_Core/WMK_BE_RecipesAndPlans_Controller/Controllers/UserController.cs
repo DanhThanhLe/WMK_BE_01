@@ -71,20 +71,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _userService.UpdateUserAsync(id , model);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
-		[Authorize(Roles = "Admin")]
-		[HttpDelete("delete/{id}")]
-		public async Task<IActionResult> Delete(Guid id)
-		{
-			var result = await _userService.DeleteUserAsync(id);
-			if ( result.Data != null )
-			{
-				//gửi mail cho user đó về tình hình
-				_sendMailService.SendMail(result.Data.Email , "Remove Account" , "Your account on WemealKit with role ("
-										+ result.Data.Role + ") has been removed! Please contact the administrator for assistance.");
-			}
-			return StatusCode(result.StatusCode , result);
-		}
+		
 
 		//
 		[Authorize(Roles = "Admin")]
@@ -125,5 +112,20 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _userService.ChangeEmailConfirmAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
-	}
+
+        //
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _userService.DeleteUserAsync(id);
+            if (result.Data != null)
+            {
+                //gửi mail cho user đó về tình hình
+                _sendMailService.SendMail(result.Data.Email, "Remove Account", "Your account on WemealKit with role ("
+                                        + result.Data.Role + ") has been removed! Please contact the administrator for assistance.");
+            }
+            return StatusCode(result.StatusCode, result);
+        }
+    }
 }

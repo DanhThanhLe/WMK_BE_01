@@ -62,13 +62,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				});
 			}
 		}
-		//
-		[HttpDelete("delete/{id}")]
-		public async Task<IActionResult> Delete(Guid id)
-		{
-			var result = await _orderGroupService.DeleteOrderGroupAsync(id);
-			return StatusCode(result.StatusCode , result);
-		}
+
 
 		//
 		[HttpPut("change-status/{id}")]
@@ -85,5 +79,13 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderGroupService.OrderGroupClusterAsync();
 			return StatusCode(result.StatusCode , result);
 		}
-	}
+
+        //
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _orderGroupService.DeleteOrderGroupAsync(id);
+            return StatusCode(result.StatusCode, result);
+        }
+    }
 }
