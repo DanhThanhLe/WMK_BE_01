@@ -884,6 +884,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             //tim tat ca cac weekplan co lien qua toi recipeplan 
             //loai bo trung lap
             //loai bo weekplan cua customer
+            #region old
             //var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
             ////var weekPlanIds = recipePLansExist.Select(rp => rp.StandardWeeklyPlanId).Distinct().ToList();
             //var weekPlanList = new List<WeeklyPlan>();//list id weekplan
@@ -905,17 +906,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             //    }
             //    await _unitOfWork.CompleteAsync();
             //}
-
+            #endregion
             var recipePlans = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
-            // Lấy các StandardWeeklyPlanId từ RecipePlan và loại bỏ trùng lặp
+            //Lay cac StandardWeekPlanId tu RecipePlan va loai bo trung lap
             var weekPlanIds = recipePlans.Select(rp => rp.StandardWeeklyPlanId).Distinct().ToList();
-            // Lấy tất cả WeeklyPlan tương ứng với các ID và không thuộc ProcessStatus.Customer
+            //Lay tat ca WeekPlan tuong ung vs cac ID va ko thuoc Customer
             var weekPlans = await _unitOfWork.WeeklyPlanRepository
                 .Get(wp => weekPlanIds.Contains(wp.Id) && wp.ProcessStatus != ProcessStatus.Customer)
                 .ToListAsync();
             if (weekPlans.Any())
             {
-                // Cập nhật BaseStatus của các WeeklyPlan
+                //Cập nhật BaseStatus của các WeeklyPlan
                 foreach (var wp in weekPlans)
                 {
                     wp.BaseStatus = BaseStatus.UnAvailable;

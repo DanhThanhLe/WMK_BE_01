@@ -66,7 +66,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
-		//
+		
 		[HttpDelete("delete/{id}")]
 		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> Delete(Guid id)
