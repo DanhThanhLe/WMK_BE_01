@@ -121,8 +121,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Data = [];
 			return result;
 		}
-        #region mini search
-        public async Task<ResponseObject<List<WeeklyPlanResponseModelForWeb>>> GetWeeklyPlansByTitle(string title)
+		#region mini search
+		public async Task<ResponseObject<List<WeeklyPlanResponseModelForWeb>>> GetWeeklyPlansByTitle(string title)
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModelForWeb>>();
 			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
@@ -162,12 +162,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return result;
 		}
-        #endregion mini search
+		#endregion mini search
 
-        #endregion
+		#endregion
 
-        #region get all for customer
-        public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
+		#region get all for customer
+		public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetAllAsync(string name = "")
 		{
 			var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
 
@@ -186,30 +186,30 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved
 																	&& x.BaseStatus == BaseStatus.Available).ToList();
 			var listTemp = new List<WeeklyPlan>();
-			if (name.IsNullOrEmpty())
+			if ( name.IsNullOrEmpty() )
 			{
 				listTemp = weeklyPlans;
-			}	
-			foreach ( var item in listsearch)
-            {
-				foreach (var weeklyPlan in weeklyPlans)
+			}
+			foreach ( var item in listsearch )
+			{
+				foreach ( var weeklyPlan in weeklyPlans )
 				{
 					var recipePlans = weeklyPlan.RecipePLans;
-					foreach (var recipePlan in recipePlans)
+					foreach ( var recipePlan in recipePlans )
 					{
 						var recipe = recipePlan.Recipe;
-						if (recipe.RecipeCategories.Select(x => x.Category.Name).Contains(item))
+						if ( recipe.RecipeCategories.Select(x => x.Category.Name).Contains(item) )
 						{
 							listTemp.Add(weeklyPlan);
 						}
 
 					}
 				}
-            }
+			}
 
 			var returnList = listTemp.Distinct();
 
-            if ( weeklyPlans != null && weeklyPlans.Count > 0 )
+			if ( weeklyPlans != null && weeklyPlans.Count > 0 )
 			{
 				var returnResult = _mapper.Map<List<WeeklyPlanResponseModel>>(returnList);
 				foreach ( var item in returnResult )
@@ -877,5 +877,41 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#endregion
+		public async Task<ResponseObject<WeeklyPlanResponseModel>> OnOffOrderAsync(bool status)
+		{
+			var result = new ResponseObject<WeeklyPlanResponseModel>();
+			//Get all 
+			var weeklyPlans = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
+			if(weeklyPlans == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "Don't have weekly plan!";
+				return result;
+			}
+			if ( weeklyPlans != null )
+			{
+				if ( status )
+				{
+					foreach ( var weeklyPlan in weeklyPlans )
+					{
+						weeklyPlan.BaseStatus = BaseStatus.Available;
+					}
+					result.StatusCode = 200;
+					result.Message = "Open order successfully";
+				}
+				else
+				{
+					foreach ( var weeklyPlan in weeklyPlans )
+					{
+						weeklyPlan.BaseStatus = BaseStatus.UnAvailable;
+					}
+					result.StatusCode = 200;
+					result.Message = "Close order successfully";
+				}
+			}
+			await _unitOfWork.CompleteAsync();
+			return result;
+		}
+
 	}
 }

@@ -364,12 +364,47 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
 			//lấy các order có status đang là processing ra để gom cụm
 			//xác định số K để dùng thuật toán k-means - sử dụng số lượng order group đã có vì mỗi khi tạo order roup thì đã gán cho 1 shipper
+			//tại vì số K đc lấy bằng số orderGroup nên nếu K lớn hơn số lượng order sẽ bị lỗi 
 			//gán các điểm(order) vào mỗi cụm 
 
 			//lấy ra các order có status đang processing
 			var orders = _unitOfWork.OrderRepository.Get(x => x.Status == OrderStatus.Processing).ToList();
 			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
+			if ( orders.Count < orderGroups.Count )
+			{
+				foreach ( var order in orders )
+				{
+					OrderGroup nearestOrderGroup = null;
+					double minDistance = double.MaxValue;
 
+					foreach ( var orderGroup in orderGroups )
+					{
+						double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
+						double[] orderCoordinates = { order.Longitude , order.Latitude };
+						double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
+
+						if ( distance < minDistance )
+						{
+							nearestOrderGroup = orderGroup;
+							minDistance = distance;
+						}
+					}
+
+					if ( nearestOrderGroup != null )
+					{
+						nearestOrderGroup.Orders.Add(order);
+						order.OrderGroup = nearestOrderGroup;
+						order.OrderGroupId = nearestOrderGroup.Id;
+					}
+				}
+
+				await _unitOfWork.CompleteAsync();
+
+				result.StatusCode = 200;
+				result.Message = "Orders assigned to order groups successfully.";
+				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+				return result;
+			}
 			//gọi kmeans
 			var kmeans = new KMeans(orderGroups.Count , new SquareEuclidean());//SquareEuclidean được sử dụng để chỉ rằng chúng ta muốn tính
 																			   //khoảng cách bình phương giữa các điểm trong quá trình gom cụm
@@ -414,68 +449,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.StatusCode = 400;
 			result.Message = "Orders assigned to order groups unsuccessfully!";
 			return result;
-
-			//if ( orders != null && orderGroups != null )
-			//{
-			//	var shippers = await _unitOfWork.UserRepository.GetAllAsync();
-			//	var shipperIds = shippers.Select(s => s.Id).ToList();
-
-			//	var orderProcess = orders.Where(o => o.Status == OrderStatus.Processing).ToList();
-
-			//	foreach ( var orderGroup in orderGroups )
-			//	{
-			//		if ( !shipperIds.Contains(orderGroup.ShipperId) )
-			//		{
-			//			result.StatusCode = 400;
-			//			result.Message = "Invalid ShipperId.";
-			//			return result;
-			//		}
-
-			//		if ( orderGroup.Orders == null )
-			//		{
-			//			orderGroup.Orders = new List<Order>();
-			//		}
-			//	}
-
-			//	foreach ( var order in orderProcess )
-			//	{
-			//		OrderGroup nearestOrderGroup = null;
-			//		double minDistance = double.MaxValue;
-
-			//		foreach ( var orderGroup in orderGroups )
-			//		{
-			//			double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
-			//			double[] orderCoordinates = { order.Longitude , order.Latitude };
-			//			double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
-
-			//			if ( distance <= model.radius && distance < minDistance )
-			//			{
-			//				nearestOrderGroup = orderGroup;
-			//				minDistance = distance;
-			//			}
-			//		}
-
-			//		if ( nearestOrderGroup != null )
-			//		{
-			//			nearestOrderGroup.Orders.Add(order);
-			//			order.OrderGroup = nearestOrderGroup;
-			//			order.OrderGroupId = nearestOrderGroup.Id;
-			//		}
-			//	}
-
-			//	await _unitOfWork.CompleteAsync();
-
-			//	result.StatusCode = 200;
-			//	result.Message = "Orders assigned to order groups successfully.";
-			//	result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
-			//	return result;
-			//}
-			//else
-			//{
-			//	result.StatusCode = 404;
-			//	result.Message = "Order or order group not found!";
-			//	return result;
-			//}
 		}
 
 		// Hàm để lấy chỉ số của tâm cụm gần nhất
@@ -523,7 +496,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return 6371.0 * c; // return distance in kilometers
 		}
-
 		#endregion
 	}
 }

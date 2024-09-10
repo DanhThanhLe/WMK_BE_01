@@ -138,6 +138,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
+		[HttpPut("change-order/{status}")]
+		[Authorize(Roles = "Staff,Manager,Admin")]
+		public async Task<IActionResult> ChangeOrder(bool status)
+		{
+			var result = await _weeklyPLanService.OnOffOrderAsync(status);
+			return StatusCode(result.StatusCode , result);
+		}
+
 		//
 		[HttpDelete("delete/{id}")]
 		[Authorize(Roles = "Staff,Manager,Admin")]
