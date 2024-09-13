@@ -26,6 +26,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
         public IRecipeCategoryRepository RecipeCategoryRepository { get; private set; }
         public IIngredientNutrientRepository IngredientNutrientRepository { get; private set;}
 		public ITransactionRepository TransactionRepository { get; private set; }
+        public IFeedbackRepository FeedbackRepository { get; private set; }
 
         public IRecipeIngredientOrderDetailRepository RecipeIngredientOrderDetailRepository { get; private set; }
 
@@ -50,6 +51,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             IngredientNutrientRepository = new IngredientNutrientRepository(context);
             TransactionRepository = new TransactionRepository(context);
             RecipeIngredientOrderDetailRepository = new RecipeIngredientOrderDetailRepository(context);
+            FeedbackRepository = new FeedbackRepository(context);
 
         }
         public async Task CompleteAsync()

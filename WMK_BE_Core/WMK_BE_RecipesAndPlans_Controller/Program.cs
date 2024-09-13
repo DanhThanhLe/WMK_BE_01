@@ -166,6 +166,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddAutoMapper(typeof(OrderDetailProfile));
 			builder.Services.AddAutoMapper(typeof(RecipeIngredientOrderDetailProfile));
 			builder.Services.AddAutoMapper(typeof(TransactionProfile));
+			builder.Services.AddAutoMapper(typeof(FeedbackProfile));
 
 			//scope
 			builder.Services.AddScoped<DbContext , WeMealKitContext>();
@@ -192,6 +193,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeIngredientOrderDetailService , RecipeIngredientOrderDetailService>();
 			builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 			builder.Services.Configure<ZaloPaySettings>(builder.Configuration.GetSection("ZaloPayAPI"));
+			builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 			var app = builder.Build();
 
