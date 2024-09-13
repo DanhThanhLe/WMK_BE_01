@@ -37,7 +37,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IRecipeIngredientService _recipeAmountService;
 		private readonly RecipeValidator _validator;
 		private readonly IMapper _mapper;
-		private readonly IRedisService _redisService;
+		//private readonly IRedisService _redisService;
 		private readonly RecipeChangeStatusValidator _recipeChangeStatusValidator;
 		private readonly IdRecipeValidator _idValidator;
 		private readonly IRecipeCategoryService _recipeCategoryService;
@@ -48,12 +48,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public RecipeService(IUnitOfWork unitOfWork , IMapper mapper
 			, IRecipeIngredientService recipeAmountService , IRecipeCategoryService recipeCategoryService
 			, IRecipeNutrientService recipeNutrientService , IRecipeIngredientService recipeIngredientService
-			, IRecipeStepService recipeStepService , IUserService userService , IRedisService redisService)
+			, IRecipeStepService recipeStepService , IUserService userService)
 		{
 			_unitOfWork = unitOfWork;
 			_recipeAmountService = recipeAmountService;
 			_mapper = mapper;
-			_redisService = redisService;
+			//_redisService = redisService;
 			_validator = new RecipeValidator();
 			_recipeChangeStatusValidator = new RecipeChangeStatusValidator();
 			_idValidator = new IdRecipeValidator();

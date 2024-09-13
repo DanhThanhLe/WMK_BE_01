@@ -370,44 +370,52 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//lấy ra các order có status đang processing
 			var orders = _unitOfWork.OrderRepository.Get(x => x.Status == OrderStatus.Processing).ToList();
 			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
-			if ( orders.Count < orderGroups.Count )
-			{
-				foreach ( var order in orders )
-				{
-					OrderGroup nearestOrderGroup = null;
-					double minDistance = double.MaxValue;
+			//if ( orders.Count < orderGroups.Count )
+			//{
+			//	foreach ( var order in orders )
+			//	{
+			//		OrderGroup nearestOrderGroup = null;
+			//		double minDistance = double.MaxValue;
 
-					foreach ( var orderGroup in orderGroups )
-					{
-						double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
-						double[] orderCoordinates = { order.Longitude , order.Latitude };
-						double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
+			//		foreach ( var orderGroup in orderGroups )
+			//		{
+			//			double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
+			//			double[] orderCoordinates = { order.Longitude , order.Latitude };
+			//			double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
 
-						if ( distance < minDistance )
-						{
-							nearestOrderGroup = orderGroup;
-							minDistance = distance;
-						}
-					}
+			//			if ( distance < minDistance )
+			//			{
+			//				nearestOrderGroup = orderGroup;
+			//				minDistance = distance;
+			//			}
+			//		}
 
-					if ( nearestOrderGroup != null )
-					{
-						nearestOrderGroup.Orders.Add(order);
-						order.OrderGroup = nearestOrderGroup;
-						order.OrderGroupId = nearestOrderGroup.Id;
-					}
-				}
+			//		if ( nearestOrderGroup != null && nearestOrderGroup.Orders == null )
+			//		{
+			//			nearestOrderGroup.Orders = new List<Order>();
+			//			nearestOrderGroup.Orders.Add(order);
+			//			order.OrderGroup = nearestOrderGroup;
+			//			order.OrderGroupId = nearestOrderGroup.Id;
+			//		}
+			//		else if ( nearestOrderGroup != null && nearestOrderGroup.Orders != null )
+			//		{
+			//			nearestOrderGroup.Orders.Add(order);
+			//			order.OrderGroup = nearestOrderGroup;
+			//			order.OrderGroupId = nearestOrderGroup.Id;
+			//		}
+			//	}
 
-				await _unitOfWork.CompleteAsync();
+			//	await _unitOfWork.CompleteAsync();
 
-				result.StatusCode = 200;
-				result.Message = "Orders assigned to order groups successfully.";
-				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
-				return result;
-			}
+			//	result.StatusCode = 200;
+			//	result.Message = "Orders assigned to order groups successfully.";
+			//	result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+			//	return result;
+			//}
 			//gọi kmeans
-			var kmeans = new KMeans(orderGroups.Count , new SquareEuclidean());//SquareEuclidean được sử dụng để chỉ rằng chúng ta muốn tính
-																			   //khoảng cách bình phương giữa các điểm trong quá trình gom cụm
+			var k = FindOptimalK(orders , orderGroups.Count);
+			var kmeans = new KMeans(k , new SquareEuclidean());//SquareEuclidean được sử dụng để chỉ rằng chúng ta muốn tính
+															   //khoảng cách bình phương giữa các điểm trong quá trình gom cụm
 
 			//lấy các cặp kinh độ, vĩ độ từ orders
 			var coordinates = orders.Select(o => new double[] { o.Longitude , o.Latitude }).ToArray();//trả về 1 mảng double[]
@@ -496,6 +504,66 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return 6371.0 * c; // return distance in kilometers
 		}
+		public int FindOptimalK(List<Order> orders , int maxK)
+		{
+			var coordinates = orders.Select(o => new double[] { o.Longitude , o.Latitude }).ToArray();
+			var sseList = new List<double>();
+
+			for ( int k = 1; k <= maxK; k++ )
+			{
+				var kmeans = new KMeans(k , new SquareEuclidean());
+				var clusters = kmeans.Learn(coordinates);
+
+				// Tính tổng bình phương khoảng cách (SSE) của các điểm đến tâm cụm gần nhất
+				var sse = coordinates.Sum(point =>
+				{
+					var clusterIndex = GetClosestCentroidIndex(point , clusters.Centroids);
+					return CalculateEuclideanDistance(point , clusters.Centroids[clusterIndex]) * CalculateEuclideanDistance(point , clusters.Centroids[clusterIndex]);
+				});
+
+				sseList.Add(sse);
+			}
+
+			// Tìm điểm gấp khúc trong danh sách SSE
+			int optimalK = DetermineElbow(sseList);
+			return optimalK;
+		}
+
+		public int Decision(double[] point , double[][] centroids)
+		{
+			int closestIndex = -1;
+			double minDistance = double.MaxValue;
+
+			for ( int i = 0; i < centroids.Length; i++ )
+			{
+				var distance = CalculateEuclideanDistance(point , centroids[i]);
+				if ( distance < minDistance )
+				{
+					minDistance = distance;
+					closestIndex = i;
+				}
+			}
+
+			return closestIndex;
+		}
+
+		private int DetermineElbow(List<double> sseList)
+		{
+			if ( sseList.Count < 2 ) return 1; // Không đủ dữ liệu để xác định
+
+			// Tính độ dốc giữa các điểm SSE
+			var changes = new List<double>();
+			for ( int i = 1; i < sseList.Count; i++ )
+			{
+				double change = sseList[i - 1] - sseList[i];
+				changes.Add(change);
+			}
+
+			// Tìm sự thay đổi lớn nhất trong độ dốc
+			var maxChange = changes.Select((c , i) => new { Index = i , Change = c }).OrderByDescending(x => x.Change).First();
+			return maxChange.Index + 2; // +2 vì index bắt đầu từ 0 và k bắt đầu từ 1
+		}
+
 		#endregion
 	}
 }

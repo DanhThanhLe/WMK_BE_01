@@ -30,7 +30,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRecipePlanService _recipePlanService;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
+        //private readonly IRedisService _redisService;
 
         #region Validator
         private readonly CreateWeeklyPlanValidator _createValidator;
@@ -38,12 +38,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         private readonly DeleteWeeklyPlanValidator _deleteValidator;
         private readonly ChangeStatusWeeklyPlanValidator _changeStatusValidator;
         #endregion
-        public WeeklyPlanService(IUnitOfWork unitOfWork, IMapper mapper, IRecipePlanService recipePlanService, IRedisService redisService)
+        public WeeklyPlanService(IUnitOfWork unitOfWork, IMapper mapper, IRecipePlanService recipePlanService)
         {
             _unitOfWork = unitOfWork;
             _recipePlanService = recipePlanService;
             _mapper = mapper;
-            _redisService = redisService;
+            //_redisService = redisService;
 
             _createValidator = new CreateWeeklyPlanValidator();
             _updateValidator = new UpdateWeeklyPlanValidator();
@@ -241,7 +241,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region get week plan list with user id
-        public async Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId)
+        public Task<ResponseObject<List<WeeklyPlanResponseModel>>> GetListByCustomerId(Guid customerId)
         {
             var result = new ResponseObject<List<WeeklyPlanResponseModel>>();
             try
@@ -253,7 +253,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     result.StatusCode = 500;
                     result.Message = "Not found with user id";
-                    return result;
+                    return Task.FromResult(result);
                 }
                 else //co thong tin
                 {
@@ -277,14 +277,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     result.StatusCode = 200;
                     result.Message = "Ok";
                     result.Data = returnList;
-                    return result;
+                    return Task.FromResult(result);
                 }
             }
             catch (Exception ex)
             {
                 result.StatusCode = 500;
                 result.Message = ex.Message;
-                return result;
+                return Task.FromResult(result);
             }
         }
         #endregion
