@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.CustomPlanModel;
+using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.FeedbackModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.TransactionModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.WeeklyPlanModel;
 using WMK_BE_RecipesAndPlans_DataAccess.Enums;
@@ -34,8 +35,10 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public TransactionResponse Transaction { get; set; }
 		//order detail
 		public List<OrderDetailResponse> OrderDetails { get; set; }
+		public List<FeedbackResponse> FeedBacks { get; set; }
 
-	}
+
+    }
 
 	public class OrderResponseId
 	{

@@ -37,6 +37,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
 					.ThenInclude(od => od.RecipeIngredientOrderDetails)
 						.ThenInclude(ri => ri.Ingredient)
                 .Include(o => o.OrderGroup)
+                .Include(o => o.FeedBacks)
 				.ToListAsync();
 		}
 
@@ -57,6 +58,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                         .ThenInclude(od => od.RecipeIngredientOrderDetails)
                             .ThenInclude(ri => ri.Ingredient)
 				    .Include(o => o.OrderGroup)
+                    .Include(o => o.FeedBacks)
 					.FirstOrDefaultAsync(r => r.Id == guidId);
                 return order;
             }
@@ -77,7 +79,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
                     .ThenInclude(od => od.Recipe)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.RecipeIngredientOrderDetails)
-                        .ThenInclude(ri => ri.Ingredient);
+                        .ThenInclude(ri => ri.Ingredient)
+                .Include(o => o.FeedBacks);
         }
 
     }
