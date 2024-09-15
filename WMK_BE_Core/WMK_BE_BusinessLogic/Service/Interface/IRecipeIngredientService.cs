@@ -12,11 +12,14 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IRecipeIngredientService
 	{
-
-		Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeIngredientAsync(Guid recipeId , List<CreateRecipeIngredientRequest> recipeIngredientRequest);
-		Task<ResponseObject<List<RecipeIngredient>?>> DeleteRecipeIngredientByRecipeAsync(Guid recipeId);
+		#region Get
 		Task<ResponseObject<List<RecipeIngredientResponse>>> GetAll();
 		Task<ResponseObject<List<RecipeIngredientResponse>>> GetListByRecipeId(Guid recipeId);
+		#endregion
 
-    }
+		Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeIngredientAsync(Guid recipeId , List<CreateRecipeIngredientRequest> recipeIngredientRequest);
+
+		Task<ResponseObject<List<RecipeIngredient>?>> DeleteRecipeIngredientByRecipeAsync(Guid recipeId);
+
+	}
 }

@@ -91,6 +91,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
+		#region get by id
+		public async Task<ResponseObject<IngredientNutrientResponse>> GetById(Guid request)
+		{
+			var result = new ResponseObject<IngredientNutrientResponse>();
+			var foundResult = await _unitOfWork.IngredientNutrientRepository.GetByIdAsync(request.ToString());
+			if ( foundResult != null )
+			{
+				result.StatusCode = 200;
+				result.Message = "OK. Ingredient nutrient info";
+				result.Data = _mapper.Map<IngredientNutrientResponse>(foundResult);
+				return result;
+			}
+			else
+			{
+				result.StatusCode = 400;
+				result.Message = "Not found with ingredient id: " + request + " Say from GetByIngredientId - IngredientNutrientService";
+				return result;
+			}
+		}
+		#endregion
+
 		#region Create
 		public async Task<ResponseObject<IngredientNutrient>> Create(Guid IngredientID , CreateIngredientNutrientRequest request)
 		{
@@ -169,7 +190,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = "Ingredient nutrient not exist!";
 					return result;
 				}
-				_mapper.Map(request, ingredientNutrientExist);
+				_mapper.Map(request , ingredientNutrientExist);
 				var updateIngredientNutrientResult = await _unitOfWork.IngredientNutrientRepository.UpdateAsync(ingredientNutrientExist);
 				if ( !updateIngredientNutrientResult )
 				{
@@ -223,26 +244,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
-		#region get by id
-		public async Task<ResponseObject<IngredientNutrientResponse>> GetById(Guid request)
-		{
-			var result = new ResponseObject<IngredientNutrientResponse>();
-			var foundResult = await _unitOfWork.IngredientNutrientRepository.GetByIdAsync(request.ToString());
-			if ( foundResult != null )
-			{
-				result.StatusCode = 200;
-				result.Message = "OK. Ingredient nutrient info";
-				result.Data = _mapper.Map<IngredientNutrientResponse>(foundResult);
-				return result;
-			}
-			else
-			{
-				result.StatusCode = 400;
-				result.Message = "Not found with ingredient id: " + request + " Say from GetByIngredientId - IngredientNutrientService";
-				return result;
-			}
-		}
-		#endregion
 	}
 }
 

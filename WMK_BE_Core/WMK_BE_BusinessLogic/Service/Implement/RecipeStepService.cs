@@ -125,6 +125,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Data = returnList;
 			return result;
 		}
+		#endregion
+
+		#region Delete
+		public async Task<ResponseObject<RecipeStep>> DeleteAsync(Guid recipeStepId)
+		{
+			var result = new ResponseObject<RecipeStep>();
+			var deleteResult = await _unitOfWork.RecipeStepRepository.DeleteAsync(recipeStepId.ToString());
+			if ( deleteResult )
+			{
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Message = "delete step success.";
+				return result;
+			}
+			result.StatusCode = 500;
+			result.Message = "Delete step unsuccess!";
+			return result;
+		}
 
 		public async Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId)
 		{
@@ -164,7 +182,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return result;
 		}
+		#endregion
 
+		#region Update
 		public async Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id , CreateRecipeStepRequest model)
 		{
 			var result = new ResponseObject<List<RecipeStep>>();
@@ -190,27 +210,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Message = "Update step unsuccess!";
 			return result;
 		}
-
-		public async Task<ResponseObject<RecipeStep>> DeleteAsync(Guid recipeStepId)
-		{
-			var result = new ResponseObject<RecipeStep>();
-			var deleteResult = await _unitOfWork.RecipeStepRepository.DeleteAsync(recipeStepId.ToString());
-			if ( deleteResult )
-			{
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "delete step success.";
-				return result;
-			}
-			result.StatusCode = 500;
-			result.Message = "Delete step unsuccess!";
-			return result;
-		}
 		#endregion
-
-		//public async Task<ResponseObject<bool>> CreateSingleStep(Guid recipeId, CreateRecipeStepRequest recipeStep)
-		//{
-		//    var result
-		//}
 	}
 }

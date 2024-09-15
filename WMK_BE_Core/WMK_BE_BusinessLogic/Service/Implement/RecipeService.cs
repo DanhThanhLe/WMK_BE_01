@@ -383,6 +383,50 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
+		#region Search recipe list with recipe category id
+		public async Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId)
+		{
+			/*
+			 1-lay list recipe category lien quan
+				1.1 - xac dinh category co ton tai (category repo - get by id)
+				1.2 - tim list recipe category lien quan
+					+ - tao list trong
+					+ - cho chay vong for gap dung thi add recipe id
+			 2-tim list recipe lien quan
+				2.1 - tao list trong
+				2.2 - cho chay vong for gap dung thi add
+			 3- tra ve 200 va list recipe
+			 */
+			var result = new ResponseObject<List<RecipeResponse>>();
+			var checkCategory = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString());
+			if ( checkCategory == null )
+			{
+				result.StatusCode = 400;
+				result.Message = "Wrong category. Not found Category";
+				return result;
+			}
+			var recipeIdListfound = _recipeCategoryService.GetRecipeIdByCategoryId(categoryId);
+			if ( recipeIdListfound == null )//cai nay la coi nhu tim ko co mon an thich hop, chu ko phai loi
+			{
+				result.StatusCode = 200;
+				result.Message = "Not found suitable recipe";
+				result.Data = new List<RecipeResponse>();
+				return result;
+			}
+			List<Recipe> listRecipe = new List<Recipe>();
+			foreach ( var item in recipeIdListfound )
+			{
+				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.ToString());
+				if ( recipe != null )
+					listRecipe.Add(recipe);
+			}
+			result.StatusCode = 200;
+			result.Message = "Recipe list base on categoryID: ";
+			result.Data = _mapper.Map<List<RecipeResponse>>(listRecipe);
+			return result;
+		}
+		#endregion
+
 		#region Create
 		public async Task<ResponseObject<RecipeResponse>> CreateRecipeAsync(string createdBy , CreateRecipeRequest recipe)
 		{
@@ -533,39 +577,216 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
-		#region reset Recipe
-		private async Task<bool> resetRecipe(Guid recipeId)
+		#region Update
+		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy , Guid idRecipe , CreateRecipeRequest recipe)
 		{
-			var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-			if ( recipe != null )
+			var result = new ResponseObject<RecipeResponse>();
+			var currentList = await GetAllToProcess();
+			try
 			{
-				await _unitOfWork.RecipeRepository.DeleteAsync(recipe.Id.ToString());
+				//check recipe exsit
+				var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(idRecipe.ToString());
+				if ( recipeExist == null )
+				{
+					result.StatusCode = 404;
+					result.Message = "Recipe not exist!";
+					return result;
+				}
+				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim())
+																		&& x.Id != recipeExist.Id);
+				if ( checkDuplicateName != null )
+				{
+					result.StatusCode = 400;
+					result.Message = "Duplicate name: " + checkDuplicateName.Name;
+					return result;
+				}
+				//mapper
+				_mapper.Map(recipe , recipeExist);
+				recipeExist.ProcessStatus = ProcessStatus.Processing;
+				if ( recipeExist.ProcessStatus == ProcessStatus.Processing
+				|| recipeExist.ProcessStatus == ProcessStatus.Denied
+				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
+				{
+					recipeExist.BaseStatus = BaseStatus.UnAvailable;
+				}
 				await _unitOfWork.CompleteAsync();
-				return true;
+				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
+				var updatePrice = await UpdatePrice(recipeExist.Id);
+				if ( !updatePrice )
+				{
+					result.StatusCode = 500;
+					result.Message = "Update recipe price unsuccessfully";
+					return result;
+				}
+				//xóa các thành phần liên quan (RecipeCategory,RecipeIngredient)
+				var checkDeleteRecipeCategory = await _recipeCategoryService.DeleteByRcipe(recipeExist.Id);
+				var checkDeleteRecipeIngredient = await _recipeIngredientService.DeleteRecipeIngredientByRecipeAsync(recipeExist.Id);
+				if (
+					checkDeleteRecipeCategory.StatusCode != 200
+					|| checkDeleteRecipeIngredient.StatusCode != 200
+					)
+				{
+					result.StatusCode = 500;
+					result.Message = checkDeleteRecipeCategory.Message
+						+ " | " + checkDeleteRecipeIngredient.Message;
+					return result;
+				}
+
+				//bat dau update cac thanh phan lien quan
+				//create RecipeCategory, RecipeIngredient
+				if ( recipe.CategoryIds != null && recipe.RecipeIngredientsList != null )
+				{
+					var checkCreateRecipeCategory = await _recipeCategoryService.Create(recipeExist.Id , recipe.CategoryIds);
+					var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(recipeExist.Id , recipe.RecipeIngredientsList);
+
+					//update RecipeNutrient có thể gọi hàm tự động update vô đây
+					var updateNutrientResult = await _recipeNutrientService.AutoUpdateNutrientByRecipe(recipeExist.Id);
+					if ( updateNutrientResult == false )
+					{
+						result.StatusCode = 500;
+						result.Message = "Faild to update nutrient!";
+						return result;
+					}
+					if (
+						checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
+						|| checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
+						)
+					{
+						result.StatusCode = 500;
+						result.Message = checkCreateRecipeCategory.Message
+							+ " | " + checkCreateRecipeIngredient.Message;
+						return result;
+					}
+				}
+
+				//kiểm tra xem step nào đã tồn tại, nếu có rồi thì update step, nếu chưa thì delete
+				var recipeSteps = _unitOfWork.RecipeStepRepository.GetAll()
+					.Where(rc => rc.RecipeId == recipeExist.Id).ToList();
+				//nếu recipe.Steps count > recipeSteps thì tạo mới recipestep
+				if ( recipe.Steps.Count > recipeSteps.Count )
+				{
+					//xóa tất cả step có liên quan
+					var checkDeleteStep = await _recipeStepService.DeleteRecipeStepsByRecipe(recipeExist.Id);
+					if ( checkDeleteStep.StatusCode != 200 )
+					{
+						result.StatusCode = 500;
+						result.Message = checkDeleteStep.Message;
+						return result;
+					}
+					//gọi tới create
+					var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(recipeExist.Id , recipe.Steps);
+					if ( checkCreateRecipeStep.StatusCode != 200 )
+					{
+						//tạo không được thì return về lại step cũ
+						result.StatusCode = 500;
+						result.Message = checkCreateRecipeStep.Message;
+						return result;
+					}
+				}
+				else
+				{
+					foreach ( var recipeStepByRecipe in recipe.Steps )
+					{
+						//nếu có rồi thì update 
+						foreach ( var step in recipeSteps )
+						{
+							if ( recipeStepByRecipe.Id == step.Id )
+							{
+								//update
+								var checkUpdateStep = await _recipeStepService.UpdateRecipeStepsByRecipe(step.Id , recipeStepByRecipe);
+								if ( checkUpdateStep.StatusCode != 200 )
+								{
+									result.StatusCode = 500;
+									result.Message = checkUpdateStep.Message;
+									return result;
+								}
+								break;
+							}
+							else if ( recipe.Steps.Count < recipeSteps.Count )
+							{
+								//delete
+								var checkDeleteStep = await _recipeStepService.DeleteAsync(step.Id);
+								if ( checkDeleteStep.StatusCode != 200 )
+								{
+									result.StatusCode = 500;
+									result.Message = checkDeleteStep.Message;
+									return result;
+								}
+							}
+						}
+					}
+				}
+				await _unitOfWork.CompleteAsync();
+				result.StatusCode = 200;
+				result.Message = "Update Recipe successfully.";
+				return result;
 			}
-			return false;
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = ex.Message;
+				return result;
+			}
 		}
-		private async Task<bool> deleteRecipeFromWeeklyPlan(Guid recipeId , ProcessStatus processStatusExist , BaseStatus? baseStatusChange)
+		#endregion
+
+		#region Delete
+		public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid userId , Guid request)
 		{
-			//nếu base -> available thì oke 
-			//nếu base -> unAvailable thì xóa khỏi wp 
-			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+			var result = new ResponseObject<RecipeResponse>();
+			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(request.ToString());
 			if ( recipeExist != null )
 			{
-				if ( processStatusExist == ProcessStatus.Denied || baseStatusChange != null && baseStatusChange == BaseStatus.UnAvailable )
+				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
+				//chỉ admin và manager mới được xóa luôn
+				if ( userExist != null && (userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin
+										|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Manager) )
 				{
-					//Xóa khỏi wpl
-					var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
-					if ( recipePLansExist.Count > 0 )
+					//delete
+					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());
+					if ( deleteResult )
 					{
-						//delete recipePLan
-						_unitOfWork.RecipePlanRepository.RemoveRange(recipePLansExist);
 						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Delete recipe success";
+						return result;
 					}
-					return true;
+					result.StatusCode = 500;
+					result.Message = "Delete recipe unsuccess!";
+					return result;
 				}
+				if ( userExist != null && userExist.Id.ToString() == recipeExist.CreatedBy )
+				{
+					//change status
+					recipeExist.ProcessStatus = ProcessStatus.Cancel;
+					var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
+					if ( updateResult )
+					{
+						await _unitOfWork.CompleteAsync();
+						var deleteRecipeFromWPL = deleteRecipeFromWeeklyPlan(request , recipeExist.ProcessStatus , null);
+						if ( deleteRecipeFromWeeklyPlan != null )
+						{
+							await _unitOfWork.CompleteAsync();
+							result.StatusCode = 200;
+							result.Message = "Just change recipe status into denied success";
+							return result;
+						}
+						result.StatusCode = 500;
+						result.Message = "Delete recipe from wpl unsuccess!";
+						return result;
+					}
+					result.StatusCode = 500;
+					result.Message = "Just change recipe status unsuccess!";
+					return result;
+				}
+				//don't change anything
+				result.StatusCode = 402;
+				result.Message = "UnAuthorizator to delete!";
+				return result;
 			}
-			return false;
+			result.StatusCode = 404;
+			result.Message = "Not found recipe!";
+			return result;
 		}
 		#endregion
 
@@ -745,110 +966,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
-		#region Delete
-		public async Task<ResponseObject<RecipeResponse>> DeleteRecipeById(Guid userId , Guid request)
-		{
-			var result = new ResponseObject<RecipeResponse>();
-			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(request.ToString());
-			if ( recipeExist != null )
-			{
-				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(userId.ToString());
-				//chỉ admin và manager mới được xóa luôn
-				if ( userExist != null && (userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Admin
-										|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Manager) )
-				{
-					//delete
-					var deleteResult = await _unitOfWork.RecipeRepository.DeleteAsync(recipeExist.Id.ToString());
-					if ( deleteResult )
-					{
-						await _unitOfWork.CompleteAsync();
-						result.StatusCode = 200;
-						result.Message = "Delete recipe success";
-						return result;
-					}
-					result.StatusCode = 500;
-					result.Message = "Delete recipe unsuccess!";
-					return result;
-				}
-				if ( userExist != null && userExist.Id.ToString() == recipeExist.CreatedBy )
-				{
-					//change status
-					recipeExist.ProcessStatus = ProcessStatus.Cancel;
-					var updateResult = await _unitOfWork.RecipeRepository.UpdateAsync(recipeExist);
-					if ( updateResult )
-					{
-						await _unitOfWork.CompleteAsync();
-						var deleteRecipeFromWPL = deleteRecipeFromWeeklyPlan(request , recipeExist.ProcessStatus , null);
-						if ( deleteRecipeFromWeeklyPlan != null )
-						{
-							await _unitOfWork.CompleteAsync();
-							result.StatusCode = 200;
-							result.Message = "Just change recipe status into denied success";
-							return result;
-						}
-						result.StatusCode = 500;
-						result.Message = "Delete recipe from wpl unsuccess!";
-						return result;
-					}
-					result.StatusCode = 500;
-					result.Message = "Just change recipe status unsuccess!";
-					return result;
-				}
-				//don't change anything
-				result.StatusCode = 402;
-				result.Message = "UnAuthorizator to delete!";
-				return result;
-			}
-			result.StatusCode = 404;
-			result.Message = "Not found recipe!";
-			return result;
-		}
-		#endregion
-
-		#region Search recipe list with recipe category id
-		public async Task<ResponseObject<List<RecipeResponse>>> GetListByCategoryId(Guid categoryId)
-		{
-			/*
-			 1-lay list recipe category lien quan
-				1.1 - xac dinh category co ton tai (category repo - get by id)
-				1.2 - tim list recipe category lien quan
-					+ - tao list trong
-					+ - cho chay vong for gap dung thi add recipe id
-			 2-tim list recipe lien quan
-				2.1 - tao list trong
-				2.2 - cho chay vong for gap dung thi add
-			 3- tra ve 200 va list recipe
-			 */
-			var result = new ResponseObject<List<RecipeResponse>>();
-			var checkCategory = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId.ToString());
-			if ( checkCategory == null )
-			{
-				result.StatusCode = 400;
-				result.Message = "Wrong category. Not found Category";
-				return result;
-			}
-			var recipeIdListfound = _recipeCategoryService.GetRecipeIdByCategoryId(categoryId);
-			if ( recipeIdListfound == null )//cai nay la coi nhu tim ko co mon an thich hop, chu ko phai loi
-			{
-				result.StatusCode = 200;
-				result.Message = "Not found suitable recipe";
-				result.Data = new List<RecipeResponse>();
-				return result;
-			}
-			List<Recipe> listRecipe = new List<Recipe>();
-			foreach ( var item in recipeIdListfound )
-			{
-				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.ToString());
-				if ( recipe != null )
-					listRecipe.Add(recipe);
-			}
-			result.StatusCode = 200;
-			result.Message = "Recipe list base on categoryID: ";
-			result.Data = _mapper.Map<List<RecipeResponse>>(listRecipe);
-			return result;
-		}
-		#endregion
-
 		#region auto update
 		//update price
 		private async Task<bool> UpdatePrice(Guid recipeId)
@@ -969,155 +1086,41 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
-		public async Task<ResponseObject<RecipeResponse>> UpdateRecipeAsync(string updatedBy , Guid idRecipe , CreateRecipeRequest recipe)
+		#endregion
+
+		#region reset Recipe
+		private async Task<bool> resetRecipe(Guid recipeId)
 		{
-			var result = new ResponseObject<RecipeResponse>();
-			var currentList = await GetAllToProcess();
-			try
+			var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+			if ( recipe != null )
 			{
-				//check recipe exsit
-				var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(idRecipe.ToString());
-				if ( recipeExist == null )
-				{
-					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
-					return result;
-				}
-				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim())
-																		&& x.Id != recipeExist.Id);
-				if ( checkDuplicateName != null )
-				{
-					result.StatusCode = 400;
-					result.Message = "Duplicate name: " + checkDuplicateName.Name;
-					return result;
-				}
-				//mapper
-				_mapper.Map(recipe , recipeExist);
-				recipeExist.ProcessStatus = ProcessStatus.Processing;
-				if ( recipeExist.ProcessStatus == ProcessStatus.Processing
-				|| recipeExist.ProcessStatus == ProcessStatus.Denied
-				|| recipeExist.ProcessStatus == ProcessStatus.Cancel )
-				{
-					recipeExist.BaseStatus = BaseStatus.UnAvailable;
-				}
+				await _unitOfWork.RecipeRepository.DeleteAsync(recipe.Id.ToString());
 				await _unitOfWork.CompleteAsync();
-				//tao gia co ban cho recipe dua vao gia don vi cua nguyen lieu
-				var updatePrice = await UpdatePrice(recipeExist.Id);
-				if ( !updatePrice )
-				{
-					result.StatusCode = 500;
-					result.Message = "Update recipe price unsuccessfully";
-					return result;
-				}
-				//xóa các thành phần liên quan (RecipeCategory,RecipeIngredient)
-				var checkDeleteRecipeCategory = await _recipeCategoryService.DeleteByRcipe(recipeExist.Id);
-				var checkDeleteRecipeIngredient = await _recipeIngredientService.DeleteRecipeIngredientByRecipeAsync(recipeExist.Id);
-				if (
-					checkDeleteRecipeCategory.StatusCode != 200
-					|| checkDeleteRecipeIngredient.StatusCode != 200
-					)
-				{
-					result.StatusCode = 500;
-					result.Message = checkDeleteRecipeCategory.Message
-						+ " | " + checkDeleteRecipeIngredient.Message;
-					return result;
-				}
-
-				//bat dau update cac thanh phan lien quan
-				//create RecipeCategory, RecipeIngredient
-				if ( recipe.CategoryIds != null && recipe.RecipeIngredientsList != null )
-				{
-					var checkCreateRecipeCategory = await _recipeCategoryService.Create(recipeExist.Id , recipe.CategoryIds);
-					var checkCreateRecipeIngredient = await _recipeIngredientService.CreateRecipeIngredientAsync(recipeExist.Id , recipe.RecipeIngredientsList);
-
-					//update RecipeNutrient có thể gọi hàm tự động update vô đây
-					var updateNutrientResult = await _recipeNutrientService.AutoUpdateNutrientByRecipe(recipeExist.Id);
-					if ( updateNutrientResult == false )
-					{
-						result.StatusCode = 500;
-						result.Message = "Faild to update nutrient!";
-						return result;
-					}
-					if (
-						checkCreateRecipeCategory.StatusCode != 200 || checkCreateRecipeCategory.Data == null
-						|| checkCreateRecipeIngredient.StatusCode != 200 || checkCreateRecipeIngredient.Data == null
-						)
-					{
-						result.StatusCode = 500;
-						result.Message = checkCreateRecipeCategory.Message
-							+ " | " + checkCreateRecipeIngredient.Message;
-						return result;
-					}
-				}
-
-				//kiểm tra xem step nào đã tồn tại, nếu có rồi thì update step, nếu chưa thì delete
-				var recipeSteps = _unitOfWork.RecipeStepRepository.GetAll()
-					.Where(rc => rc.RecipeId == recipeExist.Id).ToList();
-				//nếu recipe.Steps count > recipeSteps thì tạo mới recipestep
-				if ( recipe.Steps.Count > recipeSteps.Count )
-				{
-					//xóa tất cả step có liên quan
-					var checkDeleteStep = await _recipeStepService.DeleteRecipeStepsByRecipe(recipeExist.Id);
-					if ( checkDeleteStep.StatusCode != 200 )
-					{
-						result.StatusCode = 500;
-						result.Message = checkDeleteStep.Message;
-						return result;
-					}
-					//gọi tới create
-					var checkCreateRecipeStep = await _recipeStepService.CreateRecipeSteps(recipeExist.Id , recipe.Steps);
-					if ( checkCreateRecipeStep.StatusCode != 200 )
-					{
-						//tạo không được thì return về lại step cũ
-						result.StatusCode = 500;
-						result.Message = checkCreateRecipeStep.Message;
-						return result;
-					}
-				}
-				else
-				{
-					foreach ( var recipeStepByRecipe in recipe.Steps )
-					{
-						//nếu có rồi thì update 
-						foreach ( var step in recipeSteps )
-						{
-							if ( recipeStepByRecipe.Id == step.Id )
-							{
-								//update
-								var checkUpdateStep = await _recipeStepService.UpdateRecipeStepsByRecipe(step.Id , recipeStepByRecipe);
-								if ( checkUpdateStep.StatusCode != 200 )
-								{
-									result.StatusCode = 500;
-									result.Message = checkUpdateStep.Message;
-									return result;
-								}
-								break;
-							}
-							else if ( recipe.Steps.Count < recipeSteps.Count )
-							{
-								//delete
-								var checkDeleteStep = await _recipeStepService.DeleteAsync(step.Id);
-								if ( checkDeleteStep.StatusCode != 200 )
-								{
-									result.StatusCode = 500;
-									result.Message = checkDeleteStep.Message;
-									return result;
-								}
-							}
-						}
-					}
-				}
-				await _unitOfWork.CompleteAsync();
-				result.StatusCode = 200;
-				result.Message = "Update Recipe successfully.";
-				return result;
+				return true;
 			}
-			catch ( Exception ex )
+			return false;
+		}
+		private async Task<bool> deleteRecipeFromWeeklyPlan(Guid recipeId , ProcessStatus processStatusExist , BaseStatus? baseStatusChange)
+		{
+			//nếu base -> available thì oke 
+			//nếu base -> unAvailable thì xóa khỏi wp 
+			var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+			if ( recipeExist != null )
 			{
-				result.StatusCode = 500;
-				result.Message = ex.Message;
-				return result;
+				if ( processStatusExist == ProcessStatus.Denied || baseStatusChange != null && baseStatusChange == BaseStatus.UnAvailable )
+				{
+					//Xóa khỏi wpl
+					var recipePLansExist = _unitOfWork.RecipePlanRepository.Get(rp => rp.RecipeId == recipeId).ToList();
+					if ( recipePLansExist.Count > 0 )
+					{
+						//delete recipePLan
+						_unitOfWork.RecipePlanRepository.RemoveRange(recipePLansExist);
+						await _unitOfWork.CompleteAsync();
+					}
+					return true;
+				}
 			}
+			return false;
 		}
 		#endregion
 	}

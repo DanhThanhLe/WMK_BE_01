@@ -16,6 +16,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_unitOfWork = unitOfWork;
 		}
 
+		#region Create
 		public async Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId , List<RecipeWeeklyPlanCreate> recipeIds)
 		{
 			var result = new ResponseObject<List<RecipePLan>?>();
@@ -29,9 +30,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					foreach ( var recipePlan in recipeIds )
 					{
-						
+
 						var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(recipePlan.recipeId.ToString());
-						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved && recipeExist.BaseStatus == BaseStatus.Available)
+						if ( recipeExist != null && recipeExist.ProcessStatus == ProcessStatus.Approved && recipeExist.BaseStatus == BaseStatus.Available )
 						{
 							var newRecipePlan = new RecipePLan
 							{
@@ -82,6 +83,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+		#endregion
+
 		private void AddOrUpdateRecipePlan(List<RecipePLan> recipePlans , RecipePLan newRecipePlan)
 		{
 			var existingRecipePlan = recipePlans.FirstOrDefault(rp =>
@@ -181,12 +184,5 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-
-		//public async Task<ResponseObject<RecipePLan>> DeleteRecipePlan(Guid weeklyPlanId)
-		//{
-
-		//}//dung de xoa
-
-
 	}
 }

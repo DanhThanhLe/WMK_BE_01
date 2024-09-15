@@ -26,6 +26,56 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 		}
+		#region Get
+		public async Task<ResponseObject<List<RecipeIngredientResponse>>> GetAll()
+		{
+			var result = new ResponseObject<List<RecipeIngredientResponse>>();
+			var list = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
+			if ( list == null )
+			{
+				result.StatusCode = 400;
+				result.Message = "Not found. Empty list recipe amount";
+				return result;
+			}
+			result.StatusCode = 200;
+			result.Message = "OK. list recipe amount";
+			result.Data = _mapper.Map<List<RecipeIngredientResponse>>(list);
+			return result;
+		}
+		#endregion
+
+		#region Get-by-recipe-id
+		public async Task<ResponseObject<List<RecipeIngredientResponse>>> GetListByRecipeId(Guid recipeId)
+		{
+			var result = new ResponseObject<List<RecipeIngredientResponse>>();
+			var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
+			if ( checkRecipe == null )
+			{
+				result.StatusCode = 400;
+				result.Message = "Recipe not existed";
+				return result;
+			}
+			var currentList = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
+			var foundList = new List<RecipeIngredient>();
+			foreach ( var item in currentList )
+			{
+				if ( item.RecipeId.Equals(recipeId) )
+				{
+					foundList.Add(item);
+				}
+			}
+			if ( foundList.Count == 0 )
+			{
+				result.StatusCode = 500;
+				result.Message = "Not found List for Id: " + recipeId;
+				return result;
+			}
+			result.StatusCode = 200;
+			result.Message = "Ok. Recipe category list:";
+			result.Data = _mapper.Map<List<RecipeIngredientResponse>>(foundList);
+			return result;
+		}
+		#endregion
 
 		#region create recipe ingredient with recipe create
 		public async Task<ResponseObject<List<RecipeIngredient>?>> CreateRecipeIngredientAsync(Guid recipeId , List<CreateRecipeIngredientRequest> recipeIngredientRequests) //chua kiem tra trung id ingredient
@@ -83,6 +133,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
+
+		#endregion
+
+		#region Delete
 		public async Task<ResponseObject<List<RecipeIngredient>?>> DeleteRecipeIngredientByRecipeAsync(Guid recipeId)
 		{
 			var result = new ResponseObject<List<RecipeIngredient>?>();
@@ -122,53 +176,5 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
-		public async Task<ResponseObject<List<RecipeIngredientResponse>>> GetAll()
-		{
-			var result = new ResponseObject<List<RecipeIngredientResponse>>();
-			var list = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
-			if ( list == null )
-			{
-				result.StatusCode = 400;
-				result.Message = "Not found. Empty list recipe amount";
-				return result;
-			}
-			result.StatusCode = 200;
-			result.Message = "OK. list recipe amount";
-			result.Data = _mapper.Map<List<RecipeIngredientResponse>>(list);
-			return result;
-		}
-
-		#region Get-by-recipe-id dang sua
-		public async Task<ResponseObject<List<RecipeIngredientResponse>>> GetListByRecipeId(Guid recipeId)
-		{
-			var result = new ResponseObject<List<RecipeIngredientResponse>>();
-			var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
-			if ( checkRecipe == null )
-			{
-				result.StatusCode = 400;
-				result.Message = "Recipe not existed";
-				return result;
-			}
-			var currentList = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
-			var foundList = new List<RecipeIngredient>();
-			foreach ( var item in currentList )
-			{
-				if ( item.RecipeId.Equals(recipeId) )
-				{
-					foundList.Add(item);
-				}
-			}
-			if ( foundList.Count == 0 )
-			{
-				result.StatusCode = 500;
-				result.Message = "Not found List for Id: " + recipeId;
-				return result;
-			}
-			result.StatusCode = 200;
-			result.Message = "Ok. Recipe category list:";
-			result.Data = _mapper.Map<List<RecipeIngredientResponse>>(foundList);
-			return result;
-		}
-		#endregion
 	}
 }

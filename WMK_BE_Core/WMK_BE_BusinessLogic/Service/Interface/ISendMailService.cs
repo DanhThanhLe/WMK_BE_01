@@ -9,6 +9,5 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface ISendMailService
 	{
 		public bool SendMail(string to , string subject , string body);
-
 	}
 }

@@ -40,7 +40,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_updateValidator = new UpdateOrderGroupModelValidator();
 		}
 
-
+		#region Get
 		public async Task<ResponseObject<List<OrderGroupsResponse>>> GetAllAsync(GetALLOrderGroupsRequest? model)
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
@@ -140,6 +140,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+		#endregion
+
 		public async Task<ResponseObject<OrderGroupsResponse>> CreateOrderGroupAsync(CreateOrderGroupRequest model , string assignedBy)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -205,6 +207,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		public async Task<ResponseObject<OrderGroupsResponse>> UpdateOrderGroupAsync(UpdateOrderGroupRequest model , string id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -268,6 +271,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 
 		}
+
 		public async Task<ResponseObject<OrderGroupsResponse>> DeleteOrderGroupAsync(Guid id)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -319,6 +323,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		public async Task<ResponseObject<OrderGroupsResponse>> ChangeStatusOrderGroupAsync(Guid id , ChangeStatusOrderGroupRequest model)
 		{
 			var result = new ResponseObject<OrderGroupsResponse>();
@@ -370,6 +375,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//lấy ra các order có status đang processing
 			var orders = _unitOfWork.OrderRepository.Get(x => x.Status == OrderStatus.Processing).ToList();
 			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
+
+			#region order < ordergroup
 			//if ( orders.Count < orderGroups.Count )
 			//{
 			//	foreach ( var order in orders )
@@ -412,6 +419,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//	result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
 			//	return result;
 			//}
+			#endregion
+
 			//gọi kmeans
 			var k = FindOptimalK(orders , orderGroups.Count);
 			var kmeans = new KMeans(k , new SquareEuclidean());//SquareEuclidean được sử dụng để chỉ rằng chúng ta muốn tính
@@ -459,6 +468,43 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			return result;
 		}
 
+		// Hàm tính khoảng cách Euclidean giữa hai điểm
+		private double CalculateEuclideanDistance(double[] point1 , double[] point2)
+		{
+			double sum = 0;
+			for ( int i = 0; i < point1.Length; i++ )
+			{
+				sum += Math.Pow(point1[i] - point2[i] , 2);
+			}
+			return Math.Sqrt(sum);
+		}
+
+		public int FindOptimalK(List<Order> orders , int maxK)
+		{
+			var coordinates = orders.Select(o => new double[] { o.Longitude , o.Latitude }).ToArray();
+			var sseList = new List<double>();
+
+			for ( int k = 1; k <= maxK; k++ )
+			{
+				var kmeans = new KMeans(k , new SquareEuclidean());
+				var clusters = kmeans.Learn(coordinates);
+
+				// Tính tổng bình phương khoảng cách (SSE) của các điểm đến tâm cụm gần nhất
+				var sse = coordinates.Sum(point =>
+				{
+					var clusterIndex = GetClosestCentroidIndex(point , clusters.Centroids);
+					var distance = CalculateEuclideanDistance(point , clusters.Centroids[clusterIndex]);
+					return distance * distance;
+				});
+
+				sseList.Add(sse);
+			}
+
+			// Tìm điểm gấp khúc trong danh sách SSE
+			int optimalK = DetermineElbow(sseList);
+			return optimalK;
+		}
+
 		// Hàm để lấy chỉ số của tâm cụm gần nhất
 		private int GetClosestCentroidIndex(double[] point , double[][] centroids)
 		{
@@ -477,18 +523,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return closestIndex;
 		}
-
-		// Hàm tính khoảng cách Euclidean giữa hai điểm
-		private double CalculateEuclideanDistance(double[] point1 , double[] point2)
+		private int DetermineElbow(List<double> sseList)
 		{
-			double sum = 0;
-			for ( int i = 0; i < point1.Length; i++ )
+			if ( sseList.Count < 2 ) return 1; // Không đủ dữ liệu để xác định
+
+			// Tính độ dốc giữa các điểm SSE
+			var changes = new List<double>();
+			for ( int i = 1; i < sseList.Count; i++ )
 			{
-				sum += Math.Pow(point1[i] - point2[i] , 2);
+				double change = sseList[i - 1] - sseList[i];
+				changes.Add(change);
 			}
-			return Math.Sqrt(sum);
+
+			// Tìm sự thay đổi lớn nhất trong độ dốc
+			var maxChange = changes.Select((c , i) => new { Index = i , Change = c }).OrderByDescending(x => x.Change).First();
+			return maxChange.Index + 2; // +2 vì index bắt đầu từ 0 và k bắt đầu từ 1
 		}
 
+		#region Old
 		private static double CalculateDistance(double[] point1 , double[] point2)
 		{
 			var lat1 = point1[0] * (Math.PI / 180.0);
@@ -503,30 +555,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var c = 2.0 * Math.Atan2(Math.Sqrt(a) , Math.Sqrt(1.0 - a));
 
 			return 6371.0 * c; // return distance in kilometers
-		}
-		public int FindOptimalK(List<Order> orders , int maxK)
-		{
-			var coordinates = orders.Select(o => new double[] { o.Longitude , o.Latitude }).ToArray();
-			var sseList = new List<double>();
-
-			for ( int k = 1; k <= maxK; k++ )
-			{
-				var kmeans = new KMeans(k , new SquareEuclidean());
-				var clusters = kmeans.Learn(coordinates);
-
-				// Tính tổng bình phương khoảng cách (SSE) của các điểm đến tâm cụm gần nhất
-				var sse = coordinates.Sum(point =>
-				{
-					var clusterIndex = GetClosestCentroidIndex(point , clusters.Centroids);
-					return CalculateEuclideanDistance(point , clusters.Centroids[clusterIndex]) * CalculateEuclideanDistance(point , clusters.Centroids[clusterIndex]);
-				});
-
-				sseList.Add(sse);
-			}
-
-			// Tìm điểm gấp khúc trong danh sách SSE
-			int optimalK = DetermineElbow(sseList);
-			return optimalK;
 		}
 
 		public int Decision(double[] point , double[][] centroids)
@@ -546,23 +574,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			return closestIndex;
 		}
-
-		private int DetermineElbow(List<double> sseList)
-		{
-			if ( sseList.Count < 2 ) return 1; // Không đủ dữ liệu để xác định
-
-			// Tính độ dốc giữa các điểm SSE
-			var changes = new List<double>();
-			for ( int i = 1; i < sseList.Count; i++ )
-			{
-				double change = sseList[i - 1] - sseList[i];
-				changes.Add(change);
-			}
-
-			// Tìm sự thay đổi lớn nhất trong độ dốc
-			var maxChange = changes.Select((c , i) => new { Index = i , Change = c }).OrderByDescending(x => x.Change).First();
-			return maxChange.Index + 2; // +2 vì index bắt đầu từ 0 và k bắt đầu từ 1
-		}
+		#endregion
 
 		#endregion
 	}

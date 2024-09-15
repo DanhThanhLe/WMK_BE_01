@@ -22,7 +22,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		#region Get
-		//
 		[HttpGet("get-all")]
 		public async Task<IActionResult> GetAll([FromQuery] GetAllIngredientsRequest? model)
 		{
@@ -30,7 +29,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientService.GetAllAync(userId, model);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+		
 		[HttpGet("get/{id}")]
 		public async Task<IActionResult> GetById(Guid id)
 		{
@@ -39,7 +38,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		#endregion
-		//
+		
 		[HttpPost("create-new")]
 		[Authorize]
 		public async Task<IActionResult> CreateNew([FromBody] CreateIngredientRequest model)
@@ -54,7 +53,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#region Update
-		//
 		[HttpPut("update/{id}")]
 		[Authorize]
 		public async Task<IActionResult> Update(Guid id , CreateIngredientRequest model)
@@ -68,7 +66,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientService.UpdateIngredient(updatedBy , id , model);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+		
 		[HttpPut("update-status/{id}")]
 		[Authorize]
 		public async Task<IActionResult> UpdateStatus(Guid id , [FromBody] UpdateStatusIngredientRequest model)
@@ -77,7 +75,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
-		//
+		
 		[HttpDelete("delete/{id}")]
 		[Authorize]
 		public async Task<IActionResult> DeleteById(string id)

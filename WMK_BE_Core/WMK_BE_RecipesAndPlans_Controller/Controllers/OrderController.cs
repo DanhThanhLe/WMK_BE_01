@@ -17,13 +17,12 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		private readonly IOrderService _orderService;
 		private readonly ISendMailService _sendMailService;
 
-		public OrderController(IOrderService orderService, ISendMailService sendMailService)
+		public OrderController(IOrderService orderService , ISendMailService sendMailService)
 		{
 			_orderService = orderService;
 			_sendMailService = sendMailService;
 		}
 		#region Get
-		//
 		[HttpGet("get-all")]
 		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> GetAll([FromQuery] GetAllOrdersRequest? model)
@@ -31,7 +30,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.GetAllOrdersAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+
 		[HttpGet("get-by-userid/{userId}")]
 		[Authorize]
 		public async Task<IActionResult> GetByUserId(string userId)
@@ -51,7 +50,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				});
 			}
 		}
-		//
+
 		[HttpGet("get-order/{id}")]
 		[Authorize]
 		public async Task<IActionResult> GetById(Guid id)
@@ -59,11 +58,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.GetOrderByIdAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
-
 		#endregion
+
 		#region Create
-		//
 		[HttpPost("create")]
 		[Authorize]
 		public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
@@ -72,23 +69,22 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
+
 		#region Update
-		//
 		[HttpPut("change-status/{id}")]
 		[Authorize]
 		public async Task<IActionResult> ChangeStatus(Guid id , [FromQuery] ChangeStatusOrderRequest model)
 		{
 			var result = await _orderService.ChangeStatusOrderAsync(id , model);
 			//mỗi lần thay đổi sẻ gửi mail về cho customer
-			if(result.Data != null && result.Data.UserId != null)
+			if ( result.Data != null && result.Data.UserId != null )
 			{
 				_sendMailService.SendMail(result.Data.UserId , "Order status information on WeMealKit" , "Your order on WemealKit with code ("
-										+ result.Data.OrderCode + ") has been update to (" 
-										+ result.Data.Status +").");
+										+ result.Data.OrderCode + ") has been update to ("
+										+ result.Data.Status + ").");
 			}
 			return StatusCode(result.StatusCode , result);
 		}
-		//
 		[HttpPut("change-ordergroup/{idOrder}")]
 		[Authorize]
 		public async Task<IActionResult> ChangeOrdergroup(Guid idOrder , [FromBody] Guid idOrderGroup)
@@ -97,8 +93,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
+
 		#region Delete
-		//
 		[HttpDelete("delete/{id}")]
 		[Authorize]
 		public async Task<IActionResult> Delete(Guid id)
@@ -106,7 +102,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.DeleteOrderAsync(id);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+
 		[HttpDelete("remove-ordergroup/{idOrder}")]
 		[Authorize]
 		public async Task<IActionResult> RemoveFromOrdergroup(Guid idOrder)
@@ -114,6 +110,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.RemoveOrderFormOrderGroupAsync(idOrder);
 			return StatusCode(result.StatusCode , result);
 		}
+
 		[HttpDelete("reset-all-ordergroup")]
 		[Authorize]
 		public async Task<IActionResult> RemoveFromOrdergroup()
@@ -122,6 +119,5 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
-
 	}
 }

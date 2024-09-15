@@ -13,11 +13,18 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
     public interface IRecipeStepService
     {
-        Task<ResponseObject<List<RecipeStepRespone>>> GetRecipeSteps();
+		#region Get
+		Task<ResponseObject<List<RecipeStepRespone>>> GetRecipeSteps();
         Task<ResponseObject<List<RecipeStepRespone>>> GetByRecipeId(Guid recipeId);
+		#endregion
+
         Task<ResponseObject<List<RecipeStep>>> CreateRecipeSteps(Guid recipeId, List<CreateRecipeStepRequest> stepList);
-        Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId);
-        Task<ResponseObject<RecipeStep>> DeleteAsync(Guid recipeStepId);
+        
         Task<ResponseObject<List<RecipeStep>>> UpdateRecipeStepsByRecipe(Guid Id, CreateRecipeStepRequest model);
+
+		#region Delete
+		Task<ResponseObject<List<RecipeStep>>> DeleteRecipeStepsByRecipe(Guid recipeId);
+        Task<ResponseObject<RecipeStep>> DeleteAsync(Guid recipeStepId);
+		#endregion
     }
 }

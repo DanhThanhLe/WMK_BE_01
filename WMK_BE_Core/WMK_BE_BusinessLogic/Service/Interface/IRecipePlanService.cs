@@ -12,6 +12,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface IRecipePlanService
 	{
 		Task<ResponseObject<List<RecipePLan>?>> CreateRecipePlanAsync(Guid weeklyPlanId, List<RecipeWeeklyPlanCreate> recipesId);
+		
 		Task<ResponseObject<List<RecipePLan>?>> UpdateRecipePlanAsync(Guid weeklyPlanId , List<Guid> newRecipesId);
 	}
 }
