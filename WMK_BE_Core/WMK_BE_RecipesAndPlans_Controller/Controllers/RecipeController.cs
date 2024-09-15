@@ -139,7 +139,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		#endregion
-		//
+		
 		[HttpDelete("delete/{id}")]
 		[Authorize]
 		public async Task<IActionResult> DeleteById(string id)

@@ -12,18 +12,30 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
 	public interface IOrderService
 	{
+		#region Get
 		Task<ResponseObject<List<OrderResponse>>> GetAllOrdersAsync(GetAllOrdersRequest? model);
+		Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id);
 		Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId);
+		#endregion
 
-        Task<ResponseObject<OrderResponse?>> GetOrderByIdAsync(Guid id);
 		Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model);
-		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id,UpdateOrderRequest model);
+
+		#region Update
+		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id , UpdateOrderRequest model);
 		Task<ResponseObject<OrderResponse>> UpdateOrderByUserAsync(UpdateOrderByUserRequest model);
-		Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder, Guid idOrderGroup);
+		#endregion
+
+		#region Delete
 		Task<ResponseObject<OrderResponse>> DeleteOrderAsync(Guid id);
 		Task<ResponseObject<OrderResponse>> RemoveOrderFormOrderGroupAsync(Guid idOrder);
-		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model);
 		Task<ResponseObject<List<OrderResponse>>> RemoveAllOrdersFromOrderGroupsAsync();
+		#endregion
+
+		#region Change
+		Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder , Guid idOrderGroup);
+		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id , ChangeStatusOrderRequest model);
+		#endregion
+
 
 	}
 }

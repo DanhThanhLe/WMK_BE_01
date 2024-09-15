@@ -12,14 +12,16 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 {
     public interface IIngredientNutrientService
     {
-        Task<ResponseObject<List<IngredientNutrientResponse>>> GetAll();
+		#region Get
+		Task<ResponseObject<List<IngredientNutrientResponse>>> GetAll();
         Task<ResponseObject<IngredientNutrientResponse>> GetById(Guid request);
         Task<ResponseObject<IngredientNutrientResponse>> GetByIngredientId(Guid request);
+		#endregion
+
         Task<ResponseObject<IngredientNutrient>> Create(Guid ingredientId, CreateIngredientNutrientRequest request);
-        Task<ResponseObject<IngredientNutrientResponse>> Update(Guid idIngredientNutrient, IngredientNutrientRequest request);
-        Task<ResponseObject<IngredientNutrientResponse>> DeleteById(Guid request);
         
-
-
+        Task<ResponseObject<IngredientNutrientResponse>> Update(Guid idIngredientNutrient, IngredientNutrientRequest request);
+        
+        Task<ResponseObject<IngredientNutrientResponse>> DeleteById(Guid request);
     }
 }

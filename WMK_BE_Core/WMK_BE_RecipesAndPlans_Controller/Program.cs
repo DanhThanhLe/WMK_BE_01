@@ -76,11 +76,13 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			//Redis
 			//builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("wemealkit.ddns.net:30007,password=000000Long@"));
 			//builder.Services.AddScoped<IRedisService , RedisService>();
-			builder.Services.AddHttpClient();
 			//builder.Services.AddScoped<IRabitMQProducer , RabitMQProducer>();
-			//builder.Services.AddHostedService<RabitMQConsumer>();			//builder.Services.AddHostedService<RabitMQConsumer>();
-			//CORS
+			//builder.Services.AddHostedService<RabitMQConsumer>();			
+			//builder.Services.AddHostedService<RabitMQConsumer>();
 
+			builder.Services.AddHttpClient();
+
+			//CORS
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("WeMealKitCors" ,
@@ -89,7 +91,6 @@ namespace WMK_BE_RecipesAndPlans_Controller
 						.AllowAnyMethod()
 						.AllowAnyHeader());
 			});
-
 
 			//JWT
 			builder.Services.AddAuthentication(op =>
@@ -147,7 +148,6 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				});
 			});
 
-
 			//Mapper
 			builder.Services.AddAutoMapper(typeof(UserProfile));
 			builder.Services.AddAutoMapper(typeof(OrderProfile));
@@ -193,7 +193,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 			builder.Services.AddScoped<IRecipeIngredientOrderDetailService , RecipeIngredientOrderDetailService>();
 			builder.Services.Configure<MomoOption>(builder.Configuration.GetSection("MomoAPI"));
 			builder.Services.Configure<ZaloPaySettings>(builder.Configuration.GetSection("ZaloPayAPI"));
-			builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+			builder.Services.AddScoped<IFeedbackService , FeedbackService>();
 
 			var app = builder.Build();
 
@@ -217,6 +217,7 @@ namespace WMK_BE_RecipesAndPlans_Controller
 				//context.Database.Migrate();
 				context.SeedData();
 			}
+
 			app.Run();
 		}
 	}

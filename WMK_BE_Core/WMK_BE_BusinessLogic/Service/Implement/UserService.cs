@@ -337,6 +337,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		public async Task<ResponseObject<BaseUserResponse>> UpdateUserAsync(Guid idUser , UpdateUserRequest model)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -417,6 +418,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		public async Task<ResponseObject<BaseUserResponse>> DeleteUserAsync(Guid id)
 		{
 			var result = new ResponseObject<BaseUserResponse>();
@@ -467,6 +469,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 			}
 		}
+
 		#region Change
 		public async Task<ResponseObject<BaseUserResponse>> ChangeRoleAsync(Guid idUser , ChangeRoleUserRequest model)
 		{
@@ -512,6 +515,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
+
 		public async Task<ResponseObject<BaseUserResponse>> ChangeStatusAsync(Guid id)
 		{
 			var result = new ResponseObject<BaseUserResponse>();

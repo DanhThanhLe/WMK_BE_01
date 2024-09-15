@@ -42,9 +42,9 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public virtual OrderGroup? OrderGroup { get; set; }
 		public virtual WeeklyPlan WeeklyPlan { get; set; }
 		public virtual Transaction? Transaction { get; set; }
+		public virtual Feedback FeedBacks { get; set; }
 
 		//list
-		public List<Feedback> FeedBacks { get; set; }
 		public virtual List<OrderDetail> OrderDetails { get; set; }
 
         public Order()

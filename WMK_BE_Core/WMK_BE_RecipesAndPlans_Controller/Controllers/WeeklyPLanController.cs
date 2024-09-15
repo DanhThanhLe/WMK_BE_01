@@ -21,7 +21,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			_weeklyPLanService = weeklyPlanService;
 		}
 		#region Get
-		//
 		[HttpGet("get-all")]//danh cho mobile
 		public async Task<IActionResult> Get(string name = "")
 		{
@@ -35,7 +34,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _weeklyPLanService.GetAllFilterAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+
 		[HttpGet("get-by-customer-id/{id}")]
 		[Authorize]
 		public async Task<IActionResult> GetByCustomerId(string id)
@@ -55,7 +54,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				});
 			}
 		}
-		//
+
 		[HttpGet("get-id/{id}")]
 		public async Task<IActionResult> GetId(Guid id)
 		{
@@ -146,7 +145,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-		//
 		[HttpDelete("delete/{id}")]
 		[Authorize(Roles = "Staff,Manager,Admin")]
 		public async Task<IActionResult> Delete(Guid id)
@@ -166,12 +164,5 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				});
 			}
 		}
-
-		//[HttpPut("test")]
-		//public async Task<IActionResult> UpdateStatusOnRecipe([FromQuery] Guid recipeId)
-		//{
-		//	await _weeklyPLanService.ChangeStatusOnRecipeUpdate(recipeId);
-		//	return StatusCode(200);
-		//}
 	}
 }

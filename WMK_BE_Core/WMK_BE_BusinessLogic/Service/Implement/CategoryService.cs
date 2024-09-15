@@ -141,6 +141,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 
 		#endregion
+		
 		#region Create
 		public async Task<ResponseObject<CategoryResponseModel>> CreateCategoryAsync(CreateCategoryRequest model)
 		{
@@ -180,6 +181,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 		#endregion
+		
 		#region Update
 		public async Task<ResponseObject<CategoryResponseModel>> UpdateCategoryAsync(Guid id , UpdateCategoryRequest model)
 		{
@@ -261,6 +263,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		}
 		#endregion
+		
 		#region Delete
 		public async Task<ResponseObject<CategoryResponseModel>> DeleteCategoryAsync(Guid id)
 		{
@@ -307,6 +310,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 		#endregion
+		
 		private bool CheckMatchType(string type)//nhan noi dung cua type tu request, do theo list type cua category, neu khong nam trong list thi bao loi
 		{
 			foreach ( var item in categoryTypeList )
@@ -318,7 +322,5 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			return false;
 		}
-
-
 	}
 }

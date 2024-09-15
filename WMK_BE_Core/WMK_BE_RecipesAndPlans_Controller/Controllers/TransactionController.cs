@@ -14,20 +14,11 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		private readonly ITransactionService _transactionService;
 		private readonly ISendMailService _sendMailService;
 
-
 		public TransactionController(ITransactionService transactionService , ISendMailService sendMailService)
 		{
 			_transactionService = transactionService;
 			_sendMailService = sendMailService;
 		}
-
-		//[HttpPost("create_momo")]
-		//[Authorize]
-		//public async Task<IActionResult> CreateMomoPayment(OrderInfoRequest model)
-		//{
-		//	var result = await _transactionService.CreatePaymentAsync(model);
-		//	return StatusCode(result.StatusCode , result);
-		//}
 
 		[HttpGet("get-all")]
 		[Authorize]
@@ -37,19 +28,17 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-		//
 		[HttpPost("create-new")]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> UpdateTransactionListForOrder([FromBody] CreatePaymentRequest request)
 		{
 			var result = await _transactionService.CreateNewPaymentAsync(request);
 			return StatusCode(result.StatusCode , result);
 		}
 
-
 		//refund
 		[HttpPost("refund-zalopay")]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> RefundZaloPay([FromBody] RefundZaloPayRequest request)
 		{
 			var result = await _transactionService.RefundTransactionAsync(request);

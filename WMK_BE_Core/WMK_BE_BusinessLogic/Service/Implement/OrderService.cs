@@ -421,11 +421,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
 			if ( orderExist != null )
 			{
-				if ( orderExist.Status == OrderStatus.Shipping && model.Status == OrderStatus.UnShipped )
-				{
-					//xóa order khỏi odgroup và cho staff duyệt lại
-
-				}
 				//nếu ở shipped hoặc delivered thì không thể cancel
 				if ( (orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered) && model.Status == OrderStatus.Canceled )
 				{
@@ -448,8 +443,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				orderExist.Status = model.Status;
 				//nếu order thành công -> status chuyển sang shipped (do shipper nhấn) thì sẽ tăng pop của recipe lên
-				//xóa khỏi odgroup
-				if ( model.Status == OrderStatus.Shipped )
+				if ( model.Status == OrderStatus.Shipped )//ko cần xóa khỏi odg
 				{
 					//tăng  pop trong từng recipe
 					foreach ( var orderDetail in orderExist.OrderDetails )
@@ -460,17 +454,17 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							recipeExist.Popularity++;
 						}
 					}
-					//xóa khỏi odg
-					if ( orderExist.OrderGroup != null )
-					{
-						var odGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(orderExist.OrderGroup.Id.ToString());
-						if ( odGroupExist != null )
-						{
-							odGroupExist.Orders.Remove(orderExist);
-							orderExist.OrderGroup = null;
-							orderExist.OrderGroupId = null;
-						}
-					}
+					////xóa khỏi odg
+					//if ( orderExist.OrderGroup != null )
+					//{
+					//	var odGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(orderExist.OrderGroup.Id.ToString());
+					//	if ( odGroupExist != null )
+					//	{
+					//		odGroupExist.Orders.Remove(orderExist);
+					//		orderExist.OrderGroup = null;
+					//		orderExist.OrderGroupId = null;
+					//	}
+					//}
 				}
 				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
 				if ( updateResult )
@@ -675,9 +669,5 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#endregion
-
-		//public async Task<OrderResponse> resetOrder //ham nay xoa tat ca order da duoc hoan thanh khoi order group
-
-
 	}
 }

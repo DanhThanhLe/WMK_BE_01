@@ -30,8 +30,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 //lay thong tin cua recipeIngredient
                 //lay thong tin cua ingreident
                 //nhan thong tin gia voi thong tin cua amount trong recipe amount
-                OrderDetail checkOrderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(orderDetailId.ToString());
-                if(checkOrderDetail.Id.ToString() == null)
+                var checkOrderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(orderDetailId.ToString());
+                if(checkOrderDetail == null )
                 {
                     result.StatusCode = 500;
                     result.Message = "Order Detail not exist";
@@ -43,7 +43,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     if (recipeId.ToString().ToLower().Equals(checkOrderDetail.RecipeId.ToString().ToLower()))
                     {
                         var checkRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());//tim recipe
-                        if (checkRecipe.Id.ToString() != null)//bat dau tao thong tin recipeIngredient trong 
+                        if (checkRecipe != null && checkRecipe.Id.ToString() != null)//bat dau tao thong tin recipeIngredient trong 
                         {
                             //lay thong tin cua recipeIngredient
                             //lay thong tin cua ingreident
@@ -79,14 +79,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         else
                         {
                             result.StatusCode = 500;
-                            result.Message = "Recipe not found";
+                            result.Message = "Recipe not found!";
                             return result;
                         }
                     }
                     else//recipe id dua xuong ko khop voi recipe id duoc luu trong order detail
                     {
                         result.StatusCode=500;
-                        result.Message = "Recipe Id not match with request";
+                        result.Message = "Recipe Id not match with request!";
                         return result;
                     }
                 }

@@ -13,7 +13,5 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 	public interface IOrderDetailService
 	{
         Task<ResponseObject<List<OrderDetail>?>> CreateOrderDetailAsync(Guid orderId, List<CreateOrderDetailRequest> RecipeList);
-
-
     }
 }

@@ -39,11 +39,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			_configuration = configuration;
 			_mapper = mapper;
 
+			#region Validation construtor
 			_loginValidator = new LoginModelValidator();
 			_registerValidator = new RegisterModelValidator();
 			_resetPassValidator = new ResetPasswordModelValidator();
 			_resetPassByEmailValidator = new ResetPasswordByEmailModelValidator();
 			_sendCodeValidator = new SendCodeByEmailModelValidator();
+			#endregion
 		}
 
 		#region Login
@@ -447,6 +449,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 
 		#endregion
+
 		private string GenerateRandomCode(int length)
 		{
 			var random = new Random();

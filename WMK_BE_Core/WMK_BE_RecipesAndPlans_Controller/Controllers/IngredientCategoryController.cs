@@ -17,7 +17,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		{
 			_ingredientCategoryService = ingredientCategoryService;
 		}
-		//
+		
 		[HttpGet("get-all")]
 		[Authorize]
 		public async Task<IActionResult> GetAll([FromQuery] GetAllIngredientCategoriesRequest? model)
@@ -26,7 +26,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-		//
 		[HttpPost("create-new")]
 		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> Create([FromBody] CreateIngredientCategoryRequest request)
@@ -34,7 +33,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientCategoryService.CreateNew(request);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+		
 		[HttpPut("update/{id}")]
 		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> Update(Guid id , [FromBody] FullIngredientCategoryRequest request)
@@ -42,7 +41,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientCategoryService.UpdateCategory(id , request);
 			return StatusCode(result.StatusCode , result);
 		}
-		//
+		
 		[HttpPut("change-status/{id}")]
 		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> ChangeStatus(Guid id , ChangeStatusIngredientCategoryRequest request)
@@ -51,7 +50,6 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 
-		//
 		[HttpDelete("delete-by-id/{id}")]
 		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> DeleteById(string id)

@@ -40,7 +40,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			}
 		}
 		#endregion
-		//
+		
 		[HttpPost("create")]
 		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> Create([FromBody] CreateCategoryRequest model)
@@ -48,6 +48,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _categoryService.CreateCategoryAsync(model);
 			return StatusCode(result.StatusCode , result);
 		}
+		
 		#region Update
 		//
 		[HttpPut("update/{id}")]
@@ -66,7 +67,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
-		
+
 		[HttpDelete("delete/{id}")]
 		[Authorize(Roles = "Admin,Manager")]
 		public async Task<IActionResult> Delete(Guid id)

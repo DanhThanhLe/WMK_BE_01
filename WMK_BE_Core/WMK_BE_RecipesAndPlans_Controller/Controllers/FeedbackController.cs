@@ -16,12 +16,14 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
         {
             _service = service;
         }
+        
         [HttpGet("get")]
         public async Task<IActionResult> Get([FromQuery]string? orderId)
         {
             var result = await _service.Get(orderId);
             return StatusCode(result.StatusCode, result);
         }
+        
         [HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateFeedbackRequest request)
