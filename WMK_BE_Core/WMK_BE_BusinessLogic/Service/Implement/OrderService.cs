@@ -676,7 +676,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 		#endregion
 
-		//public async Task<OrderResponse> resetOrder
+		//public async Task<OrderResponse> resetOrder //ham nay xoa tat ca order da duoc hoan thanh khoi order group
 
 
 	}
