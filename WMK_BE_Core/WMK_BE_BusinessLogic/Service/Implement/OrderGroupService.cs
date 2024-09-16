@@ -367,6 +367,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<List<OrderGroupsResponse>>> OrderGroupClusterAsync()
 		{
 			var result = new ResponseObject<List<OrderGroupsResponse>>();
+
 			//lấy các order có status đang là processing ra để gom cụm
 			//xác định số K để dùng thuật toán k-means - sử dụng số lượng order group đã có vì mỗi khi tạo order roup thì đã gán cho 1 shipper
 			//tại vì số K đc lấy bằng số orderGroup nên nếu K lớn hơn số lượng order sẽ bị lỗi 
@@ -374,51 +375,57 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			//lấy ra các order có status đang processing
 			var orders = _unitOfWork.OrderRepository.Get(x => x.Status == OrderStatus.Processing).ToList();
+			if ( orders.Count <= 0 )
+			{
+				result.StatusCode = 400;
+				result.Message = "Don't have order! Can't cluster.";
+				return result;
+			}
 			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
 
 			#region order < ordergroup
-			//if ( orders.Count < orderGroups.Count )
-			//{
-			//	foreach ( var order in orders )
-			//	{
-			//		OrderGroup nearestOrderGroup = null;
-			//		double minDistance = double.MaxValue;
+			if ( orders.Count < orderGroups.Count )
+			{
+				foreach ( var order in orders )
+				{
+					OrderGroup nearestOrderGroup = null;
+					double minDistance = double.MaxValue;
 
-			//		foreach ( var orderGroup in orderGroups )
-			//		{
-			//			double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
-			//			double[] orderCoordinates = { order.Longitude , order.Latitude };
-			//			double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
+					foreach ( var orderGroup in orderGroups )
+					{
+						double[] orderGroupCoordinates = { orderGroup.Longitude , orderGroup.Latitude };
+						double[] orderCoordinates = { order.Longitude , order.Latitude };
+						double distance = CalculateDistance(orderGroupCoordinates , orderCoordinates);
 
-			//			if ( distance < minDistance )
-			//			{
-			//				nearestOrderGroup = orderGroup;
-			//				minDistance = distance;
-			//			}
-			//		}
+						if ( distance < minDistance )
+						{
+							nearestOrderGroup = orderGroup;
+							minDistance = distance;
+						}
+					}
 
-			//		if ( nearestOrderGroup != null && nearestOrderGroup.Orders == null )
-			//		{
-			//			nearestOrderGroup.Orders = new List<Order>();
-			//			nearestOrderGroup.Orders.Add(order);
-			//			order.OrderGroup = nearestOrderGroup;
-			//			order.OrderGroupId = nearestOrderGroup.Id;
-			//		}
-			//		else if ( nearestOrderGroup != null && nearestOrderGroup.Orders != null )
-			//		{
-			//			nearestOrderGroup.Orders.Add(order);
-			//			order.OrderGroup = nearestOrderGroup;
-			//			order.OrderGroupId = nearestOrderGroup.Id;
-			//		}
-			//	}
+					if ( nearestOrderGroup != null && nearestOrderGroup.Orders == null )
+					{
+						nearestOrderGroup.Orders = new List<Order>();
+						nearestOrderGroup.Orders.Add(order);
+						order.OrderGroup = nearestOrderGroup;
+						order.OrderGroupId = nearestOrderGroup.Id;
+					}
+					else if ( nearestOrderGroup != null && nearestOrderGroup.Orders != null )
+					{
+						nearestOrderGroup.Orders.Add(order);
+						order.OrderGroup = nearestOrderGroup;
+						order.OrderGroupId = nearestOrderGroup.Id;
+					}
+				}
 
-			//	await _unitOfWork.CompleteAsync();
+				await _unitOfWork.CompleteAsync();
 
-			//	result.StatusCode = 200;
-			//	result.Message = "Orders assigned to order groups successfully.";
-			//	result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
-			//	return result;
-			//}
+				result.StatusCode = 200;
+				result.Message = "Orders assigned to order groups successfully.";
+				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+				return result;
+			}
 			#endregion
 
 			//gọi kmeans

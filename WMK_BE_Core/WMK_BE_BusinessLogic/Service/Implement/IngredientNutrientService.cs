@@ -152,8 +152,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 					else
 					{
-						result.StatusCode = 400;
-						result.Message = "Create failed with ingredient with id " + IngredientID + ". Say from Create - IngredientNutrientService";
+						result.StatusCode = 500;
+						result.Message = "Create nutrient ingredient faild with id: " + IngredientID;
 						return result;
 					}
 

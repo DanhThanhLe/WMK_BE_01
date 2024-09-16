@@ -21,7 +21,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
 		private readonly IngredientValidator _validator;
-		//private readonly UpdateIngredientValidator _updateValidator;
 		private readonly UpdateStatusIngredientValidator _updateStatusValidator;
 		private readonly IIngredientNutrientService _ingredientNutrientService;
 		private readonly IRecipeService _recipeService;
@@ -190,15 +189,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					//await _unitOfWork.CompleteAsync(); //ko can cai nay
 					result.StatusCode = 200;
-					result.Message = "Create successfully";
+					result.Message = "Create ingredient successfully";
 					return result;
 				}
 				else
 				{
 					await _unitOfWork.IngredientRepository.DeleteAsync(newIngredient.Id.ToString());
 					await _unitOfWork.CompleteAsync();
-					result.StatusCode = 500;
-					result.Message = "Error at create. Say from CreateIngredient - IngredientService";
+					result.StatusCode = createIngredientNutrient.StatusCode;
+					result.Message = createIngredientNutrient.Message;
 					return result;
 				}
 			}
@@ -212,20 +211,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region Update 
-		public async Task<ResponseObject<IngredientResponse>> UpdateIngredient(string updateBy , Guid id , CreateIngredientRequest ingredient)
+		public async Task<ResponseObject<IngredientResponse>> UpdateIngredient( Guid id , CreateIngredientRequest ingredient)
 		{
 			var result = new ResponseObject<IngredientResponse>();
 			try
 			{
-				//var validateResult = _updateValidator.Validate(ingredient);
+				var validateResult = _validator.Validate(ingredient);
 				var currentList = await _unitOfWork.IngredientRepository.GetAllAsync();
-				//if (!validateResult.IsValid)//validate
-				//{
-				//    var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
-				//    result.StatusCode = 400;
-				//    result.Message = string.Join(" - ", error);
-				//    return result;
-				//}
+				if ( !validateResult.IsValid )//validate
+				{
+					var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
+					result.StatusCode = 400;
+					result.Message = string.Join(" - " , error);
+					return result;
+				}
 				var ingredientExist = await _unitOfWork.IngredientRepository.GetByIdAsync(id.ToString());
 				if ( ingredientExist == null )//check exist
 				{
@@ -246,8 +245,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						var updateNutrient = _mapper.Map<IngredientNutrientRequest>(ingredient.NutrientInfo);
 						_mapper.Map(ingredient , ingredientExist);
-						//ingredientExist.UpdatedAt = DateTime.UtcNow.AddHours(7);
-						//ingredientExist.UpdatedBy = updateBy;
 						//update ingredient nutrient
 						var updateNutrientResult = await _ingredientNutrientService.Update(ingredientExist.IngredientNutrient.Id , updateNutrient);//truyen id cua nutrient va model de update
 						if ( updateNutrientResult != null && updateNutrientResult.StatusCode != 200 )
