@@ -587,12 +587,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							_unitOfWork.RecipePlanRepository.RemoveRange(relatedRecipePlans);
 							await _unitOfWork.CompleteAsync();
 						}
-						else
-						{
-							result.StatusCode = 500;
-							result.Message = "Weekplan not have any recipe. Tin nhan cu la: Remove recipe plan faild!";
-							return result;
-						}
 						if ( model.recipeIds != null && model.recipeIds.Any() )
 						{
 							var createRecipePlansResult = await _recipePlanService.CreateRecipePlanAsync(id , model.recipeIds);

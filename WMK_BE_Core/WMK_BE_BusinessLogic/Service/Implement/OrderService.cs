@@ -668,6 +668,85 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 		}
 
-		#endregion
-	}
+        #endregion
+        public async Task<ResponseObject<OrderResponse>> TestUpdateStatus(Guid id, ChangeStatusOrderRequest model)
+        {
+            var result = new ResponseObject<OrderResponse>();
+
+            var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
+            if (orderExist != null)
+            {
+                //nếu ở shipped hoặc delivered thì không thể cancel
+                if ((orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered) && model.Status == OrderStatus.Canceled)
+                {
+                    result.StatusCode = 400;
+                    result.Message = "Cann't change order status into " + model.Status + " because order has been delivered.";
+                    return result;
+                }
+                //nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
+                if (orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null)
+                {
+                    //check transaction
+                    var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
+                    if (transactionExist != null && transactionExist.Status == TransactionStatus.PAID)
+                    {
+                        transactionExist.Status = TransactionStatus.RefundZaloPayDone;
+                    }
+                    result.StatusCode = 400;
+                    result.Message = "Cann't change order status into " + model.Status + " because order not paid.";
+                    return result;
+                }
+                orderExist.Status = model.Status;
+                //nếu order thành công -> status chuyển sang shipped (do shipper nhấn) thì sẽ tăng pop của recipe lên
+                if (model.Status == OrderStatus.Shipped)//ko cần xóa khỏi odg
+                {
+                    //tăng  pop trong từng recipe
+                    foreach (var orderDetail in orderExist.OrderDetails)
+                    {
+                        var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(orderDetail.RecipeId.ToString());
+                        if (recipeExist != null)
+                        {
+                            recipeExist.Popularity++;
+                        }
+                    }
+                    ////xóa khỏi odg
+                    //if ( orderExist.OrderGroup != null )
+                    //{
+                    //	var odGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(orderExist.OrderGroup.Id.ToString());
+                    //	if ( odGroupExist != null )
+                    //	{
+                    //		odGroupExist.Orders.Remove(orderExist);
+                    //		orderExist.OrderGroup = null;
+                    //		orderExist.OrderGroupId = null;
+                    //	}
+                    //}
+                }
+                var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+                if (updateResult)
+                {
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Message = "Change order status into " + orderExist.Status + " success.";
+                    var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+                    var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+                    if (customer != null)
+                    {
+                        mapOrderResponse.UserId = customer.Email;
+                    }
+                    result.Data = mapOrderResponse;
+                    return result;
+                }
+                else
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Fail to update order!";
+                    return result;
+                }
+            }
+            result.StatusCode = 404;
+            result.Message = "Order not exist!";
+            return result;
+
+        }
+    }
 }
