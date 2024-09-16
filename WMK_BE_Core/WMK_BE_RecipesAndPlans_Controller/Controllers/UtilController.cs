@@ -16,10 +16,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
     public class UtilController : ControllerBase
     {
         // GET: UtilController  
-        private readonly IRedisService _redisService;
-        public UtilController(IRedisService redisService)
+        public UtilController()
         {
-            _redisService = redisService;
         }
 
 
@@ -75,7 +73,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
             var listKey = new string[] { "WeeklyPlanList" };
             foreach (var key in listKey)
             {
-                await _redisService.RemoveAsync(key);
+                //await _redisService.RemoveAsync(key);
             }
           return Ok("Clear cache success");
         }

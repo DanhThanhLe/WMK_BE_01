@@ -14,7 +14,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 
         public Task<ResponseObject<IngredientResponse>> CreateIngredient(string createdBy,CreateIngredientRequest ingredient);
         
-        public Task<ResponseObject<IngredientResponse>> UpdateIngredient(string updateBy, Guid id, CreateIngredientRequest ingredient);
+        public Task<ResponseObject<IngredientResponse>> UpdateIngredient(Guid id, CreateIngredientRequest ingredient);
         
         public Task<ResponseObject<IngredientResponse>> DeleteIngredientById(Guid id, string userId);
         

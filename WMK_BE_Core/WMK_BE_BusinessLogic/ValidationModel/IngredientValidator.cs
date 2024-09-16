@@ -15,30 +15,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
             RuleFor(x => x.Img).NotEmpty().WithMessage("Image link must not empty");
             RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham ko de trong (g; kg; ml; l)");
             RuleFor(x => x.Price).NotEmpty().Must(p => p > 100).WithMessage("Gia khong de trong va phai lon hon 100 VND");
-            //RuleFor(x => x.CreatedAt).NotEmpty().WithMessage("CreatedAt la ngay them moi san pham");
-            //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateddBy la ten nguoi dung da thao tac len san pham moi");
-            //RuleFor(x => x.UpdatedAt).NotEmpty().WithMessage("UpdateddAt field must not empty");
-            //RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("UpdatedBy must not empty");
         }
     }
-    //public class UpdateIngredientValidator : AbstractValidator<IngredientRequest>
-    //{
-    //    public UpdateIngredientValidator()
-    //    {
-    //        RuleFor(x => x.IngredientCategoryId).NotEmpty().WithMessage("Category khong de trong");
-    //        RuleFor(x => x.Name).NotEmpty().WithMessage("Ten khong de trong");
-    //        RuleFor(x => x.Img).NotEmpty().WithMessage("Image link khong de trong");
-    //        RuleFor(x => x.Unit).NotEmpty().WithMessage("Don vi san pham");
-    //        RuleFor(x => x.Price).NotEmpty().Must(p => p > 100).WithMessage("Don vi san pham ko de trong (g; kg; ml; l)");
-    //        //RuleFor(x => x.CreatedAt).NotEmpty().WithMessage("CreatedAt la ngay them moi san pham");
-    //        //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("CreateddBy la ten nguoi dung da thao tac len san pham moi");
-    //        RuleFor(x => x.UpdatedAt).NotEmpty().WithMessage("UpdateddAt field must not empty");
-    //        RuleFor(x => x.UpdatedBy).NotEmpty().WithMessage("UpdatedBy must not empty");
-    //        RuleFor(x => x.Status).NotNull().WithMessage("Status la can thiet")
-    //            .IsInEnum().WithMessage("phai la available hoac unavailable");
-    //    }
-    //}
-
     public class UpdateStatusIngredientValidator : AbstractValidator<UpdateStatusIngredientRequest>
     {
         public UpdateStatusIngredientValidator()
