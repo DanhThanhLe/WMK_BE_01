@@ -17,7 +17,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel
         public string ReceivePhone { get; set; }
         public string? Note { get; set; } = string.Empty;
         public string? Message { get; set; } = string.Empty;
-		public string? img {  get; set; }
+		public string? Img {  get; set; }
 		public string Address { get; set; } = string.Empty;
         public double TotalPrice { get; set; }
 		public double Longitude { get; set; }//kinh dộ
