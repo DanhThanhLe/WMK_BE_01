@@ -414,6 +414,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			result.Message = "OrderGroup not exist!";
 			return result;
 		}
+
 		public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id , ChangeStatusOrderRequest model)
 		{
 			var result = new ResponseObject<OrderResponse>();
@@ -425,7 +426,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( (orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered) && model.Status == OrderStatus.Canceled )
 				{
 					result.StatusCode = 400;
-					result.Message = "Cann't change order status into " + model.Status + " because order has been delivered.";
+					result.Message = "Can't change order status into " + model.Status + " because order has been delivered.";
 					return result;
 				}
 				//nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
@@ -438,7 +439,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						transactionExist.Status = TransactionStatus.RefundZaloPayDone;
 					}
 					result.StatusCode = 400;
-					result.Message = "Cann't change order status into " + model.Status + " because order not paid.";
+					result.Message = "Can't change order status into " + model.Status + " because order not paid.";
 					return result;
 				}
 				orderExist.Status = model.Status;
