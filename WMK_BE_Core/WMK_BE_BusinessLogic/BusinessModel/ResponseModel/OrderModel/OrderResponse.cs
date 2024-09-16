@@ -35,7 +35,7 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public TransactionResponse Transaction { get; set; }
 		//order detail
 		public List<OrderDetailResponse> OrderDetails { get; set; }
-		public List<FeedbackResponse> FeedBacks { get; set; }
+		public FeedbackResponse FeedBacks { get; set; }
 
 
     }
