@@ -541,26 +541,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = string.Join(" - " , error);
 					return result;
 				}
-				//phan nay kiem tra danh sach recipe co du khong (21 toi 200 recipe | so luong portion (phan an cho ca weekplan tu 21 toi 200 phan an)) - Danh
-				var limitNumber = 0;
-				foreach ( var recipe in model.recipeIds )
-				{
-					limitNumber += recipe.Quantity;
-				}
-				if ( limitNumber < 21 || limitNumber > 200 )
+				if (model.recipeIds.Distinct().Count() < 10)//check list recipe truyen vao khong co cai bi trung
 				{
 					result.StatusCode = 400;
-					result.Message = "Must be 21 - 200 portion (sum of quantity) for each week";
+					result.Message = "Must be at least 10 distinct recipe for each week";
 					return result;
 				}
-				////giới hạn lại nằm trong khoảng phải lớn hơn 5 món 1 tuần 
-				//            if (model.recipeIds.Count > 200 || model.recipeIds.Count < 5)
-				//{
-				//	result.StatusCode = 400;
-				//	result.Message = "Must be 5 - 200 recipe for each week";
-				//	return result;
-				//}
-				//phan nay kiem tra danh sach recipe co du khong (21 toi 200 recipe | so luong portion (phan an cho ca weekplan tu 21 toi 200 phan an)) - Danh
 				else
 				{
 					var foundWeeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
