@@ -363,20 +363,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				newWeeklyPlan.CreateAt = DateTime.UtcNow.AddHours(7);
 				newWeeklyPlan.CreatedBy = createdBy;
 				newWeeklyPlan.BaseStatus = BaseStatus.UnAvailable;
-				//check limit of plan
-				var limitNumber = 0;
-				foreach ( var recipe in model.recipeIds )
-				{
-					limitNumber += recipe.Quantity;
-				}
-				if ( limitNumber < 21 || limitNumber > 200 )
-				{
-					result.StatusCode = 400;
-					result.Message = "Must be 21 - 200 portion for each week";
-					return result;
-				}
-				//add new weekly plan
-				var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
+
+                List<Guid> recipeIdListCheck = new List<Guid>();
+                foreach (var recipePlan in model.recipeIds)
+                {
+                    recipeIdListCheck.Add(recipePlan.recipeId);
+                }
+                if (recipeIdListCheck.Distinct().Count() < 10)////check list recipe truyen vao phai co it nhat 10 recipe khac nhau
+                {
+                    result.StatusCode = 400;
+                    result.Message = "Must be at least 10 distinct recipe for each week";
+                    return result;
+                }
+                //add new weekly plan
+                var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
 				if ( !createResult )
 				{
 					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
@@ -541,7 +541,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					result.Message = string.Join(" - " , error);
 					return result;
 				}
-				if (model.recipeIds.Distinct().Count() < 10)//check list recipe truyen vao khong co cai bi trung
+				List<Guid> recipeIdListCheck = new List<Guid>();
+				foreach (var recipePlan in model.recipeIds)
+				{
+					recipeIdListCheck.Add(recipePlan.recipeId);
+				}
+				if (recipeIdListCheck.Distinct().Count() < 10)//check list recipe truyen vao phai co it nhat 10 recipe khac nhau
 				{
 					result.StatusCode = 400;
 					result.Message = "Must be at least 10 distinct recipe for each week";
