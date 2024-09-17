@@ -418,9 +418,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						order.OrderGroupId = nearestOrderGroup.Id;
 					}
 				}
-
-				await _unitOfWork.CompleteAsync();
-
+				ChangeConfirmOrder(orders);
 				result.StatusCode = 200;
 				result.Message = "Orders assigned to order groups successfully.";
 				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
@@ -464,7 +462,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var clusterResult = await _unitOfWork.OrderGroupRepository.UpdateRangeAsync(orderGroups);
 			if ( clusterResult )
 			{
-				await _unitOfWork.CompleteAsync();
+				ChangeConfirmOrder(orders);
 				result.StatusCode = 200;
 				result.Message = "Orders assigned to order groups successfully.";
 				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
@@ -583,6 +581,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
+		//Hàm để thay đổi confirm order
+		private async void ChangeConfirmOrder(List<Order> orders)
+		{
+			foreach ( var order in orders )
+			{
+				if ( order.Transaction != null
+					&& ((order.Transaction.Type == TransactionType.ZaloPay && order.Transaction.Status == TransactionStatus.PAID)
+						|| (order.Transaction.Type == TransactionType.COD)) )
+				{
+					order.Status = OrderStatus.Confirm;
+				}
+			}
+			await _unitOfWork.CompleteAsync();
+		}
 		#endregion
 	}
 }

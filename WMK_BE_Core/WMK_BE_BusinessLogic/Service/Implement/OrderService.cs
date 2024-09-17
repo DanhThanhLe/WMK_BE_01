@@ -229,10 +229,28 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Recipe list null! Please input recipe!!";
 				return result;
 			}
+			//check wp có được bán hay không
+			var wpAvailable = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.StanderdWeeklyPlanId);
+			if ( wpAvailable != null )
+			{
+				if ( wpAvailable != null && wpAvailable.ProcessStatus != ProcessStatus.Approved && wpAvailable.BaseStatus != BaseStatus.Available )
+				{
+					result.StatusCode = 400;
+					result.Message = "Kế hoạch tuần (" + wpAvailable.Title + ") không được bán hãy xem lại!";
+					return result;
+				}
+			}
 			int quantity = 0;
 			foreach ( var item in model.RecipeList )//tính số lượng phần ăn (dưới 5 hoặc trên 200 ko cho đặt)
 			{
 				quantity += item.Quantity;
+				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
+				if ( recipe != null && recipe.BaseStatus != BaseStatus.Available && recipe.ProcessStatus != ProcessStatus.Approved )
+				{
+					result.StatusCode = 400;
+					result.Message = "Đơn hàng có món ăn (" + recipe.Name + ") không được bán hãy xem lại!";
+					return result;
+				}
 			}
 			if ( quantity < 5 || quantity > 200 )//ko đáp ứng quy định phần ăn quy định (5-200)
 			{
@@ -589,7 +607,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 		}
-        #endregion
+		#endregion
 
 		#region Change status
 		public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id , ChangeStatusOrderRequest model)
