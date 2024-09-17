@@ -241,7 +241,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				var newTransaction = _mapper.Map<Transaction>(request);
 				newTransaction.Id = Guid.NewGuid();//code nay de tao moi id cho transaction - luu y khi sua code
-				newTransaction.TransactionDate = DateTime.UtcNow.AddHours(7).AddHours(7);
+				newTransaction.TransactionDate = DateTime.UtcNow.AddHours(7);
 				newTransaction.Type = request.TransactionType;
 				newTransaction.Status = request.Status == null ? TransactionStatus.Pending : (TransactionStatus)request.Status;
 
@@ -276,7 +276,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			// Check if the transaction exists and if its status is pending
 			var transExist = _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction).FirstOrDefault();
-			if ( transExist != null && transExist.Status == TransactionStatus.RefundZaloPayPending )
+			if ( transExist != null && transExist.Status == TransactionStatus.RefundPending )
 			{
 				// Generate current timestamp
 				var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
@@ -310,7 +310,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( refundResponse != null )
 						{
 							//update transaction status -> paid
-							transExist.Status = TransactionStatus.RefundZaloPayDone;
+							transExist.Status = TransactionStatus.RefundDone;
 							var updateResult = await _unitOfWork.TransactionRepository.UpdateAsync(transExist);
 							if ( updateResult )
 							{
