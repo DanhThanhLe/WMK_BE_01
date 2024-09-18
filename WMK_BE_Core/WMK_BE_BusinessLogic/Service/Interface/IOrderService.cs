@@ -34,8 +34,10 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		#region Change
 		Task<ResponseObject<OrderResponse>> ChangeOrderGroupAsync(Guid idOrder , Guid idOrderGroup);
 		Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id , ChangeStatusOrderRequest model);
-		#endregion
+
+		Task<ResponseObject<OrderResponse>> TestChangeStatus(Guid id, ChangeStatusOrderRequest model);
+        #endregion
 
 
-	}
+    }
 }
