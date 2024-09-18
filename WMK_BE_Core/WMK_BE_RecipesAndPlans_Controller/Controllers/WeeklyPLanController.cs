@@ -146,7 +146,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpDelete("delete/{id}")]
-		[Authorize(Roles = "Staff,Manager,Admin")]
+		[Authorize(Roles = "Staff,Manager,Admin, Customer")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			Guid convertId;
