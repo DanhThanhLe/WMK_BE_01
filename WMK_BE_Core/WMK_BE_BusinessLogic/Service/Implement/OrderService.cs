@@ -610,7 +610,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region Change status
-        public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model)
+        public async Task<ResponseObject<OrderResponse>> TestChangeStatus(Guid id, ChangeStatusOrderRequest model)
         {
             var result = new ResponseObject<OrderResponse>();
 
@@ -693,7 +693,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         #endregion
 
         #region test
-        public async Task<ResponseObject<OrderResponse>> TestChangeStatus(Guid id, ChangeStatusOrderRequest model)
+        public async Task<ResponseObject<OrderResponse>> ChangeStatusOrderAsync(Guid id, ChangeStatusOrderRequest model)
         {
             /*
              bắt đầu xét trường hợp, bối cảnh để chuyển status của order
