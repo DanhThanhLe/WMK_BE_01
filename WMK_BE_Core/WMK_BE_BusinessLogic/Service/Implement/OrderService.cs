@@ -202,6 +202,150 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
         #endregion
 
+		#region create
+		public async Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model)
+		{
+			var result = new ResponseObject<Guid>();
+			var validationResult = _createOrderValidator.Validate(model);
+			if ( !validationResult.IsValid )
+			{
+				var error = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+				result.StatusCode = 400;
+				result.Message = string.Join(" - " , error);
+				return result;
+			}
+			//check userId exists
+			var userExist = await _unitOfWork.UserRepository.GetByIdAsync(model.UserId);
+			if ( userExist == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "User not found!";
+				return result;
+			}
+			//check recipeList
+			if ( model.RecipeList == null )
+			{
+				result.StatusCode = 404;
+				result.Message = "Recipe list null! Please input recipe!!";
+				return result;
+			}
+			//check wp có được bán hay không
+			var wpAvailable = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.StanderdWeeklyPlanId);
+			if ( wpAvailable != null )
+			{
+				if ( wpAvailable != null && wpAvailable.ProcessStatus != ProcessStatus.Approved && wpAvailable.BaseStatus != BaseStatus.Available )
+				{
+					result.StatusCode = 400;
+					result.Message = "Kế hoạch tuần (" + wpAvailable.Title + ") không được bán hãy xem lại!";
+					return result;
+				}
+			}
+			int quantity = 0;
+			foreach ( var item in model.RecipeList )//tính số lượng phần ăn (dưới 5 hoặc trên 200 ko cho đặt)
+			{
+				quantity += item.Quantity;
+				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
+				if ( recipe != null && recipe.BaseStatus != BaseStatus.Available && recipe.ProcessStatus != ProcessStatus.Approved )
+				{
+					result.StatusCode = 400;
+					result.Message = "Đơn hàng có món ăn (" + recipe.Name + ") không được bán hãy xem lại!";
+					return result;
+				}
+			}
+			if ( quantity < 5 || quantity > 200 )//ko đáp ứng quy định phần ăn quy định (5-200)
+			{
+				result.StatusCode = 500;
+				result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn. Nhiều nhất 200 phần/món";
+				return result;
+			}
+			// Tạo mã đơn hàng duy nhất
+			var randomOrderCode = await GenerateUniqueOrderCodeAsync();
+			var newOrder = _mapper.Map<Order>(model);
+			newOrder.OrderCode = randomOrderCode;
+			newOrder.OrderDate = DateTime.UtcNow.AddHours(7);
+			switch ( DateTime.UtcNow.AddHours(7).DayOfWeek )
+			{
+				case DayOfWeek.Monday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(6);
+					break;
+				case DayOfWeek.Tuesday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(5);
+					break;
+				case DayOfWeek.Wednesday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(4);
+					break;
+				case DayOfWeek.Thursday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(3);
+					break;
+				case DayOfWeek.Friday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(2);
+					break;
+				case DayOfWeek.Saturday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(8);
+					break;
+				case DayOfWeek.Sunday:
+					newOrder.ShipDate = DateTime.UtcNow.AddHours(7).AddDays(7);
+					break;
+			}
+			newOrder.Status = OrderStatus.Processing;
+			var createResult = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
+			if ( createResult )//bat dau add cac recipeId thanh cac OrderDetail thong qua RecipeList
+			{
+				await _unitOfWork.CompleteAsync();
+				if ( model.RecipeList.Any() )
+				{
+					var createOrderDetailResult = await _orderDetailService.CreateOrderDetailAsync(newOrder.Id , model.RecipeList);
+					if ( createOrderDetailResult.StatusCode == 200 && createOrderDetailResult.Data != null )
+					{
+						await _unitOfWork.CompleteAsync();
+						//create transaction
+						//phan biet loai transaction
+						var newPaymentRequest = new CreatePaymentRequest();
+						newPaymentRequest.OrderId = newOrder.Id;
+						newPaymentRequest.Amount = newOrder.TotalPrice;
+						newPaymentRequest.TransactionType = model.TransactionType;
+						var createTransactionResult = await _transactionService.CreateNewPaymentAsync(newPaymentRequest);
+						if ( createTransactionResult != null && createTransactionResult.StatusCode == 200 && createTransactionResult.Data != null )
+						{
+							//newOrder.Transaction = _mapper.Map<Transaction>(createTransactionResult.Data);
+							await _unitOfWork.CompleteAsync();
+							result.StatusCode = 200;
+							result.Message = "Create order success";
+							result.Data = newOrder.Id;
+							return result;
+						}
+						if ( createTransactionResult != null && createTransactionResult.StatusCode != 200 )//code cu la (createTransaction != null)
+						{
+							// Delete the order if transaction creation fails
+							await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
+							await _unitOfWork.CompleteAsync();
+							result.StatusCode = createTransactionResult.StatusCode;
+							result.Message = createTransactionResult.Message;
+							return result;
+						}
+					}
+					//luc nay la vi li do gi do ko tao duoc thong tin detail (customPlan cho order) -> xoa order. thong bao ko tao thanh cong
+					await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());//xoa thong tin cho Order
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 500;
+					result.Message = "Create order not success!";
+					return result;
+				}
+			}
+			await _unitOfWork.OrderRepository.DeleteAsync(newOrder.Id.ToString());
+			await _unitOfWork.CompleteAsync();
+			result.StatusCode = 500;
+			result.Message = "Create order not success!";
+			return result;
+		}
+		// Hàm để tạo mã đơn hàng ngẫu nhiên và đảm bảo tính duy nhất
+		private async Task<int> GenerateUniqueOrderCodeAsync()
+		{
+			Random random = new Random();
+			int minValue = 10000000;
+			int maxValue = 99999999;
+			int randomOrderCode;
+			bool isUnique;
         #region create
         public async Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model)
         {
@@ -569,6 +713,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         }
                     }
 
+					await _unitOfWork.CompleteAsync();
+					result.StatusCode = 200;
+					result.Message = "Successfully removed all orders from their order groups.";
+					result.Data = orderResponses;
+					return result;
+				}
+				else
+				{
+					result.StatusCode = 404;
+					result.Message = "No orders found with an order group.";
+					return result;
+				}
+			}
+			catch ( Exception ex )
+			{
+				result.StatusCode = 500;
+				result.Message = $"Error when processing: {ex.Message}";
+				return result;
+			}
+		}
+		#endregion
                     await _unitOfWork.CompleteAsync();
                     result.StatusCode = 200;
                     result.Message = "Successfully removed all orders from their order groups.";

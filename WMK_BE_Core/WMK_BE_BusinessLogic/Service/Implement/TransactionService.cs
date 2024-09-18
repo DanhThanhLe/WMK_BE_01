@@ -216,6 +216,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		}
 		#endregion
 
+		#region Get
+		public async Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
+		{
+			var result = new ResponseObject<List<TransactionResponse>>();
+			var trans = await _unitOfWork.TransactionRepository.GetAllAsync();
+			if ( trans != null )
+			{
+				result.StatusCode = 200;
+				result.Message = "List transactions.";
+				result.Data = _mapper.Map<List<TransactionResponse>>(trans);
+				return result;
+			}
+			result.StatusCode = 400;
+			result.Message = "Not have transaction!";
+			return result;
+		}
+
+		#endregion
+
 		#region create new payment - all - testing
 		public async Task<ResponseObject<TransactionResponse>> CreateNewPaymentAsync(CreatePaymentRequest request)
 		{
@@ -273,7 +292,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<RefundZaloPayResponse>> RefundTransactionAsync(RefundZaloPayRequest request)
 		{
 			var result = new ResponseObject<RefundZaloPayResponse>();
-
 			// Check if the transaction exists and if its status is pending
 			var transExist = _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction).FirstOrDefault();
 			if ( transExist != null && transExist.Status == TransactionStatus.RefundPending )
@@ -364,25 +382,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "Transaction not found or is not pending!";
 				return result;
 			}
-		}
-
-
-
-
-		public async Task<ResponseObject<List<TransactionResponse>>> GetAllAsync()
-		{
-			var result = new ResponseObject<List<TransactionResponse>>();
-			var trans = await _unitOfWork.TransactionRepository.GetAllAsync();
-			if ( trans != null )
-			{
-				result.StatusCode = 200;
-				result.Message = "List transactions.";
-				result.Data = _mapper.Map<List<TransactionResponse>>(trans);
-				return result;
-			}
-			result.StatusCode = 400;
-			result.Message = "Not have transaction!";
-			return result;
 		}
 
 		#endregion
