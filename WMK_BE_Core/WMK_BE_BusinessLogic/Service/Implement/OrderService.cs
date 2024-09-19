@@ -151,7 +151,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
             try
             {
                 //tim thong tin cua order lien quan toi id nguoi  dung
-                var foundList = _unitOfWork.OrderRepository.Get(x => x.UserId == userId).ToList();
+                var foundList = _unitOfWork.OrderRepository.Get(x => x.UserId == userId).ToList().OrderByDescending(x => x.OrderDate);
                 if (foundList.Count() == 0)
                 {
                     result.StatusCode = 500;
@@ -252,15 +252,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     return result;
                 }
             }
-            if (quantity < 5 || quantity > 200)//ko đáp ứng quy định phần ăn quy định (5-200)
+            if (quantity < 4 || quantity > 200)//ko đáp ứng quy định phần ăn quy định (5-200)
             {
                 result.StatusCode = 500;
-                result.Message = "Vui lòng đặt ít nhất 5 món ăn hoặc 5 phần ăn. Nhiều nhất 200 phần/món";
+                result.Message = "Vui lòng đặt ít nhất 4 phần ăn. Nhiều nhất 200 phần";
                 return result;
             }
             // Tạo mã đơn hàng duy nhất
             var randomOrderCode = await GenerateUniqueOrderCodeAsync();
             var newOrder = _mapper.Map<Order>(model);
+            newOrder.StanderdWeeklyPlanId = null;
+            var weekplan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.StanderdWeeklyPlanId.ToString());
+            newOrder.OrderImg = weekplan.UrlImage;
+            newOrder.OrderTitle = weekplan.Title;
             newOrder.OrderCode = randomOrderCode;
             newOrder.OrderDate = DateTime.UtcNow.AddHours(7);
             switch (DateTime.UtcNow.AddHours(7).DayOfWeek)
@@ -613,37 +617,108 @@ namespace WMK_BE_BusinessLogic.Service.Implement
         public async Task<ResponseObject<OrderResponse>> TestChangeStatus(Guid id, ChangeStatusOrderRequest model)
         {
             var result = new ResponseObject<OrderResponse>();
-
             var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(id.ToString());
-            if (orderExist != null)
+            //bat dau
+            if (!orderExist.Id.ToString().IsNullOrEmpty())
             {
-                //nếu ở shipped hoặc delivered thì không thể cancel
-                if ((orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered) && model.Status == OrderStatus.Canceled)
-                {
-                    result.StatusCode = 400;
-                    result.Message = "Cann't change order status into " + model.Status + " because order has been delivered.";
-                    return result;
-                }
-                //nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
-                if (orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null)
-                {
-                    //check transaction
-                    var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
-                    if (transactionExist != null && transactionExist.Status != TransactionStatus.PAID)
-                    {
-
-                        result.StatusCode = 400;
-                        result.Message = "Cann't change order status into " + model.Status + " because order not paid.";
+                //Confirm
+                if (model.Status == OrderStatus.Confirm)//Confirm khi cluster va Confirm thu cong
+                {//check transaction COD va Zalopay-PAID thì cho confirm
+                    if ((orderExist.Status == OrderStatus.Processing && orderExist.Transaction.Type == TransactionType.COD) //dang o Processing va transaction type la COD thi cho confirm
+                        || (orderExist.Status == OrderStatus.Processing && orderExist.Transaction.Type == TransactionType.ZaloPay && orderExist.Transaction.Status == TransactionStatus.PAID) //transaction type la zalopay va status cua transaction la PAID thi cho confirm
+                        || orderExist.Status == OrderStatus.UnShipped)//status cua order la Unshipped thi cho confirm
+                    {//sua them cho Unshipped cong them dieu kien la COD hoac la Zalopay da PAID
+                        orderExist.Status = OrderStatus.Confirm;
+                        await _unitOfWork.CompleteAsync();
+                        result.StatusCode = 200;
+                        result.Message = "Change order status into " + orderExist.Status + " success.";
+                        result.Data = _mapper.Map<OrderResponse>(orderExist);
                         return result;
                     }
-                    transactionExist.Status = TransactionStatus.RefundDone;
+                    else if (orderExist.Status == OrderStatus.Processing && orderExist.Transaction.Type == TransactionType.ZaloPay && orderExist.Transaction.Status == TransactionStatus.Pending)//truong hop co Zalopay nhung chua thanh toan
+                    {
+                        result.StatusCode = 200;
+                        result.Message = "1.Order Zalopay not paid yet";
+                        return result;
+                    }
+                    else //cac truong hop khac
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Error when change status to " + model.Status;
+                        return result;
+                    }
                 }
-                orderExist.Status = model.Status;
-                //nếu order thành công -> status chuyển sang shipped (do shipper nhấn) thì sẽ tăng pop của recipe lên
-                if (model.Status == OrderStatus.Shipped)//ko cần xóa khỏi odg
+
+                //Shipping
+                if (model.Status == OrderStatus.Shipping)//Shipper nhan shipping don hang tren app mobile khi 
                 {
-                    //tăng  pop trong từng recipe
-                    foreach (var orderDetail in orderExist.OrderDetails)
+                    if (orderExist.Status == OrderStatus.Confirm) //chi khi confirm moi cho shipping
+                    {
+                        orderExist.Status = OrderStatus.Shipping;
+                        await _unitOfWork.CompleteAsync();
+                        result.StatusCode = 200;
+                        result.Message = "Change order status into " + orderExist.Status + " success.";
+                        return result;
+                    }
+                    else
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Order status need to be Confirm before change into " + model.Status;
+                        return result;
+                    }
+                }
+
+                //Unshipped
+                if (model.Status == OrderStatus.UnShipped && !model.Message.IsNullOrEmpty())//shipper thong bao giao hang khong thanh cong, shipper can nhap them note
+                {
+                    if (orderExist.Status == OrderStatus.Shipping)
+                    {
+                        orderExist.Status = OrderStatus.UnShipped;
+                        orderExist.Message = orderExist.Message + "_" + model.Message;
+                        if (!model.Img.IsNullOrEmpty())//truong hop can chup lai
+                        {
+                            orderExist.Img = model.Img;
+                        }
+                        var updateStatusResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+                        if (updateStatusResult)
+                        {
+                            await _unitOfWork.CompleteAsync();
+                            result.StatusCode = 200;
+                            result.Message = "Change order status into " + orderExist.Status + " success.";
+                            return result;
+                        }
+                        else
+                        {
+                            result.StatusCode = 500;
+                            result.Message = "Change order status into " + model.Status + " not success.";
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Error when change status to " + model.Status;
+                        return result;
+                    }
+                }
+                else if (model.Status == OrderStatus.UnShipped && model.Message.IsNullOrEmpty())//ko co note
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Unshipped status update must come with note from shipper ";
+                    return result;
+                }
+
+                //Shipped
+                if (model.Status == OrderStatus.Shipped && !model.Img.IsNullOrEmpty())//shipper da giao hang thanh cong
+                {
+                    orderExist.Status = OrderStatus.Shipped;
+                    orderExist.Img = model.Img;
+                    orderExist.Transaction.Status = TransactionStatus.PAID;//chuyen status cua transaction lien quan thanh PAID
+                    if (!model.Message.IsNullOrEmpty())//truong hop can note them
+                    {
+                        orderExist.Message += "_" + model.Message;
+                    }
+                    foreach (var orderDetail in orderExist.OrderDetails)//tăng popularity của các recipe tương ứng
                     {
                         var recipeExist = await _unitOfWork.RecipeRepository.GetByIdAsync(orderDetail.RecipeId.ToString());
                         if (recipeExist != null)
@@ -651,18 +726,93 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                             recipeExist.Popularity++;
                         }
                     }
-                    ////xóa khỏi odg
-                    //if ( orderExist.OrderGroup != null )
-                    //{
-                    //	var odGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(orderExist.OrderGroup.Id.ToString());
-                    //	if ( odGroupExist != null )
-                    //	{
-                    //		odGroupExist.Orders.Remove(orderExist);
-                    //		orderExist.OrderGroup = null;
-                    //		orderExist.OrderGroupId = null;
-                    //	}
-                    //}
+                    var updateStatusResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+                    if (updateStatusResult)
+                    {
+
+                        await _unitOfWork.CompleteAsync();
+                        result.StatusCode = 200;
+                        result.Message = "Change order status into " + orderExist.Status + " success.";
+                        return result;
+                    }
+                    else
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Change order status into " + model.Status + " not success.";
+                        return result;
+                    }
                 }
+                else if (model.Status == OrderStatus.Shipped && model.Img.IsNullOrEmpty())//ko co img
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Shipped status update must come with confirm image from shipper ";
+                    return result;
+                }
+
+                //Delivered
+                if (model.Status == OrderStatus.Delivered && orderExist.Status == OrderStatus.Shipped)//khach hang chon confirm da nhan duoc hang roi
+                {
+                    orderExist.Status = OrderStatus.Delivered;
+                    await _unitOfWork.CompleteAsync();
+                    result.StatusCode = 200;
+                    result.Message = "Change order status into " + orderExist.Status + " success.";
+                    return result;
+                }
+                else if (model.Status == OrderStatus.Delivered && orderExist.Status != OrderStatus.Shipped)
+                {
+                    result.StatusCode = 500;
+                    result.Message = "Delivered status update must come after with Shipped confirm from shipper ";
+                    return result;
+                }
+
+                //Cancel
+                if (model.Status == OrderStatus.Canceled)
+                {
+                    if (orderExist.Status == OrderStatus.Processing || orderExist.Status == OrderStatus.UnShipped || orderExist.Status == OrderStatus.Shipped)//ko giao đc hang hoac khach dong don
+                    {// + transaction COD hoac Zalopay Pending - khach ko muon giao lai lan nua hoac la chua thanh toan cho don hang
+                        if (orderExist.Transaction.Status == TransactionStatus.Pending)//don hang chua thanh toan
+                        {
+                            orderExist.Status = OrderStatus.Canceled;
+                            orderExist.Transaction.Status = TransactionStatus.UNPAID;
+                            await _unitOfWork.CompleteAsync();
+                            result.StatusCode = 200;
+                            result.Message = "Change order status into " + orderExist.Status + " success.";
+                            result.Data = _mapper.Map<OrderResponse>(orderExist);
+                            return result;
+                        }
+                        else if (orderExist.Transaction.Status == TransactionStatus.PAID)//don hang da duoc thanh toan -> khach hang can duoc lien lac va refund
+                        {
+                            orderExist.Status = OrderStatus.Canceled;
+                            orderExist.Transaction.Status = TransactionStatus.RefundPending;
+                            await _unitOfWork.CompleteAsync();
+                            result.StatusCode = 200;
+                            result.Message = "This order need to be refunded. Change order status into " + orderExist.Status + " success.";
+                            result.Data = _mapper.Map<OrderResponse>(orderExist);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Not fit with pre-condition.(Order on Processing|Order Unshipped|Order been Shippped but Custopmer want refund)";
+                        return result;
+                    }
+                }
+
+                //nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
+                if (orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null)
+                {
+                    //check transaction
+                    var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
+                    if (transactionExist != null && transactionExist.Status != TransactionStatus.PAID)
+                    {
+                        result.StatusCode = 400;
+                        result.Message = "Can't change order status into " + model.Status + " because order not paid.";
+                        return result;
+                    }
+                    transactionExist.Status = TransactionStatus.RefundDone;
+                }
+                orderExist.Status = model.Status;
                 var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
                 if (updateResult)
                 {
@@ -816,6 +966,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     orderExist.Status = OrderStatus.Shipped;
                     orderExist.Img = model.Img;
+                    orderExist.Transaction.Status = TransactionStatus.PAID;//chuyen status cua transaction lien quan thanh PAID
                     if (!model.Message.IsNullOrEmpty())//truong hop can note them
                     {
                         orderExist.Message += "_" + model.Message;
@@ -889,6 +1040,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                             await _unitOfWork.CompleteAsync();
                             result.StatusCode = 200;
                             result.Message = "This order need to be refunded. Change order status into " + orderExist.Status + " success.";
+                            result.Data = _mapper.Map<OrderResponse>(orderExist);
                             return result;
                         }
                     }
@@ -900,14 +1052,6 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     }
                 }
 
-
-                //nếu ở shipped hoặc delivered thì không thể cancel
-                if ((orderExist.Status == OrderStatus.Shipped || orderExist.Status == OrderStatus.Delivered) && model.Status == OrderStatus.Canceled)
-                {
-                    result.StatusCode = 400;
-                    result.Message = "Can't change order status into " + model.Status + " because order has been delivered.";
-                    return result;
-                }
                 //nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
                 if (orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null)
                 {
@@ -927,7 +1071,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 {
                     await _unitOfWork.CompleteAsync();
                     result.StatusCode = 200;
-                    result.Message = "Change order status into " + orderExist.Status + " success. old";
+                    result.Message = "Change order status into " + orderExist.Status + " success.";
                     var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
                     var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
                     if (customer != null)
