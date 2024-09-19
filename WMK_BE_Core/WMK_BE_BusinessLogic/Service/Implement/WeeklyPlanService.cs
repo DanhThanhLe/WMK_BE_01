@@ -440,7 +440,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			Guid idTo = new Guid();
-			try//bat moi loi bat ngo va chu co message cu the 
+			try//bat moi loi bat ngo va chua co message cu the 
 			{
 				if ( request.ProcessStatus != null && request.ProcessStatus != ProcessStatus.Customer )//kiem tra processStatus
 				{
@@ -867,14 +867,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			//chỉ lấy wp có status là cus và approved để đổi còn lại (denied, cancel, processing,...) sẽ giữ lại process status
-			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer && x.ProcessStatus == ProcessStatus.Approved);
-			if ( weeklyPlans == null )
+			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer || x.ProcessStatus == ProcessStatus.Approved).ToList();
+			if ( weeklyPlans.Count == 0 )
 			{
 				result.StatusCode = 404;
 				result.Message = "No order needs cluster!";
 				return result;
 			}
-			if ( weeklyPlans != null )
+			if ( weeklyPlans.Count > 0 )
 			{
 				if ( status )
 				{
