@@ -866,11 +866,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
 			//chỉ lấy wp có status là cus và approved và customer để đổi còn lại (denied, cancel, processing,...) sẽ giữ lại process status
-			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer && x.ProcessStatus == ProcessStatus.Approved).ToList();
+			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer || x.ProcessStatus == ProcessStatus.Approved).ToList();
 			if ( weeklyPlans.Count == 0 )
 			{
 				result.StatusCode = 404;
-				result.Message = "No order needs cluster!";
+				result.Message = "No weekly plan approved!";
 				return result;
 			}
 			if ( weeklyPlans.Count > 0 )
