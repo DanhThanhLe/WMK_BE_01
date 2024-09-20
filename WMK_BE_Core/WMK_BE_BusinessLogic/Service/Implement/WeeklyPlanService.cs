@@ -866,7 +866,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<WeeklyPlanResponseModel>> OnOffOrderAsync(bool status)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
-			//chỉ lấy wp có status là cus và approved để đổi còn lại (denied, cancel, processing,...) sẽ giữ lại process status
+			//chỉ lấy wp có status là cus và approved để đổi còn lại (denied, cancel, processing,...) sẽ giữ lại
 			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer && x.ProcessStatus == ProcessStatus.Approved);
 			if ( weeklyPlans == null )
 			{
