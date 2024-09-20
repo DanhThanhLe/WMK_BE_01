@@ -10,8 +10,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Enums
 	{
 		PAID = 0,
 		Pending = 1,
-		RefundZaloPayPending = 2,
-		RefundZaloPayDone = 3,
+		RefundPending = 2,
+		RefundDone = 3,
 		UNPAID = 4,
 	}
 	public static class TransactionStatusHelper

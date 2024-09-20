@@ -36,6 +36,8 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Models
 		public string ReceivePhone { get; set; }
 		public OrderStatus Status { get; set; }
 		public string? ShipperNote { get; set; }
+		public string? OrderTitle { get; set; }
+		public string? OrderImg { get; set; }
 
 
 		//reference

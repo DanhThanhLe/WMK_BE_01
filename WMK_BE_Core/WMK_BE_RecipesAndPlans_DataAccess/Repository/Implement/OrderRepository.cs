@@ -74,7 +74,7 @@ namespace WMK_BE_RecipesAndPlans_DataAccess.Repository.Implement
             return _dbSet
                 .Where(expression)
                 .Include(o => o.Transaction)
-                .Include(o=>o.WeeklyPlan)
+                .Include(o => o.WeeklyPlan)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Recipe)
                 .Include(o => o.OrderDetails)

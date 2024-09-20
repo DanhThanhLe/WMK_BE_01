@@ -85,6 +85,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			}
 			return StatusCode(result.StatusCode , result);
 		}
+
 		[HttpPut("change-ordergroup/{idOrder}")]
 		[Authorize]
 		public async Task<IActionResult> ChangeOrdergroup(Guid idOrder , [FromBody] Guid idOrderGroup)
@@ -118,6 +119,22 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.RemoveAllOrdersFromOrderGroupsAsync();
 			return StatusCode(result.StatusCode , result);
 		}
-		#endregion
-	}
+        #endregion
+        [HttpPut("change-status-test/{id}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatusTest(Guid id, [FromQuery] ChangeStatusOrderRequest model)
+        {
+            var result = await _orderService.TestChangeStatus(id, model);
+            //mỗi lần thay đổi sẻ gửi mail về cho customer
+            if (result.Data != null && result.Data.UserId != null)
+            {
+                _sendMailService.SendMail(result.Data.UserId, "Order status information on WeMealKit", "Your order on WemealKit with code ("
+                                        + result.Data.OrderCode + ") has been update to ("
+                                        + result.Data.Status + ").");
+            }
+            return StatusCode(result.StatusCode, result);
+        }
+
+
+    }
 }

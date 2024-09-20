@@ -12,5 +12,6 @@ namespace WMK_BE_BusinessLogic.Helpers
 		public static int portEmail = 587;
 		public static string emailSender = "kietyasuo2016@gmail.com";
 		public static string passwordSender = "jgelymuuwwwepufm";
+
 	}
 }

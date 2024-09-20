@@ -31,11 +31,16 @@ namespace WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel
 		public DateTime OrderDate { get; set; }
 		public double TotalPrice { get; set; }
 		public string Status { get; set; } = string.Empty;
+		public string? ShipperNote { get; set; }
 		public WeeklyPlanResponseModel weeklyPlan { get; set; }
 		public TransactionResponse Transaction { get; set; }
-		//order detail
-		public List<OrderDetailResponse> OrderDetails { get; set; }
+        public string? OrderTitle { get; set; }
+        public string? OrderImg { get; set; }
+
+        //order detail
+        public List<OrderDetailResponse> OrderDetails { get; set; }
 		public FeedbackResponse FeedBacks { get; set; }
+        
 
 
     }
