@@ -91,7 +91,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				result.StatusCode = 200;
 				result.Message = "Get order list success (" + ordersResponse.Count() + ")";
-				//var ordersResp = ordersResponse.OrderBy(o => o.OrderDate).ToList();
+				//var ordersResp = ;
 				//foreach ( var order in ordersResp )
 				//{
 				//	if ( order.FeedBacks != null && order.FeedBacks.CreatedBy != null )
@@ -103,7 +103,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//		}
 				//	}
 				//}
-				result.Data = ordersResp;
+				result.Data = ordersResponse.OrderBy(o => o.OrderDate).ToList();
 				return result;
 			}
 			else
