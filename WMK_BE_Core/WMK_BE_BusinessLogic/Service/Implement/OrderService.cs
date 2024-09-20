@@ -91,18 +91,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				result.StatusCode = 200;
 				result.Message = "Get order list success (" + ordersResponse.Count() + ")";
-				var ordersResp = ordersResponse.OrderBy(o => o.OrderDate).ToList();
-				foreach ( var order in ordersResp )
-				{
-					if ( order.FeedBacks != null && order.FeedBacks.CreatedBy != null )
-					{
-						var createBy = _unitOfWork.UserRepository.GetById(order.FeedBacks.CreatedBy);
-						if ( createBy != null )
-						{
-							order.FeedBacks.CreatedBy = createBy.UserName ?? order.FeedBacks.CreatedBy;
-						}
-					}
-				}
+				//var ordersResp = ordersResponse.OrderBy(o => o.OrderDate).ToList();
+				//foreach ( var order in ordersResp )
+				//{
+				//	if ( order.FeedBacks != null && order.FeedBacks.CreatedBy != null )
+				//	{
+				//		var createBy = _unitOfWork.UserRepository.GetById(order.FeedBacks.CreatedBy);
+				//		if ( createBy != null )
+				//		{
+				//			order.FeedBacks.CreatedBy = createBy.UserName ?? order.FeedBacks.CreatedBy;
+				//		}
+				//	}
+				//}
 				result.Data = ordersResp;
 				return result;
 			}
