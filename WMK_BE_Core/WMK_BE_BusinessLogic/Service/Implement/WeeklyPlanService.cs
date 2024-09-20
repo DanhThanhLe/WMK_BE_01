@@ -183,8 +183,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//}
 			var listsearch = name.Split(",");
 
-			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved
-																	&& x.BaseStatus == BaseStatus.Available).ToList();
+			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Approved).ToList();
 			var listTemp = new List<WeeklyPlan>();
 			if ( name.IsNullOrEmpty() )
 			{
@@ -364,19 +363,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				newWeeklyPlan.CreatedBy = createdBy;
 				newWeeklyPlan.BaseStatus = BaseStatus.UnAvailable;
 
-                List<Guid> recipeIdListCheck = new List<Guid>();
-                foreach (var recipePlan in model.recipeIds)
-                {
-                    recipeIdListCheck.Add(recipePlan.recipeId);
-                }
-                if (recipeIdListCheck.Distinct().Count() < 10)////check list recipe truyen vao phai co it nhat 10 recipe khac nhau
-                {
-                    result.StatusCode = 400;
-                    result.Message = "Must be at least 10 distinct recipe for each week";
-                    return result;
-                }
-                //add new weekly plan
-                var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
+				List<Guid> recipeIdListCheck = new List<Guid>();
+				foreach ( var recipePlan in model.recipeIds )
+				{
+					recipeIdListCheck.Add(recipePlan.recipeId);
+				}
+				if ( recipeIdListCheck.Distinct().Count() < 10 )////check list recipe truyen vao phai co it nhat 10 recipe khac nhau
+				{
+					result.StatusCode = 400;
+					result.Message = "Must be at least 10 distinct recipe for each week";
+					return result;
+				}
+				//add new weekly plan
+				var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newWeeklyPlan);
 				if ( !createResult )
 				{
 					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
@@ -542,11 +541,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				List<Guid> recipeIdListCheck = new List<Guid>();
-				foreach (var recipePlan in model.recipeIds)
+				foreach ( var recipePlan in model.recipeIds )
 				{
 					recipeIdListCheck.Add(recipePlan.recipeId);
 				}
-				if (recipeIdListCheck.Distinct().Count() < 10)//check list recipe truyen vao phai co it nhat 10 recipe khac nhau
+				if ( recipeIdListCheck.Distinct().Count() < 10 )//check list recipe truyen vao phai co it nhat 10 recipe khac nhau
 				{
 					result.StatusCode = 400;
 					result.Message = "Must be at least 10 distinct recipe for each week";
@@ -866,8 +865,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		public async Task<ResponseObject<WeeklyPlanResponseModel>> OnOffOrderAsync(bool status)
 		{
 			var result = new ResponseObject<WeeklyPlanResponseModel>();
-			//chỉ lấy wp có status là cus và approved để đổi còn lại (denied, cancel, processing,...) sẽ giữ lại process status
-			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer || x.ProcessStatus == ProcessStatus.Approved).ToList();
+			//chỉ lấy wp có status là cus và approved và customer để đổi còn lại (denied, cancel, processing,...) sẽ giữ lại process status
+			var weeklyPlans = _unitOfWork.WeeklyPlanRepository.Get(x => x.ProcessStatus == ProcessStatus.Customer && x.ProcessStatus == ProcessStatus.Approved).ToList();
 			if ( weeklyPlans.Count == 0 )
 			{
 				result.StatusCode = 404;

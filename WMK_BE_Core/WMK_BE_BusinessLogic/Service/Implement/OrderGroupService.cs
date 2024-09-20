@@ -383,7 +383,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			}
 			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
 
-			#region order < ordergroup
+			#region orders < ordergroups
 			if ( orders.Count < orderGroups.Count )
 			{
 				foreach ( var order in orders )
