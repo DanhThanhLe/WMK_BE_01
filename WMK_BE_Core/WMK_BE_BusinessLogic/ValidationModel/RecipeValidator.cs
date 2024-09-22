@@ -13,12 +13,12 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public RecipeValidator()//cai nay dung cho check tao moi recipe
         {
-            RuleFor(x => x.Name).NotEmpty().WithMessage("Not null at RecipeStyle");
-            RuleFor(x => x.ServingSize).Must(t => t >= 1).WithMessage("Must be at leat 1 person to eat");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Không để trống tên");
+            RuleFor(x => x.ServingSize).Must(t => t >= 1).WithMessage("Phải cho ít nhất 1 người ăn");
             //RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("Not null at Created By");
 
             //RuleFor(x => x.CookingTime).Must(t => t > 5).WithMessage("Cooking time should be more than 5 minutes");
-            RuleFor(x => x.Difficulty).IsInEnum().WithMessage("Wrong at validator recipe difficulty in recipeValidator");
+            RuleFor(x => x.Difficulty).IsInEnum().WithMessage("Sai độ khó");
             //RuleFor(x => x.ProcessStatus).IsInEnum().WithMessage("0 is show, 1 is not");
         }
     }
@@ -28,8 +28,8 @@ namespace WMK_BE_BusinessLogic.ValidationModel
         public RecipeChangeStatusValidator()
         {
             //RuleFor(x => x.Id).NotEmpty().WithMessage("Not null id");
-            RuleFor(x => x.ProcessStatus).NotNull().WithMessage("Not empty")
-                .IsInEnum().WithMessage("Must be in enum ProcessStatus 0--4");
+            RuleFor(x => x.ProcessStatus).NotNull().WithMessage("Không trống trạng thái xử lí")
+                .IsInEnum().WithMessage("Tráng thái từ 0-4");
         }
     }
 

@@ -37,11 +37,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( list == null || list.Count == 0 )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not found. Empty list";
+				result.Message = "Danh sách trống";
 				return result;
 			}
 			result.StatusCode = 200;
-			result.Message = "OK. list recipe cateory";
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<List<RecipeCategoryResponse>>(list);
 			return result;
 		}
@@ -55,7 +55,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( checkRecipe == null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Recipe not existed";
+				result.Message = "Công thức không tồn tại";
 				return result;
 			}
 			var currentList = await _unitOfWork.RecipeCategoryRepository.GetAllAsync();
@@ -70,11 +70,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList.Count == 0 )
 			{
 				result.StatusCode = 500;
-				result.Message = "Not found List for Id: " + recipeId;
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 			result.StatusCode = 200;
-			result.Message = "Ok. Recipe category list:";
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<List<RecipeCategoryResponse>>(foundList);
 			return result;
 		}
@@ -105,7 +105,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categoryIdList.Count < 4 || categoryIdList.Count > 4 )//ko du 4 category thi ko cho tao
 			{
 				result.StatusCode = 400;
-				result.Message = "Not enough categories for recipe (standard is 4)";
+				result.Message = "Cần đủ 4 category cho 1 công thức";
 				return result;
 			}
 			//kiem tra recipe da ton tai chua
@@ -113,7 +113,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Recipe not exist to create recipe category!";
+				result.Message = "Công thức không tổn tại";
 				return result;
 			}
 
@@ -122,7 +122,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !checkCategoriesResult )
 			{
 				result.StatusCode = 400;
-				result.Message = "Have same type!";
+				result.Message = "Trùng type Category";
 				return result;
 			}
 
@@ -135,7 +135,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				//trường hợp đã có recipe category
 				result.StatusCode = 400;
-				result.Message = "Recipe already have enough categories!";
+				result.Message = "Công thức đã quy định đủ category";
 				return result;
 			}
 
@@ -148,7 +148,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( categoryExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Category (" + categoryId + ") not exist!";
+					result.Message = "Category Không tồn tại";
 					return result;
 				}
 				RecipeCategory newRecipeCategory = new RecipeCategory();
@@ -160,14 +160,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !createResult )//cho nay tra ve luon thong tin cu the type nao bi tao loi
 				{
 					result.StatusCode = 500;
-					result.Message = "Create new recipe category unsuccessfully!";
+					result.Message = "Tạo không thành công";
 					return result;
 				}
 				returnList.Add(newRecipeCategory);
 			}
 			await _unitOfWork.CompleteAsync();
 			result.StatusCode = 200;
-			result.Message = "Create recipeCategory successfully";
+			result.Message = "Tạo thành công";
 			result.Data = returnList;
 			return result;
 		}
@@ -183,13 +183,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipe == null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not found recipe";
+				result.Message = "Không tìm thấy bản ghi";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 200;
-				result.Message = "Ok recipeCategory";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<RecipeCategoryResponse>(recipeCategory);
 				return result;
 			}
@@ -208,7 +208,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
+					result.Message = "Công thức không tồn tại";
 					return result;
 				}
 				//take recipeCategory asign to recipe
@@ -217,7 +217,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeCategories == null || !recipeCategories.Any() )
 				{
 					result.StatusCode = 200;
-					result.Message = "No RecipeCategories found for the given Recipe.";
+					result.Message = "Không tìm thấy category tương ứng";
 					return result;
 				}
 				// Xóa các RecipeCategory liên quan
@@ -225,7 +225,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;
-				result.Message = "Deleted RecipeCategories successfully.";
+				result.Message = "Xóa thành công";
 				result.Data = recipeCategories.ToList();
 			}
 			catch ( Exception ex )

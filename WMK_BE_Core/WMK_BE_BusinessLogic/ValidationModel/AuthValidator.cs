@@ -16,12 +16,12 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		{
 			//_expendValidator = new ExpendValidator();
 			RuleFor(x => x.EmailOrUserName)
-				.NotEmpty().WithMessage("Email or Username is required!");//check email or username
+				.NotEmpty().WithMessage("Email hay Tên người dùng không để trống!");//check email or username
 																		  //.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
 																		  //.Must(_emailValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
-			RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required!")
+			RuleFor(x => x.Password).NotEmpty().WithMessage("Mật khẩu không được để trống!")
 				.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
-				.WithMessage("Password must contain at least 1 uppercase letter, 1 digit, 1 special character, and be at least 6 characters long!");
+				.WithMessage("Mật khẩu chứa ít nhất 1 kí tự in hoa, 1 kí tự thường, 1 số, dài ít nhất 6 kí tự!");
 		}
 	}
 
@@ -32,15 +32,15 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		{
 			_expendValidator = new ExpendValidator();
 			RuleFor(x => x.Email)
-				.NotEmpty().WithMessage("Email is required!")
-				.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
-				.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
-			RuleFor(x => x.FirstName).NotEmpty().WithMessage("FirstName is required!");
-			RuleFor(x => x.LastName).NotEmpty().WithMessage("LastName is required!");
+				.NotEmpty().WithMessage("Email không được để trống!")
+				.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Email không đúng!")
+				.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Email không đúng chuẩn!");
+			RuleFor(x => x.FirstName).NotEmpty().WithMessage("Tên không được để trống!");
+			RuleFor(x => x.LastName).NotEmpty().WithMessage("Họ không được để trống!");
 			// RuleFor(x => x.Role).NotEmpty().WithMessage("Role is required!");
-			RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required!")
+			RuleFor(x => x.Password).NotEmpty().WithMessage("Mật khẩu không để trống!")
 				.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
-				.WithMessage("Password must contain at least 1 uppercase letter, 1 digit, 1 special character, and be at least 6 characters long!");
+				.WithMessage("Mật khẩu chứa ít nhất 1 kí tự in hoa, 1 kí tự thường, 1 số, dài ít nhất 6 kí tự!");
 			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("ConfirmPassword is required!");
 			//RuleFor(x => x.Dob)
 			//.Must(dob =>
@@ -59,13 +59,13 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		public ResetPasswordModelValidator()
 		{
 			_expendValidator = new ExpendValidator();
-			RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!")
-				.Must(_expendValidator.BeValidGuid).WithMessage("Id must be a valid GUID!");
-			RuleFor(x => x.OldPassword).NotEmpty().WithMessage("OldPassword is required!");
-			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("ConfirmPassword is required!");
-			RuleFor(x => x.NewPassword).NotEmpty().WithMessage("NewPassword is required!")
+			RuleFor(x => x.Id).NotEmpty().WithMessage("Id không được để trống!")
+				.Must(_expendValidator.BeValidGuid).WithMessage("Id không đúng chuẩn!");
+			RuleFor(x => x.OldPassword).NotEmpty().WithMessage("Mật khẩu cũ không được để trống!");
+			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("Mật khẩu xác nhận không được để trống!");
+			RuleFor(x => x.NewPassword).NotEmpty().WithMessage("Mật khẩu mới không được để trống!")
 							.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
-							.WithMessage("Password must contain at least 1 uppercase letter, 1 digit, 1 special character, and be at least 6 characters long!");
+							.WithMessage("Mật khẩu chứa ít nhất 1 kí tự in hoa, 1 kí tự thường, 1 số, dài ít nhất 6 kí tự!");
 		}
 	}
 	public class ResetPasswordByEmailModelValidator : AbstractValidator<ResetPasswordByEmailRequest>
@@ -75,14 +75,14 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		{
 			_expendValidator = new ExpendValidator();
 			RuleFor(x => x.Email)
-				.NotEmpty().WithMessage("Email is required!")
-				.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
-				.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
-			RuleFor(x => x.CodeReset).NotEmpty().WithMessage("Code is required!");
-			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("OldPassword is required!");
-			RuleFor(x => x.NewPassword).NotEmpty().WithMessage("NewPassword is required!")
+				.NotEmpty().WithMessage("Id không được để trống!")
+				.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Id không đúng chuẩn!")
+				.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Id không đúng chuẩn!");
+			RuleFor(x => x.CodeReset).NotEmpty().WithMessage("Codekhông được để trống!");
+			RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage("Mật khẩu cũ không được để trống!");
+			RuleFor(x => x.NewPassword).NotEmpty().WithMessage("Mật khẩu mới không được để trống!")
 							.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
-							.WithMessage("Password must contain at least 1 uppercase letter, 1 digit, 1 special character, and be at least 6 characters long!");
+							.WithMessage("Mật khẩu chứa ít nhất 1 kí tự in hoa, 1 kí tự thường, 1 số, dài ít nhất 6 kí tự!");
 		}
 	}
 	public class SendCodeByEmailModelValidator : AbstractValidator<SendCodeByEmailRequest>
@@ -93,9 +93,9 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 		{
 			_expendValidator = new ExpendValidator();
 			RuleFor(x => x.Email)
-				.NotEmpty().WithMessage("Email is required!")
-				.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
-				.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
+				.NotEmpty().WithMessage("Email không được để trống!")
+				.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Email không đúng chuẩn!")
+				.Must(_expendValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Email không đúng chuẩn!");
 		}
 	}
 }

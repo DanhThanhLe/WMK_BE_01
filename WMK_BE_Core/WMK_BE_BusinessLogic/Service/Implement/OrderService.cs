@@ -376,7 +376,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region update order
-		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id , UpdateOrderRequest model)
+		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id , UpdateOrderRequest model) //ham nay ko dung den - xoa?
 		{
 			var result = new ResponseObject<OrderResponse>();
 			var validationResult = _updateOrderValidator.Validate(model);
@@ -1064,41 +1064,45 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 				}
 
-				//nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
-				if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null )
+				if(model.Status == OrderStatus.Refund)//refund
 				{
-					//check transaction
-					var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
-					if ( transactionExist != null && transactionExist.Status != TransactionStatus.PAID )
-					{
-						result.StatusCode = 400;
-						result.Message = "Can't change order status into " + model.Status + " because order not paid.";
-						return result;
-					}
-					transactionExist.Status = TransactionStatus.RefundDone;
-				}
-				orderExist.Status = model.Status;
-				var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
-				if ( updateResult )
-				{
-					await _unitOfWork.CompleteAsync();
-					result.StatusCode = 200;
-					result.Message = "Change order status into " + orderExist.Status + " success.";
-					var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
-					var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
-					if ( customer != null )
-					{
-						mapOrderResponse.UserId = customer.Email;
-					}
-					result.Data = mapOrderResponse;
-					return result;
-				}
-				else
-				{
-					result.StatusCode = 500;
-					result.Message = "Fail to update order!";
-					return result;
-				}
+                    //nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
+                    if (orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null)
+                    {
+                        //check transaction
+                        var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
+                        if (transactionExist != null && transactionExist.Status != TransactionStatus.PAID)
+                        {
+                            result.StatusCode = 400;
+                            result.Message = "Can't change order status into " + model.Status + " because order not paid.";
+                            return result;
+                        }
+                        transactionExist.Status = TransactionStatus.RefundDone;
+                    }
+                    orderExist.Status = model.Status;
+                    var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+                    if (updateResult)
+                    {
+                        await _unitOfWork.CompleteAsync();
+                        result.StatusCode = 200;
+                        result.Message = "Change order status into " + orderExist.Status + " success.";
+                        var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+                        var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+                        if (customer != null)
+                        {
+                            mapOrderResponse.UserId = customer.Email;
+                        }
+                        result.Data = mapOrderResponse;
+                        return result;
+                    }
+                    else
+                    {
+                        result.StatusCode = 500;
+                        result.Message = "Fail to update order!";
+                        return result;
+                    }
+                }
+				
 			}
 			result.StatusCode = 404;
 			result.Message = "Order not exist!";

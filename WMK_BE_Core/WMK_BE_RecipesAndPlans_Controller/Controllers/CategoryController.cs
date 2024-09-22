@@ -36,7 +36,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			}
 			else
 			{
-				return BadRequest("Wrong Id fortmat!");
+				return BadRequest("Sai Id fortmat!");
 			}
 		}
 		#endregion

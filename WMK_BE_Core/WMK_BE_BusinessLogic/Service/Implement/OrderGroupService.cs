@@ -158,13 +158,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( shipperExist != null && shipperExist.Role != Role.Shipper )
 			{
 				result.StatusCode = 403;
-				result.Message = "Not a Shipper!";
+				result.Message = "Không phải shipper";
 				return result;
 			}
 			else if ( shipperExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Shipper not exist!";
+				result.Message = "Shipper Không tồn tại";
 				return result;
 			}
 			//check orderGroup exist shipper
@@ -172,14 +172,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( existOrderGroup != null )
 			{
 				result.StatusCode = 409;
-				result.Message = "Shipper have order group!";
+				result.Message = "Shipper này đang phụ trách Order group khác";
 				return result;
 			}
 			var staffExist = await _unitOfWork.UserRepository.GetByIdAsync(assignedBy.ToString());
 			if ( staffExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "User not exist!";
+				result.Message = "Người dùng không tồn tại!";
 				return result;
 			}
 			var orderGroupModel = _mapper.Map<OrderGroup>(model);
@@ -196,14 +196,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				shipperExist.OrderGroup = orderGroupModel;
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Create order group successfully";
+				result.Message = "Tạo thành công";
 				result.Data = _mapper.Map<OrderGroupsResponse>(orderGroupModel);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Create order group unsuccessfully";
+				result.Message = "Tạo không thành công";
 				return result;
 			}
 		}
@@ -225,13 +225,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( shipperExist != null && shipperExist.Role != Role.Shipper )
 			{
 				result.StatusCode = 403;
-				result.Message = "Not a Shipper!";
+				result.Message = "Không phải shipper";
 				return result;
 			}
 			else if ( shipperExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Shipper not exist!";
+				result.Message = "Shipper không tồn tại";
 				return result;
 			}
 			var orderGroupExist = await _unitOfWork.OrderGroupRepository.GetByIdAsync(id.ToString());
@@ -253,20 +253,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					shipperExist.OrderGroup = orderGroupExist;
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Update order group successfully.";
+					result.Message = "Cập nhật thành công";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Update order group unsuccessfully!";
+					result.Message = "Cập nhật không thành công";
 					return result;
 				}
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Order group not exist!";
+				result.Message = "Order group không tồn tại";
 				return result;
 			}
 
@@ -288,13 +288,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
-						result.Message = "Trust change order group status.";
+						result.Message = "Chuyển trạng thái thành công - order group đang chứa đơn hàng";
 						return result;
 					}
 					else
 					{
 						result.StatusCode = 500;
-						result.Message = "Change order group status unsucess!";
+						result.Message = "Đổi trạng thái không thành công";
 						return result;
 					}
 				}
@@ -305,13 +305,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
-						result.Message = "Delete order group successfully.";
+						result.Message = "Xóa thành công";
 						return result;
 					}
 					else
 					{
 						result.StatusCode = 500;
-						result.Message = "Delete order group unsuccessfully!";
+						result.Message = "Xóa không thành công";
 						return result;
 					}
 				}
@@ -319,7 +319,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "OrderGroup not exist!";
+				result.Message = "OrderGroup không tồn tại";
 				return result;
 			}
 		}
@@ -345,20 +345,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Change status order group (" + orderGroupExist.Status + ") successfully.";
+					result.Message = "Chuyển trạng thái (" + orderGroupExist.Status + ") thành công";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Change status order group unsuccessfully!";
+					result.Message = "Chuyển trạng thái không thành công";
 					return result;
 				}
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Order group not exist!";
+				result.Message = "Order group không tồn tại";
 				return result;
 			}
 		}
@@ -378,7 +378,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( orders.Count <= 0 )
 			{
 				result.StatusCode = 400;
-				result.Message = "Don't have order! Can't cluster.";
+				result.Message = "Không có đơn hàng phù hợp. Không thể gom cụm";
 				return result;
 			}
 			var orderGroups = _unitOfWork.OrderGroupRepository.Get(x => x.Status == BaseStatus.Available).ToList();
@@ -420,8 +420,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				ChangeConfirmOrder(orders);
 				result.StatusCode = 200;
-				result.Message = "Orders assigned to order groups successfully.";
-				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+				result.Message = "Gom cụm thành công";//Orders assigned to order groups successfully.
+                result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
 				return result;
 			}
 			#endregion
@@ -464,13 +464,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				ChangeConfirmOrder(orders);
 				result.StatusCode = 200;
-				result.Message = "Orders assigned to order groups successfully.";
-				result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
+				result.Message = "Gán đơn hàng thành công";//Orders assigned to order groups successfully.
+                result.Data = _mapper.Map<List<OrderGroupsResponse>>(orderGroups);
 				return result;
 			}
 			result.StatusCode = 400;
-			result.Message = "Orders assigned to order groups unsuccessfully!";
-			return result;
+			result.Message = "Gán đơn hàng không thành công";//Orders assigned to order groups unsuccessfully!
+            return result;
 		}
 
 		// Hàm tính khoảng cách Euclidean giữa hai điểm

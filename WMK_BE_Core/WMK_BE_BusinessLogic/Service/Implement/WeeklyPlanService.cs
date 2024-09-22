@@ -112,12 +112,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 				}
 				result.StatusCode = 200;
-				result.Message = "Get weekly plan success (" + weeklyPlanResponse.Count() + ")";
+				result.Message = "Tìm thấy";
 				result.Data = weeklyPlanResponse.OrderBy(wp => wp.ProcessStatus).ToList();
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Don't have weekly pLan list";
+			result.Message = "Không tìm thấy";
 			result.Data = [];
 			return result;
 		}
@@ -130,12 +130,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlans != null && weeklyPlans.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List of weekly plans found by title";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<WeeklyPlanResponseModelForWeb>>(weeklyPlans);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "No weekly plans found with title!";
+			result.Message = "Không có dữ liệu";
 			return result;
 		}
 		public async Task<ResponseObject<List<WeeklyPlanResponseModelForWeb>>> GetWeeklyPlansByDatetime(DateTime? beginDate , DateTime? endDate)
@@ -151,13 +151,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( filteredPlans.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List of weekly plans found";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<WeeklyPlanResponseModelForWeb>>(filteredPlans);
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "No weekly plans found within the specified dates!";
+				result.Message = "Không có dữ liệu";
 			}
 
 			return result;
@@ -220,7 +220,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 				}
 				result.StatusCode = 200;
-				result.Message = "WeeklyPlan list: " + returnResult.Count();
+				result.Message = "Tìm thấy: " + returnResult.Count();
 				result.Data = returnResult;
 
 				////set cache to redis
@@ -231,7 +231,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Not have plan!";
+				result.Message = "Không có dữ liệu";
 				return result;
 			}
 		}
@@ -251,7 +251,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( foundList.Count() == 0 ) //ko tim dc
 				{
 					result.StatusCode = 500;
-					result.Message = "Not found with user id";
+					result.Message = "Không tìm thấy";
 					return Task.FromResult(result);
 				}
 				else //co thong tin
@@ -308,14 +308,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					weeklyPlan.CreatedBy = "UserName not found!";
 				}
 				result.StatusCode = 200;
-				result.Message = "Get weekly plan success";
+				result.Message = "Tìm thấy";
 				result.Data = weeklyPlan;
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Weekly plan not exist!";
+				result.Message = "Không tìm thấy weekplan!";
 				return result;
 			}
 		}
@@ -342,7 +342,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( userExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "User not exist!";
+					result.Message = "Không tìm thấy người dùng";
 					return result;
 				}
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
@@ -353,7 +353,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 													|| foundDuplicate.ProcessStatus == ProcessStatus.Approved) )
 					{
 						result.StatusCode = 400;
-						result.Message = "Weekly plan Title already existed";
+						result.Message = "Trùng tên";
 						return result;
 					}
 				}
@@ -371,7 +371,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeIdListCheck.Distinct().Count() < 10 )////check list recipe truyen vao phai co it nhat 10 recipe khac nhau
 				{
 					result.StatusCode = 400;
-					result.Message = "Must be at least 10 distinct recipe for each week";
+					result.Message = "Phải có ít nhất 10 món khác nhau cho 1 tuần";
 					return result;
 				}
 				//add new weekly plan
@@ -381,7 +381,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 500;
-					result.Message = "Create weekly plan unsuccessfully!";
+					result.Message = "Tạo mới không thành công";
 					return result;
 				}
 				await _unitOfWork.CompleteAsync();
@@ -397,14 +397,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = createRecipePlansResult.StatusCode;
-						result.Message = "Create Weekly plan successfully.";
+						result.Message = "Tạo thành công.";
 						result.Data = _mapper.Map<WeeklyPlanResponseModel>(newWeeklyPlan);
 						return result;
 					}
 					await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newWeeklyPlan.Id.ToString());
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 500;
-					result.Message = "Create weekly plan unsuccess!";
+					result.Message = "Tạo không thành công";
 					return result;
 				}
 				else
@@ -444,14 +444,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( request.ProcessStatus != null && request.ProcessStatus != ProcessStatus.Customer )//kiem tra processStatus
 				{
 					result.StatusCode = 500;
-					result.Message = "ProcessStatus not for customer";
+					result.Message = "ProcessStatus không phải của khách hàng";
 					return result;
 				}
 				var userExist = await _unitOfWork.UserRepository.GetByIdAsync(request.CreatedBy);//kiem tra role cua nguoi tao (createBy), role phai la customer
 				if ( userExist == null || userExist.Role != WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer )
 				{
 					result.StatusCode = 404;
-					result.Message = "User not exist or not have access!";
+					result.Message = "Người dùng không tồn tại hoặc không có quyền thực thi!";
 					return result;
 				}
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
@@ -461,7 +461,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
 					{
 						result.StatusCode = 404;
-						result.Message = "Weekly plan Title already existed!";
+						result.Message = "Trùng title ";
 						return result;
 					}
 					else
@@ -477,7 +477,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( countPlan >= 5 )
 						{
 							result.StatusCode = 400;
-							result.Message = "Reach limit in max personal plan. Remove some personal plan before create new. ";
+							result.Message = "Đạt giới hạn kế hoạch cá nhân là. Vui lòng hủy bớt kế hoạch cá nhân để có thể tạo thêm ";
 							return result;
 						}
 						WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);
@@ -504,7 +504,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						else
 						{
 							result.StatusCode = 500;
-							result.Message = "Error at create for customer - weekplan service";
+							result.Message = "Tạo kế hoạch cá nhân thất bại. Vui lòng liên hệ bộ phận chăm sóc khách hàng để được hỗ trợ";
 							return result;
 						}
 					}
@@ -512,7 +512,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				else
 				{
 					result.StatusCode = 400;
-					result.Message = "Can not create personal plan at this time. Standard weekly Plan have no data";
+					result.Message = "Không thể tạo kế hoạch cá nhân, danh sách trống";
 					return result;
 				}
 			}
@@ -548,7 +548,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeIdListCheck.Distinct().Count() < 10 )//check list recipe truyen vao phai co it nhat 10 recipe khac nhau
 				{
 					result.StatusCode = 400;
-					result.Message = "Must be at least 10 distinct recipe for each week";
+					result.Message = "Phải có ít nhất 10 món khác nhau cho 1 tuần";
 					return result;
 				}
 				else
@@ -557,7 +557,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( foundWeeklyPlan == null )
 					{
 						result.StatusCode = 404;
-						result.Message = "Weekly plan not exist!";
+						result.Message = "Weekly plan không tồn tại";
 						return result;
 					}
 					//bat dau thay doi thong tin cho week plan
@@ -585,27 +585,27 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							{
 								await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
 								result.StatusCode = 200;
-								result.Message = "Update Weekly plan successfully.";
+								result.Message = "Cập nhật thành công.";
 								return result;
 							}
 							else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
 							{
 								result.StatusCode = 500;
-								result.Message = createRecipePlansResult.Message + " Update weekplan fail";
+								result.Message = createRecipePlansResult.Message + " Cập nhật thất bại";
 								return result;
 							}
 						}
 						else
 						{
 							result.StatusCode = 404;
-							result.Message = "Recipe can't not empty! Please input recipe!!";
+							result.Message = "Thông tin món ăn không để trống";
 							return result;
 						}
 					}
 					else
 					{
 						result.StatusCode = 500;
-						result.Message = "Update basic info fail";
+						result.Message = "Cập nhật thông tin cơ bản kông thành công";
 						return result;
 					}
 				}
@@ -637,7 +637,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Weekly plan not exist!";
+				result.Message = "Weekly plan không tồn tại!";
 				return result;
 			}
 			else
@@ -647,13 +647,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Delete weekly plan with successfullly";
+					result.Message = "Xóa thành công";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Delete weekly plan with unsuccessfullly!";
+					result.Message = "Xóa không thành công!";
 					return result;
 				}
 			}
@@ -682,7 +682,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 											|| userExist.Role == WMK_BE_RecipesAndPlans_DataAccess.Enums.Role.Customer) )
 				{
 					result.StatusCode = 400;
-					result.Message = "Not have permission!";
+					result.Message = "Không có quyền thực thi!";
 					return result;
 				}
 			}
@@ -690,7 +690,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Weekly plan not exist!";
+				result.Message = "Không có quyền thực thi!";
 				return result;
 			}
 
@@ -698,7 +698,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist.ProcessStatus == ProcessStatus.Customer )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not have permission!";
+				result.Message = "Không có quyền thực thi!";
 				return result;
 			}
 			weeklyPlanExist.Notice = model.Notice;
@@ -717,13 +717,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Change status weekly plan to (" + weeklyPlanExist.ProcessStatus + ") successfully";
+				result.Message = "Đổi trạng thái  (" + weeklyPlanExist.ProcessStatus + ") thành công";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Change status weekly plan to(" + weeklyPlanExist.ProcessStatus + ") unsuccessfully!";
+				result.Message = "Đổi trạng thái(" + weeklyPlanExist.ProcessStatus + ") không thành công!";
 				return result;
 			}
 		}
@@ -735,13 +735,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "WeeklyPLan not exist!";
+				result.Message = "Không tìm thấy!";
 				return result;
 			}
 			if ( weeklyPlanExist.ProcessStatus == ProcessStatus.Processing )
 			{
 				result.StatusCode = 400;
-				result.Message = "WeeklyPLan is pending handle! Please try again later.";
+				result.Message = "Weekplan đang chò xử lí.";
 				return result;
 			}
 			weeklyPlanExist.BaseStatus = model.BaseStatus;
@@ -749,12 +749,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( updateWeeklyPlanResult )
 			{
 				result.StatusCode = 200;
-				result.Message = "Change status success!";
+				result.Message = "Đổi trạng thái thành công!";
 				//result.Data = _mapper.Map<WeeklyPlanResponseModel>(weeklyPlanExist);
 				return result;
 			}
 			result.StatusCode = 500;
-			result.Message = "Faild to change weekly plan status!";
+			result.Message = "Đổi trạng thái thành công!";
 			return result;
 
 		}
@@ -774,7 +774,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( request.recipeIds != null && request.recipeIds.Count > 200 )
 				{
 					result.StatusCode = 400;
-					result.Message = "Vuot qua pham vi cho phep. dat toi da duoi 200 cong thuc";
+					result.Message = "Vượt quá phạm vi cho phép 200 công thức";
 					return result;
 				}
 				else
@@ -782,7 +782,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					var foundWeeklyPlan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(id.ToString());
 					if ( foundWeeklyPlan == null )
 					{
-						result.Message = "Not found week plan";
+						result.Message = "Không tìm thấy Week plan";
 						return result;
 					}
 					else//bat dau tim recipePlans
@@ -806,7 +806,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								}
 								else //bao loi ko tim thay gi het - cho nay co the cai tien cho thanh 1 ham vua tao moi vua cap nhat duoc. neu co cai tien thi duoiday la phan tao moi
 								{
-									result.Message = "Not found any existed to update";
+									result.Message = "Không tìm thấy thông tin cần cập nhật";
 									return result;
 								}
 								//bat dau tao recipePlan moi tu day
@@ -816,7 +816,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 
 									await _unitOfWork.CompleteAsync(); //sau khi xac dinh da tao duoc ban cap nhat roi thi xoa di ban cap nhat cu 
 									result.StatusCode = 200;
-									result.Message = "Update Weekly plan successfully.";
+									result.Message = "Cập nhật thành công";
 									return result;
 								}
 								else//neu khong duoc thi ko luu gi het - ko dung ham completeAsync nen ko luu ket qua
@@ -828,7 +828,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							}
 							else //update khong thanh cong -> bao loi
 							{
-								result.Message = "Update failed";
+								result.Message = "Cập nhật không thành công";
 								return result;
 							}
 						}
@@ -838,13 +838,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							{
 								await _unitOfWork.CompleteAsync();
 								result.StatusCode = 200;
-								result.Message = "Update Weekly plan successfully.";
+								result.Message = "Cập nhật thành công.";
 								return result;
 							}
 							else
 							{
 								result.StatusCode = 500;
-								result.Message = "Update failed";
+								result.Message = "Cập nhật không thành công ";
 								return result;
 							}
 						}
@@ -870,7 +870,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlans.Count == 0 )
 			{
 				result.StatusCode = 404;
-				result.Message = "No weekly plan approved!";
+				result.Message = "Không có weekplan phù hợp";
 				return result;
 			}
 			if ( weeklyPlans.Count > 0 )
@@ -882,7 +882,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						weeklyPlan.BaseStatus = BaseStatus.Available;
 					}
 					result.StatusCode = 200;
-					result.Message = "Order Available";
+					result.Message = "Chuyển Available thành công";
 				}
 				else
 				{
@@ -891,7 +891,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						weeklyPlan.BaseStatus = BaseStatus.UnAvailable;
 					}
 					result.StatusCode = 200;
-					result.Message = "Order UnAvailable!";
+					result.Message = "Chuyển UnAvailable thành công";
 				}
 			}
 			await _unitOfWork.CompleteAsync();

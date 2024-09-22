@@ -152,7 +152,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( orderExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Order not exist!";
+					result.Message = "Đơn hàng không tồn tại";
 					return result;
 				}
 				var newTransaction = _mapper.Map<Transaction>(model);
@@ -173,7 +173,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Data = newTransaction;
-					result.Message = "Create transction success.";
+					result.Message = "Tạo thành công";
 					return result;
 				}
 			}
@@ -197,7 +197,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( zaloPayExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found transaction!";
+				result.Message = "Không tìm thấy dữ liệu";
 				return result;
 			}
 			zaloPayExist.Status = model.Status;
@@ -207,11 +207,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
 				result.Data = zaloPayExist;
-				result.Message = "Update status (" + zaloPayExist.Status + ") of transaction success";
+				result.Message = "Cập nhật thành công";
 				return result;
 			}
 			result.StatusCode = 500;
-			result.Message = "Update transaction status unsuccess!";
+			result.Message = "Cập nhật thất bại";
 			return result;
 		}
 		#endregion
@@ -224,12 +224,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( trans != null )
 			{
 				result.StatusCode = 200;
-				result.Message = "List transactions.";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<TransactionResponse>>(trans);
 				return result;
 			}
 			result.StatusCode = 400;
-			result.Message = "Not have transaction!";
+			result.Message = "Không có dữ liệu";
 			return result;
 		}
 
@@ -255,7 +255,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( orderExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Order not exist!";
+					result.Message = "Đơn hàng không tồn tại";
 					return result;
 				}
 				var newTransaction = _mapper.Map<Transaction>(request);
@@ -278,7 +278,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Data = _mapper.Map<TransactionResponse>(newTransaction);
-					result.Message = "Create transction success.";
+					result.Message = "Tạo mới thành công";
 					return result;
 				}
 			}
@@ -343,7 +343,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 									orderExist.Transaction = transExist;
 									await _unitOfWork.CompleteAsync();
 									result.StatusCode = 200;
-									result.Message = "Refund successful";
+									result.Message = "Hoàn tiền thành công";
 									var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
 									if ( customer != null )
 									{
@@ -354,12 +354,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 									return result;
 								}
 								result.StatusCode = 400;
-								result.Message = "Refund unsuccessful! Order not in cancel status!";
+								result.Message = "Hoàn tiền thất bại, Đơn hàng chưa được trạng thái đóng";
 								return result;
 
 							}
 							result.StatusCode = 404;
-							result.Message = "Refund failed!Not have transaction.";
+							result.Message = "Không thành công, Không có giao dịch";
 							return result;
 						}
 						else
@@ -380,7 +380,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 400;
-				result.Message = "Transaction not found or is not pending!";
+				result.Message = "Không tìm thấy giao dịch hoặc giao dịch đang không trong trạng thái chờ!";
 				return result;
 			}
 		}

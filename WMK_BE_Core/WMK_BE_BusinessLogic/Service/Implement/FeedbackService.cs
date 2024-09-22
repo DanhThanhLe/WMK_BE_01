@@ -36,14 +36,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					var responseList = _mapper.Map<List<FeedbackResponse>>(feedbackFoundList);//response list cho method
 					result.StatusCode = 200;
-					result.Message = "Feedback list";
+					result.Message = "Danh sách Feedback";
 					result.Data = responseList;
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 400;
-					result.Message = "Feedback list is empty";
+					result.Message = "Danh sách Feedback trống";
 					return result;
 				}
 			}
@@ -54,14 +54,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					var responseList = _mapper.Map<List<FeedbackResponse>>(filterListOrder);//response list cho method
 					result.StatusCode = 200;
-					result.Message = "Feedback list";
+					result.Message = "Danh sách Feedback";
 					result.Data = responseList;
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 400;
-					result.Message = "Feedback list with order ID: " + orderId + " is empty";
+					result.Message = "Đơn hàng này chưa có feedback";
 					return result;
 				}
 			}
@@ -83,7 +83,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( orderFound == null )//kiem tra order ton tai
 			{
 				result.StatusCode = 500;
-				result.Message = "Order not found";
+				result.Message = "Đơn hàng không tồn tại";
 				return result;
 			}
 			else //order co ton tai
@@ -94,7 +94,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( userFound == null )//kiem tra user ton tai
 					{
 						result.StatusCode = 500;
-						result.Message = "User not found!";
+						result.Message = "Người dùng không tồn tại!";
 						return result;
 					}
 					else
@@ -102,7 +102,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( !userId.Equals(orderFound.UserId.ToString()) )//user ko khop order
 						{
 							result.StatusCode = 500;
-							result.Message = "User not match with order!";
+							result.Message = "Người dùng không gắn với order được xử lí";
 							return result;
 						}
 						else//user khop order
@@ -121,20 +121,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								{
 									await _unitOfWork.CompleteAsync();
 									result.StatusCode = 200;
-									result.Message = "Create feedback Ok.";
+									result.Message = "Feeback tạo thành công.";
 									return result;
 								}
 								else
 								{
 									result.StatusCode = 500;
-									result.Message = "Create feedback failed!";
+									result.Message = "Feedback tạo không thành công!";
 									return result;
 								}
 							}
 							else
 							{
 								result.StatusCode = 500;
-								result.Message = "Feedback have exist!";
+								result.Message = "Feedback tồn tạo rồi!";
 								return result;
 							}
 						}
@@ -143,7 +143,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				else //order chua hoan thanh
 				{
 					result.StatusCode = 500;
-					result.Message = "Order not finished yet!";
+					result.Message = "Đơn hàng chưa hoàn thành!";
 					return result;
 				}
 			}
@@ -158,14 +158,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( feedbackExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not have feedback!";
+				result.Message = "Feedback không tồn tại!";
 				return result;
 			}
 			var orderFound = await _unitOfWork.OrderRepository.GetByIdAsync(request.OrderId.ToString());
 			if ( orderFound == null )//kiem tra order ton tai
 			{
 				result.StatusCode = 500;
-				result.Message = "Order not found";
+				result.Message = "Đơn hàng không tồn tại";
 				return result;
 			}
 			else
@@ -176,7 +176,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( userFound == null )//kiem tra user ton tai
 					{
 						result.StatusCode = 500;
-						result.Message = "User not found!";
+						result.Message = "Người dùng không tồn tại!";
 						return result;
 					}
 					else
@@ -184,7 +184,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( !userId.Equals(orderFound.UserId.ToString()) )//user ko khop order
 						{
 							result.StatusCode = 500;
-							result.Message = "User not match with order!";
+							result.Message = "Người dùng không gắn với order được xử lí!";
 							return result;
 						}
 						else
@@ -195,14 +195,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							if ( updateFeedbackRes )
 							{
 								result.StatusCode = 200;
-								result.Message = "Update feedback success.";
+								result.Message = "Cập nhật feedback thành công.";
 								result.Data = _mapper.Map<FeedbackResponse>(feedbackExist);
 								return result;
 							}
 							else
 							{
 								result.StatusCode = 500;
-								result.Message = "Update feedback unsuccess!";
+								result.Message = "Cập nhật feedback không thành công!";
 								return result;
 							}
 						}
@@ -211,7 +211,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				else //order chua hoan thanh
 				{
 					result.StatusCode = 500;
-					result.Message = "Order not finished yet!";
+					result.Message = "Đơn hàng chưa hoàn thành!";
 					return result;
 				}
 			}
