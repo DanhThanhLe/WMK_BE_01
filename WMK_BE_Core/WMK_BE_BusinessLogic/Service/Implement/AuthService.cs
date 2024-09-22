@@ -375,7 +375,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist.EmailConfirm == WMK_BE_RecipesAndPlans_DataAccess.Enums.EmailConfirm.NotConfirm )
 			{
 				result.StatusCode = 405;
-				result.Message = "Email not confirm!";
+				result.Message = "Email chưa được xác nhận!";
 				return result;
 			}
 			//check code reset
@@ -385,7 +385,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !string.Equals(model.NewPassword , model.ConfirmPassword) )
 				{
 					result.StatusCode = 403;
-					result.Message = "NewPassword and confirm password does not match!";
+					result.Message = "Mật khẩu mới và mật khẩu xác nhận không khớp!";
 					return result;
 				}
 				//reset pass if code match
@@ -426,7 +426,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist == null )
 			{
 				result.StatusCode = 403;
-				result.Message = "User not Exist!";
+				result.Message = "Người dùng không tồn tại!";
 				return result;
 			}
 			//send Code and save to database
