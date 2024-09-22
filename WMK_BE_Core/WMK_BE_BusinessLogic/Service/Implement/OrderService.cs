@@ -215,9 +215,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region create
-		public async Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model)
+		public async Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model)
 		{
-			var result = new ResponseObject<Guid>();
+			var result = new ResponseObject<OrderResponse>();
 			var validationResult = _createOrderValidator.Validate(model);
 			if ( !validationResult.IsValid )
 			{
@@ -327,7 +327,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Create order success";
-							result.Data = newOrder.Id;
+							result.Data = _mapper.Map<OrderResponse>(newOrder) ;
 							return result;
 						}
 						if ( createTransactionResult != null && createTransactionResult.StatusCode != 200 )//code cu la (createTransaction != null)
@@ -903,7 +903,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					else if ( orderExist.Status == OrderStatus.Processing && orderExist.Transaction.Type == TransactionType.ZaloPay && orderExist.Transaction.Status == TransactionStatus.Pending )//truong hop co Zalopay nhung chua thanh toan
 					{
 						result.StatusCode = 200;
-						result.Message = "1.Order Zalopay not paid yet";
+						result.Message = "Order Zalopay not paid yet!";
+						var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+						var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+						if ( customer != null )
+						{
+							mapOrderResponse.UserId = customer.Email;
+						}
+						result.Data = mapOrderResponse;
 						return result;
 					}
 					else //cac truong hop khac
@@ -923,6 +930,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
 						result.Message = "Change order status into " + orderExist.Status + " success.";
+						var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+						var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+						if ( customer != null )
+						{
+							mapOrderResponse.UserId = customer.Email;
+						}
+						result.Data = mapOrderResponse;
 						return result;
 					}
 					else
@@ -950,6 +964,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Change order status into " + orderExist.Status + " success.";
+							var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+							var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+							if ( customer != null )
+							{
+								mapOrderResponse.UserId = customer.Email;
+							}
+							result.Data = mapOrderResponse;
 							return result;
 						}
 						else
@@ -998,6 +1019,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
 						result.Message = "Change order status into " + orderExist.Status + " success.";
+						var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+						var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+						if ( customer != null )
+						{
+							mapOrderResponse.UserId = customer.Email;
+						}
+						result.Data = mapOrderResponse;
 						return result;
 					}
 					else
@@ -1021,6 +1049,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
 					result.Message = "Change order status into " + orderExist.Status + " success.";
+					var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+					var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+					if ( customer != null )
+					{
+						mapOrderResponse.UserId = customer.Email;
+					}
+					result.Data = mapOrderResponse;
 					return result;
 				}
 				else if ( model.Status == OrderStatus.Delivered && orderExist.Status != OrderStatus.Shipped )
@@ -1035,14 +1070,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					if ( orderExist.Status == OrderStatus.Processing || orderExist.Status == OrderStatus.UnShipped || orderExist.Status == OrderStatus.Shipped )//ko giao đc hang hoac khach dong don
 					{// + transaction COD hoac Zalopay Pending - khach ko muon giao lai lan nua hoac la chua thanh toan cho don hang
-						if ( orderExist.Transaction.Status == TransactionStatus.Pending )//don hang chua thanh toan
+						if ( orderExist.Transaction != null && orderExist.Transaction.Status == TransactionStatus.Pending )//don hang chua thanh toan
 						{
 							orderExist.Status = OrderStatus.Canceled;
 							orderExist.Transaction.Status = TransactionStatus.UNPAID;
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Change order status into " + orderExist.Status + " success.";
-							result.Data = _mapper.Map<OrderResponse>(orderExist);
+							var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+							var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+							if ( customer != null )
+							{
+								mapOrderResponse.UserId = customer.Email;
+							}
+							result.Data = mapOrderResponse;
 							return result;
 						}
 						else if ( orderExist.Transaction.Status == TransactionStatus.PAID )//don hang da duoc thanh toan -> khach hang can duoc lien lac va refund
@@ -1052,7 +1093,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "This order need to be refunded. Change order status into " + orderExist.Status + " success.";
-							result.Data = _mapper.Map<OrderResponse>(orderExist);
+							var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+							var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+							if ( customer != null )
+							{
+								mapOrderResponse.UserId = customer.Email;
+							}
+							result.Data = mapOrderResponse;
 							return result;
 						}
 					}

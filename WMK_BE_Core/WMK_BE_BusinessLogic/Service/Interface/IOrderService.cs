@@ -18,7 +18,7 @@ namespace WMK_BE_BusinessLogic.Service.Interface
 		Task<ResponseObject<List<OrderResponse>>> GetOrdersByUserId(Guid userId);
 		#endregion
 
-		Task<ResponseObject<Guid>> CreateOrderAsync(CreateOrderRequest model);
+		Task<ResponseObject<OrderResponse>> CreateOrderAsync(CreateOrderRequest model);
 
 		#region Update
 		Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id , UpdateOrderRequest model);

@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Accord.Math;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text;
 using WMK_BE_BusinessLogic.BusinessModel.RequestModel.OrderModel;
 using WMK_BE_BusinessLogic.BusinessModel.ResponseModel.OrderModel;
 using WMK_BE_BusinessLogic.ResponseObject;
 using WMK_BE_BusinessLogic.Service.Implement;
 using WMK_BE_BusinessLogic.Service.Interface;
+using WMK_BE_RecipesAndPlans_DataAccess.Models;
 
 namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 {
@@ -65,7 +71,43 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		[Authorize]
 		public async Task<IActionResult> Create([FromBody] CreateOrderRequest model)
 		{
+			// Lấy chuỗi JSON từ token với Claim có tên "User"
+			var userClaim = User.Claims.FirstOrDefault(c => c.Type == "User")?.Value;
+
+			if ( string.IsNullOrEmpty(userClaim) )
+			{
+				return Unauthorized("User not found in token");
+			}
+			// Chuyển chuỗi JSON thành đối tượng User
+			var user = JsonConvert.DeserializeObject<User>(userClaim);
+
+			if ( user == null )
+			{
+				return Unauthorized("Invalid user data");
+			}
 			var result = await _orderService.CreateOrderAsync(model);
+			if ( result.Data != null )
+			{
+				// Tạo nội dung email
+				StringBuilder emailContent = new StringBuilder();
+
+				emailContent.AppendLine("Dear " + result.Data.ReceiveName + ",");
+				emailContent.AppendLine();
+				emailContent.AppendLine("Your order on WeMealKit has been successfully created.");
+				emailContent.AppendLine("Order Information:");
+				emailContent.AppendLine("----------------------------------------------------");
+				emailContent.AppendLine("Order Code: " + result.Data.OrderCode);
+				emailContent.AppendLine("Order Date: " + result.Data.OrderDate.ToString("dd/MM/yyyy"));
+				emailContent.AppendLine("Ship Date: " + result.Data.ShipDate.ToString("dd/MM/yyyy"));
+				emailContent.AppendLine("Recipient Name: " + result.Data.ReceiveName);
+				emailContent.AppendLine("Recipient Phone: " + result.Data.ReceivePhone);
+				emailContent.AppendLine("Address: " + result.Data.Address);
+				emailContent.AppendLine("Total Price: $" + result.Data.TotalPrice.ToString("N2"));
+				emailContent.AppendLine();
+				emailContent.AppendLine("Thank you for shopping with us!");
+				emailContent.AppendLine("----------------------------------------------------");
+				_sendMailService.SendMail(user.Email , "Order created on WeMealKit" , emailContent.ToString());
+			}
 			return StatusCode(result.StatusCode , result);
 		}
 		#endregion
