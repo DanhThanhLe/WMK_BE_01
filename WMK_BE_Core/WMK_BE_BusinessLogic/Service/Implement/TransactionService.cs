@@ -294,7 +294,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var result = new ResponseObject<RefundZaloPayResponse>();
 			// Check if the transaction exists and if its status is pending
 			var transExist = _unitOfWork.TransactionRepository.Get(x => x.Id == request.IdTransaction).FirstOrDefault();
-			if ( transExist != null && transExist.Status == TransactionStatus.RefundPending )
+			if ( transExist != null && (transExist.Status == TransactionStatus.RefundPending
+										|| transExist.Status == TransactionStatus.PAID && transExist.Type == TransactionType.COD) )
 			{
 				// Generate current timestamp
 				var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
@@ -334,7 +335,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							{
 								// Change order status to refunded
 								var orderExist = await _unitOfWork.OrderRepository.GetByIdAsync(request.IdOrder.ToString());
-								if ( orderExist != null && orderExist.Status == OrderStatus.Canceled )
+								if ( orderExist != null && (orderExist.Status == OrderStatus.Canceled || orderExist.Status == OrderStatus.Shipped) )
 								{
 									orderExist.Status = OrderStatus.Refund;
 									transExist.Order = orderExist;
