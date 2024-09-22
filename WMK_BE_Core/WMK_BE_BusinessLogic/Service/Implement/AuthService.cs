@@ -214,25 +214,25 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
-						result.Message = "Email verified successfully";
+						result.Message = "Email xác thực thành công";
 						return result;
 					}
 					else
 					{
 						result.StatusCode = 500;
-						result.Message = "Email verified successfully";
+						result.Message = "Email xác thực không thành công";
 						return result;
 					}
 				}
 				else
 				{
 					result.StatusCode = 403;
-					result.Message = "Code does not match!";
+					result.Message = "Mã xác thực không đúng!";
 					return result;
 				}
 			}
 			result.StatusCode = 404;
-			result.Message = "User not exist!";
+			result.Message = "Người dùng không tồn tại!";
 			return result;
 		}
 		#endregion
@@ -253,7 +253,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !string.Equals(model.Password , model.ConfirmPassword) )
 			{
 				result.StatusCode = 400;
-				result.Message = "Password and confirm password does not match!";
+				result.Message = "Mật khẩu và Mật khẩu xác nhận không khớp nhau!";
 				return result;
 			}
 			//check user exists
@@ -261,7 +261,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExists != null )
 			{
 				result.StatusCode = 403;
-				result.Message = "Email have exist!";
+				result.Message = "Email này đã được sử dụng!";
 				return result;
 			}
 			//create user
@@ -294,7 +294,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Failed to create user!";
+				result.Message = "Tạo người dúng thất bại!";
 				return result;
 			}
 		}
@@ -318,14 +318,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "User not found!";
+				result.Message = "Người dùng không tồn tại!";
 				return result;
 			}
 			//check old pass 
 			if ( !HashHelper.VerifyHash(model.OldPassword , userExist.PasswordHash) )
 			{
 				result.StatusCode = 403;
-				result.Message = "Old password not match!";
+				result.Message = "Mật khẩu cũ không khớp!";
 				return result;
 			}
 			//update new password
@@ -333,7 +333,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !string.Equals(model.NewPassword , model.ConfirmPassword) )
 			{
 				result.StatusCode = 403;
-				result.Message = "NewPassword and confirm password does not match!";
+				result.Message = "Mật khẩu mới và mật khẩu xác nhận không khớp!";
 				return result;
 			}
 			userExist.PasswordHash = HashHelper.GetSignature256(model.NewPassword);
@@ -342,13 +342,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Password reset successfully.";
+				result.Message = "Đổi mật khẩu thành công.";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Failed to reset password!";
+				result.Message = "Đổi mật khẩu không thành công!";
 				return result;
 			}
 		}
@@ -369,7 +369,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "User not found!";
+				result.Message = "Người dùng không tồn tại!";
 				return result;
 			}
 			if ( userExist.EmailConfirm == WMK_BE_RecipesAndPlans_DataAccess.Enums.EmailConfirm.NotConfirm )
