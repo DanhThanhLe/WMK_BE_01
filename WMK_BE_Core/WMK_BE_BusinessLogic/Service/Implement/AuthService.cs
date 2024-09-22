@@ -294,7 +294,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Tạo người dúng thất bại!";
+				result.Message = "Tạo người dùng không thành công!";
 				return result;
 			}
 		}
@@ -333,7 +333,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !string.Equals(model.NewPassword , model.ConfirmPassword) )
 			{
 				result.StatusCode = 403;
-				result.Message = "Mật khẩu mới và mật khẩu xác nhận không khớp!";
+				result.Message = "Mật khẩu mới và mật khẩu xác nhận không khớp nhau!";
 				return result;
 			}
 			userExist.PasswordHash = HashHelper.GetSignature256(model.NewPassword);
@@ -385,7 +385,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !string.Equals(model.NewPassword , model.ConfirmPassword) )
 				{
 					result.StatusCode = 403;
-					result.Message = "Mật khẩu mới và mật khẩu xác nhận không khớp!";
+					result.Message = "Mật khẩu mới và mật khẩu xác nhận không khớp nhau!";
 					return result;
 				}
 				//reset pass if code match
@@ -402,7 +402,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Đổi mật khẩu thất bại";
+					result.Message = "Đổi mật khẩu không thành công";
 					return result;
 				}
 			}

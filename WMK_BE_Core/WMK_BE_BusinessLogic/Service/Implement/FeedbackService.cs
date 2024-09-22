@@ -184,7 +184,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( !userId.Equals(orderFound.UserId.ToString()) )//user ko khop order
 						{
 							result.StatusCode = 500;
-							result.Message = "Người dùng không gắn với order được xử lí!";
+							result.Message = "Người dùng không gắn với đơn hàng được xử lí!";
 							return result;
 						}
 						else

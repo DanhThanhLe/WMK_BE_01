@@ -92,7 +92,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categories != null && categories.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "Danh sách category bằng từ khóa "+type;
+				result.Message = "Tìm thấy "+type;
 				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
 				return result;
 			}
@@ -109,12 +109,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categories.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "Danh sách category với tên " + name;
+				result.Message = "Tìm thấy;
 				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Không tìm thấy thông tin liên quan tới: " + name;
+			result.Message = "Không tìm thấy thông tin ";
 			return result;
 
 		}
@@ -299,13 +299,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Xóa category ("+ categoryExist.Name +") thành công!";//Delete catgory (" + categoryExist.Name + ") successfully
+				result.Message = "Xóa category thành công!";//Delete catgory (" + categoryExist.Name + ") successfully
                 return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Xóa category (" + categoryExist.Name + ") không thành công!";//Fail to delete category (" + categoryExist.Name + ")!
+				result.Message = "Xóa category không thành công!";//Fail to delete category (" + categoryExist.Name + ")!
                 return result;
 			}
 		}
