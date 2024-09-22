@@ -109,7 +109,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categories.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "Tìm thấy;
+				result.Message = "Tìm thấy " + categories.Count ;
 				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
 				return result;
 			}
