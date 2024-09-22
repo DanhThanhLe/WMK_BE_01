@@ -65,7 +65,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				return BadRequest(new
 				{
 					StatusCode = 400 ,
-					Message = "Invalid GUID format! Please provide a valid GUID!"
+					Message = "Sai ID format"
 				});
 			}
 		}

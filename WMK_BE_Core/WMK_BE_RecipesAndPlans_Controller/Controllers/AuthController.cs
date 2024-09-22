@@ -26,9 +26,9 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			{
 				if ( result.Data != null )
 				{
-					_sendMailService.SendMail(result.Data.Email , "Confirm Mail" , "This code is for authentication in WEMEALKIT: " + result.Message);
+					_sendMailService.SendMail(result.Data.Email , "Confirm Mail", "Đoạn code này dùng để xác minh tài khoản trong hệ thống WEMEALKIT: " + result.Message);
 				}
-				return StatusCode(405 , new { statusCode = 405 , message = "Please check mail to take confirm code" });
+				return StatusCode(405 , new { statusCode = 405 , message = "Hãy kiểm tra email đăng kí để lấy mã xác nhận tài khoản!" });
 
 			}
 			return StatusCode(result.StatusCode , result);
@@ -40,11 +40,15 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _authService.RegisterEmailAsync(model);
 			if(result.StatusCode == 200 )
 			{
-				_sendMailService.SendMail(model.Email , "Confirm Mail" , "This code is for authentication in WEMEALKIT: " + result.Message);
+				_sendMailService.SendMail(model.Email , "Confirm Mail" , "Đoạn code này dùng để xác minh tài khoản trong hệ thống WEMEALKIT: " + result.Message);
+				return StatusCode(200 , new { statusCode = 200 , message = "Đăng kí thành công. Bạn hãy kiểm tra email đã đăng ký để lấy mã xác nhận tài khoản!" });//Register successfully. Please check mail
+                /*
+				 _sendMailService.SendMail(model.Email , "Confirm Mail" , "This code is for authentication in WEMEALKIT: " + result.Message);
 				return StatusCode(200 , new { statusCode = 200 , message = "Register successfully. Please check mail!" });
+				 */
 
-			}
-			return StatusCode(result.StatusCode , result);
+            }
+            return StatusCode(result.StatusCode , result);
 		}
 
 		[HttpGet("confirm-mail")]

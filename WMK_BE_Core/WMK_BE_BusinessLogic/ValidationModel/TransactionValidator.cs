@@ -12,9 +12,9 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 	{
         public CreateZaloPayValidator()
         {
-            RuleFor(x => x.OrderId).NotEmpty().WithMessage("Order id is required!");
-            RuleFor(x => x.Amount).NotEmpty().WithMessage("Price is required!")
-                .Must(x => x > 0).WithMessage("Price is more than 0!");
+            RuleFor(x => x.OrderId).NotEmpty().WithMessage("Không để trống");
+            RuleFor(x => x.Amount).NotEmpty().WithMessage("Không để trống")
+                .Must(x => x > 0).WithMessage("Phải trên 0 đồng");
         }
     }
 
@@ -22,10 +22,10 @@ namespace WMK_BE_BusinessLogic.ValidationModel
     {
         public CreateTransactionValidator()
         {
-            RuleFor(x => x.OrderId).NotEmpty().WithMessage("Order id is required!");
-            RuleFor(x => x.Amount).NotEmpty().WithMessage("Price is required!")
-                .Must(x => x > 0).WithMessage("Price is more than 0!");
-            RuleFor(x => x.TransactionType).IsInEnum().WithMessage("Transaction type not accepted");
+            RuleFor(x => x.OrderId).NotEmpty().WithMessage("Không để trống");
+            RuleFor(x => x.Amount).NotEmpty().WithMessage("Không để trống")
+                .Must(x => x > 0).WithMessage("Phải trên 0 đồng!");
+            RuleFor(x => x.TransactionType).IsInEnum().WithMessage("Phương thức thanh toán không được chấp nhận");
         }
     }
 

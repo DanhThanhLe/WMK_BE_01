@@ -297,21 +297,21 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( emailExist != null )
 			{
 				result.StatusCode = 402;
-				result.Message = "Email have exist!";
+				result.Message = "Email không tồn tại";
 				return result;
 			}
 			//check role 
 			if ( !Enum.IsDefined(typeof(Role) , model.Role) )
 			{
 				result.StatusCode = 404;
-				result.Message = "Role doesn't exist!";
+				result.Message = "Role không tồn tại";
 				return result;
 			}
 			//check gender 
 			if ( !Enum.IsDefined(typeof(Gender) , model.Gender) )
 			{
 				result.StatusCode = 404;
-				result.Message = "Gender doesn't exist!";
+				result.Message = "Giới tính không tồn tại!";
 				return result;
 			}
 
@@ -326,14 +326,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Created user (" + newUser.Email + ") successfully with password (" + defaultPassword + ").";
+				result.Message = "Tạo user (" + newUser.Email + ") thành công với mật khẩu mặc định (" + defaultPassword + ").";
 				result.Data = _mapper.Map<BaseUserResponse>(newUser);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Failed to create new User!";
+				result.Message = "Tạo người dùng thất bại";
 				return result;
 			}
 		}
@@ -354,7 +354,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "User not found!";
+				result.Message = "không tìm thấy người dùng";
 				return result;
 			}
 			if ( !string.IsNullOrEmpty(model.Email) )
@@ -364,7 +364,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( emailExist != null )
 				{
 					result.StatusCode = 402;
-					result.Message = "Email have exist!";
+					result.Message = "Email này đã được đăng kí";
 					return result;
 				}
 				userExist.Email = model.Email;
@@ -377,7 +377,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( usernameExist != null )
 				{
 					result.StatusCode = 402;
-					result.Message = "Username have exist!";
+					result.Message = "Tên người dùng đã tồn tại";
 					return result;
 				}
 				userExist.UserName = model.UserName;
@@ -397,7 +397,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !Enum.IsDefined(typeof(Gender) , model.Gender) )
 				{
 					result.StatusCode = 404;
-					result.Message = "Gender doesn't exist!";
+					result.Message = "Giới tính không tồn tại";
 					return result;
 				}
 				userExist.Gender = (Gender)model.Gender;
@@ -407,14 +407,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Updated user (" + userExist.Email + ") successfully.";
+				result.Message = "Cập nhật người dùng thành công";
 				result.Data = _mapper.Map<BaseUserResponse>(userExist);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Failed to update User!";
+				result.Message = "Cập nhật người dùng không thành công";
 				return result;
 			}
 		}
@@ -427,7 +427,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "User not found!";
+				result.Message = "Không tìm thấy người dùng";
 				return result;
 			}
 			//If user have order trust change status
@@ -440,13 +440,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "User (" + userExist.Email + ")have order trust change status (UnActive) successfully.";
+					result.Message = "Chuyển trạng thái thành công";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Failed to Change User status to UnActive!";
+					result.Message = "Chuyển trạng thái không thành công";
 					return result;
 				}
 			}
@@ -457,14 +457,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "User (" + userExist.Email + ") deleted successfully.";
+					result.Message = "Xóa thành công nguời dùng";
 					// result.Data = new DeleteUserModelResponse { Id = userExist.Id, UserName = userExist.UserName };
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Failed to delete User!";
+					result.Message = "Xóa người dùng không thành công";
 					return result;
 				}
 			}

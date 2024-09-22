@@ -34,11 +34,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( list == null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not found. Empty list recipe amount";
+				result.Message = "Không tìm thấy bản ghi";
 				return result;
 			}
 			result.StatusCode = 200;
-			result.Message = "OK. list recipe amount";
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<List<RecipeIngredientResponse>>(list);
 			return result;
 		}
@@ -52,7 +52,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( checkRecipe == null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Recipe not existed";
+				result.Message = "Công thức không tồn tại";
 				return result;
 			}
 			var currentList = await _unitOfWork.RecipeIngredientRepository.GetAllAsync();
@@ -67,11 +67,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList.Count == 0 )
 			{
 				result.StatusCode = 500;
-				result.Message = "Not found List for Id: " + recipeId;
+				result.Message = "Không tìm thấy bản ghi" + recipeId;
 				return result;
 			}
 			result.StatusCode = 200;
-			result.Message = "Ok. Recipe category list:";
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<List<RecipeIngredientResponse>>(foundList);
 			return result;
 		}
@@ -90,7 +90,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
+					result.Message = "Không tìm thấy bản ghi";
 					return result;
 				}
 				//scan list ingredient
@@ -101,7 +101,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 
 						result.StatusCode = 404;
-						result.Message = "Ingredient with ID {ingredient.IngredientId} not found! Say from CreateRecipeIngredientAsync - RecipeIngredientService";
+						result.Message = "Không tìm thấy bản ghi";
 						return result;
 					}
 					RecipeIngredient newRecipeIngredient = new RecipeIngredient();
@@ -117,12 +117,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					await _unitOfWork.RecipeIngredientRepository.AddRangeAsync(recipeIngredients);
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Create recipe ingredient successfully.";
+					result.Message = "Tạo thành công.";
 					result.Data = recipeIngredients;
 					return result;
 				}
 				result.StatusCode = 500;
-				result.Message = "Create recipe ingredient unsuccessful.";
+				result.Message = "Tạo không thành công";
 				return result;
 			}
 			catch ( Exception ex )
@@ -147,7 +147,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
+					result.Message = "Không tìm thấy bản ghi";
 					return result;
 				}
 				//take recipeIngredients asign to recipe
@@ -156,7 +156,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeIngredients == null || !recipeIngredients.Any() )
 				{
 					result.StatusCode = 200;
-					result.Message = "No recipeIngredients found for the given Recipe.";
+					result.Message = "Không tìm thấy thông tin";
 					return result;
 				}
 				// Xóa các recipeIngredients liên quan
@@ -164,7 +164,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;
-				result.Message = "Deleted recipeIngredients successfully.";
+				result.Message = "Xóa thành công";
 				result.Data = recipeIngredients.ToList();
 			}
 			catch ( Exception ex )

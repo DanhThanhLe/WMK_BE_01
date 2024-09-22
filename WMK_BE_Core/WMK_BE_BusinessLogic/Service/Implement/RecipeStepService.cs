@@ -34,14 +34,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeStepList != null && recipeStepList.Count > 0 )
 			{
 				result.StatusCode = 200;
-				result.Message = "List all recipe steps";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<RecipeStepRespone>>(recipeStepList);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Recipe steps not found";
+				result.Message = "Không tìm thấy công thức";
 				return result;
 			}
 		}
@@ -55,7 +55,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( currentList.Count == 0 )
 			{
 				result.StatusCode = 400;
-				result.Message = "Empty in db. Say from GetByRecipeId";
+				result.Message = "Không tìm thấy dữ liệu";
 				return result;
 			}
 			List<RecipeStep> foundList = new List<RecipeStep>();
@@ -69,11 +69,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList.Count == 0 )
 			{
 				result.StatusCode = 400;
-				result.Message = "Empty when find. Say from GetByRecipeId";
+				result.Message = "Không tim thấy dữ liệu";
 				return result;
 			}
 			result.StatusCode = 200;
-			result.Message = "Recipe steps get from recipe id";
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<List<RecipeStepRespone>>(foundList);
 			return result;
 		}
@@ -92,14 +92,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( stepList.Count() <= 0 )
 			{
 				result.StatusCode = 400;
-				result.Message = "Create recipe step unsuccess. Not have step";
+				result.Message = "Không có thông tin các bước chế biến";
 				return result;
 			}
 			var foundRecipe = await _unitOfWork.RecipeRepository.GetByIdAsync(recipeId.ToString());
 			if ( foundRecipe == null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not found recipe. Say from CreateRecipeSteps - RecipeStepService";
+				result.Message = "Không tìm thấy dữ liệu";
 				return result;
 			}
 			RecipeStep newStep = new RecipeStep();
@@ -113,7 +113,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !createResult )//cho nay tra ve luon thong tin cu the type nao bi tao loi
 				{
 					result.StatusCode = 500;
-					result.Message = "Create new recipe step unsuccessfully!";
+					result.Message = "Tạo mới bước chế biến không thành công";
 					result.Data = null;
 					return result;
 				}
@@ -121,7 +121,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				returnList.Add(newStep);
 			}
 			result.StatusCode = 200;
-			result.Message = "Create recipe step success.";
+			result.Message = "Tạo mới thành công";
 			result.Data = returnList;
 			return result;
 		}
@@ -136,11 +136,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "delete step success.";
+				result.Message = "Xoá thành công.";
 				return result;
 			}
 			result.StatusCode = 500;
-			result.Message = "Delete step unsuccess!";
+			result.Message = "Xóa không thành công";
 			return result;
 		}
 
@@ -154,7 +154,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
+					result.Message = "Công thức không tồn tại";
 					return result;
 				}
 				//take recipeSteps asign to recipe
@@ -171,7 +171,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				await _unitOfWork.CompleteAsync();
 
 				result.StatusCode = 200;
-				result.Message = "Deleted recipeSteps successfully.";
+				result.Message = "Xóa thàn công";
 				result.Data = recipeSteps.ToList();
 			}
 			catch ( Exception ex )
@@ -193,7 +193,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeStepExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Step not found!";
+				result.Message = "Khong tìm thấy dữ liệu";
 				return result;
 			}
 
@@ -203,11 +203,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Update step success.";
+				result.Message = "Cập nhật thành công";
 				return result;
 			}
 			result.StatusCode = 500;
-			result.Message = "Update step unsuccess!";
+			result.Message = "Cập nhật thất bại";
 			return result;
 		}
 		#endregion

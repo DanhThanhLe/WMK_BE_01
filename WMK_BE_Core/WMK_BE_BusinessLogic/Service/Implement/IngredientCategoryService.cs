@@ -53,7 +53,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				ingredientCategoriesResponse = _mapper.Map<List<IngredientCategoryResponse>>(ingredientCategories);
 			}
 			result.StatusCode = 200;
-			result.Message = "Ingredient category list get success (" + ingredientCategoriesResponse.Count + ")";
+			result.Message = "Danh sách Ingredeint category: (" + ingredientCategoriesResponse.Count + ")";
 			result.Data = ingredientCategoriesResponse ?? [];
 			return result;
 		}
@@ -67,20 +67,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !foundList.Any() )
 				{
 					result.StatusCode = 404;
-					result.Message = "Not found. No such ingredient category in collection contain keyword: " + name;
+					result.Message = "Không tìm thấy Ingredient category chứa từ khóa: " + name;
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 200;
-					result.Message = "Ingredient Category list found by name contain: " + name;
+					result.Message = "Ingredient category chứa tù7 khóa: " + name;
 					result.Data = _mapper.Map<List<IngredientCategoryResponse>>(foundList);
 				}
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found. Empty list or Data not found";
+				result.Message = "Không có dữ liệu";
 				return result;
 			}
 			return result;
@@ -104,7 +104,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( found != null && found.Status.ToString().Equals("Available") )
 			{
 				result.StatusCode = 500;
-				result.Message = "Duplicate name category!";
+				result.Message = "Trùng tên!";
 				return result;
 			}
 			IngredientCategory newOne = _mapper.Map<IngredientCategory>(request);
@@ -113,13 +113,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Create successfully"; //kiem tra voi cach khac, dung ham Create1, sau do cho tim ingredient voi name vua tao, nau tim thay thi lay Id tra ve, ko tim thay nghia la loi --> bao loi
+				result.Message = "Tạo thành công"; //kiem tra voi cach khac, dung ham Create1, sau do cho tim ingredient voi name vua tao, nau tim thay thi lay Id tra ve, ko tim thay nghia la loi --> bao loi
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Create ingredient category unsuccess!";
+				result.Message = "Tạo không thành công!";
 				return result;
 			}
 		}
@@ -147,7 +147,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 500;
-					result.Message = "Name category have exist!";
+					result.Message = "Tên này đã tồn tại!";
 					return result;
 				}
 				//detach entity if need
@@ -160,13 +160,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Update ingredient category success.";
+					result.Message = "Cập nhật ingredient category thành công";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Update failed, say from UpdateCategory - IngredientCategoryService";
+					result.Message = "Cập nhật ingredietn category không thành công";
 					result.Data = _mapper.Map<IngredientCategoryResponse>(found);
 					return result;
 				}
@@ -175,7 +175,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await DeleteById(id);
 				result.StatusCode = 404;
-				result.Message = "Not found ingredient category!";
+				result.Message = "Không tìm thấy ingredient category!";
 				return result;
 			}
 		}
@@ -190,7 +190,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( found == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found ingredient category!";
+				result.Message = "Không tìm thấy ingredient category!";
 				return result;
 			}
 			var deleteResult = await _unitOfWork.IngredientCategoryRepository.DeleteAsync(request.ToString());
@@ -198,13 +198,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Delete ingredient category success";
+				result.Message = "Xóa thành công";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Delete ingredient category failed!";
+				result.Message = "Xóa không thành công!";
 				return result;
 			}
 		}
@@ -218,11 +218,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( found == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found with ID: " + request + ". Say from GetById - IngredientCategoryService";
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 			result.StatusCode = 200;
-			result.Message = "OK. Ingredient category with ID: " + request;
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<IngredientCategoryResponse>(found);
 			return result;
 		}
@@ -245,15 +245,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Update ingredient category success";
+					result.Message = "Cập nhật thành công";
 					return result;
 				}
 				result.StatusCode = 500;
-				result.Message = "Update ingredient category unsuccess!";
+				result.Message = "Cập nhật thành công";
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Ingredient category not exist!";
+			result.Message = "Ingredient category không tồn tại!";
 			return result;
 		}
 		#endregion

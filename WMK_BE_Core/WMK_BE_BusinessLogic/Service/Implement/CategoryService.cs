@@ -65,14 +65,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categoriesResponse != null && categoriesResponse.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "Categories get success (" + categoriesResponse.Count + ")";
+				result.Message = "Lấy category thành công (" + categoriesResponse.Count + ")";
 				result.Data = categoriesResponse;
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Don't have Categories!";
+				result.Message = "Không tìm thấy bản ghi";
 				result.Data = [];
 				return result;
 			}
@@ -84,7 +84,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !checkMatchTypeResult )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not match pre-set category types!";
+				result.Message = "Không khớp với danh sách categpry type quy định trước!";
 				return result;
 			}
 			var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
@@ -92,12 +92,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categories != null && categories.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List category with success";
+				result.Message = "Danh sách category bằng từ khóa "+type;
 				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Not have list category with type!";
+			result.Message = "Không tìm thấy bản ghi!";
 			return result;
 		}
 
@@ -109,12 +109,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categories.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List category with name contains " + name;
+				result.Message = "Danh sách category với tên " + name;
 				result.Data = _mapper.Map<List<CategoryResponseModel>>(categories);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Not found with category name: " + name;
+			result.Message = "Không tìm thấy thông tin liên quan tới: " + name;
 			return result;
 
 		}
@@ -133,7 +133,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Category not found!";
+				result.Message = "Category không tồn tại!";
 				return result;
 			}
 
@@ -152,7 +152,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !checkMatchTypeResult )
 			{
 				result.StatusCode = 400;
-				result.Message = "Not match pre-set category types!";
+				result.Message = "Không khớp với danh sách categpry type quy định trước!";
 				return result;
 			}
 			//check trung ten
@@ -161,7 +161,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( checkDuplicateNameResult != null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Duplicate name with name: " + newCategory.Name + "!";
+				result.Message = "Trùng tên với: " + newCategory.Name + "!";
 				return result;
 			}
 			newCategory.Status = BaseStatus.Available;
@@ -170,13 +170,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Create new Category (" + model.Name + ") successfully.";
+				result.Message = "Tạo category thành công";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Create category unsuccessfully!";
+				result.Message = "Tạo category không thành công";
 				return result;
 			}
 		}
@@ -192,7 +192,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categoryExist == null )
 			{
 				result.StatusCode = 200;
-				result.Message = "Category not exist!";
+				result.Message = "Category không tồn tại!";
 				return result;
 			}
 			//check co type trong quy dinh
@@ -202,7 +202,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !checkMatchTypeResult )
 				{
 					result.StatusCode = 400;
-					result.Message = "Not match pre-set category types!";
+					result.Message = "Không khớp với danh sách categpry type quy định trước!";
 					return result;
 				}
 			}
@@ -216,7 +216,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkDuplicateNameResult != null )
 				{
 					result.StatusCode = 400;
-					result.Message = "Duplicate name with name: " + model.Name + "!";
+					result.Message = "Trùng tên với: " + model.Name + "!";
 					return result;
 				}
 			}
@@ -226,13 +226,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Update category name (" + categoryExist.Name + ") successfully.";
+				result.Message = "Cập nhật category(" + categoryExist.Name + ") thành công.";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Update category unsuccessfully!";
+				result.Message = "Cập nhật category không thành công!";
 				return result;
 			}
 
@@ -250,15 +250,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Change category success";
+					result.Message = "Chuyển status thành công";
 					return result;
 				}
 				result.StatusCode = 500;
-				result.Message = "Change category unsuccess";
+				result.Message = "Chuyển status không thành công";
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Category not exist!";
+			result.Message = "Category không tồn tại";
 			return result;
 
 		}
@@ -272,7 +272,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( categoryExist == null )
 			{
 				result.StatusCode = 500;
-				result.Message = "Category not found!";
+				result.Message = "Category không tồn tại";//Category not found!
 				return result;
 			}
 			var recipeExistCategory = await _unitOfWork.CategoryRepository.RecipeExistCategoryAsync(id);
@@ -284,14 +284,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Change status of catgory (" + categoryExist.Name + ") successfully.";
+					result.Message = "Chuyển status cho category ("+ categoryExist.Name +") thành công!";//Change status of catgory (" + categoryExist.Name + ") successfully.
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Fail to change status category (" + categoryExist.Name + ")!";
-					return result;
+					result.Message = "Chuyển status cho category ("+ categoryExist.Name + ") không thành công!";//Fail to change status category (" + categoryExist.Name + ")!
+                    return result;
 				}
 			}
 			var deleteResult = await _unitOfWork.CategoryRepository.DeleteAsync(id.ToString());
@@ -299,14 +299,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Delete catgory (" + categoryExist.Name + ") successfully.";
-				return result;
+				result.Message = "Xóa category ("+ categoryExist.Name +") thành công!";//Delete catgory (" + categoryExist.Name + ") successfully
+                return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Fail to delete category (" + categoryExist.Name + ")!";
-				return result;
+				result.Message = "Xóa category (" + categoryExist.Name + ") không thành công!";//Fail to delete category (" + categoryExist.Name + ")!
+                return result;
 			}
 		}
 		#endregion

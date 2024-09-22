@@ -396,18 +396,18 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Password reset successfully.";
+					result.Message = "Đổi mật khẩu thành công.";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Failed to reset password!";
+					result.Message = "Đổi mật khẩu thất bại";
 					return result;
 				}
 			}
 			result.StatusCode = 403;
-			result.Message = "Code reset does not match. Please check email!";
+			result.Message = "Sai mã xác thực";
 			return result;
 		}
 
@@ -443,8 +443,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Failed update code reset!";
-				return result;
+				result.Message = "Cập nhật verify code không thành công!";//Failed update code reset!
+                return result;
 			}
 		}
 

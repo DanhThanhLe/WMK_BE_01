@@ -34,7 +34,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                 if(checkOrderDetail == null )
                 {
                     result.StatusCode = 500;
-                    result.Message = "Order Detail not exist";
+                    result.Message = "Order Detail không tồn tại";
                     return result;
                 }
                 else
@@ -60,7 +60,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                                 if (!createResult)
                                 {
                                     result.StatusCode = 500;
-                                    result.Message = "Error when create RecipeIngredient Order Detail";
+                                    result.Message = "Tạo không thành công";
                                     return result;
                                 }
                                 await _unitOfWork.CompleteAsync();
@@ -79,14 +79,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                         else
                         {
                             result.StatusCode = 500;
-                            result.Message = "Recipe not found!";
+                            result.Message = "Công thức không tồn tại";
                             return result;
                         }
                     }
                     else//recipe id dua xuong ko khop voi recipe id duoc luu trong order detail
                     {
                         result.StatusCode=500;
-                        result.Message = "Recipe Id not match with request!";
+                        result.Message = "Công thức không khớp";
                         return result;
                     }
                 }

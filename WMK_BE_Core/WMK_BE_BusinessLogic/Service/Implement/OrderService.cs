@@ -376,7 +376,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 		#endregion
 
 		#region update order
-		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id , UpdateOrderRequest model)
+		public async Task<ResponseObject<OrderResponse>> UpdateOrderAsync(string id , UpdateOrderRequest model) //ham nay ko dung den - xoa?
 		{
 			var result = new ResponseObject<OrderResponse>();
 			var validationResult = _updateOrderValidator.Validate(model);

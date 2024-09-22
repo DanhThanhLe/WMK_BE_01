@@ -38,7 +38,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( orderFound == null )
 			{
 				result.StatusCode = 500;
-				result.Message = "Not found Order Id. Say from CreateCustomPlanAsync - CustomPlanService";
+				result.Message = "Đơn hàng không tồn tại";
 				return result;
 			}
 			if ( RecipeList.Count() > 0 )//trong list co thong tin
@@ -59,7 +59,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( !createResult )
 						{
 							result.StatusCode = 500;
-							result.Message = "Recipe with name (" + checkRecipe.Name + ") not available!";
+							result.Message = "Công thức "+ checkRecipe.Name + " không khả dụng";
 							return result;
 						}
 						//bat dau tao thong tin recipeIngredient trong orderDetail
@@ -78,12 +78,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					else
 					{
 						result.StatusCode = 500;
-						result.Message = "Error at CreateCustomPlanAsync - CustomPlanService. Unavailable recipe ";
+						result.Message = "Tạo thông tin chi tiết thất bại";
 						return result;
 					}
 				}
 				result.StatusCode = 200;
-				result.Message = "OK - Create OrderDetail ok ";
+				result.Message = "Tạo thành công";
 				result.Data = _mapper.Map<List<OrderDetail>>(returnList);
 				return result;
 			}

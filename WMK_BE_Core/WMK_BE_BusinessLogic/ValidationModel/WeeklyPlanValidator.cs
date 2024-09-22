@@ -22,7 +22,7 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			////.When(x => x.EndDate != null)
 			//.Must((model , endDate) => endDate > model.BeginDate)
 			//.WithMessage("EndDate must be after BeginDate!");
-			RuleFor(x => x.recipeIds).NotNull().NotEmpty().WithMessage("Recipe is required!");
+			RuleFor(x => x.recipeIds).NotNull().NotEmpty().WithMessage("Thông tin công thức là cần thiết");
 		}
 	}
 
@@ -48,21 +48,21 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//.When(x => x.EndDate != null)
 			//.Must((model , endDate) => endDate > model.BeginDate)
 			//.WithMessage("EndDate must be after BeginDate!");
-			RuleFor(x => x.recipeIds).NotNull().NotEmpty().WithMessage("Recipe is required!");
+			RuleFor(x => x.recipeIds).NotNull().NotEmpty().WithMessage("Thông tin công thức là cần thiết");
 		}
 	}
 	public class DeleteWeeklyPlanValidator : AbstractValidator<DeleteWeeklyPlanRequestModel>
 	{
 		public DeleteWeeklyPlanValidator()
 		{
-			RuleFor(x => x.Id).NotEmpty().WithMessage("Id by is required!");
+			RuleFor(x => x.Id).NotEmpty().WithMessage("Id Không để trống");
 		}
 	}
 	public class ChangeStatusWeeklyPlanValidator : AbstractValidator<ChangeStatusWeeklyPlanRequest>
 	{
 		public ChangeStatusWeeklyPlanValidator()
 		{
-			RuleFor(x => x.ProcessStatus).NotNull().WithMessage("Status is required!");
+			RuleFor(x => x.ProcessStatus).NotNull().WithMessage("Trạng thái không để trống");
 		}
 	}
 }

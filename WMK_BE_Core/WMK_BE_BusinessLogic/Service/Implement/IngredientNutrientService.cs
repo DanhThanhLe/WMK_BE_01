@@ -50,12 +50,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( currentList.Count > 0 )
 			{
 				result.StatusCode = 200;
-				result.Message = "OK. List Ingrdient nutrient:";
+				result.Message = "Danh sách Ingrdient nutrient:";
 				result.Data = _mapper.Map<List<IngredientNutrientResponse>>(currentList);
 				return result;
 			}
 			result.StatusCode = 500;
-			result.Message = "Not found data. Say from GetAll - IngredientNutrientService";
+			result.Message = "Không có dữ liệu";
 			return result;
 		}
 		#endregion
@@ -71,21 +71,21 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( foundResult != null )
 				{
 					result.StatusCode = 200;
-					result.Message = "OK. Ingredient nutrient with ingredient id: " + request;
+					result.Message = "Tìm thấy";
 					result.Data = _mapper.Map<IngredientNutrientResponse>(foundResult);
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 400;
-					result.Message = "Not found with ingredient id: " + request + " Say from GetByIngredientId - IngredientNutrientService";
+					result.Message = "Không tìm thấy";
 					return result;
 				}
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Empty data. Say form GetByIngredientId - IngredientNutrientService";
+				result.Message = "Dữ liệu trống";
 				return result;
 			}
 		}
@@ -99,14 +99,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundResult != null )
 			{
 				result.StatusCode = 200;
-				result.Message = "OK. Ingredient nutrient info";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<IngredientNutrientResponse>(foundResult);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 400;
-				result.Message = "Not found with ingredient id: " + request + " Say from GetByIngredientId - IngredientNutrientService";
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 		}
@@ -121,7 +121,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			{
 				var error = validateResult.Errors.Select(e => e.ErrorMessage).ToList();
 				result.StatusCode = 500;
-				result.Message = "Say from Create - IngredientNutrientService. " + string.Join(" - /n" , error);
+				result.Message = string.Join(" - /n" , error);
 				return result;
 			}
 			else//du lieu cua request ko co loi
@@ -132,7 +132,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkIngredient != null && checkExist != null )//khac null nghia la co ton tai ingredient nhu tren, tim luon co thong tin nutrient chua
 				{
 					result.StatusCode = 400;
-					result.Message = "Nutrient information for ingredient id " + IngredientID + " already existed. Say from Create - IngredientNutrientService";
+					result.Message = "Đã tồn tại thông tin dinh dưỡng cho nguyên liệu đang xử lí";
 					return result;
 
 				}
@@ -146,14 +146,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						await _unitOfWork.CompleteAsync();
 						//checkIngredient.IngredientNutrient = newOne;
 						result.StatusCode = 200;
-						result.Message = "OK with create nutrient information with Ingredient ID: " + IngredientID;
+						result.Message = "Tạo thành công";
 						result.Data = _mapper.Map<IngredientNutrient>(newOne);
 						return result;
 					}
 					else
 					{
 						result.StatusCode = 500;
-						result.Message = "Create nutrient ingredient faild with id: " + IngredientID;
+						result.Message = "Tạo thất bại";
 						return result;
 					}
 
@@ -161,13 +161,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				else if ( checkIngredient == null )//null la coi nhu ko tim thay ingredient trong db -> bao loi khog tim thay
 				{
 					result.StatusCode = 400;
-					result.Message = " Ingredient with id " + IngredientID + " not found. Say from Create - IngredientNutrientService";
+					result.Message = "Nguyên liệu không tồn tại";
 					return result;
 				}
 				else//cac loai ket qua khac
 				{
 					result.StatusCode = 500;
-					result.Message = "Some errors may occured. Say from Create - IngredientNutrientService";
+					result.Message = "Lỗi bất định khi đang tạo thông tin dinh dưỡng";
 					return result;
 				}
 			}
@@ -187,7 +187,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( ingredientNutrientExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Ingredient nutrient not exist!";
+					result.Message = "Không tìm thấy bản ghi";
 					return result;
 				}
 				_mapper.Map(request , ingredientNutrientExist);
@@ -195,12 +195,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !updateIngredientNutrientResult )
 				{
 					result.StatusCode = 500;
-					result.Message = "Update ingredient nutrient faild!";
+					result.Message = "Cập nhật không thành công";
 					return result;
 				}
 				//await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Update ingredient nutrient success!";
+				result.Message = "Cập nhật thành công";
 				return result;
 			}
 			catch ( Exception ex )
@@ -221,7 +221,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( checkExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Ingredient nutrient not exist!";
+				result.Message = "Không tìm thấy bản ghi";
 				return result;
 			}
 			else
@@ -231,13 +231,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				{
 					await _unitOfWork.CompleteAsync();
 					result.StatusCode = 200;
-					result.Message = "Success";
+					result.Message = "Xóa thành công";
 					return result;
 				}
 				else
 				{
 					result.StatusCode = 500;
-					result.Message = "Error at delete nutrient info with id " + request + ". Say from DeleteIngredientById - IngredientService";
+					result.Message = "Xóa không thành công";
 					return result;
 				}
 			}

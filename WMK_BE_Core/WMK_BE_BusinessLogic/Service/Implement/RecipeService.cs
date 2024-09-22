@@ -142,7 +142,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( !recipesResponse.Any() )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not have Any recipe!";
+				result.Message = "Không tìm thấy bản ghi";
 				result.Data = [];
 				return result;
 			}
@@ -168,7 +168,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			//	recipesResponse = recipesResponse.Where(r => r.CreatedBy.Equals(userExist.Id)).ToList();
 			//}
 			result.StatusCode = 200;
-			result.Message = "Get Recipe list success (" + recipesResponse.Count() + ")";
+			result.Message = "Tìm thấy";
 			result.Data = recipesResponse.OrderBy(o => o.Name).ToList() ?? [];
 
 			//await _redisService.SetValueAsync(redisKey , recipesResponse , TimeSpan.FromDays(3));
@@ -185,12 +185,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList != null && foundList.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List recipes by difficult";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Not have list recipes by difficult!";
+			result.Message = "Không tìm thấy";
 			return result;
 		}
 
@@ -207,12 +207,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList != null && foundList.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List recipes by difficult";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Not have list recipes by difficult!";
+			result.Message = "Không tìm thấy";
 			return result;
 		}
 
@@ -225,12 +225,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList != null && foundList.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "List recipes by difficult";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Not have list recipes by difficult!";
+			result.Message = "Không tìm thấy";
 			return result;
 		}
 
@@ -243,12 +243,12 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( foundList != null && foundList.Any() )
 			{
 				result.StatusCode = 200;
-				result.Message = "Recipe list found by name";
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<RecipeResponse>>(foundList);
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Recipe list not found by name: " + name;
+			result.Message = "Không tìm thấy";
 			return result;
 		}
 		#endregion
@@ -262,14 +262,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( currentList != null && currentList.Count() > 0 )
 			{
 				result.StatusCode = 200;
-				result.Message = "OK. Recipe list " + responseList.Count();
+				result.Message = "Tìm thấy";
 				result.Data = _mapper.Map<List<RecipeResponse>>(responseList);
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Not found. Empty list or Data not found. Say from GetRecipes - RecipeService";
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 		}
@@ -308,14 +308,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				//}
 				RecipeResponse response = _mapper.Map<RecipeResponse>(recipe);
 				result.StatusCode = 200;
-				result.Message = "Recipe with Id " + id + ":";
+				result.Message = "Tìm thấy";
 				result.Data = response;
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found. Data not found or wrong id";
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 			throw new NotImplementedException();
@@ -346,7 +346,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( foundList.Count == 0 )
 				{
 					result.StatusCode = 404;
-					result.Message = "Not found. No such recipe in collection contain keyword: " + name;
+					result.Message = "Không tìm thấy";
 					return result;
 				}
 				else
@@ -368,7 +368,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						}
 					}
 					result.StatusCode = 200;
-					result.Message = "Recipe list found by name (" + returnList.Count() + ")";
+					result.Message = "Tìm thấy";
 					result.Data = returnList;
 
 				}
@@ -376,7 +376,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found. Empty list or Data not found";
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 			return result;
@@ -402,14 +402,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( checkCategory == null )
 			{
 				result.StatusCode = 400;
-				result.Message = "Wrong category. Not found Category";
+				result.Message = "Sai ID";
 				return result;
 			}
 			var recipeIdListfound = _recipeCategoryService.GetRecipeIdByCategoryId(categoryId);
 			if ( recipeIdListfound == null )//cai nay la coi nhu tim ko co mon an thich hop, chu ko phai loi
 			{
 				result.StatusCode = 200;
-				result.Message = "Not found suitable recipe";
+				result.Message = "Không tìm thấy";
 				result.Data = new List<RecipeResponse>();
 				return result;
 			}
@@ -421,7 +421,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					listRecipe.Add(recipe);
 			}
 			result.StatusCode = 200;
-			result.Message = "Recipe list base on categoryID: ";
+			result.Message = "Tìm thấy";
 			result.Data = _mapper.Map<List<RecipeResponse>>(listRecipe);
 			return result;
 		}
@@ -446,14 +446,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
-					result.Message = "Duplicate name: " + checkDuplicateName.Name;
+					result.Message = "Trùng tên";
 					return result;
 				}
 				//check serving size phải 1-10 người
 				if ( recipe.ServingSize < 1 || recipe.ServingSize > 10 )
 				{
 					result.StatusCode = 400;
-					result.Message = "Serving size must be 1 - 10 people";
+					result.Message = "Khẩu phần ăn từ 1 tới 10 người";
 					return result;
 				}
 				//mapper
@@ -467,7 +467,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !createResult )
 				{
 					result.StatusCode = 500;
-					result.Message = "Create recipe unsucess!";
+					result.Message = "Tạo không thành công!";
 					return result;
 				}
 				await _unitOfWork.CompleteAsync();
@@ -511,7 +511,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await resetRecipe(newRecipe.Id);
 						result.StatusCode = 500;
-						result.Message = "Update recipe price unsuccessfully"!;
+						result.Message = "Cập nhật giá công thức không thành công"!;
 						return result;
 					}
 					//create RecipeNutrient
@@ -520,11 +520,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await resetRecipe(newRecipe.Id);
 						result.StatusCode = 500;
-						result.Message = "Update recipe nutrient unsuccessfully!";
+						result.Message = "Cập nhật thông tin dinh dưỡng không thành công";
 						return result;
 					}
 					result.StatusCode = 200;
-					result.Message = "Create Recipe successfully.";
+					result.Message = "Tạo thành công";
 					result.Data = _mapper.Map<RecipeResponse>(newRecipe);
 					return result;
 				}
@@ -589,7 +589,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Recipe not exist!";
+					result.Message = "Công thức không thành công";
 					return result;
 				}
 				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim())
@@ -597,7 +597,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 400;
-					result.Message = "Duplicate name: " + checkDuplicateName.Name;
+					result.Message = "Trùng tên";
 					return result;
 				}
 				//mapper
@@ -615,7 +615,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( !updatePrice )
 				{
 					result.StatusCode = 500;
-					result.Message = "Update recipe price unsuccessfully";
+					result.Message = "Cập nhật không thành công";
 					return result;
 				}
 				//xóa các thành phần liên quan (RecipeCategory,RecipeIngredient)
@@ -644,7 +644,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( updateNutrientResult == false )
 					{
 						result.StatusCode = 500;
-						result.Message = "Faild to update nutrient!";
+						result.Message = "Cập nhật thông tin không thành công";
 						return result;
 					}
 					if (
@@ -718,7 +718,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Update Recipe successfully.";
+				result.Message = "Cập nhật thông tin không thành công";
 				return result;
 			}
 			catch ( Exception ex )
@@ -748,11 +748,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 200;
-						result.Message = "Delete recipe success";
+						result.Message = "Xóa thành công";
 						return result;
 					}
 					result.StatusCode = 500;
-					result.Message = "Delete recipe unsuccess!";
+					result.Message = "Xóa không thành công";
 					return result;
 				}
 				if ( userExist != null && userExist.Id.ToString() == recipeExist.CreatedBy )
@@ -768,24 +768,24 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						{
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
-							result.Message = "Just change recipe status into denied success";
+							result.Message = "Chuyển trạng thái deny thành công";
 							return result;
 						}
 						result.StatusCode = 500;
-						result.Message = "Delete recipe from wpl unsuccess!";
+						result.Message = "Xóa không thành công!";
 						return result;
 					}
 					result.StatusCode = 500;
-					result.Message = "Just change recipe status unsuccess!";
+					result.Message = "Chuyển trạng thái không thành công";
 					return result;
 				}
 				//don't change anything
 				result.StatusCode = 402;
-				result.Message = "UnAuthorizator to delete!";
+				result.Message = "Không có thẩm quyền để thực hiện thao tác";
 				return result;
 			}
 			result.StatusCode = 404;
-			result.Message = "Not found recipe!";
+			result.Message = "Không tìm thấy thông tin";
 			return result;
 		}
 		#endregion
@@ -806,7 +806,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found recipe id " + id + "!";
+				result.Message = "Không tìm thấy";
 				return result;
 			}
 			if ( recipe.Notice.IsNullOrEmpty() )
@@ -835,20 +835,20 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( !deleteWp )
 					{
 						result.StatusCode = 500;
-						result.Message = "Delete recipe form weeklyplan unsuccess";
+						result.Message = "Xóa khỏi Weekplan không thành công";
 						return result;
 					}
 					await ChangeStatusOnRecipeUpdate(recipeExist.Id);
 				}
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Change status success";
+				result.Message = "Chuyển trạng thái thành công";
 				return result;
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Change Recipe " + id + " status Unsuccessfully!";
+				result.Message = "Chuyển trạng thái không thành công";
 				return result;
 			}
 		}
@@ -915,13 +915,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( recipeExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Not found recipe id " + id + "!";
+				result.Message = "Không tìm thấy thông tin";
 				return result;
 			}
 			if ( recipeExist.ProcessStatus == ProcessStatus.Processing )
 			{
 				result.StatusCode = 400;
-				result.Message = "Recipe is pending aprrove, can't change!";
+				result.Message = "Công thức đang xử lí, không được chuyển trạng thái hiển thị";
 				return result;
 			}
 			_mapper.Map(recipe , recipeExist);
@@ -935,7 +935,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( !deleteWp )
 					{
 						result.StatusCode = 500;
-						result.Message = "Change status unsuccess! Delete recipe from weekly plan!";
+						result.Message = "Chuyển trạng thái không thành công, xóa khỏi week plan";
 						return result;
 
 					}
@@ -953,14 +953,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				await _unitOfWork.CompleteAsync();
 				result.StatusCode = 200;
-				result.Message = "Change status success";
+				result.Message = "Chuyển trạng thái thành công";
 				return result;
 
 			}
 			else
 			{
 				result.StatusCode = 500;
-				result.Message = "Change Recipe " + id + " status Unsuccessfully!";
+				result.Message = "Chuyển trạng thái không thành công";
 				return result;
 			}
 		}
@@ -1030,13 +1030,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( ingredientExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Ingredient not exist!";
+				result.Message = "Nguyên liệu không tồn tại";
 				return result;
 			}
 			else if ( ingredientExist.Status == BaseStatus.UnAvailable )
 			{
 				result.StatusCode = 400;
-				result.Message = "Ingredient UnAvailable!";
+				result.Message = "Nguyên liệu không khả dụng";
 				return result;
 			}
 			//find recipe by recipeIngredient
@@ -1054,14 +1054,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( !deleteRecipeNutrient )
 						{
 							result.StatusCode = 500;
-							result.Message = "delete old recipe nutrient unsuccessfully!";
+							result.Message = "Xóa thông tin dinh dưỡng cũ không thành công";
 							return result;
 						}
 					}
 					else if ( recipeExist == null )
 					{
 						result.StatusCode = 404;
-						result.Message = "Recipe not exist!";
+						result.Message = "Công thức không tồn tại";
 						return result;
 					}
 					//create recipe nutrient and update price
@@ -1069,7 +1069,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					if ( !updatePrice )
 					{
 						result.StatusCode = 500;
-						result.Message = "Update recipe price unsuccessfully";
+						result.Message = "Cập nhật giá thất bại";
 						return result;
 					}
 					var createRecipeNutrient = await _recipeNutrientService.CreateRecipeNutrientAsync(recipeExist.Id);
@@ -1077,7 +1077,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					{
 						//thành công
 						result.StatusCode = 200;
-						result.Message = "update recipe nutrient successfully";
+						result.Message = "Cập nhật thành công";
 					}
 				}
 			}
