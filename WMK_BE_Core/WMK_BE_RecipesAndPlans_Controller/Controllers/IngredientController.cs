@@ -40,7 +40,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#endregion
 
 		[HttpPost("create-new")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> CreateNew([FromBody] CreateIngredientRequest model)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -52,9 +52,10 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _ingredientService.CreateIngredient(createdBy , model);
 			return StatusCode(result.StatusCode , result);
 		}
+
 		#region Update
 		[HttpPut("update/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> Update(Guid id , CreateIngredientRequest model)
 		{
 			var result = await _ingredientService.UpdateIngredient(id , model);
@@ -62,7 +63,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		}
 
 		[HttpPut("update-status/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> UpdateStatus(Guid id , [FromBody] UpdateStatusIngredientRequest model)
 		{
 			var result = await _ingredientService.ChangeStatus(id , model);
@@ -71,7 +72,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 		#endregion
 
 		[HttpDelete("delete/{id}")]
-		[Authorize]
+		[Authorize(Roles = "Admin,Manager,Staff")]
 		public async Task<IActionResult> DeleteById(string id)
 		{
 			Guid ingredientId;

@@ -266,14 +266,14 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 								return result;
 							}
 						}
-						//update recipe info
-						var updateRecipeInfo = await _recipeService.UpdateRecipeByIngredient(ingredientExist.Id);
-						if ( updateRecipeInfo != null && updateRecipeInfo.StatusCode != 200 )
-						{
-							result.StatusCode = updateRecipeInfo.StatusCode;
-							result.Message = updateRecipeInfo.Message;
-							return result;
-						}
+						////update recipe info
+						//var updateRecipeInfo = await _recipeService.UpdateRecipeByIngredient(ingredientExist.Id);
+						//if ( updateRecipeInfo != null && updateRecipeInfo.StatusCode != 200 )
+						//{
+						//	result.StatusCode = updateRecipeInfo.StatusCode;
+						//	result.Message = updateRecipeInfo.Message;
+						//	return result;
+						//}
 						var updateResult = await _unitOfWork.IngredientRepository.UpdateAsync(ingredientExist);
 						if ( updateResult )
 						{
