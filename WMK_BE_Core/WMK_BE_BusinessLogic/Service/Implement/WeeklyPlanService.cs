@@ -477,7 +477,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						if ( countPlan >= 5 )
 						{
 							result.StatusCode = 400;
-							result.Message = "Đạt giới hạn kế hoạch cá nhân là. Vui lòng hủy bớt kế hoạch cá nhân để có thể tạo thêm ";
+							result.Message = "Đạt giới hạn kế hoạch cá nhân là 5. Vui lòng hủy bớt kế hoạch cá nhân để có thể tạo thêm ";
 							return result;
 						}
 						WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);

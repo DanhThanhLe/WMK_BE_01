@@ -117,8 +117,8 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			if ( result.Data != null )
 			{
 				//gửi mail cho user đó về tình hình
-				_sendMailService.SendMail(result.Data.Email , "Remove Account" , "Your account on WemealKit with role ("
-										+ result.Data.Role + ") has been removed! Please contact the administrator for assistance.");
+				_sendMailService.SendMail(result.Data.Email , "Xóa tài khoản" , "Tài khoản của bạn với vai trò  ("
+										+ result.Data.Role + ") Đã được bỏ khỏ hệ thống ! Liên hệ bộ phận chăm sóc khách hàng để được hỗ trợ.");
 			}
 			return StatusCode(result.StatusCode , result);
 		}

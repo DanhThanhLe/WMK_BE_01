@@ -147,7 +147,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( checkDuplicateName != null )
 				{
 					result.StatusCode = 500;
-					result.Message = "Tên này đã tồn tại!";
+					result.Message = "Trùng tên";
 					return result;
 				}
 				//detach entity if need
@@ -218,7 +218,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( found == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Không tìm thấy";
+				result.Message = "Không tìm thấy bản ghi";
 				return result;
 			}
 			result.StatusCode = 200;
