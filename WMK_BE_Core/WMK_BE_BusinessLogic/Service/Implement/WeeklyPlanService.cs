@@ -690,7 +690,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( weeklyPlanExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "Không có quyền thực thi!";
+				result.Message = "Kế hoạch không tồn tại!";
 				return result;
 			}
 
