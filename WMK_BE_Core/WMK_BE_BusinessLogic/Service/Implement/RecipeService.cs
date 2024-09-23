@@ -589,7 +589,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				if ( recipeExist == null )
 				{
 					result.StatusCode = 404;
-					result.Message = "Công thức không thành công";
+					result.Message = "Công thức không tồn tại";
 					return result;
 				}
 				var checkDuplicateName = currentList.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(recipe.Name.ToLower().Trim())
