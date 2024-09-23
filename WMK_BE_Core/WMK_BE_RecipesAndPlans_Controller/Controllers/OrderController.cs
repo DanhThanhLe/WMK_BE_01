@@ -88,25 +88,26 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 			var result = await _orderService.CreateOrderAsync(model);
 			if ( result.Data != null )
 			{
-				// Tạo nội dung email
 				StringBuilder emailContent = new StringBuilder();
 
-				emailContent.AppendLine("Dear " + result.Data.ReceiveName + ",");
-				emailContent.AppendLine();
-				emailContent.AppendLine("Your order on WeMealKit has been successfully created.");
-				emailContent.AppendLine("Order Information:");
-				emailContent.AppendLine("----------------------------------------------------");
-				emailContent.AppendLine("Order Code: " + result.Data.OrderCode);
-				emailContent.AppendLine("Order Date: " + result.Data.OrderDate.ToString("dd/MM/yyyy"));
-				emailContent.AppendLine("Ship Date: " + result.Data.ShipDate.ToString("dd/MM/yyyy"));
-				emailContent.AppendLine("Recipient Name: " + result.Data.ReceiveName);
-				emailContent.AppendLine("Recipient Phone: " + result.Data.ReceivePhone);
-				emailContent.AppendLine("Address: " + result.Data.Address);
-				emailContent.AppendLine("Total Price: $" + result.Data.TotalPrice.ToString("N2"));
-				emailContent.AppendLine();
-				emailContent.AppendLine("Thank you for shopping with us!");
-				emailContent.AppendLine("----------------------------------------------------");
+				// Tạo nội dung email dạng HTML
+				emailContent.Append("<p>Dear " + result.Data.ReceiveName + ",</p>");
+				emailContent.Append("<p>Your order on WeMealKit has been successfully created.</p>");
+				emailContent.Append("<p>Order Information:</p>");
+				emailContent.Append("<p>----------------------------------------------------</p>");
+				emailContent.Append("<p>Order Code: " + result.Data.OrderCode + "</p>");
+				emailContent.Append("<p>Order Date: " + result.Data.OrderDate.ToString("dd/MM/yyyy") + "</p>");
+				emailContent.Append("<p>Ship Date: " + result.Data.ShipDate.ToString("dd/MM/yyyy") + "</p>");
+				emailContent.Append("<p>Recipient Name: " + result.Data.ReceiveName + "</p>");
+				emailContent.Append("<p>Recipient Phone: " + result.Data.ReceivePhone + "</p>");
+				emailContent.Append("<p>Address: " + result.Data.Address + "</p>");
+				emailContent.Append("<p>Total Price: $" + result.Data.TotalPrice.ToString("N2") + "</p>");
+				emailContent.Append("<br/><p>Thank you for shopping with us!</p>");
+				emailContent.Append("<p>----------------------------------------------------</p>");
+
+				// Gửi email với nội dung HTML
 				_sendMailService.SendMail(user.Email , "Order created on WeMealKit" , emailContent.ToString());
+
 			}
 			return StatusCode(result.StatusCode , result);
 		}
