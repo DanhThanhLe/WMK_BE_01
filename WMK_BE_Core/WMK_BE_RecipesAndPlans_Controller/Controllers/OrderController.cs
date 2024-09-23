@@ -101,7 +101,7 @@ namespace WMK_BE_RecipesAndPlans_Controller.Controllers
 				emailContent.Append("<p>Recipient Name: " + result.Data.ReceiveName + "</p>");
 				emailContent.Append("<p>Recipient Phone: " + result.Data.ReceivePhone + "</p>");
 				emailContent.Append("<p>Address: " + result.Data.Address + "</p>");
-				emailContent.Append("<p>Total Price: $" + result.Data.TotalPrice.ToString("N2") + "</p>");
+				emailContent.Append("<p>Total Price: " + result.Data.TotalPrice.ToString("N2") + " VNĐ</p>");
 				emailContent.Append("<br/><p>Thank you for shopping with us!</p>");
 				emailContent.Append("<p>----------------------------------------------------</p>");
 
