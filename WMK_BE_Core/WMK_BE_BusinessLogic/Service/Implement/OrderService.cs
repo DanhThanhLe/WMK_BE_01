@@ -246,8 +246,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( wpAvailable != null )
 			{
 				if ( wpAvailable != null && ((wpAvailable.BaseStatus == BaseStatus.Available && wpAvailable.ProcessStatus == ProcessStatus.Customer 
-																								&& wpAvailable.BeginDate < DateTime.Now.AddHours(7))
-											|| (wpAvailable.BaseStatus != BaseStatus.Available)) )
+																								&& wpAvailable.BeginDate < DateTime.UtcNow.AddHours(7))
+											|| wpAvailable.BaseStatus == BaseStatus.UnAvailable) )
 				{
 					result.StatusCode = 400;
 					result.Message = "Kế hoạch tuần (" + wpAvailable.Title + ") không được bán hoặc đang trong quá trình nâng cấp hãy xem lại!";
