@@ -245,10 +245,11 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var wpAvailable = _unitOfWork.WeeklyPlanRepository.Get(od => od.Id.Equals(model.StanderdWeeklyPlanId)).FirstOrDefault();
 			if ( wpAvailable != null )
 			{
-				if ( wpAvailable != null && wpAvailable.ProcessStatus != ProcessStatus.Approved && wpAvailable.BaseStatus != BaseStatus.Available )
+				if ( wpAvailable != null && ((wpAvailable.BaseStatus == BaseStatus.Available && wpAvailable.ProcessStatus == ProcessStatus.Customer && wpAvailable.BeginDate >= DateTime.Now)
+											|| (wpAvailable.BaseStatus != BaseStatus.Available)) )
 				{
 					result.StatusCode = 400;
-					result.Message = "Kế hoạch tuần (" + wpAvailable.Title + ") không được bán hãy xem lại!";
+					result.Message = "Kế hoạch tuần (" + wpAvailable.Title + ") không được bán hoặc đang trong quá trình nâng cấp hãy xem lại!";
 					return result;
 				}
 			}
@@ -275,7 +276,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.StanderdWeeklyPlanId = null;
 			newOrder.OrderImg = wpAvailable?.UrlImage ?? "";
-			newOrder.OrderTitle = wpAvailable?.Title?? "";
+			newOrder.OrderTitle = wpAvailable?.Title ?? "";
 			newOrder.OrderCode = randomOrderCode;
 			newOrder.OrderDate = DateTime.UtcNow.AddHours(7);
 			switch ( DateTime.UtcNow.AddHours(7).DayOfWeek )
