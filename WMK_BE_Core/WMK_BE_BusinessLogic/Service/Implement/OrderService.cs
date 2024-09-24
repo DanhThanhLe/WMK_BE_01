@@ -246,7 +246,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( wpAvailable != null )
 			{
 				if ( wpAvailable != null && ((wpAvailable.BaseStatus == BaseStatus.Available && wpAvailable.ProcessStatus == ProcessStatus.Customer 
-																								&& wpAvailable.BeginDate >= DateTime.Now.AddHours(7))
+																								&& wpAvailable.BeginDate < DateTime.Now.AddHours(7))
 											|| (wpAvailable.BaseStatus != BaseStatus.Available)) )
 				{
 					result.StatusCode = 400;
