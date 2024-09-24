@@ -242,7 +242,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check wp có được bán hay không
-			var wpAvailable = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.StanderdWeeklyPlanId);
+			var wpAvailable = _unitOfWork.WeeklyPlanRepository.Get(od => od.Id.Equals(model.StanderdWeeklyPlanId)).FirstOrDefault();
 			if ( wpAvailable != null )
 			{
 				if ( wpAvailable != null && wpAvailable.ProcessStatus != ProcessStatus.Approved && wpAvailable.BaseStatus != BaseStatus.Available )
@@ -256,7 +256,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			foreach ( var item in model.RecipeList )//tính số lượng phần ăn (dưới 5 hoặc trên 200 ko cho đặt)
 			{
 				quantity += item.Quantity;
-				var recipe = await _unitOfWork.RecipeRepository.GetByIdAsync(item.RecipeId.ToString());
+				var recipe = _unitOfWork.RecipeRepository.Get(r => r.Id.Equals(item.RecipeId.ToString())).FirstOrDefault();
 				if ( recipe != null && recipe.BaseStatus != BaseStatus.Available && recipe.ProcessStatus != ProcessStatus.Approved )
 				{
 					result.StatusCode = 400;
@@ -274,9 +274,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			var randomOrderCode = await GenerateUniqueOrderCodeAsync();
 			var newOrder = _mapper.Map<Order>(model);
 			newOrder.StanderdWeeklyPlanId = null;
-			var weekplan = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.StanderdWeeklyPlanId.ToString());
-			newOrder.OrderImg = weekplan.UrlImage;
-			newOrder.OrderTitle = weekplan.Title;
+			newOrder.OrderImg = wpAvailable?.UrlImage ?? "";
+			newOrder.OrderTitle = wpAvailable?.Title?? "";
 			newOrder.OrderCode = randomOrderCode;
 			newOrder.OrderDate = DateTime.UtcNow.AddHours(7);
 			switch ( DateTime.UtcNow.AddHours(7).DayOfWeek )
@@ -327,7 +326,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Create order success";
-							result.Data = _mapper.Map<OrderResponse>(newOrder) ;
+							result.Data = _mapper.Map<OrderResponse>(newOrder);
 							return result;
 						}
 						if ( createTransactionResult != null && createTransactionResult.StatusCode != 200 )//code cu la (createTransaction != null)
@@ -1111,45 +1110,45 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					}
 				}
 
-				if(model.Status == OrderStatus.Refund)//refund
+				if ( model.Status == OrderStatus.Refund )//refund
 				{
-                    //nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
-                    if (orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null)
-                    {
-                        //check transaction
-                        var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
-                        if (transactionExist != null && transactionExist.Status != TransactionStatus.PAID)
-                        {
-                            result.StatusCode = 400;
-                            result.Message = "Can't change order status into " + model.Status + " because order not paid.";
-                            return result;
-                        }
-                        transactionExist.Status = TransactionStatus.RefundDone;
-                    }
-                    orderExist.Status = model.Status;
-                    var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
-                    if (updateResult)
-                    {
-                        await _unitOfWork.CompleteAsync();
-                        result.StatusCode = 200;
-                        result.Message = "Change order status into " + orderExist.Status + " success.";
-                        var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
-                        var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
-                        if (customer != null)
-                        {
-                            mapOrderResponse.UserId = customer.Email;
-                        }
-                        result.Data = mapOrderResponse;
-                        return result;
-                    }
-                    else
-                    {
-                        result.StatusCode = 500;
-                        result.Message = "Fail to update order!";
-                        return result;
-                    }
-                }
-				
+					//nếu order đang ở trạng thái cancel và đã có transaction paid thì mới được đổi sang refund
+					if ( orderExist.Status == OrderStatus.Canceled && model.Status == OrderStatus.Refund && orderExist.Transaction != null )
+					{
+						//check transaction
+						var transactionExist = await _unitOfWork.TransactionRepository.GetByIdAsync(orderExist.Transaction.Id.ToString());
+						if ( transactionExist != null && transactionExist.Status != TransactionStatus.PAID )
+						{
+							result.StatusCode = 400;
+							result.Message = "Can't change order status into " + model.Status + " because order not paid.";
+							return result;
+						}
+						transactionExist.Status = TransactionStatus.RefundDone;
+					}
+					orderExist.Status = model.Status;
+					var updateResult = await _unitOfWork.OrderRepository.UpdateAsync(orderExist);
+					if ( updateResult )
+					{
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = 200;
+						result.Message = "Change order status into " + orderExist.Status + " success.";
+						var mapOrderResponse = _mapper.Map<OrderResponse>(orderExist);
+						var customer = await _unitOfWork.UserRepository.GetByIdAsync(orderExist.UserId.ToString());
+						if ( customer != null )
+						{
+							mapOrderResponse.UserId = customer.Email;
+						}
+						result.Data = mapOrderResponse;
+						return result;
+					}
+					else
+					{
+						result.StatusCode = 500;
+						result.Message = "Fail to update order!";
+						return result;
+					}
+				}
+
 			}
 			result.StatusCode = 404;
 			result.Message = "Order not exist!";
