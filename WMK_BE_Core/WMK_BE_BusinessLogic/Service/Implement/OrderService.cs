@@ -242,7 +242,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 			//check wp có được bán hay không
-			var wpAvailable = _unitOfWork.WeeklyPlanRepository.Get(od => od.Id.Equals(model.StanderdWeeklyPlanId)).FirstOrDefault();
+			var wpAvailable = await _unitOfWork.WeeklyPlanRepository.GetByIdAsync(model.StanderdWeeklyPlanId.ToString());
 			if ( wpAvailable != null )
 			{
 				if ( wpAvailable != null && ((wpAvailable.BaseStatus == BaseStatus.Available && wpAvailable.ProcessStatus == ProcessStatus.Customer 
