@@ -455,59 +455,61 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				List<WeeklyPlan> currentList = await _unitOfWork.WeeklyPlanRepository.GetAllAsync();
-				if ( currentList != null && currentList.Count() > 0 )
+				if (currentList != null && currentList.Count() > 0)
 				{
-					var foundDuplicate = currentList.FirstOrDefault(x => x.Title.Trim().Equals(request.Title.Trim()));
-					if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
+					//var foundDuplicate = currentList.FirstOrDefault(x => x.Title.Trim().Equals(request.Title.Trim()));
+					//if ( foundDuplicate != null && foundDuplicate.ProcessStatus == ProcessStatus.Customer )
+					//{
+					//	result.StatusCode = 404;
+					//	result.Message = "Trùng title ";
+					//	return result;
+					//}
+					//else
+					//{
+					int countPlan = 0; //tinh xem dang co bao nhieu plan duoc tao boi nguoi dung roi. qua 5 thi ko cho tao them
+					foreach (var item in currentList)
 					{
-						result.StatusCode = 404;
-						result.Message = "Trùng title ";
+						if (item.CreatedBy.Equals(request.CreatedBy, StringComparison.OrdinalIgnoreCase) && item.ProcessStatus == ProcessStatus.Customer)
+						{
+							countPlan++;
+						}
+					}
+					if (countPlan >= 5)
+					{
+						result.StatusCode = 400;
+						result.Message = "Đạt giới hạn kế hoạch cá nhân là 5. Vui lòng hủy bớt kế hoạch cá nhân để có thể tạo thêm ";
+						return result;
+					}
+					var referenceWP = currentList.Where(wp => wp.Id.ToString().ToLower().Equals(request.WeeklyPlanId.ToLower())).FirstOrDefault();
+					WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);
+					newOne.BaseStatus = referenceWP.BaseStatus;
+					newOne.CreateAt = DateTime.UtcNow.AddHours(7);
+					var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newOne);
+					if (createResult)
+					{
+						await _unitOfWork.CompleteAsync();
+						idTo = newOne.Id;
+						var createRecipePlanResult = await _recipePlanService.CreateRecipePlanAsync(newOne.Id, request.recipeIds);
+						if (createRecipePlanResult.StatusCode == 200 && createRecipePlanResult.Data != null)
+						{
+							await _unitOfWork.CompleteAsync();
+							result.StatusCode = 200;
+							result.Message = "OK";
+							return result;
+						}
+						await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newOne.Id.ToString()); //xoa thong tin vi ko tao dc
+						await _unitOfWork.CompleteAsync();
+						result.StatusCode = createRecipePlanResult.StatusCode;
+						result.Message = createRecipePlanResult.Message;
 						return result;
 					}
 					else
 					{
-						int countPlan = 0; //tinh xem dang co bao nhieu plan duoc tao boi nguoi dung roi. qua 5 thi ko cho tao them
-						foreach ( var item in currentList )
-						{
-							if ( item.CreatedBy.Equals(request.CreatedBy , StringComparison.OrdinalIgnoreCase) && item.ProcessStatus == ProcessStatus.Customer )
-							{
-								countPlan++;
-							}
-						}
-						if ( countPlan >= 5 )
-						{
-							result.StatusCode = 400;
-							result.Message = "Đạt giới hạn kế hoạch cá nhân là 5. Vui lòng hủy bớt kế hoạch cá nhân để có thể tạo thêm ";
-							return result;
-						}
-						WeeklyPlan newOne = _mapper.Map<WeeklyPlan>(request);
-						newOne.CreateAt = DateTime.UtcNow.AddHours(7);
-						var createResult = await _unitOfWork.WeeklyPlanRepository.CreateAsync(newOne);
-						if ( createResult )
-						{
-							await _unitOfWork.CompleteAsync();
-							idTo = newOne.Id;
-							var createRecipePlanResult = await _recipePlanService.CreateRecipePlanAsync(newOne.Id , request.recipeIds);
-							if ( createRecipePlanResult.StatusCode == 200 && createRecipePlanResult.Data != null )
-							{
-								await _unitOfWork.CompleteAsync();
-								result.StatusCode = 200;
-								result.Message = "OK";
-								return result;
-							}
-							await _unitOfWork.WeeklyPlanRepository.DeleteAsync(newOne.Id.ToString()); //xoa thong tin vi ko tao dc
-							await _unitOfWork.CompleteAsync();
-							result.StatusCode = createRecipePlanResult.StatusCode;
-							result.Message = createRecipePlanResult.Message;
-							return result;
-						}
-						else
-						{
-							result.StatusCode = 500;
-							result.Message = "Tạo kế hoạch cá nhân thất bại. Vui lòng liên hệ bộ phận chăm sóc khách hàng để được hỗ trợ";
-							return result;
-						}
+						result.StatusCode = 500;
+						result.Message = "Tạo kế hoạch cá nhân thất bại. Vui lòng liên hệ bộ phận chăm sóc khách hàng để được hỗ trợ";
+						return result;
 					}
+				//}
 				}
 				else
 				{
