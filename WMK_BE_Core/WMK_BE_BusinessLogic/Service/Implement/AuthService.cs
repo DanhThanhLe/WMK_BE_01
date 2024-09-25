@@ -65,7 +65,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			if ( userExist == null )
 			{
 				result.StatusCode = 404;
-				result.Message = "User not exist!";
+				result.Message = "Email, tên người dùng hoặc mật khẩu không chính xác!";
 				return result;
 			}
 			if ( userExist != null )
@@ -101,8 +101,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 							if ( userExist.Status == WMK_BE_RecipesAndPlans_DataAccess.Enums.BaseStatus.UnAvailable )
 							{
 								result.StatusCode = 423;
-								result.Message = "Account locked! Please contact administrator!";
-								return result;
+								result.Message = "Tài khoản của bạn hiện đang bị khóa. Vui lòng liên hệ bộ phận chăm sóc khách hàng để được hỗ trợ!";//Account locked! Please contact administrator!
+                                return result;
 							}
 							break;
 						default:
@@ -141,15 +141,15 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						await _unitOfWork.UserRepository.UpdateAsync(userExist);
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 423;
-						result.Message = "Wrong more than 5 time then lock account!";
-						return result;
+						result.Message = "Sai thông tin đăng nhập quá 5 lần. Tài khoàn của bạn bị khóa!";//Wrong more than 5 time then lock account!
+                        return result;
 					}
 					else
 					{
 						await _unitOfWork.UserRepository.UpdateAsync(userExist);
 						await _unitOfWork.CompleteAsync();
 						result.StatusCode = 401;
-						result.Message = "Wrong password!";
+						result.Message = "Email, tên người dùng hoặc mật khẩu không chính xác!";
 						return result;
 					}
 				}
@@ -157,8 +157,8 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 			else
 			{
 				result.StatusCode = 404;
-				result.Message = "User not found!";
-				return result;
+				result.Message = "Email, tên người dùng hoặc mật khẩu không chính xác!";//User not found!
+                return result;
 			}
 		}
 

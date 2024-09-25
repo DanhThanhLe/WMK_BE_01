@@ -17,11 +17,11 @@ namespace WMK_BE_BusinessLogic.ValidationModel
 			//_expendValidator = new ExpendValidator();
 			RuleFor(x => x.EmailOrUserName)
 				.NotEmpty().WithMessage("Email hay Tên người dùng không để trống!");//check email or username
-																		  //.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
-																		  //.Must(_emailValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
-			RuleFor(x => x.Password).NotEmpty().WithMessage("Mật khẩu không được để trống!")
-				.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
-				.WithMessage("Mật khẩu chứa ít nhất 1 kí tự in hoa, 1 kí tự thường, 1 số, dài ít nhất 6 kí tự!");
+																					//.EmailAddress().When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email format!")
+																					//.Must(_emailValidator.BeValidEmail).When(x => !string.IsNullOrEmpty(x.Email)).WithMessage("Invalid email domain!");
+			RuleFor(x => x.Password).NotEmpty().WithMessage("Mật khẩu không được để trống!");
+				//.Matches(@"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])(?=.{6,})")
+				//.WithMessage("Mật khẩu chứa ít nhất 1 kí tự in hoa, 1 kí tự thường, 1 số, dài ít nhất 6 kí tự!");
 		}
 	}
 
