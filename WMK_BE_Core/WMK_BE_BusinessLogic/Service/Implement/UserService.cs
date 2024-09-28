@@ -358,9 +358,10 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				return result;
 			}
 
-			if ( !string.IsNullOrEmpty(model.Email) )
+			// Kiểm tra Email nếu khác với Email hiện tại của người dùng
+			if ( !string.IsNullOrEmpty(model.Email) && model.Email != userExist.Email )
 			{
-				//check email exist
+				// Kiểm tra Email đã tồn tại hay chưa
 				var emailExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(model.Email);
 				if ( emailExist != null )
 				{
@@ -369,11 +370,13 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 					return result;
 				}
 				userExist.Email = model.Email;
-				userExist.EmailConfirm = EmailConfirm.NotConfirm;
+				userExist.EmailConfirm = EmailConfirm.NotConfirm; // Đặt lại xác nhận email
 			}
-			if ( !string.IsNullOrEmpty(model.UserName) )
+
+			// Kiểm tra Username nếu khác với Username hiện tại của người dùng
+			if ( !string.IsNullOrEmpty(model.UserName) && model.UserName != userExist.UserName )
 			{
-				//check username exist
+				// Kiểm tra Username đã tồn tại hay chưa
 				var usernameExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(model.UserName);
 				if ( usernameExist != null )
 				{

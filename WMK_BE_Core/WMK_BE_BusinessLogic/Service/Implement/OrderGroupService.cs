@@ -668,7 +668,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				sum += Math.Pow(point1[i] - point2[i] , 2);
 			}
 			return Math.Sqrt(sum);
-		}
+		}    
 
 		//Hàm để thay đổi confirm order
 		private async void ChangeConfirmOrder(List<Order> orders)
