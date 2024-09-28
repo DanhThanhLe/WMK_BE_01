@@ -357,30 +357,33 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				result.Message = "không tìm thấy người dùng";
 				return result;
 			}
-			if ( !string.IsNullOrEmpty(model.Email) )
+			if ( !userExist.Id.Equals(idUser) )
 			{
-				//check email exist
-				var emailExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(model.Email);
-				if ( emailExist != null )
+				if ( !string.IsNullOrEmpty(model.Email) )
 				{
-					result.StatusCode = 402;
-					result.Message = "Email này đã được đăng kí";
-					return result;
+					//check email exist
+					var emailExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(model.Email);
+					if ( emailExist != null )
+					{
+						result.StatusCode = 400;
+						result.Message = "Email này đã được đăng kí";
+						return result;
+					}
+					userExist.Email = model.Email;
+					userExist.EmailConfirm = EmailConfirm.NotConfirm;
 				}
-				userExist.Email = model.Email;
-				userExist.EmailConfirm = EmailConfirm.NotConfirm;
-			}
-			if ( !string.IsNullOrEmpty(model.UserName) )
-			{
-				//check username exist
-				var usernameExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(model.UserName);
-				if ( usernameExist != null )
+				if ( !string.IsNullOrEmpty(model.UserName) )
 				{
-					result.StatusCode = 402;
-					result.Message = "Tên người dùng đã tồn tại";
-					return result;
+					//check username exist
+					var usernameExist = await _unitOfWork.UserRepository.GetByEmailOrUserNameAsync(model.UserName);
+					if ( usernameExist != null )
+					{
+						result.StatusCode = 400;
+						result.Message = "Tên người dùng đã tồn tại";
+						return result;
+					}
+					userExist.UserName = model.UserName;
 				}
-				userExist.UserName = model.UserName;
 			}
 			if ( !string.IsNullOrEmpty(model.Phone) )
 			{
