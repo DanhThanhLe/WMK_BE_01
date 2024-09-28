@@ -347,8 +347,9 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 				}
 				else if ( userExist.Id.ToString() == ingredientExist.CreatedBy )
 				{
-					//kiểm tra xem ingredient có tồn tại trong recipe chưa nếu chưa thì xóa còn có rồi thì chỉ đổi trạng thái
-					var recipeIngredientExist = _unitOfWork.RecipeIngredientRepository.Get(ri => ri.IngredientId == ingredientExist.Id).FirstOrDefault();
+                    #region 0
+                    //kiểm tra xem ingredient có tồn tại trong recipe chưa nếu chưa thì xóa còn có rồi thì chỉ đổi trạng thái
+                    var recipeIngredientExist = _unitOfWork.RecipeIngredientRepository.Get(ri => ri.IngredientId == ingredientExist.Id).FirstOrDefault();
 
 					if ( recipeIngredientExist != null )
 					{
@@ -386,6 +387,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 						var deleteResult = await _unitOfWork.IngredientRepository.DeleteAsync(id.ToString());
 						if ( deleteResult )
 						{
+							
 							//gọi lại hàm để cập nhập các recipe có liên quan đến ingredient
 							var recipeIngredients = ingredientExist.RecipeIngredients.Where(ri => ri.IngredientId == ingredientExist.Id).ToList();
 							foreach ( var recipeIngredient in recipeIngredients )
@@ -398,17 +400,19 @@ namespace WMK_BE_BusinessLogic.Service.Implement
 									return result;
 								}
 							}
+							await _unitOfWork.CompleteAsync();
 							result.StatusCode = 200;
 							result.Message = "Xóa thành công";
 						}
 						else
 						{
 							result.StatusCode = 500;
-							result.Message = "Xóa thành công";
+							result.Message = "Xóa không thành công";
 						}
 					}
-				}
-				else
+                    #endregion
+                }
+                else
 				{
 					result.StatusCode = 400;
 					result.Message = "Người dùng không có quyền thực hiện thao tác";
