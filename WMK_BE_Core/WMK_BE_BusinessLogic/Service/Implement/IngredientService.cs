@@ -352,7 +352,7 @@ namespace WMK_BE_BusinessLogic.Service.Implement
                     var recipeIngredientExist = _unitOfWork.RecipeIngredientRepository.Get(ri => ri.IngredientId == ingredientExist.Id).FirstOrDefault();
 
 					if ( recipeIngredientExist != null )
-					{
+					{ 
 						//just change status
 						ingredientExist.Status = BaseStatus.UnAvailable;
 						var updateRecipe = await _recipeService.UpdateRecipeByIngredient(id);
